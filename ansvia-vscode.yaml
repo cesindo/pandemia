@@ -1,0 +1,10 @@
+
+
+sync_gen:
+  error_code:
+    src: src/error.rs
+    outs:
+      - js:frontends/pandemia_web/src/pandemia/ErrorCode.js
+      - dart:frontends/pandemia_mobile/lib/core/error_code.dart
+
+

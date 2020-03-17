@@ -1,0 +1,17 @@
+version: '3'
+services:
+  postgre_server:
+    environment:
+      - POSTGRES_DB=pandemia
+#    image: "postgres:alpine"
+    build: ./postgre_server
+  pandemia_server:
+    #build: .
+    environment:
+      - PANDEMIA_PUBLIC_LISTENING=0.0.0.0:8080
+      - PANDEMIA_PRIVATE_LISTENING=0.0.0.0:9090
+    image: "pandemia_server:latest"
+    ports:
+     - "8080:8080"
+     - "9090:9090"
+

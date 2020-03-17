@@ -1,0 +1,19 @@
+[package]
+name = "pandemia-proc-macro"
+version = "0.1.2"
+authors = ["Robin <r@ansvia.com>"]
+edition = "2018"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "0.4"
+syn = { version="=0.15.44", features=["fold"] }
+quote = "0.6"
+lazy_static = "1.2"
+serde = "1.0.10"
+serde_derive = "1.0.64"
+serde_json = "1.0.19"
+heck = "0.3.1"
+

@@ -1,0 +1,183 @@
+{
+    // Place your snippets for dart here. Each snippet is defined under a snippet name and has a prefix, body and 
+    // description. The prefix is what is used to trigger the snippet and the body will be expanded and inserted. Possible variables are:
+    // $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. Placeholders with the 
+    // same ids are connected.
+    // Example:
+    // "Print to console": {
+    // 	"prefix": "log",
+    // 	"body": [
+    // 		"console.log('$1');",
+    // 		"$2"
+    // 	],
+    // 	"description": "Log output to console"
+    // }
+    "Create bloc abstract class state": {
+        "prefix": "statebase",
+        "body": [
+            "@immutable",
+            "abstract class ${1:Name}State extends Equatable {",
+            "  ${1:Name}State([List props = const []]) : super(props);",
+            "}"
+        ]
+    },
+    "Create bloc state": {
+        "prefix": "state",
+        "body": [
+            "class ${1:Name} extends ${2:App}State {",
+            "  @override",
+            "  String toString() => \"${1:Name}\";",
+            "}"
+        ],
+        "description": "Create bloc state class definition"
+    },
+    "Create stateles widget": {
+        "prefix": "stateleswidget",
+        "body": [
+            "class ${1:Name} extends StatelessWidget {",
+            "  @override",
+            "  Widget build(BuildContext context) {",
+            "    ${2:return null};",
+            "  }",
+            "}"
+        ],
+        "description": "Create stateless widget class"
+    },
+    "Create bloc abstract class event": {
+        "prefix": "eventbase",
+        "body": [
+            "@immutable",
+            "abstract class ${1:Name}Event extends Equatable {",
+            "  ${1:Name}Event([List props = const []]) : super(props);",
+            "}"
+        ]
+    },
+    "Create bloc event": {
+        "prefix": "event",
+        "body": [
+            "class ${1:Name} extends ${2:App}Event {",
+            "  ${1:Name}(${3:});",
+            "  @override",
+            "  String toString() => \"${1:Name}\";",
+            "}"
+        ],
+        "description": "Create Bloc event class definition"
+    },
+    "Add todo": {
+        "prefix": "todo",
+        "body": "// @TODO(${1:*}): ${2:code here}",
+        "description": "Add todo comment"
+    },
+    "Create bloc class": {
+        "prefix": "blocclass",
+        "body": [
+            "class ${1:Name}Bloc extends Bloc<${1:Name}Event, ${1:Name}State> {",
+            "  ${1:Name}Bloc();",
+            "  ",
+            "  @override",
+            "  ${1:Name}State get initialState => ${1:Name}Loading();",
+            "  ",
+            "  @override",
+            "  Stream<${1:Name}State> mapEventToState(${1:Name}Event event) async* {",
+            "     // yield* xxx",
+            "  }",
+            "}"
+        ]
+    },
+    "Create Navigator.pop code": {
+        "prefix": "navigatorpop",
+        "body": "Navigator.pop(context);"
+    },
+    "Create Navigator.push": {
+        "prefix": "navigatorpush",
+        "body": "Navigator.of(context).push(${1:});"
+    },
+    "Create Navigator.push Material route": {
+        "prefix": "navpushmaterialroute",
+        "body": "Navigator.of(context).push(MaterialPageRoute(builder: (context) => ${1:SomePage()}()));"
+    },
+    "Create Navigator.push named": {
+        "prefix": "navigatorpushnamed",
+        "body": "Navigator.of(context).pushNamed(${1:\"\"});"
+    },
+    "Create router path handler": {
+        "prefix": "routerpath",
+        "body": [
+            "\"/${1:path}\": (context){",
+            "${2://@TODO(*): code here}",
+            "}"
+        ]
+    },
+    "Create BlocBuilder code": {
+        "prefix": "blocbuilder",
+        "body": [
+            "BlocBuilder<${1:Name}Bloc, ${1:Name}State>(",
+            "  builder: (BuildContext context, ${1:Name}State state){",
+            "    //@TODO(*): code here",
+            "    return null;",
+            "  }",
+            ");"
+        ]
+    },
+    "Create BlocProvider code": {
+        "prefix": "blocprovider",
+        "body": [
+            "BlocProvider(",
+            "  builder: (BuildContext context){",
+            "    //@TODO(*): code here",
+            "    return ${1:NameBloc};",
+            "  },",
+            "  child: ${2:}",
+            ");"
+        ]
+    },
+    "Create MultiBlocProvider code": {
+        "prefix": "multiblocprovider",
+        "body": [
+            "MultiBlocProvider(",
+            "  providers:[",
+            "    BlocProvider<${1:BlocName}>(",
+            "      builder: (context) => ${1:BlocName}(),",
+            "    )",
+            "  ],",
+            "child: ${2:Widget}()",
+            ");"
+        ]
+    },
+    "Create Map event to state method in Bloc": {
+        "prefix": "mapeventtostate",
+        "body": [
+            "Stream<${1:Name}State> _map${2:Event}ToState(${3:EventName} event) async* {",
+            "  // yield ",
+            "}"
+        ]
+    },
+    "Create Scaffold code": {
+        "prefix": "scaffold",
+        "body": [
+            "Scaffold(",
+            "  appBar: AppBar(",
+            "    title: Text(${1:title})",
+            "  ),",
+            "  body: ${2:null}",
+            ")"
+        ]
+    },
+    "Implement map event to state ADD method": {
+        "prefix": "mapeventtostateadd",
+        "body": [
+            "Stream<${1:name}State> _map${2:Event}ToState(${3:Event} event) async* {",
+            "  yield ${1:name}Loading();",
+            "",
+            "  final data = await PublicApi.get(\"${4:}\");",
+            "  if (data != null) {",
+            "    print(\"data: $$data\");",
+            "",
+            "    yield ${1:name}Added(${1:name}.fromMap(data[\"result\"]));",
+            "  } else {",
+            "    yield ${1:name}Failure(error: \"Cannot add ${1:name}\");",
+            "  }",
+            "}"
+        ]
+    }
+}

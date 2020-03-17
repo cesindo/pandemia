@@ -1,0 +1,27 @@
+before_script:
+  - rustup update stable
+  - rustup default stable
+  - diesel database reset
+  - diesel migration run
+  - echo $DATABASE_URL
+
+stable:cargo:
+  stage: test
+  variables:
+    DATABASE_URL: postgresql://postgres:123123@localhost/pandemia_test?sslmode=disable
+    BUILD_FOR: nightly
+  script:
+   - cargo test --verbose
+    # - docker run --rm -v $PWD:/workdir -v ~/.cargo/git:/root/.cargo/git -v ~/.cargo/registry:/root/.cargo/registry anvie/rust-musl-build:latest cargo test --verbose
+
+musl-build:cargo:
+  image: anvie/rust-musl-build
+  stage: build
+  variables:
+    DATABASE_URL: postgresql://postgres:123123@localhost/pandemia_test?sslmode=disable
+    BUILD_FOR: nightly
+  script:
+    - docker run --rm -v $PWD:/workdir -v ~/.cargo/git:/root/.cargo/git -v ~/.cargo/registry:/root/.cargo/registry anvie/rust-musl-build:latest cargo build --release --target=x86_64-unknown-linux-musl
+    - cp target/x86_64-unknown-linux-musl/release/pandemia_server /home/gitlab-runner/releases/linux-x86_64-musl/pandemia_server-nightly-`date +"%Y-%m-%d"`
+    - cp target/x86_64-unknown-linux-musl/release/pandemia_server /home/gitlab-runner/releases/linux-x86_64-musl/pandemia_server-nightly-latest
+

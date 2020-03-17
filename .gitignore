@@ -1,0 +1,13 @@
+/target
+**/*.rs.bk
+Cargo.lock
+node_modules
+.idea
+.env
+.project
+GIT_MSG
+pandemia_server
+*.pyc
+*.raw.txt
+.DS_Store
+

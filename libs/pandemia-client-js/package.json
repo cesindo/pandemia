@@ -1,0 +1,10 @@
+{
+  "name": "pandemia-client-js",
+  "version": "1.0.0",
+  "description": "PANDEMIA Javascript Driver",
+  "main": "index.js",
+  "author": "Robin",
+  "license": "ISC",
+  "private": true
+}
+

@@ -1,0 +1,79 @@
+@import 'variable.less';
+@import 'mixins.less';
+
+
+#app {
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  // text-align: center;
+  color: #2c3e50;
+}
+#nav {
+  padding: 30px;
+  a {
+    font-weight: bold;
+    color: #2c3e50;
+    &.router-link-exact-active {
+      color: #42b983;
+    }
+  }
+}
+
+/* NOTIFIKASI */
+.vue-notification {
+  padding: 10px;
+  margin: 10px 5px 5px 0px;
+  font-size: 15px; 
+  color: #ffffff;
+  background: #44A4FC;
+  text-align: center;
+  border-left: 0;
+  border-radius: 10px;
+ 
+  &.warn {
+    background: #ffb648;
+    color: black;
+  }
+ 
+  &.error {
+    background: #E54D42;
+  }
+ 
+  &.success {
+    background: #68CD86;
+  }
+}
+
+// ------------- Modal -----------------
+.v--modal-overlay {
+  z-index: 1001;
+  overflow-x: hidden;
+  padding: 10px 0;
+  background: rgba(0, 0, 0, 0.7) !important;
+
+  .v--modal-background-click {
+    min-height: auto !important;
+  }
+  
+
+  .v--modal-background-click .v--modal-box {
+    background-color: transparent;
+    box-shadow: none;
+  }
+
+  .ui.fullscreen.modal {
+    width: 100% !important;
+    position: static;
+    margin: 0;
+  }
+
+  .content {
+    &.without-header {
+      padding-top: 50px;
+    }
+  }
+}
+// -------------- End Modal -----------------
+
+
