@@ -1,11 +1,7 @@
 Pandemia
 ============================
 
-[![pipeline status](https://gitlab.com/robin/pandemia/badges/master/pipeline.svg)](https://gitlab.com/robin/pandemia/commits/master)
-
-Monitor pandemic disease via  mobile App with push notification
-
-This project based on Mainframe 0.2
+Monitor pandemic disease via  mobile App with push notification.
 
 Kebutuhan
 ----------------
