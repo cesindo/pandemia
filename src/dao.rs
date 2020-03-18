@@ -4,10 +4,6 @@ use diesel::sql_types;
 
 pub use crate::admin_dao::AdminDao;
 
-sql_function!(
-    /// To lowerize sql column value typely
-    fn lower(x: sql_types::Text) -> sql_types::Text);
-
 /// Search result type from DAO (not rest API)
 pub struct EntriesResult<T> {
     /// list of entry

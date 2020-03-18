@@ -7,7 +7,7 @@ import 'package:pandemia_mobile/models/models.dart';
 import 'package:pandemia_mobile/widgets/widgets.dart';
 
 import '../core/core.dart';
-import '../core/core.dart';
+import 'package:pandemia_mobile/screens/stats/stats_page.dart';
 
 @immutable
 class HomeScreen extends StatelessWidget {
@@ -26,6 +26,8 @@ class HomeScreen extends StatelessWidget {
         Widget body;
         if (activeTab == AppTab.updates) {
           body = NotifList(context);
+        } else if (activeTab == AppTab.stats){
+          body = StatsPage();
         } else {
           // @TODO(*): fix this
           body = Container();

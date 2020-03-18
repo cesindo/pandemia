@@ -23,8 +23,6 @@ pub struct RegisterUser {
     pub full_name: String,
     pub email: String,
     pub phone_num: String,
-    // comment out: mungkin tidak untuk sekarang
-    // pub nik: String,
 }
 
 /// Definisi query untuk mengaktifkan akun yang telah didaftarkan.

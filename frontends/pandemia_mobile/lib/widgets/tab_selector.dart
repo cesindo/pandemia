@@ -33,6 +33,10 @@ class TabSelector extends StatelessWidget {
           icon = Icons.notifications;
           key = PandemiaKeys.updatesTab;
           title = "Updates";
+        }else if (tab == AppTab.stats){
+          icon = Icons.assessment;
+          key = PandemiaKeys.statsTab;
+          title = "Stats";
         }else if (tab == AppTab.settings){
           icon = Icons.dashboard;
           key = PandemiaKeys.settingsTab;

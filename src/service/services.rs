@@ -1,8 +1,8 @@
 //! Service helper
-//! 
+//!
 //! Here you can implement service as simple write one line
 //! this done by using impl_service macro, example:
-//! 
+//!
 //! `impl_service!(UserService, user);`
 //!
 //! You need to implement api interface for the above service inside `api` module.
@@ -18,7 +18,7 @@ use crate::{
     api::{Error as ApiError, HttpRequest as ApiHttpRequest, Result as ApiResult},
     auth, models,
     prelude::*,
-    service::{AuthService, SystemService}
+    service::{AuthService, SystemService},
 };
 
 macro_rules! impl_service {
@@ -69,6 +69,7 @@ macro_rules! impl_service {
 // Example implementing service using macro:
 // impl_service!(UserService, user);
 impl_service!(AdminService, admin);
+impl_service!(PandemiaService, pandemia);
 
 /// Initialize and load services
 pub fn load_services() -> Vec<Box<dyn Service>> {
@@ -77,6 +78,6 @@ pub fn load_services() -> Vec<Box<dyn Service>> {
         SystemService::new(),
         UserService::new(),
         AdminService::new(),
+        PandemiaService::new(),
     ]
 }
-
