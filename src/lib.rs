@@ -46,6 +46,7 @@ extern crate bcrypt;
 #[macro_use]
 extern crate validator_derive;
 extern crate validator;
+extern crate select;
 
 #[macro_use]
 mod macros;
@@ -66,6 +67,7 @@ pub mod token;
 pub mod util;
 mod valid;
 pub mod web;
+pub mod monitor;
 
 pub mod eventstream;
 

@@ -6,6 +6,7 @@ extern crate env_logger;
 
 use pandemia::prelude::*;
 use pandemia::service::load_services;
+use pandemia::monitor;
 
 use std::env;
 
@@ -48,6 +49,8 @@ ____________    __      ____________,
         ApiServer::new(ApiAccess::Public, public_listening_address),
         ApiServer::new(ApiAccess::Private, private_listening_address),
     ]);
+
+    monitor::start_monitors();
 
     api::start(ApiAggregator::new(services), config);
 }

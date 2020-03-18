@@ -100,3 +100,14 @@ impl From<hex::FromHexError> for Error {
     }
 }
 
+impl From<std::io::Error> for Error {
+    fn from(e: std::io::Error) -> Self {
+        Error::Io(e)
+    }
+}
+
+impl From<reqwest::Error> for Error {
+    fn from(e: reqwest::Error) -> Self {
+        Error::CustomError("Http requewst to third party failed".to_string(), 500)
+    }
+}
