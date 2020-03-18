@@ -3,6 +3,7 @@
 use diesel::sql_types;
 
 pub use crate::admin_dao::AdminDao;
+pub use crate::record_dao::RecordDao;
 
 /// Search result type from DAO (not rest API)
 pub struct EntriesResult<T> {

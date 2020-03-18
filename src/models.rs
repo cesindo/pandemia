@@ -149,3 +149,18 @@ pub struct ResetPasswordAdmin {
     pub expiration: Option<NaiveDateTime>,
 }
 
+#[doc(hidden)]
+#[derive(Queryable, Serialize)]
+pub struct Record {
+    pub id: ID,
+    pub loc: String,
+    pub loc_kind: i16,
+    pub total_cases: i32,
+    pub total_deaths: i32,
+    pub total_recovered: i32,
+    pub active_cases: i32,
+    pub critical_cases: i32,
+    pub cases_to_pop: f64,
+    pub meta: Vec<String>,
+    pub last_updated: NaiveDateTime,
+}
