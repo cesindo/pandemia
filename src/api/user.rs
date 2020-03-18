@@ -32,7 +32,6 @@ pub struct ActivateUser {
     pub password: String,
 }
 
-
 /// Model untuk keperluan tukar menukar data API
 /// bukan yang di database (crate::models).
 pub mod types {
@@ -79,9 +78,7 @@ pub mod types {
             ApiResult::success(a.into())
         }
     }
-
 }
-
 
 #[derive(Deserialize)]
 pub struct UpdatePassword {
@@ -97,10 +94,6 @@ pub struct PublicApi;
 
 #[api_group("User", "public", base = "/user/v1")]
 impl PublicApi {
-
-
-
-
     /// Rest API endpoint untuk mendaftarkan akun baru.
     /// Setelah register akun tidak langsung aktif, perlu melakukan
     /// aktifasi menggunakan endpoint `/user/activate`.
@@ -170,7 +163,6 @@ pub struct PrivateApi;
 
 #[api_group("User", "private", base = "/user/v1")]
 impl PrivateApi {
-
     /// Listing user
     #[api_endpoint(path = "/users", auth = "none")]
     pub fn list_user(query: QueryEntries) -> ApiResult<EntriesResult<db::User>> {
@@ -219,6 +211,4 @@ impl PrivateApi {
             .map(ApiResult::success)
             .map_err(From::from)
     }
-
 }
-

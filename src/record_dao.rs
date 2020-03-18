@@ -1,11 +1,10 @@
 //! Dao implementation for Record
-//! 
+//!
 
 use chrono::prelude::*;
 use diesel::prelude::*;
 
-use crate::{ID, result::Result, models::Record, schema::records};
-
+use crate::{models::Record, result::Result, schema::records, ID};
 
 /// This model structure modeled after data from https://www.worldometers.info/coronavirus/
 #[derive(Insertable)]
@@ -22,42 +21,59 @@ struct NewRecord<'a> {
     pub meta: &'a Vec<&'a str>,
 }
 
-
 /// Data Access Object for Record
 #[derive(Dao)]
-#[table_name="records"]
+#[table_name = "records"]
 pub struct RecordDao<'a> {
     db: &'a PgConnection,
 }
 
 impl<'a> RecordDao<'a> {
-  /// Create new Record
-  pub fn create(&self,
-      loc: &'a str,
-      loc_kind: i16,
-      total_cases: i32,
-      total_deaths: i32,
-      total_recovered: i32,
-      active_cases: i32,
-      critical_cases: i32,
-      cases_to_pop: f64,
-      meta: &'a Vec<&'a str>,
+    /// Create new Record
+    pub fn create(
+        &self,
+        loc: &'a str,
+        loc_kind: i16,
+        total_cases: i32,
+        total_deaths: i32,
+        total_recovered: i32,
+        active_cases: i32,
+        critical_cases: i32,
+        cases_to_pop: f64,
+        meta: &'a Vec<&'a str>,
     ) -> Result<Record> {
-    use crate::schema::records::{self, dsl};
+        use crate::schema::records::{self, dsl};
 
-    diesel::insert_into(records::table)
-        .values(&NewRecord {
-            loc,
-            loc_kind,
-            total_cases,
-            total_deaths,
-            total_recovered,
-            active_cases,
-            critical_cases,
-            cases_to_pop,
-            meta,
-        })
-        .get_result(self.db)
-        .map_err(From::from)
-  }
+        diesel::insert_into(records::table)
+            .values(&NewRecord {
+                loc,
+                loc_kind,
+                total_cases,
+                total_deaths,
+                total_recovered,
+                active_cases,
+                critical_cases,
+                cases_to_pop,
+                meta,
+            })
+            .get_result(self.db)
+            .map_err(From::from)
+    }
+
+    /// Get stock histories based on Record
+    pub fn get_latest_records(&self, loc: &str, offset: i64, limit: i64) -> Result<Vec<Record>> {
+        use crate::schema::records::dsl;
+
+        assert!(offset > -1, "Invalid offset");
+        assert!(limit > -1, "Invalid limit");
+        assert!(limit < 1_000_000, "Invalid limit");
+
+        dsl::records
+            .filter(dsl::loc.eq(loc))
+            .offset(offset)
+            .limit(limit)
+            .order(dsl::last_updated.desc())
+            .load(self.db)
+            .map_err(From::from)
+    }
 }

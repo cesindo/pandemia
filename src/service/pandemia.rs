@@ -1,9 +1,9 @@
 //! Kode servis untuk Pandemia
-//! 
+//!
 
 use crate::api;
-use crate::api::*;
 use crate::api::types::*;
+use crate::api::*;
 use crate::service::Service;
 use actix_web::{http::Method, App, AsyncResponder, Error, Path, Result};
 

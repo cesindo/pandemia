@@ -5,8 +5,6 @@ use chrono::Local;
 use std::{env, fs, process};
 
 fn main() {
-
-
     let output = process::Command::new("git")
         .arg("rev-parse")
         .arg("HEAD")
@@ -33,4 +31,3 @@ fn main() {
         );
     }
 }
-

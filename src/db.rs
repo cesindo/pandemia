@@ -28,4 +28,3 @@ pub fn connect(db_url: &str) -> PgConnection {
 pub fn clone() -> DbConnMan {
     DB_CONN_POOL.clone()
 }
-

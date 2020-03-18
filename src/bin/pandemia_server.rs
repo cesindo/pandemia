@@ -1,12 +1,11 @@
-
 #[macro_use]
 extern crate log;
 extern crate dotenv;
 extern crate env_logger;
 
+use pandemia::monitor;
 use pandemia::prelude::*;
 use pandemia::service::load_services;
-use pandemia::monitor;
 
 use std::env;
 
@@ -54,4 +53,3 @@ ____________    __      ____________,
 
     api::start(ApiAggregator::new(services), config);
 }
-

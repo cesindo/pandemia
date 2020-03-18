@@ -8,11 +8,7 @@ use chrono::prelude::*;
 use diesel::prelude::*;
 use diesel::{dsl::not, expression::dsl::sql, sql_query, sql_types};
 
-use crate::{
-    db, models,
-    result::Result,
-    util,
-};
+use crate::{db, models, result::Result, util};
 
 use std::{
     fmt,

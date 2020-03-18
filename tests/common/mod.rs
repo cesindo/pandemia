@@ -16,4 +16,3 @@ pub fn create_testkit() -> TestKit {
     setup();
     TestKit::new()
 }
-

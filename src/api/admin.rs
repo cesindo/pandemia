@@ -43,7 +43,6 @@ pub struct PublicApi;
 
 #[api_group("Admin", "public", base = "/admin/v1", accessor = "admin")]
 impl PublicApi {
-
     /// Rest API endpoint untuk menambahkan admin baru.
     #[api_endpoint(path = "/add", mutable, auth = "required")]
     pub fn add_admin(query: NewAdmin) -> ApiResult<models::Admin> {
@@ -169,4 +168,3 @@ pub struct PrivateApi;
 
 #[api_group("Admin", "private", base = "/admin/v1", accessor = "admin")]
 impl PrivateApi {}
-

@@ -1,4 +1,3 @@
-
 //! Koleksi query yang digunakan untuk operasi pada rest API Pandemia
 #![allow(missing_docs)]
 
@@ -10,7 +9,7 @@ use serde_json::Value as JsonValue;
 use crate::{
     api,
     api::types::*,
-    api::{ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest, error::param_error},
+    api::{error::param_error, ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest},
     auth,
     error::{Error, ErrorCode},
     models,
@@ -18,8 +17,7 @@ use crate::{
     ID,
 };
 
-
-/// New Pandemia query 
+/// New Pandemia query
 #[derive(Serialize, Deserialize)]
 pub struct NewPandemia {
     pub name: String,

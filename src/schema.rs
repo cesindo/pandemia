@@ -55,6 +55,20 @@ table! {
 }
 
 table! {
+    notifs (id) {
+        id -> Int8,
+        kind -> Int2,
+        text -> Varchar,
+        initiator_id -> Int8,
+        receiver_id -> Int8,
+        read -> Bool,
+        keywords -> Array<Text>,
+        meta -> Array<Text>,
+        ts -> Timestamp,
+    }
+}
+
+table! {
     records (id) {
         id -> Int8,
         loc -> Text,
@@ -87,6 +101,14 @@ table! {
         token -> Varchar,
         created -> Timestamp,
         expiration -> Nullable<Timestamp>,
+    }
+}
+
+table! {
+    user_connect (user_id) {
+        user_id -> Int8,
+        provider_name -> Varchar,
+        app_id -> Varchar,
     }
 }
 
@@ -126,7 +148,9 @@ joinable!(access_tokens -> users (user_id));
 joinable!(addresses -> users (user_id));
 joinable!(admin_access_tokens -> admins (admin_id));
 joinable!(admin_passhash -> admins (admin_id));
+joinable!(notifs -> users (receiver_id));
 joinable!(reset_password_admins -> admins (admin_id));
+joinable!(user_connect -> users (user_id));
 joinable!(user_keys -> users (user_id));
 joinable!(user_passhash -> users (user_id));
 
@@ -136,9 +160,11 @@ allow_tables_to_appear_in_same_query!(
     admin_access_tokens,
     admin_passhash,
     admins,
+    notifs,
     records,
     register_users,
     reset_password_admins,
+    user_connect,
     user_keys,
     user_passhash,
     users,

@@ -45,32 +45,36 @@ extern crate lazy_static;
 extern crate bcrypt;
 #[macro_use]
 extern crate validator_derive;
-extern crate validator;
 extern crate select;
+extern crate validator;
 
 #[macro_use]
 mod macros;
+pub mod admin_dao;
 pub mod api;
 pub mod auth;
 pub mod crypto;
-pub mod record_dao;
+pub mod dao;
 mod db;
 pub mod error;
+pub mod event_handler;
+pub mod eventstream;
 pub mod models;
+pub mod monitor;
+pub mod notif_dao;
+pub mod notif_sender;
+pub mod push_notif_handler;
+pub mod record_dao;
 mod result;
 mod schema;
-pub mod user_dao;
-pub mod admin_dao;
-pub mod dao;
 pub mod service;
 mod sqlutil;
 pub mod token;
+pub mod types;
+pub mod user_dao;
 pub mod util;
 mod valid;
 pub mod web;
-pub mod monitor;
-
-pub mod eventstream;
 
 /// Type alias for ID in integer
 pub type ID = i64;
@@ -84,9 +88,8 @@ pub mod prelude {
             ServiceApiConfig, ServiceApiScope,
         },
         result::Result,
+        service::{Service, UserService},
         user_dao::UserDao,
-        service::{UserService, Service},
         valid::{Expirable, Validable},
     };
 }
-

@@ -263,4 +263,3 @@ pub fn fix_span(maybe_bad_span: Span, mut fallback: Span) -> Span {
         maybe_bad_span
     }
 }
-

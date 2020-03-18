@@ -6,7 +6,7 @@ use actix_web::{
     http::header,
     middleware::{self, cors::Cors},
     server::HttpServer,
-    AsyncResponder, FromRequest, HttpMessage, HttpResponse, Query
+    AsyncResponder, FromRequest, HttpMessage, HttpResponse, Query,
 };
 use diesel::{pg::PgConnection, prelude::*};
 use futures::future::{Future, IntoFuture};
@@ -16,16 +16,16 @@ mod error;
 mod with;
 
 pub mod admin;
+pub mod pandemia;
 pub mod types;
 pub mod user;
-pub mod pandemia;
 
 use self::with::{Immutable, ImmutableReq, Mutable, MutableReq, NamedWith, With};
 pub use self::{error::Error, with::Result};
 pub use crate::{auth, error::ErrorCode, user_dao};
 
-use crate::{db, service::Service};
 use crate::eventstream::{self, Event};
+use crate::{db, service::Service};
 
 use std::{
     collections::BTreeMap,
@@ -754,4 +754,3 @@ pub fn start(agg: ApiAggregator, config: ServiceApiConfig) {
 
     println!("done.");
 }
-

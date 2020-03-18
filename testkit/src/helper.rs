@@ -1,3 +1,4 @@
+use diesel::{connection::Connection, pg::PgConnection};
 use pandemia::api::user::types;
 use pandemia::api::{
     user::{ActivateUser, RegisterUser},
@@ -8,14 +9,10 @@ use pandemia::crypto::*;
 use pandemia::models;
 use pandemia::prelude::*;
 use pandemia::user_dao::*;
-use pandemia::{
-    api::types::IdQuery,
-    util,
-};
-use diesel::{connection::Connection, pg::PgConnection};
+use pandemia::{api::types::IdQuery, util};
 use serde_json::Value as JsonValue;
 
-use crate::{ApiKind, ID, TestKit, TestKitApi};
+use crate::{ApiKind, TestKit, TestKitApi, ID};
 
 use std::{
     env,
@@ -53,8 +50,10 @@ impl TestHelper {
     fn get_db<'a>() -> MutexGuard<'a, PgConnection> {
         lazy_static! {
             static ref PG_CONN_FOR_TEST: Arc<Mutex<PgConnection>> = Arc::new(Mutex::new(
-                PgConnection::establish(&env::var("DATABASE_TEST_URL")
-                    .expect("No DATABASE_TEST_URL env var")).expect("Cannot connect to db")
+                PgConnection::establish(
+                    &env::var("DATABASE_TEST_URL").expect("No DATABASE_TEST_URL env var")
+                )
+                .expect("Cannot connect to db")
             ));
         }
 
@@ -113,9 +112,7 @@ impl TestHelper {
                 active: true,
                 register_time: util::now(),
             };
-            let (user, (public_key, secret_key)) = schema
-                .create_user(&new_user)
-                .expect("cannot create user");
+            let (user, (public_key, secret_key)) = schema.create_user(&new_user).expect("cannot create user");
             rv.push(UserWithKey::new(user.into(), public_key, secret_key));
         }
         rv
@@ -182,4 +179,3 @@ impl<'a> ApiHelper<'a> {
             .expect("activate user")
     }
 }
-

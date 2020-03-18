@@ -1,18 +1,13 @@
 //! Modular & extendable Service interface
 
-mod services;
 mod auth;
-mod user;
-mod system;
 mod pandemia;
+mod services;
+mod system;
+mod user;
 
 pub use self::services::load_services;
-pub use self::{
-    auth::AuthService,
-    user::UserService,
-    system::SystemService,
-    pandemia::PandemiaService
-};
+pub use self::{auth::AuthService, pandemia::PandemiaService, system::SystemService, user::UserService};
 
 use crate::api;
 use crate::api::*;

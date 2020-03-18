@@ -7,6 +7,13 @@ use std::fmt;
 
 use crate::ID;
 
+/// Interface untuk model yang pasti memiliki id
+/// sehingga bisa dijadikan model generik untuk mendapatkan id
+pub trait HasID {
+    /// Get this record ID.
+    fn get_id(&self) -> ID;
+}
+
 /// Bentuk model akun di dalam database.
 #[derive(Queryable, Clone, Serialize, PartialEq)]
 pub struct User {
@@ -118,7 +125,6 @@ impl fmt::Display for UserKey {
     }
 }
 
-
 #[doc(hidden)]
 #[derive(Queryable, Serialize)]
 pub struct Admin {
@@ -150,7 +156,7 @@ pub struct ResetPasswordAdmin {
 }
 
 #[doc(hidden)]
-#[derive(Queryable, Serialize)]
+#[derive(Queryable, Serialize, Clone, Debug)]
 pub struct Record {
     pub id: ID,
     pub loc: String,
@@ -163,4 +169,18 @@ pub struct Record {
     pub cases_to_pop: f64,
     pub meta: Vec<String>,
     pub last_updated: NaiveDateTime,
+}
+
+#[doc(hidden)]
+#[derive(Queryable, Serialize)]
+pub struct Notif {
+    pub id: ID,
+    pub kind: i16,
+    pub text: String,
+    pub initiator_id: ID,
+    pub receiver_id: ID,
+    pub read: bool,
+    pub keywords: Vec<String>,
+    pub meta: Vec<String>,
+    pub ts: NaiveDateTime,
 }

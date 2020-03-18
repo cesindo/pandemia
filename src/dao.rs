@@ -4,6 +4,8 @@ use diesel::sql_types;
 
 pub use crate::admin_dao::AdminDao;
 pub use crate::record_dao::RecordDao;
+pub use crate::user_dao::UserDao;
+pub use crate::notif_dao::NotifDao;
 
 /// Search result type from DAO (not rest API)
 pub struct EntriesResult<T> {
@@ -19,4 +21,3 @@ impl<T> EntriesResult<T> {
         Self { entries, count }
     }
 }
-

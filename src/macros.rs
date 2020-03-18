@@ -159,5 +159,3 @@ macro_rules! impl_daos {
         );
     };
 }
-
-

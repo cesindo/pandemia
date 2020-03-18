@@ -5,7 +5,7 @@ extern crate event_stream;
 use diesel::prelude::*;
 
 use self::event_stream::{EventDispatcher, EventDispatcherBuilder, EventListener};
-use crate::{chrono, db};
+use crate::{chrono, db, models::Record};
 
 use std::{env, sync::Arc, thread::sleep, time::Duration};
 
@@ -15,7 +15,9 @@ pub enum Event {
     /// Event emited when service run on startup.
     Startup(),
 
-    // @TODO(*): Add more events here
+    /// Event when new updates found from remote data sources
+    /// params: 1: old record, 2: new record
+    NewRecordUpdate(Record, Record), // @TODO(*): Add more events here
 }
 
 /// Pandemia event listener implemetation
@@ -36,7 +38,7 @@ impl EventListener<Event> for PandemiaEventListener {
             Startup() => {
                 debug!("on startup called");
             }
-            // _ => (),
+            NewRecordUpdate(old_record, new_record) => {} // _ => (),
         }
     }
 }
@@ -46,7 +48,6 @@ impl std::fmt::Debug for PandemiaEventListener {
         write!(out, "<PandemiaEventListener>")
     }
 }
-
 
 lazy_static! {
 
@@ -65,4 +66,3 @@ lazy_static! {
 pub fn emit(event: Event) {
     EVENT_DISPATCHER.emit(event)
 }
-

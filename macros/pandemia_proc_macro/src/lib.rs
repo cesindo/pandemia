@@ -925,19 +925,19 @@ pub fn api_endpoint(attr: proc_macro::TokenStream, item: proc_macro::TokenStream
                                     };
                                 };
                                 new_stream.push(access_token_unwraper);
-                            }/* else {
-                                for accessor in accessors {
-                                    let accessor_ident =
-                                        Ident::new(&format!("current_{}", accessor), Span::call_site());
-                                    let access_token_unwraper = quote! {
-                                        let #accessor_ident = match #accessor_ident {
-                                            Some(Ok(Ok(a))) => Some(a),
-                                            _ => None
-                                        };
-                                    };
-                                    new_stream.push(access_token_unwraper);
-                                }
-                            }*/
+                            } /* else {
+                                  for accessor in accessors {
+                                      let accessor_ident =
+                                          Ident::new(&format!("current_{}", accessor), Span::call_site());
+                                      let access_token_unwraper = quote! {
+                                          let #accessor_ident = match #accessor_ident {
+                                              Some(Ok(Ok(a))) => Some(a),
+                                              _ => None
+                                          };
+                                      };
+                                      new_stream.push(access_token_unwraper);
+                                  }
+                              }*/
                         }
                         1 => {
                             // optional
@@ -996,4 +996,3 @@ fn expand_proc_macro<T: syn::parse::Parse>(
         }
     }
 }
-

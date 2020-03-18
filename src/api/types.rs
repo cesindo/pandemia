@@ -2,6 +2,7 @@
 //!
 #![doc(hidden)]
 
+use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
@@ -13,6 +14,19 @@ use crate::{
     prelude::*,
     ID,
 };
+
+
+pub trait ToApiType<T> {
+    // Convert db model into api type
+    // updated:
+    // menambahkan parameter user untuk mengetahui status
+    // apakah user sudah menyukai feed/comment
+    fn to_api_type(&self, conn: &PgConnection) -> T;
+    // fn to_api_type2(&self, params: i32, conn: &PgConnection) -> T {
+    //     self.to_api_type(conn)
+    // }
+}
+
 
 #[derive(Serialize, Deserialize)]
 pub struct EntriesResult<T> {

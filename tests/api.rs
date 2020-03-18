@@ -1,8 +1,8 @@
 #![allow(unused_mut, unused_variables)]
 
-extern crate pandemia_testkit;
 extern crate env_logger;
 extern crate log;
+extern crate pandemia_testkit;
 #[macro_use]
 extern crate serde_json;
 
@@ -28,7 +28,6 @@ fn test_get_info() {
     );
 }
 
-
 #[test]
 fn test_register_user() {
     let testkit = create_testkit();
@@ -41,4 +40,3 @@ fn test_register_user() {
     h.cleanup_registered_user(&token);
     assert!(token.len() > 0);
 }
-

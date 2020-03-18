@@ -17,4 +17,3 @@ impl ResolvedAtExt for Span {
         self
     }
 }
-
