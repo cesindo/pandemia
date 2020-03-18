@@ -18,10 +18,8 @@ class PandemiaKeys {
 
   // Tabs
   static final tabs = const Key('__tabs__');
-  static final timelineTab = const Key('__timelineTab__');
-  static final notifTab = const Key('__notifTab__');
-  static final todoTab = const Key('__todoTab__');
-  static final dashboardTab = const Key('__dashboardTab__');
+  static final updatesTab = const Key('updatesTab__');
+  static final settingsTab = const Key('__dashboardTab__');
 
   // Notif
   static final notifList = const Key('__notifList__');
@@ -34,6 +32,5 @@ class PandemiaKeys {
 
 class PandemiaRoutes {
   static final login = "/login";  
-  static final addComment = "/add-comment";
+  static final about = "/about";
 }
-

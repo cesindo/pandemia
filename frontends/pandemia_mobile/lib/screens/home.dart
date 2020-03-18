@@ -6,14 +6,15 @@ import 'package:pandemia_mobile/core/core.dart';
 import 'package:pandemia_mobile/models/models.dart';
 import 'package:pandemia_mobile/widgets/widgets.dart';
 
+import '../core/core.dart';
+import '../core/core.dart';
+
 @immutable
 class HomeScreen extends StatelessWidget {
   final String title;
   final PandemiaBloc pandemiaBloc;
 
-  HomeScreen({Key key, this.title, this.pandemiaBloc}) : super(key: key) {
-    print("init HomeScreen()");
-  }
+  HomeScreen({Key key, this.title, this.pandemiaBloc}) : super(key: key) {}
 
   @override
   Widget build(BuildContext context) {
@@ -23,48 +24,58 @@ class HomeScreen extends StatelessWidget {
     return BlocBuilder<TabBloc, AppTab>(
       builder: (context, activeTab) {
         Widget body;
-        if (activeTab == AppTab.timeline) {
-          body = Timeline();
-        } else if (activeTab == AppTab.notif) {
+        if (activeTab == AppTab.updates) {
           body = NotifList(context);
         } else {
           // @TODO(*): fix this
-          body = Timeline();
+          body = Container();
         }
         return Scaffold(
           appBar: AppBar(
-            title: Text(title),
-            // actions: [
-            //   FilterButton(visible: activeTab == AppTab.todos),
-            //   ExtraActions(),
-            // ],
-          ),
-          drawer: new Drawer(
-            child: ListView(
+            title: Row(
               children: <Widget>[
-                new DrawerHeader(child: new Text("Pandemia Header")),
-                new ListTile(
-                    title: new Text("Users"),
-                    onTap: () {
-                      Navigator.pop(context);
-                      // Navigator.of(context).pushNamed(PandemiaRoutes.taskMan);
-                    }),
-                new ListTile(title: new Text("Analytics"), onTap: () {}),
-                new Divider(),
-                new ListTile(title: new Text("Notification"), onTap: () {}),
-                new ListTile(title: new Text("Profile"), onTap: () {}),
-                new ListTile(title: new Text("Security"), onTap: () {}),
-                new Divider(),
-                new ListTile(
-                    title: new Text("Logout"),
-                    onTap: () {
-                      Navigator.pop(context);
-                      pandemiaBloc.dispatch(LoggedOut());
-                      Navigator.pushReplacementNamed(context, PandemiaRoutes.login);
-                    }),
+                Padding(
+                  padding: EdgeInsets.only(right: 10),
+                  child: Image.asset("assets/img/pandemia-logo-32.png"),
+                ),
+                Text(title)
               ],
             ),
+            actions: [
+              FlatButton(
+              child: Icon(Icons.info, color: Colors.white,),
+              onPressed: (){
+                Navigator.of(context).pushNamed(PandemiaRoutes.about);
+              },
+            )
+            ],
           ),
+          // drawer: new Drawer(
+          //   child: ListView(
+          //     children: <Widget>[
+          //       new DrawerHeader(child: new Text("Pandemia")),
+          //       new ListTile(
+          //           title: new Text("Users"),
+          //           onTap: () {
+          //             Navigator.pop(context);
+          //             // Navigator.of(context).pushNamed(PandemiaRoutes.taskMan);
+          //           }),
+          //       new ListTile(title: new Text("Analytics"), onTap: () {}),
+          //       new Divider(),
+          //       new ListTile(title: new Text("Notification"), onTap: () {}),
+          //       new ListTile(title: new Text("Profile"), onTap: () {}),
+          //       new ListTile(title: new Text("Security"), onTap: () {}),
+          //       new Divider(),
+          //       new ListTile(
+          //           title: new Text("Logout"),
+          //           onTap: () {
+          //             Navigator.pop(context);
+          //             pandemiaBloc.dispatch(LoggedOut());
+          //             Navigator.pushReplacementNamed(context, PandemiaRoutes.login);
+          //           }),
+          //     ],
+          //   ),
+          // ),
           body: body,
           // floatingActionButton: activeTab == AppTab.timeline
           //     ? FloatingActionButton(
@@ -84,7 +95,4 @@ class HomeScreen extends StatelessWidget {
       },
     );
   }
-
-
 }
-

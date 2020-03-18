@@ -18,39 +18,44 @@ class PandemiaLoading extends PandemiaState {
 //   String toString() => "NotifListLoading";
 // }
 
-class AuthenticationUninitialized extends PandemiaState {
-  @override
-  String toString() => 'AuthenticationUninitialized';
-}
+// class AuthenticationUninitialized extends PandemiaState {
+//   @override
+//   String toString() => 'AuthenticationUninitialized';
+// }
 
-class AuthenticationAuthenticated extends PandemiaState {
-  @override
-  String toString() => 'AuthenticationAuthenticated';
-}
+// class AuthenticationAuthenticated extends PandemiaState {
+//   @override
+//   String toString() => 'AuthenticationAuthenticated';
+// }
 
-class AuthenticationUnauthenticated extends PandemiaState {
-  @override
-  String toString() => 'AuthenticationUnauthenticated';
-}
+// class AuthenticationUnauthenticated extends PandemiaState {
+//   @override
+//   String toString() => 'AuthenticationUnauthenticated';
+// }
 
-class AuthenticationLoading extends PandemiaState {
-  @override
-  String toString() => 'AuthenticationLoading';
-}
+// class AuthenticationLoading extends PandemiaState {
+//   @override
+//   String toString() => 'AuthenticationLoading';
+// }
 
 
-class LoginFailed extends PandemiaState {
-  @override
-  String toString() => "LoginFailed";
-}
+// class LoginFailed extends PandemiaState {
+//   @override
+//   String toString() => "LoginFailed";
+// }
 
-class LoginSuccess extends PandemiaState {
-  final Session session;
+// class LoginSuccess extends PandemiaState {
+//   final Session session;
   
-  LoginSuccess(this.session);
+//   LoginSuccess(this.session);
 
+//   @override
+//   String toString() => "LoginSuccess { session: $session }";
+// }
+
+class PandemiaReady extends PandemiaState {
   @override
-  String toString() => "LoginSuccess { session: $session }";
+  String toString() => "PandemiaReady";
 }
 
 class TimelineLoading extends PandemiaState {

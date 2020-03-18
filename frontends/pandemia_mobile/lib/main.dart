@@ -8,14 +8,15 @@ import 'package:pandemia_mobile/blocs/pandemia/pandemia_state.dart';
 import 'package:pandemia_mobile/blocs/simple_bloc_delegate.dart';
 import 'package:pandemia_mobile/blocs/tab/tab_bloc.dart';
 import 'package:pandemia_mobile/screens/home.dart';
-import 'package:pandemia_mobile/screens/login/login.dart';
+import 'package:pandemia_mobile/screens/about/about_page.dart';
 import 'package:pandemia_mobile/screens/splash/splash_page.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
 import 'blocs/notif/notif.dart';
+import 'core/core.dart';
 
 void main() {
   BlocSupervisor.delegate = SimpleBlocDelegate();
-  
+
   final UserRepository userRepository = UserRepository();
 
   ApiClient.userRepository = userRepository;
@@ -43,10 +44,7 @@ class PandemiaApp extends StatelessWidget {
       "/": (context) {
         return BlocListener<PandemiaBloc, PandemiaState>(
           listener: (BuildContext context, PandemiaState state) {
-            print("main state: $state");
-            if (state is AuthenticationUnauthenticated) {
-              Navigator.of(context).pushReplacementNamed('/login');
-            } else if (state is AuthenticationAuthenticated) {
+            if (state is PandemiaReady) {
               Navigator.of(context).pushReplacementNamed('/inner');
             }
           },
@@ -57,52 +55,55 @@ class PandemiaApp extends StatelessWidget {
         return MultiBlocProvider(
           providers: [
             BlocProvider<PandemiaBloc>(
-              builder: (context) => PandemiaBloc(userRepository: userRepository),
+              builder: (context) =>
+                  PandemiaBloc(userRepository: userRepository),
             ),
             BlocProvider<TabBloc>(
               builder: (context) => TabBloc(),
             ),
-            BlocProvider<NotifBloc>(builder: (context) => NotifBloc(pandemiaBloc: pandemiaBloc),),
-            // BlocProvider<TaskManagerBloc>(builder: (context) => TaskManagerBloc(),),
+            BlocProvider<NotifBloc>(
+              builder: (context) => NotifBloc(pandemiaBloc: pandemiaBloc),
+            ),
           ],
-          child: HomeScreen(
-            title: "Pandemia Home",
-            pandemiaBloc: pandemiaBloc
-          ),
+          child: HomeScreen(title: "PANDEMIA", pandemiaBloc: pandemiaBloc),
         );
       },
-      "/login": (context) {
-        return BlocListener<PandemiaBloc, PandemiaState>(
-          listener: (BuildContext context, PandemiaState state) {
-            if (state is AuthenticationAuthenticated) {
-              Navigator.of(context).pushReplacementNamed('/inner');
-            }
-          },
-          child: LoginPage(
-            userRepository: userRepository,
-          ),
-        );
+      PandemiaRoutes.about : (context){
+        return AboutPage();
       }
     });
   }
 }
 
-
 class PandemiaTheme {
   static get theme {
-    final originalTextTheme = ThemeData.light().textTheme;
+    final originalTextTheme = ThemeData.light().textTheme.copyWith(
+        caption: TextStyle(color: Colors.black),
+        headline: TextStyle(color: Colors.red),
+        title: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        subhead: TextStyle(color: Colors.black),
+        overline: TextStyle(color: Colors.black),
+        subtitle: TextStyle(color: Colors.black),
+        body1: TextStyle(color: Colors.black),
+        body2: TextStyle(color: Colors.black),
+        display1: TextStyle(color: Colors.black),
+        display2: TextStyle(color: Colors.black),
+        display3: TextStyle(color: Colors.black),
+        button: TextStyle(color: Colors.black)
+        );
     final originalBody1 = originalTextTheme.body1;
 
     return ThemeData.light().copyWith(
-        primaryColor: Colors.grey[100],
+        primaryColor: Colors.green[600],
         accentColor: Colors.cyan[300],
         buttonColor: Colors.grey[800],
         textSelectionColor: Colors.cyan[100],
         backgroundColor: Colors.grey[900],
         toggleableActiveColor: Colors.cyan[300],
+        primaryTextTheme: originalTextTheme,
         textTheme: originalTextTheme.copyWith(
             body1:
                 originalBody1.copyWith(decorationColor: Colors.transparent)));
+                
   }
 }
-

@@ -13,9 +13,9 @@ class NotifBloc extends Bloc<NotifEvent, NotifState> {
 
   NotifBloc({@required this.pandemiaBloc}){
     _pandemiaSubs = pandemiaBloc.state.listen((state){
-      if (state is AuthenticationAuthenticated){
-        dispatch(LoadNotif());
-      }
+      // if (state is AuthenticationAuthenticated){
+      //   dispatch(LoadNotif());
+      // }
     });
   }
 

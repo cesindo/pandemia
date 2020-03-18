@@ -1,2 +1,2 @@
-enum AppTab { timeline, notif, todo, main_menu }
+enum AppTab { updates, settings }
 

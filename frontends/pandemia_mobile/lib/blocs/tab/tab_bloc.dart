@@ -5,7 +5,7 @@ import 'package:pandemia_mobile/models/app_tab.dart';
 
 class TabBloc extends Bloc<TabEvent, AppTab> {
   @override
-  AppTab get initialState => AppTab.timeline;
+  AppTab get initialState => AppTab.updates;
 
   @override
   Stream<AppTab> mapEventToState(TabEvent event) async* {

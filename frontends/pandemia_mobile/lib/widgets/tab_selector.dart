@@ -24,22 +24,19 @@ class TabSelector extends StatelessWidget {
         IconData icon;
         Key key;
         String title;
-        if (tab == AppTab.timeline){
-          icon = Icons.rss_feed;
-          key = PandemiaKeys.timelineTab;
-          title = "Timeline";
-        }else if (tab == AppTab.notif){
+        // if (tab == AppTab.timeline){
+        //   icon = Icons.rss_feed;
+        //   key = PandemiaKeys.timelineTab;
+        //   title = "Timeline";
+        // }else if (tab == AppTab.notif){
+        if (tab == AppTab.updates){
           icon = Icons.notifications;
-          key = PandemiaKeys.notifTab;
-          title = "Notif";
-        }else if (tab == AppTab.todo){
-          icon = Icons.list;
-          key = PandemiaKeys.todoTab;
-          title = "Todo";
-        }else{
+          key = PandemiaKeys.updatesTab;
+          title = "Updates";
+        }else if (tab == AppTab.settings){
           icon = Icons.dashboard;
-          key = PandemiaKeys.dashboardTab;
-          title = "Menu";
+          key = PandemiaKeys.settingsTab;
+          title = "Settings";
         }
         return BottomNavigationBarItem(
           icon: Icon(
