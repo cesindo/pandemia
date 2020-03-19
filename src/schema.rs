@@ -55,6 +55,20 @@ table! {
 }
 
 table! {
+    feeds (id) {
+        id -> Int8,
+        creator_id -> Int8,
+        creator_name -> Varchar,
+        loc -> Text,
+        kind -> Int2,
+        text -> Text,
+        hashtags -> Array<Text>,
+        meta -> Array<Text>,
+        ts -> Timestamp,
+    }
+}
+
+table! {
     notifs (id) {
         id -> Int8,
         kind -> Int2,
@@ -148,6 +162,7 @@ joinable!(access_tokens -> users (user_id));
 joinable!(addresses -> users (user_id));
 joinable!(admin_access_tokens -> admins (admin_id));
 joinable!(admin_passhash -> admins (admin_id));
+joinable!(feeds -> users (creator_id));
 joinable!(notifs -> users (receiver_id));
 joinable!(reset_password_admins -> admins (admin_id));
 joinable!(user_connect -> users (user_id));
@@ -160,6 +175,7 @@ allow_tables_to_appear_in_same_query!(
     admin_access_tokens,
     admin_passhash,
     admins,
+    feeds,
     notifs,
     records,
     register_users,

@@ -6,6 +6,7 @@ pub use crate::admin_dao::AdminDao;
 pub use crate::record_dao::RecordDao;
 pub use crate::user_dao::UserDao;
 pub use crate::notif_dao::NotifDao;
+pub use crate::feed_dao::FeedDao;
 
 /// Search result type from DAO (not rest API)
 pub struct EntriesResult<T> {

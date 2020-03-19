@@ -15,7 +15,6 @@ use crate::{
     ID,
 };
 
-
 pub trait ToApiType<T> {
     // Convert db model into api type
     // updated:

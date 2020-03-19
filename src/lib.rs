@@ -55,6 +55,7 @@ pub mod api;
 pub mod auth;
 pub mod crypto;
 pub mod dao;
+pub mod feed_dao;
 mod db;
 pub mod error;
 pub mod event_handler;

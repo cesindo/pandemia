@@ -1,5 +1,6 @@
 //! Definisi struct untuk model-model yang ada di dalam database.
 
+use crate::types::RecordDiff;
 use chrono::NaiveDateTime;
 use serde::Serialize;
 
@@ -171,6 +172,23 @@ pub struct Record {
     pub last_updated: NaiveDateTime,
 }
 
+impl Record {
+    /// Get diff for this with other
+    pub fn diff(&self, other: &Self) -> RecordDiff {
+        let new_cases = self.total_cases - other.total_cases;
+        let new_deaths = self.total_deaths - other.total_deaths;
+        let new_recovered = self.total_recovered - other.total_recovered;
+        let new_critical = self.critical_cases - other.critical_cases;
+
+        RecordDiff {
+            new_cases,
+            new_deaths,
+            new_recovered,
+            new_critical,
+        }
+    }
+}
+
 #[doc(hidden)]
 #[derive(Queryable, Serialize)]
 pub struct Notif {
@@ -181,6 +199,20 @@ pub struct Notif {
     pub receiver_id: ID,
     pub read: bool,
     pub keywords: Vec<String>,
+    pub meta: Vec<String>,
+    pub ts: NaiveDateTime,
+}
+
+#[doc(hidden)]
+#[derive(Queryable, Serialize)]
+pub struct Feed {
+    pub id: ID,
+    pub creator_id: ID,
+    pub creator_name: String,
+    pub loc: String,
+    pub kind: i16,
+    pub text: String,
+    pub hashtags: Vec<String>,
     pub meta: Vec<String>,
     pub ts: NaiveDateTime,
 }

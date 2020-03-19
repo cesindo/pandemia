@@ -3,8 +3,20 @@
 /// Notification kind or types
 #[derive(Serialize, Copy, Clone)]
 pub enum NotifKind {
-    /// when new record found notification
-    NewRecordFound,
+    /// reserved
+    Reserved
+}
+
+/// Location kind
+pub enum LocKind {
+    /// Continent
+    Continent = 0,
+    /// Country
+    Country = 1,
+    /// Province
+    Province = 2,
+    /// City
+    City = 3
 }
 
 /// Entries result type
@@ -20,5 +32,46 @@ impl<T> EntriesResult<T> {
     /// Create new instance of EntriesResult
     pub fn new(entries: Vec<T>, count: i64) -> Self {
         Self { entries, count }
+    }
+}
+
+/// Record diff result
+pub struct RecordDiff {
+    /// +/- new cases
+    pub new_cases: i32,
+    /// +/- new deaths
+    pub new_deaths: i32,
+    /// +/- new recovered
+    pub new_recovered: i32,
+    /// +/- new critical
+    pub new_critical: i32,
+}
+
+/// Jenis-jenis feed
+/// ini bertipe i16 atau SMALLINT pada SQL.
+pub enum FeedKind {
+    /// Feed are created by system
+    SystemFeed = 0,
+
+    /// Merupakan feed yang memberikan informasi pengumuman secara global,
+    /// feed ini tidak ada creatornya atau creatornya adalah system.
+    Announcement = 1,
+
+    /// When new deaths record found
+    NewDeaths = 2,
+
+    /// When new recovered record found
+    NewRecovered = 3,
+}
+
+impl From<i16> for FeedKind {
+    fn from(i: i16) -> Self {
+        match i {
+            0 => FeedKind::SystemFeed,
+            1 => FeedKind::Announcement,
+            2 => FeedKind::NewDeaths,
+            3 => FeedKind::NewRecovered,
+            x => panic!("Unknown feed kind number: {}", x),
+        }
     }
 }

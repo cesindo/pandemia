@@ -4,7 +4,7 @@
 use chrono::prelude::*;
 use diesel::prelude::*;
 
-use crate::{models::Record, result::Result, schema::records, ID};
+use crate::{models::Record, result::Result, schema::records, ID, types::LocKind};
 
 /// This model structure modeled after data from https://www.worldometers.info/coronavirus/
 #[derive(Insertable)]
@@ -33,7 +33,7 @@ impl<'a> RecordDao<'a> {
     pub fn create(
         &self,
         loc: &'a str,
-        loc_kind: i16,
+        loc_kind: LocKind,
         total_cases: i32,
         total_deaths: i32,
         total_recovered: i32,
@@ -47,7 +47,7 @@ impl<'a> RecordDao<'a> {
         diesel::insert_into(records::table)
             .values(&NewRecord {
                 loc,
-                loc_kind,
+                loc_kind: loc_kind as i16,
                 total_cases,
                 total_deaths,
                 total_recovered,

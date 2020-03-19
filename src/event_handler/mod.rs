@@ -13,6 +13,7 @@ use crate::{
 mod data_event_handler;
 
 pub use crate::push_notif_handler::{FCMHandler, FCMPayloadData};
+pub use data_event_handler::*;
 
 lazy_static! {
     /// FCM push handler

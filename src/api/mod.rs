@@ -19,6 +19,7 @@ pub mod admin;
 pub mod pandemia;
 pub mod types;
 pub mod user;
+pub mod feed;
 
 use self::with::{Immutable, ImmutableReq, Mutable, MutableReq, NamedWith, With};
 pub use self::{error::Error, with::Result};

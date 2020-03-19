@@ -6,6 +6,7 @@ use diesel::prelude::*;
 
 use self::event_stream::{EventDispatcher, EventDispatcherBuilder, EventListener};
 use crate::{chrono, db, models::Record};
+use crate::event_handler;
 
 use std::{env, sync::Arc, thread::sleep, time::Duration};
 
@@ -28,6 +29,29 @@ struct PandemiaEventListener {
 
 impl_event_listener!(PandemiaEventListener);
 
+macro_rules! handle_event {
+    ( $slf:ident, $handler:ident, $($params:expr,)* ) => {
+        {
+            let conn = $slf.db.get().expect("Cannot get db connection from pool");
+            if let Err(e) = event_handler::$handler( $($params,)* &conn){
+                error!("when {}: {}", stringify!($handler), e);
+            }
+        }
+    };
+    ($slf:ident, $handler:ident, $param1:expr) => {
+        handle_event!($slf, $handler, $param1,)
+    };
+    ($slf:ident, $handler:ident, $param1:expr, $param2:expr ) => {
+        handle_event!($slf, $handler, $param1, $param2,)
+    };
+    ($slf:ident, $handler:ident, $param1:expr, $param2:expr, $param3:expr ) => {
+        handle_event!($slf, $handler, $param1, $param2, $param3,)
+    };
+    ($slf:ident, $handler:ident, $param1:expr, $param2:expr, $param3:expr, $param4:expr ) => {
+        handle_event!($slf, $handler, $param1, $param2, $param3, $param4,)
+    };
+}
+
 impl EventListener<Event> for PandemiaEventListener {
     fn dispatch(&self, event: &Event) {
         use self::Event::*;
@@ -38,7 +62,9 @@ impl EventListener<Event> for PandemiaEventListener {
             Startup() => {
                 debug!("on startup called");
             }
-            NewRecordUpdate(old_record, new_record) => {} // _ => (),
+            NewRecordUpdate(old_record, new_record) => {
+                handle_event!(self, new_record_update, old_record, new_record);
+            } // _ => (),
         }
     }
 }

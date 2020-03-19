@@ -18,6 +18,7 @@ use crate::{
     monitor::{Monitor, PandemiaMonitor},
     // push_notif_handler::{FCMHandler, FCMPayloadData},
     result::Result,
+    types::LocKind,
     util,
     ID,
 };
@@ -68,7 +69,7 @@ impl DataMonitor {
 
     /// Check data from https://www.worldometers.info/coronavirus/
     pub fn check_worldometers(conn: &PgConnection) -> Result<()> {
-        debug!("Checking Worldometers...");
+        debug!("Fetching data from Worldometers...");
         let resp = reqwest::get("https://www.worldometers.info/coronavirus/")?;
         let collected: Vec<Vec<String>> = Document::from_read(resp)?
             .find(Attr("id", "main_table_countries"))
@@ -115,7 +116,7 @@ impl DataMonitor {
 
                         let new_record = dao.create(
                             &country_name,
-                            1,
+                            LocKind::Country,
                             total_cases.parse().unwrap_or(0),
                             // new_cases.parse().unwrap_or(0),
                             total_deaths.parse().unwrap_or(0),
@@ -128,12 +129,13 @@ impl DataMonitor {
                         )?;
 
                         if let Some(latest_record) = latest_record {
-                            let new_cases = new_record.total_cases - latest_record.total_cases;
-                            let new_deaths = new_record.total_deaths - latest_record.total_deaths;
-                            let new_recovered = new_record.total_recovered - latest_record.total_recovered;
-                            let new_critical = new_record.critical_cases - latest_record.critical_cases;
+                            let diff = new_record.diff(&latest_record);
 
-                            if new_cases > 0 || new_deaths > 0 || new_recovered > 0 || new_critical > 0 {
+                            if diff.new_cases > 0
+                                || diff.new_deaths > 0
+                                || diff.new_recovered > 0
+                                || diff.new_critical > 0
+                            {
                                 eventstream::emit(NewRecordUpdate(latest_record.clone(), new_record.clone()));
                             }
                         }
