@@ -219,7 +219,7 @@
 		"prefix": "daosearchmethod",
 		"body": [
 			"/// Search for specific ${1:model_name}s",
-			"pub fn search(&self, query: &str, offset: i64, limit: i64) -> Result<Vec<Task>> {",
+			"pub fn search(&self, query: &str, offset: i64, limit: i64) -> Result<Vec<${2:ReturnType}>> {",
 			"    use crate::schema::${1:model_name}s::{self, dsl};",
 			"",
 			"    let like_clause = format!(\"%{}%\", query);",
