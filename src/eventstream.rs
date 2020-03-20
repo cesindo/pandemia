@@ -18,7 +18,7 @@ pub enum Event {
 
     /// Event when new updates found from remote data sources
     /// params: 1: old record, 2: new record
-    NewRecordUpdate(Record, Record), // @TODO(*): Add more events here
+    NewRecordUpdate(Option<Record>, Record), // @TODO(*): Add more events here
 }
 
 /// Pandemia event listener implemetation

@@ -9,14 +9,16 @@ pub enum NotifKind {
 
 /// Location kind
 pub enum LocKind {
+    /// Global
+    Global = 0,
     /// Continent
-    Continent = 0,
+    Continent = 1,
     /// Country
-    Country = 1,
+    Country = 2,
     /// Province
-    Province = 2,
+    Province = 3,
     /// City
-    City = 3
+    City = 4
 }
 
 /// Entries result type
@@ -62,6 +64,9 @@ pub enum FeedKind {
 
     /// When new recovered record found
     NewRecovered = 3,
+
+    /// Info 
+    Info = 6
 }
 
 impl From<i16> for FeedKind {

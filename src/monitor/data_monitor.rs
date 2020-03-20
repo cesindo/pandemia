@@ -70,28 +70,87 @@ impl DataMonitor {
     /// Check data from https://www.worldometers.info/coronavirus/
     pub fn check_worldometers(conn: &PgConnection) -> Result<()> {
         debug!("Fetching data from Worldometers...");
-        let resp = reqwest::get("https://www.worldometers.info/coronavirus/")?;
-        let collected: Vec<Vec<String>> = Document::from_read(resp)?
-            .find(Attr("id", "main_table_countries"))
-            .map(|a| {
+        let dao = RecordDao::new(conn);
+        let resp = reqwest::get("https://www.worldometers.info/coronavirus/");
+        // dbg!(&resp);
+        let doc = Document::from_read(resp?)?;
+        // dapatkan total global cases
+        let main_counter_numbers = doc
+            .find(Attr("class", "maincounter-number"))
+            .map(|a| a.text().trim().to_string())
+            .collect::<Vec<String>>();
+
+        match &main_counter_numbers.as_slice() {
+            &[total_cases, total_deaths, recovered] => {
+                let total_cases = total_cases.replace(",", "").trim().parse::<i32>().unwrap_or(0);
+                let total_deaths = total_deaths.replace(",", "").trim().parse::<i32>().unwrap_or(0);
+                let recovered = recovered.replace(",", "").trim().parse::<i32>().unwrap_or(0);
+
+                let latest_data = dao.get_latest_records(Some("global"), 0, 1)?.pop();
+
+                if let Some(latest_data) = latest_data {
+                    if latest_data.total_cases != total_cases {
+                        dao.create(
+                            "global",
+                            LocKind::Global,
+                            total_cases,
+                            total_deaths,
+                            recovered,
+                            0,
+                            0,
+                            0.0,
+                            &vec![],
+                        )?;
+                    }
+                } else {
+                    dao.create(
+                        "global",
+                        LocKind::Global,
+                        total_cases,
+                        total_deaths,
+                        recovered,
+                        0,
+                        0,
+                        0.0,
+                        &vec![],
+                    )?;
+                }
+            }
+            x => {
+                warn!("got invalid number of columns, expected {}, got {}", 3, x.len());
+            }
+        }
+
+        let collected: Vec<Vec<String>> = doc
+            .find(Attr("id", "main_table_countries_today"))
+            .flat_map(|a| {
                 a.find(Name("tr"))
-                    .flat_map(|a| {
-                        let mut childs = a.children();
-                        let fname = childs.next()?.next()?;
-                        if fname.inner_html().trim() == "Indonesia" {
-                            Some(
-                                childs
-                                    .filter(|b| b.name().is_some())
-                                    // .map(|b| format!("{:?}", b) )
-                                    .map(|b| b.inner_html().trim().to_owned())
-                                    .collect::<Vec<String>>()
-                                    .join(", "),
-                            )
-                        } else {
-                            None
-                        }
+                    .map(|a| {
+                        let childs = a.children();
+                        // let fname = childs.next()?.next()?;
+                        // // dbg!(fname.inner_html().trim());
+                        // // fname.find(Name("a")).map(|a| a.inner_html().trim())
+                        // let country_name = fname.text();
+                        // // dbg!(&country_name.trim());
+                        // if country_name.trim() == "Indonesia" {
+                        //     Some(
+                        //         childs
+                        //             .filter(|b| b.name().is_some())
+                        //             // .map(|b| format!("{:?}", b) )
+                        //             .map(|b| b.text().trim().to_owned())
+                        //             .collect::<Vec<String>>(),
+                        //     )
+                        // } else {
+                        //     None
+                        // }
+
+                        childs
+                            .filter(|b| b.name().is_some())
+                            // .map(|b| format!("{:?}", b) )
+                            .map(|b| b.text().trim().to_owned())
+                            .collect::<Vec<String>>()
                     })
-                    .collect::<Vec<String>>()
+                    .collect::<Vec<Vec<String>>>()
             })
             .collect();
         // .for_each(|a| {
@@ -100,7 +159,6 @@ impl DataMonitor {
         // });
         if !collected.is_empty() {
             println!("[Worldometers] data collected: {:?}", collected.len());
-            let dao = RecordDao::new(conn);
 
             for a in collected {
                 match &a.as_slice() {
@@ -112,37 +170,65 @@ impl DataMonitor {
                         }
 
                         // get latest record to diff
-                        let latest_record = dao.get_latest_records(country_name, 0, 1)?.pop();
-
-                        let new_record = dao.create(
-                            &country_name,
-                            LocKind::Country,
-                            total_cases.parse().unwrap_or(0),
-                            // new_cases.parse().unwrap_or(0),
-                            total_deaths.parse().unwrap_or(0),
-                            // new_deaths.parse().unwrap_or(0),
-                            recovered.parse().unwrap_or(0),
-                            active_cases.parse().unwrap_or(0),
-                            critical_cases.parse().unwrap_or(0),
-                            cases_to_pop.parse().unwrap_or(0.0),
-                            &vec![],
-                        )?;
+                        let latest_record = dao.get_latest_records(Some(country_name), 0, 1)?.pop();
 
                         if let Some(latest_record) = latest_record {
-                            let diff = new_record.diff(&latest_record);
+                            if latest_record.total_cases != total_cases.parse::<i32>().unwrap_or(0) {
+                                let new_record = dao.create(
+                                    &country_name,
+                                    LocKind::Country,
+                                    total_cases.parse().unwrap_or(0),
+                                    // new_cases.parse().unwrap_or(0),
+                                    total_deaths.parse().unwrap_or(0),
+                                    // new_deaths.parse().unwrap_or(0),
+                                    recovered.parse().unwrap_or(0),
+                                    active_cases.parse().unwrap_or(0),
+                                    critical_cases.parse().unwrap_or(0),
+                                    cases_to_pop.parse().unwrap_or(0.0),
+                                    &vec![],
+                                )?;
 
-                            if diff.new_cases > 0
-                                || diff.new_deaths > 0
-                                || diff.new_recovered > 0
-                                || diff.new_critical > 0
-                            {
-                                eventstream::emit(NewRecordUpdate(latest_record.clone(), new_record.clone()));
+                                debug!("new record saved.");
+
+                                let diff = new_record.diff(&latest_record);
+
+                                if diff.new_cases > 0
+                                    || diff.new_deaths > 0
+                                    || diff.new_recovered > 0
+                                    || diff.new_critical > 0
+                                {
+                                    eventstream::emit(NewRecordUpdate(
+                                        Some(latest_record.clone()),
+                                        new_record.clone(),
+                                    ));
+                                }
                             }
+                        } else {
+                            // very new
+                            let new_record = dao.create(
+                                &country_name,
+                                LocKind::Country,
+                                total_cases.parse().unwrap_or(0),
+                                // new_cases.parse().unwrap_or(0),
+                                total_deaths.parse().unwrap_or(0),
+                                // new_deaths.parse().unwrap_or(0),
+                                recovered.parse().unwrap_or(0),
+                                active_cases.parse().unwrap_or(0),
+                                critical_cases.parse().unwrap_or(0),
+                                cases_to_pop.parse().unwrap_or(0.0),
+                                &vec![],
+                            )?;
+
+                            debug!("new record saved.");
+
+                            eventstream::emit(NewRecordUpdate(None, new_record.clone()));
                         }
                     }
                     _ => (),
                 }
             }
+        } else {
+            warn!("Collection is empty!");
         }
 
         Ok(())
@@ -155,10 +241,10 @@ impl Monitor for DataMonitor {
         self._tx = Some(tx);
         self._started = true;
         thread::spawn(move || loop {
-            // for i in 0..60 {
-            //     util::sleep(1000);
-            // }
-            util::sleep(1000);
+            for i in 0..60 {
+                util::sleep(1000);
+            }
+            // util::sleep(1000);
             // debug!("[DataMonitor] monitor checking...");
 
             let cm = db::clone();

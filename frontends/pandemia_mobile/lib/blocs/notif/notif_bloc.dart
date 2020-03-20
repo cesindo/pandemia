@@ -4,7 +4,6 @@ import 'package:meta/meta.dart';
 import 'package:pandemia_mobile/blocs/notif/notif_event.dart';
 import 'package:pandemia_mobile/blocs/notif/notif_state.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_bloc.dart';
-import 'package:pandemia_mobile/blocs/pandemia/pandemia_state.dart';
 import 'package:pandemia_mobile/models/notif_item.dart';
 
 class NotifBloc extends Bloc<NotifEvent, NotifState> {

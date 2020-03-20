@@ -4,7 +4,7 @@ use diesel::prelude::*;
 
 use crate::{
     api::types,
-    dao::{NotifDao, FeedDao},
+    dao::{FeedDao, NotifDao},
     event_handler::FCM,
     eventstream::{self, Event::*},
     models::{Record, User},
@@ -17,34 +17,62 @@ use crate::{
 };
 
 /// Event handler when new record updates found
-pub fn new_record_update(old_record: &Record, new_record: &Record, conn: &PgConnection) -> Result<()> {
-    let diff = new_record.diff(old_record);
-
+pub fn new_record_update(
+    old_record: &Option<Record>,
+    new_record: &Record,
+    conn: &PgConnection,
+) -> Result<()> {
     let feed_dao = FeedDao::new(conn);
+    if let Some(old_record) = old_record {
+        let diff = new_record.diff(old_record);
 
-    if diff.new_deaths > 0 {
-        if let Err(e) = feed_dao.create(
-            0,
-            "",
-            &new_record.loc,
-            FeedKind::NewDeaths,
-            &format!("+{} meninggal dunia, total {}", diff.new_deaths, new_record.total_deaths),
-            &vec![],
-            &vec![]
-        ) {
-            error!("cannot create feed. {}", e);
+        if diff.new_deaths > 0 {
+            if let Err(e) = feed_dao.create(
+                0,
+                "",
+                &new_record.loc,
+                FeedKind::NewDeaths,
+                &format!(
+                    "+{} meninggal dunia, total {}",
+                    diff.new_deaths, new_record.total_deaths
+                ),
+                &vec![],
+                &vec![],
+            ) {
+                error!("cannot create feed. {}", e);
+            }
         }
-    }
 
-    if diff.new_recovered > 0 {
+        if diff.new_recovered > 0 {
+            if let Err(e) = feed_dao.create(
+                0,
+                "",
+                &new_record.loc,
+                FeedKind::NewRecovered,
+                &format!(
+                    "+{} sembuh, total {}",
+                    diff.new_recovered, new_record.total_recovered
+                ),
+                &vec![],
+                &vec![],
+            ) {
+                error!("cannot create feed. {}", e);
+            }
+        }
+    } else {
         if let Err(e) = feed_dao.create(
             0,
             "",
             &new_record.loc,
-            FeedKind::NewRecovered,
-            &format!("+{} sembuh, total {}", diff.new_recovered, new_record.total_recovered),
+            FeedKind::Info,
+            &format!(
+                "{} positif, {} meninggal, {} sembuh",
+                new_record.total_cases,
+                new_record.total_deaths,
+                new_record.total_recovered
+            ),
             &vec![],
-            &vec![]
+            &vec![],
         ) {
             error!("cannot create feed. {}", e);
         }
