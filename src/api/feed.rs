@@ -43,7 +43,7 @@ pub struct PublicApi;
 #[api_group("Feed", "public", base = "/feed/v1")]
 impl PublicApi {
     /// Mendapatkan daftar feed
-    #[api_endpoint(path = "/query", auth = "required")]
+    #[api_endpoint(path = "/query", auth = "none")]
     pub fn query_feed(query: FeedQuery) -> ApiResult<EntriesResult<models::Feed>> {
         query.validate()?;
         let conn = state.db();

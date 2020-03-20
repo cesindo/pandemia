@@ -32,6 +32,9 @@ dependencies:
   sqflite: ^1.1.0
   path_provider: ^1.1.0
   localstorage: ^2.0.0
+  timeago: ^2.0.21
+  timezone: ^0.5.4
+  intl: ^0.16.0
 
 dev_dependencies:
   flutter_test:
@@ -55,6 +58,7 @@ flutter:
     - assets/img/pandemia-logo-256.png
     - assets/img/pandemia-logo-64.png
     - assets/img/pandemia-logo-32.png
+    - assets/timezone/data/2019b.tzf
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

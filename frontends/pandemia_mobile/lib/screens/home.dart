@@ -4,6 +4,7 @@ import 'package:pandemia_mobile/blocs/blocs.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia.dart';
 import 'package:pandemia_mobile/core/core.dart';
 import 'package:pandemia_mobile/models/models.dart';
+import 'package:pandemia_mobile/screens/feed/feed_tab_screen.dart';
 import 'package:pandemia_mobile/widgets/widgets.dart';
 
 import '../core/core.dart';
@@ -25,7 +26,7 @@ class HomeScreen extends StatelessWidget {
       builder: (context, activeTab) {
         Widget body;
         if (activeTab == AppTab.updates) {
-          body = NotifList(context);
+          body = FeedTabScreen(context);
         } else if (activeTab == AppTab.stats){
           body = StatsPage();
         } else {

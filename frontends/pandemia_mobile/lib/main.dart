@@ -10,16 +10,21 @@ import 'package:pandemia_mobile/blocs/tab/tab_bloc.dart';
 import 'package:pandemia_mobile/screens/home.dart';
 import 'package:pandemia_mobile/screens/about/about_page.dart';
 import 'package:pandemia_mobile/screens/splash/splash_page.dart';
+import 'package:pandemia_mobile/time_helper.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
 import 'blocs/notif/notif.dart';
 import 'core/core.dart';
 
-void main() {
+void main() async {
   BlocSupervisor.delegate = SimpleBlocDelegate();
 
   final UserRepository userRepository = UserRepository();
 
   ApiClient.userRepository = userRepository;
+
+  WidgetsFlutterBinding.ensureInitialized();
+
+  TimeHelper.setup();
 
   runApp(BlocProvider(
     builder: (ctx) {

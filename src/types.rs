@@ -62,6 +62,9 @@ pub enum FeedKind {
 
     /// When new recovered record found
     NewRecovered = 3,
+
+    /// Info 
+    Info = 6
 }
 
 impl From<i16> for FeedKind {
