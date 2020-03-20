@@ -48,15 +48,22 @@ class FeedItemView extends StatelessWidget {
             title: Text(
               item.loc,
               style: TextStyle(
-                  color: Colors.grey[800], fontWeight: FontWeight.bold),
+                  color: Colors.grey[800], fontWeight: FontWeight.bold, fontSize: 20),
             ),
             subtitle: Column(
               children: <Widget>[
                 Row(
                   children: <Widget>[
-                    Icon(Icons.person, color: Colors.grey),
-                    Text(item.text,
-                        style: TextStyle(color: Colors.grey[800]))
+                    // Icon(Icons.person, color: Colors.grey),
+                    Container(
+                      width: MediaQuery.of(context).size.width - 50,
+                      child: Text(
+                        item.text,
+                        style: TextStyle(color: Colors.grey[800]),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 3,
+                      ),
+                    )
                   ],
                 ),
                 Container(

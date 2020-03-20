@@ -28,7 +28,7 @@ use crate::{
 #[derive(Deserialize, Validate)]
 pub struct FeedQuery {
     #[validate(length(min = 0, max = 500))]
-    pub loc: String,
+    pub loc: Option<String>,
     #[validate(length(min = 0, max = 500))]
     pub query: Option<String>,
     #[validate(range(min = 0, max = 1_000_000))]
@@ -49,7 +49,7 @@ impl PublicApi {
         let conn = state.db();
         let dao = FeedDao::new(&conn);
 
-        let entries = dao.search(&query.loc, query.offset, query.limit)?;
+        let entries = dao.search(query.loc.as_ref().map(|a| a.as_str()), query.offset, query.limit)?;
         Ok(ApiResult::success(EntriesResult {
             count: entries.len() as i64,
             entries,

@@ -55,12 +55,14 @@ impl<'a> FeedDao<'a> {
     }
 
     /// Search for specific feeds
-    pub fn search(&self, loc: &str, offset: i64, limit: i64) -> Result<Vec<Feed>> {
+    pub fn search(&self, loc: Option<&str>, offset: i64, limit: i64) -> Result<Vec<Feed>> {
         use crate::schema::feeds::{self, dsl};
-        let like_clause = format!("%{}%", loc);
         let mut filterer: Box<dyn BoxableExpression<feeds::table, _, SqlType = sql_types::Bool>> =
             Box::new(dsl::id.ne(0));
-        filterer = Box::new(filterer.and(dsl::loc.like(&loc)));
+
+        if let Some(loc) = loc {
+            filterer = Box::new(filterer.and(dsl::loc.like(format!("%{}%", loc))));
+        }
         dsl::feeds
             .filter(filterer)
             .order(dsl::ts.desc())

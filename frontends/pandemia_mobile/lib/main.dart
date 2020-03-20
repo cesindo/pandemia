@@ -6,6 +6,7 @@ import 'package:pandemia_mobile/blocs/pandemia/pandemia_bloc.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_event.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_state.dart';
 import 'package:pandemia_mobile/blocs/simple_bloc_delegate.dart';
+import 'package:pandemia_mobile/blocs/stats/stats.dart';
 import 'package:pandemia_mobile/blocs/tab/tab_bloc.dart';
 import 'package:pandemia_mobile/screens/home.dart';
 import 'package:pandemia_mobile/screens/about/about_page.dart';
@@ -66,6 +67,9 @@ class PandemiaApp extends StatelessWidget {
             BlocProvider<TabBloc>(
               builder: (context) => TabBloc(),
             ),
+            BlocProvider<StatsBloc>(
+              builder: (context) => StatsBloc(),
+            ),
             BlocProvider<NotifBloc>(
               builder: (context) => NotifBloc(pandemiaBloc: pandemiaBloc),
             ),
@@ -108,7 +112,7 @@ class PandemiaTheme {
         primaryTextTheme: originalTextTheme,
         textTheme: originalTextTheme.copyWith(
             body1:
-                originalBody1.copyWith(decorationColor: Colors.transparent)));
+                originalBody1.copyWith(decorationColor: Colors.transparent,fontSize: 20)));
                 
   }
 }
