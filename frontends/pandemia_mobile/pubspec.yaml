@@ -32,6 +32,7 @@ dependencies:
   sqflite: ^1.1.0
   path_provider: ^1.1.0
   localstorage: ^2.0.0
+  flutter_launcher_icons: ^0.7.4
   timeago: ^2.0.21
   timezone: ^0.5.4
   intl: ^0.16.0
@@ -40,13 +41,11 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -62,10 +61,8 @@ flutter:
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
-
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/assets-and-images/#from-packages
-
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
   # "family" key with the font family name, and a "fonts" key with a
@@ -85,4 +82,8 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
-
+flutter_icons:
+  image_path_ios: 'assets/img/pandemia-logo.png'
+  image_path_android: 'assets/img/pandemia-logo.png'
+  android: true
+  ios: true
