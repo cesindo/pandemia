@@ -28,10 +28,10 @@ impl PublicApi {
     pub fn get_info_location(query: LocationQuery) -> ApiResult<Option<models::Record>> {
         let conn = state.db();
         let dao = RecordDao::new(&conn);
-        let mut rec = dao.get_latest_records(query.loc.as_ref().map(|a| a.as_str()), 0, 5)?;
+        let mut rec = dao.get_latest_records(query.loc.as_ref().map(|a| a.as_str()), 0, 3)?;
 
         if rec.first().is_some() {
-            Ok(ApiResult::success(rec.pop()))
+            Ok(ApiResult::success(Some(rec.swap_remove(0))))
         } else {
             Ok(ApiResult::success(None))
         }

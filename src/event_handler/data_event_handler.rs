@@ -26,6 +26,23 @@ pub fn new_record_update(
     if let Some(old_record) = old_record {
         let diff = new_record.diff(old_record);
 
+        if diff.new_cases > 0 {
+            if let Err(e) = feed_dao.create(
+                0,
+                "",
+                &new_record.loc,
+                FeedKind::NewCases,
+                &format!(
+                    "+{} kasus baru, total {}",
+                    diff.new_cases, new_record.total_cases
+                ),
+                &vec![],
+                &vec![],
+            ) {
+                error!("cannot create feed. {}", e);
+            }
+        }
+
         if diff.new_deaths > 0 {
             if let Err(e) = feed_dao.create(
                 0,

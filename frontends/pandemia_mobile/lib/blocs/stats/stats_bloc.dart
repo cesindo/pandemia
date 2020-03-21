@@ -58,7 +58,7 @@ class StatsBloc extends Bloc<StatsEvent, StatsState> {
       yield StatsLoaded(dataAll.map((a) => Record.fromMap(a)).toList());
     }
 
-    if (!event.force) {
+    if (!event.force || dataAll.isEmpty) {
       final dataAll = await getStats(true);
       yield StatsUpdated(dataAll.map((a) => Record.fromMap(a)).toList());
     }

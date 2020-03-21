@@ -17,11 +17,18 @@ class FeedLoading extends FeedState {
   String toString() => "FeedLoading";
 }
 
-class FeedListLoaded extends FeedState {
+class FeedsLoaded extends FeedState {
   final List<Feed> items;
-  FeedListLoaded(this.items);
+  FeedsLoaded(this.items);
   @override
-  String toString() => "FeedListLoaded";
+  String toString() => "FeedsLoaded";
+}
+
+class FeedsUpdated extends FeedState {
+  final List<Feed> items;
+  FeedsUpdated(this.items);
+  @override
+  String toString() => "FeedsUpdated";
 }
 
 /// State when error/failure occurred

@@ -71,17 +71,16 @@ impl<'a> RecordDao<'a> {
         if let Some(loc) = loc {
             dsl::records
                 .filter(dsl::loc.eq(loc))
+                .order(dsl::last_updated.desc())
                 .offset(offset)
                 .limit(limit)
-                .order(dsl::last_updated.desc())
                 .load(self.db)
                 .map_err(From::from)
         } else {
             dsl::records
+                .order(dsl::last_updated.desc())
                 .offset(offset)
                 .limit(limit)
-                .order(dsl::last_updated.desc())
-                .distinct()
                 .load(self.db)
                 .map_err(From::from)
         }

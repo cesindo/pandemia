@@ -4,7 +4,7 @@
 #[derive(Serialize, Copy, Clone)]
 pub enum NotifKind {
     /// reserved
-    Reserved
+    Reserved,
 }
 
 /// Location kind
@@ -18,7 +18,7 @@ pub enum LocKind {
     /// Province
     Province = 3,
     /// City
-    City = 4
+    City = 4,
 }
 
 /// Entries result type
@@ -59,14 +59,17 @@ pub enum FeedKind {
     /// feed ini tidak ada creatornya atau creatornya adalah system.
     Announcement = 1,
 
+    /// When new cases found
+    NewCases = 2,
+
     /// When new deaths record found
-    NewDeaths = 2,
+    NewDeaths = 3,
 
     /// When new recovered record found
-    NewRecovered = 3,
+    NewRecovered = 4,
 
-    /// Info 
-    Info = 6
+    /// Info
+    Info = 6,
 }
 
 impl From<i16> for FeedKind {

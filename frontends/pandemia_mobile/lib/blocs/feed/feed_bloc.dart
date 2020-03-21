@@ -5,7 +5,6 @@ import 'package:pandemia_mobile/api/pandemia_api.dart';
 import 'package:pandemia_mobile/blocs/feed/feed_event.dart';
 import 'package:pandemia_mobile/blocs/feed/feed_state.dart';
 import 'package:pandemia_mobile/models/feed.dart';
-  
 
 class FeedBloc extends Bloc<FeedEvent, FeedState> {
   PersistentSmartRepo repo;
@@ -26,33 +25,52 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
     } else if (event is DeleteFeed) {
       yield* _mapDeleteToState(event);
     }
-    
   }
 
   Stream<FeedState> _mapLoadFeedToState(LoadFeed event) async* {
     yield FeedLoading();
 
-    final data = await repo.fetchApi(
-      "entries", "/feed/v1/query?loc=Indonesia&query=&offset=0&limit=10",
-      force: event.force);
+    yield* repo
+        .fetchGradually(
+            "entries",
+            () => PublicApi.get(
+                "/feed/v1/query?loc=Indonesia&query=&offset=0&limit=10"),
+            force: event.force)
+        .asyncExpand((d) async* {
+      if (d != null) {
+        final entries = (d.data["entries"] as List<dynamic>)
+            .map((a) => Feed.fromMap(a))
+            .toList();
 
-    if (data != null) {
-      yield FeedListLoaded((data["entries"] as List<dynamic>)
-          .map((a) => Feed.fromMap(a))
-          .toList());
-    } else {
-      yield FeedFailure(error: "Cannot get feed data from server");
-    }
+        if (d.isLocal) {
+          yield FeedsLoaded(entries);
+        } else {
+          yield FeedsUpdated(entries);
+        }
+      } else {
+        yield FeedFailure(error: "Cannot get Feed data from server");
+      }
+    });
+
+    // final data = await repo.fetchApi(
+    //   "entries", "/feed/v1/query?loc=Indonesia&query=&offset=0&limit=10",
+    //   force: event.force);
+
+    // if (data != null) {
+    //   yield FeedListLoaded((data["entries"] as List<dynamic>)
+    //       .map((a) => Feed.fromMap(a))
+    //       .toList());
+    // } else {
+    //   yield FeedFailure(error: "Cannot get feed data from server");
+    // }
   }
-
 
   Stream<FeedState> _mapCreateFeedToState(CreateFeed event) async* {
     yield FeedLoading();
 
-    final data = await PublicApi.post(
-        "/feed/v1/add", {
-          // @TODO(you): add params to post here
-        });
+    final data = await PublicApi.post("/feed/v1/add", {
+      // @TODO(you): add params to post here
+    });
 
     if (data != null) {
       print("resp data: $data");
@@ -67,12 +85,10 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
     }
   }
 
-
   Stream<FeedState> _mapDeleteToState(DeleteFeed event) async* {
     yield FeedLoading();
 
-    final data =
-        await PublicApi.post("/feed/v1/delete", {"id": event.feed.id});
+    final data = await PublicApi.post("/feed/v1/delete", {"id": event.feed.id});
 
     if (data != null) {
       await repo.deleteEntriesItem("entries", event.feed.toMap());
@@ -83,5 +99,4 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
       yield FeedFailure(error: "Cannot delete Feed");
     }
   }
-    
 }

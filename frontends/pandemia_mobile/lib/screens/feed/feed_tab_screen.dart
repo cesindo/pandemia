@@ -18,7 +18,9 @@ class FeedTabScreen extends StatelessWidget {
         builder: (BuildContext context) {
           return FeedBloc()..dispatch(LoadFeed());
         },
-        child: new Container(child: _getBody(context),));
+        child: new Container(
+          child: _getBody(context),
+        ));
     ;
   }
 
@@ -36,7 +38,20 @@ class FeedTabScreen extends StatelessWidget {
                     "Cannot fetch data from server :(\n please try again later",
                     textAlign: TextAlign.center,
                   )));
-        } else if (state is FeedListLoaded) {
+        } else if (state is FeedsLoaded) {
+          // return Text("satu");
+          final notifs = state.items;
+          return refreshable(
+              context,
+              ListView.builder(
+                key: PandemiaKeys.notifList,
+                itemCount: notifs.length,
+                itemBuilder: (BuildContext context, int index) {
+                  final item = notifs[index];
+                  return new FeedItemView(item: item);
+                },
+              ));
+        } else if (state is FeedsUpdated) {
           // return Text("satu");
           final notifs = state.items;
           return refreshable(
@@ -61,7 +76,7 @@ class FeedTabScreen extends StatelessWidget {
         child: child,
         onRefresh: () {
           BlocProvider.of<FeedBloc>(context).dispatch(LoadFeed(force: true));
-          return Future<void>((){});
+          return Future<void>(() {});
         });
   }
 }
