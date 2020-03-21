@@ -67,14 +67,14 @@ class StatsBloc extends Bloc<StatsEvent, StatsState> {
   Future<List<dynamic>> getStats(bool force) async {
     List<dynamic> dataAll = [];
     final data = await repo.fetchApi(
-        "entries", "/pandemia/v1/info_location?loc=global",
+        "entries_global", "/pandemia/v1/info_location?loc=global",
         force: force);
 
     if (data != null) {
       dataAll.add(data);
     }
     final data2 = await repo.fetchApi(
-        "entries", "/pandemia/v1/info_location?loc=Indonesia",
+        "entries_indo", "/pandemia/v1/info_location?loc=Indonesia",
         force: force);
 
     if (data2 != null) {

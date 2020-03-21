@@ -2,9 +2,12 @@
 
 sync_gen:
   error_code:
-    src: src/error.rs
-    outs:
-      - js:frontends/pandemia_web/src/pandemia/ErrorCode.js
-      - dart:frontends/pandemia_mobile/lib/core/error_code.dart
-
+    - src: src/error.rs
+      outs:
+        - js:frontends/pandemia_web/src/pandemia/ErrorCode.js
+        - dart:frontends/pandemia_mobile/lib/core/error_code.dart
+  enum_types:
+    - src: src/types.rs#FeedKind
+      outs:
+        - dart:frontends/pandemia_mobile/lib/core/feed_kind.dart
 

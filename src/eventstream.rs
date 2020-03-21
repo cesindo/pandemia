@@ -5,8 +5,8 @@ extern crate event_stream;
 use diesel::prelude::*;
 
 use self::event_stream::{EventDispatcher, EventDispatcherBuilder, EventListener};
-use crate::{chrono, db, models::Record};
 use crate::event_handler;
+use crate::{chrono, db, models::Record};
 
 use std::{env, sync::Arc, thread::sleep, time::Duration};
 

@@ -77,7 +77,7 @@ class PandemiaApp extends StatelessWidget {
           child: HomeScreen(title: "PANDEMIA", pandemiaBloc: pandemiaBloc),
         );
       },
-      PandemiaRoutes.about : (context){
+      PandemiaRoutes.about: (context) {
         return AboutPage();
       }
     });
@@ -98,8 +98,7 @@ class PandemiaTheme {
         display1: TextStyle(color: Colors.black),
         display2: TextStyle(color: Colors.black),
         display3: TextStyle(color: Colors.black),
-        button: TextStyle(color: Colors.black)
-        );
+        button: TextStyle(color: Colors.black));
     final originalBody1 = originalTextTheme.body1;
 
     return ThemeData.light().copyWith(
@@ -111,8 +110,9 @@ class PandemiaTheme {
         toggleableActiveColor: Colors.cyan[300],
         primaryTextTheme: originalTextTheme,
         textTheme: originalTextTheme.copyWith(
-            body1:
-                originalBody1.copyWith(decorationColor: Colors.transparent,fontSize: 20)));
-                
+            body1: originalBody1.copyWith(
+                decorationColor: Colors.transparent,
+                fontSize: 20,
+                fontFamily: "Roboto, Times new roman")));
   }
 }

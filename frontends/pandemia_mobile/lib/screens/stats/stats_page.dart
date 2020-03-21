@@ -5,7 +5,9 @@ import 'package:pandemia_mobile/blocs/stats/stats_bloc.dart';
 import 'package:pandemia_mobile/blocs/stats/stats_event.dart';
 import 'package:pandemia_mobile/blocs/stats/stats_state.dart';
 import 'package:pandemia_mobile/models/record.dart';
+import 'package:pandemia_mobile/time_helper.dart';
 import 'package:pandemia_mobile/widgets/widgets.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class StatsPage extends StatelessWidget {
   @override
@@ -58,11 +60,14 @@ class Section extends StatelessWidget {
         children: <Widget>[
           Padding(
             padding: EdgeInsets.only(bottom: 10),
-            child: Text(
+            child: Row(children:<Widget>[Expanded(child:Text(
               this.title,
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
               textAlign: TextAlign.left,
-            ),
+            )),Text(
+                    timeago.format(TimeHelper.parseAsUtc(this.data.lastUpdated)),
+                    style: TextStyle(fontSize: 15, color: Colors.grey),
+                  )]),
           ),
           Table(
             columnWidths: {0: FlexColumnWidth(0.5), 1: FixedColumnWidth(20)},

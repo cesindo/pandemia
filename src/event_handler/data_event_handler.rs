@@ -32,10 +32,7 @@ pub fn new_record_update(
                 "",
                 &new_record.loc,
                 FeedKind::NewCases,
-                &format!(
-                    "+{} kasus baru, total {}",
-                    diff.new_cases, new_record.total_cases
-                ),
+                &format!("+{} kasus baru, total {}", diff.new_cases, new_record.total_cases),
                 &vec![],
                 &vec![],
             ) {
@@ -50,7 +47,7 @@ pub fn new_record_update(
                 &new_record.loc,
                 FeedKind::NewDeaths,
                 &format!(
-                    "+{} meninggal dunia, total {}",
+                    "+{} meninggal dunia, total {} yang telah meninggal",
                     diff.new_deaths, new_record.total_deaths
                 ),
                 &vec![],
@@ -67,7 +64,7 @@ pub fn new_record_update(
                 &new_record.loc,
                 FeedKind::NewRecovered,
                 &format!(
-                    "+{} sembuh, total {}",
+                    "+{} sembuh, total {} yang telah sembuh",
                     diff.new_recovered, new_record.total_recovered
                 ),
                 &vec![],
@@ -84,9 +81,7 @@ pub fn new_record_update(
             FeedKind::Info,
             &format!(
                 "{} positif, {} meninggal, {} sembuh",
-                new_record.total_cases,
-                new_record.total_deaths,
-                new_record.total_recovered
+                new_record.total_cases, new_record.total_deaths, new_record.total_recovered
             ),
             &vec![],
             &vec![],
