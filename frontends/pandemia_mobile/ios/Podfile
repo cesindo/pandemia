@@ -61,6 +61,11 @@ target 'Runner' do
   # Keep pod path relative so it can be checked into Podfile.lock.
   pod 'Flutter', :path => 'Flutter'
 
+  # add the Firebase pod for Google Analytics
+  pod 'Firebase/Analytics'
+  # add pods for any other desired Firebase products
+  # https://firebase.google.com/docs/ios/setup#available-pods
+
   # Plugin Pods
 
   # Prepare symlinks folder. We use symlinks to avoid having Podfile.lock

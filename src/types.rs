@@ -3,8 +3,21 @@
 /// Notification kind or types
 #[derive(Serialize, Copy, Clone)]
 pub enum NotifKind {
-    /// reserved
-    Reserved,
+    /// Merupakan notif yang memberikan informasi pengumuman secara global,
+    /// notif ini tidak ada creatornya atau creatornya adalah system.
+    Announcement = 1,
+
+    /// When new cases found
+    NewCases = 2,
+
+    /// When new deaths record found
+    NewDeaths = 3,
+
+    /// When new recovered record found
+    NewRecovered = 4,
+
+    /// Info
+    Info = 6,
 }
 
 /// Location kind
