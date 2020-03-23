@@ -8,6 +8,7 @@ import 'package:pandemia_mobile/blocs/pandemia/pandemia_state.dart';
 import 'package:pandemia_mobile/blocs/simple_bloc_delegate.dart';
 import 'package:pandemia_mobile/blocs/stats/stats.dart';
 import 'package:pandemia_mobile/blocs/tab/tab_bloc.dart';
+import 'package:pandemia_mobile/notification_util.dart';
 import 'package:pandemia_mobile/screens/home.dart';
 import 'package:pandemia_mobile/screens/about/about_page.dart';
 import 'package:pandemia_mobile/screens/splash/splash_page.dart';

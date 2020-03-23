@@ -70,3 +70,11 @@ pub struct LocationInfoResult {
     pub death: i32,
     pub recovered: i32,
 }
+
+#[derive(Deserialize, Validate)]
+pub struct UserConnect {
+    #[validate(length(min = 1, message = "Client app id can't be empty"))]
+    pub app_id: String,
+    #[validate(length(min = 1, message = "Provider name must be set, eg: android, apple"))]
+    pub provider_name: String,
+}

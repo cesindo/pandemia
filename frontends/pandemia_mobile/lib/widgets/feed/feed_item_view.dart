@@ -1,28 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:pandemia_mobile/core/feed_kind.dart';
+import 'package:pandemia_mobile/feed_attributes.dart';
 import 'package:pandemia_mobile/models/feed.dart';
 import 'package:pandemia_mobile/time_helper.dart';
 import 'package:pandemia_mobile/util/dialog.dart';
 import 'package:timeago/timeago.dart' as timeago;
-
-const Map<int, IconData> IconsByKind = {
-  FeedKind.systemFeed: Icons.info,
-  FeedKind.info: Icons.info,
-  FeedKind.announcement: Icons.warning,
-  FeedKind.newCases: Icons.group,
-  FeedKind.newDeaths: Icons.hotel,
-  FeedKind.newRecovered: Icons.assignment_turned_in
-};
-
-const Map<int, Color> ColorsByKind = {
-  FeedKind.systemFeed: Colors.grey,
-  FeedKind.info: Colors.grey,
-  FeedKind.announcement: Colors.orange,
-  FeedKind.newCases: Colors.orange,
-  FeedKind.newDeaths: Colors.red,
-  FeedKind.newRecovered: Colors.green
-};
 
 class FeedItemView extends StatelessWidget {
   final Feed item;
