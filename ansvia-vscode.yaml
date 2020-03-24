@@ -10,4 +10,7 @@ sync_gen:
     - src: src/types.rs#FeedKind
       outs:
         - dart:frontends/pandemia_mobile/lib/core/feed_kind.dart
+    - src: src/types.rs#NotifKind
+      outs:
+        - dart:frontends/pandemia_mobile/lib/core/notif_kind.dart
 
