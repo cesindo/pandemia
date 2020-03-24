@@ -11,3 +11,5 @@ pandemia_server
 *.raw.txt
 .DS_Store
 
+macros/pandemia_proc_macro/target/
+testkit/target/

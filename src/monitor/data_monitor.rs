@@ -13,6 +13,7 @@ use crate::{
     db,
     error::Error,
     eventstream::{self, Event::NewRecordUpdate},
+    models::{ResultItem, ResultObject},
     // event_handler::FCM,
     // models::{User, Comment, HasID, MonitoredData},
     monitor::{Monitor, PandemiaMonitor},
@@ -64,6 +65,70 @@ impl DataMonitor {
         if let Err(e) = DataMonitor::check_worldometers(conn) {
             error!("check_worldometers. e {}", e);
         }
+
+        if let Err(e) = DataMonitor::check_indonesian_provinces(conn) {
+            error!("check kawalcorona.com, e {}", e);
+        }
+        Ok(())
+    }
+
+    /// Check data from https://api.kawalcorona.com/indonesia/provinsi/
+    pub fn check_indonesian_provinces(conn: &PgConnection) -> Result<()> {
+        debug!("Fetching data from kawalcorona.com ...");
+        let dao = RecordDao::new(conn);
+        let resp = reqwest::get("https://api.kawalcorona.com/indonesia/provinsi/");
+        let items: Vec<ResultObject> = serde_json::from_str(&resp?.text()?)?;
+        for data in &items {
+            let item = &data.attributes;
+            let total_cases: i32 = item.active_cases + item.total_deaths + item.total_recovered;
+            let latest_data = dao.get_latest_records(Some(&item.province), 0, 1)?.pop();
+
+            debug!(
+                "Fetching data for Prov. {}, with total cases: {}",
+                &item.province, &total_cases
+            );
+
+            if let Some(latest_data) = latest_data {
+                if latest_data.total_cases != total_cases {
+                    let new_record = dao.create(
+                        &item.province,
+                        LocKind::Province,
+                        total_cases,
+                        item.total_deaths,
+                        item.total_recovered,
+                        item.active_cases,
+                        0,
+                        0.0,
+                        &vec![],
+                    )?;
+
+                    debug!("new record from Prov. {} saved.", &item.province);
+
+                    let diff = new_record.diff(&latest_data);
+
+                    if diff.new_cases > 0
+                        || diff.new_deaths > 0
+                        || diff.new_recovered > 0
+                        || diff.new_critical > 0
+                    {
+                        eventstream::emit(NewRecordUpdate(Some(latest_data.clone()), new_record.clone()));
+                    }
+                }
+            } else {
+                dao.create(
+                    &item.province,
+                    LocKind::Province,
+                    total_cases,
+                    item.total_deaths,
+                    item.total_recovered,
+                    item.active_cases,
+                    0,
+                    0.0,
+                    &vec![],
+                )?;
+            }
+        }
+
         Ok(())
     }
 
