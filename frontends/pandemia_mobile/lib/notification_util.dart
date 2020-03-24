@@ -117,7 +117,7 @@ class NotificationUtil {
   }
 
   void _sendFCMToken(BuildContext context) {
-    FcmBloc fcmBloc = BlocProvider.of<FcmBloc>(context);
+    var fcmBloc = BlocProvider.of<FcmBloc>(context);
     fcmBloc.dispatch(CreateFcm());
   }
 
