@@ -159,8 +159,9 @@ impl DataMonitor {
         // });
         if !collected.is_empty() {
             println!("[Worldometers] data collected: {:?}", collected.len());
+            let mut has_indonesia = false;
 
-            for a in collected {
+            for a in &collected {
                 match &a.as_slice() {
                     &[country_name, total_cases, new_cases, total_deaths, new_deaths, recovered, active_cases, critical_cases, cases_to_pop] =>
                     {
@@ -168,6 +169,8 @@ impl DataMonitor {
                         if country_name != "Indonesia" {
                             continue;
                         }
+
+                        has_indonesia = true;
 
                         // get latest record to diff
                         let latest_record = dao.get_latest_records(Some(country_name), 0, 1)?.pop();
@@ -226,6 +229,11 @@ impl DataMonitor {
                     }
                     _ => (),
                 }
+            }
+
+            if !has_indonesia {
+                warn!("{} data found, but no Indonesia found", collected.len());
+                warn!("DUMP:\n{:?}", collected);
             }
         } else {
             warn!("Collection is empty!");

@@ -22,7 +22,7 @@ class UserRepository {
         repo.putData("accessToken", session.toMap());
       }else{
         throw PandemiaException(
-          "Cannot contact to server");
+          "Cannot contact server");
       }
       return session;
     }).whenComplete(() async {
