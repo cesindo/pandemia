@@ -1,2 +1,2 @@
-enum AppTab { updates, settings }
+enum AppTab { updates, stats, settings }
 

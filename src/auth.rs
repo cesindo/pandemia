@@ -11,8 +11,7 @@ use crate::{
     models::{AccessToken, User},
     prelude::*,
     schema::{access_tokens, admin_access_tokens},
-    token, util,
-    ID
+    token, util, ID,
 };
 
 #[doc(hidden)]
@@ -64,7 +63,6 @@ impl<'a> AuthDao<'a> {
             .first(self.db)
             .map_err(From::from)
     }
-
 
     /// Mendapatkan akses token object dari string token untuk Admin.
     pub fn get_admin_access_token(&self, access_token: &str) -> Result<AdminAccessToken> {
@@ -183,4 +181,3 @@ impl<'a> AuthDao<'a> {
         Ok(())
     }
 }
-

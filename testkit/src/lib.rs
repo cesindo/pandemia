@@ -29,8 +29,7 @@ use std::{env, fmt};
 
 use pandemia::{
     api::{self, ApiAccess, ApiAggregator},
-    ID,
-    service,
+    service, ID,
 };
 
 pub use pandemia::api::{types::*, user::types::User};
@@ -339,7 +338,6 @@ where
     }
 }
 
-
 pub fn setup() {
     let _ = env_logger::try_init();
     env::set_var(
@@ -408,5 +406,3 @@ pub fn create_test_server() {
     debug!("Waiting for test server to become ready...");
     debug!("Test Server READY! {}", rx.recv().unwrap());
 }
-
-

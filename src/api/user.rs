@@ -5,6 +5,7 @@ use actix_web::{HttpRequest, HttpResponse};
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
+use validator::Validate;
 
 use crate::crypto::{self, PublicKey, SecretKey, Signature};
 
@@ -23,8 +24,6 @@ pub struct RegisterUser {
     pub full_name: String,
     pub email: String,
     pub phone_num: String,
-    // comment out: mungkin tidak untuk sekarang
-    // pub nik: String,
 }
 
 /// Definisi query untuk mengaktifkan akun yang telah didaftarkan.
@@ -33,7 +32,6 @@ pub struct ActivateUser {
     pub token: String,
     pub password: String,
 }
-
 
 /// Model untuk keperluan tukar menukar data API
 /// bukan yang di database (crate::models).
@@ -81,9 +79,7 @@ pub mod types {
             ApiResult::success(a.into())
         }
     }
-
 }
-
 
 #[derive(Deserialize)]
 pub struct UpdatePassword {
@@ -99,10 +95,6 @@ pub struct PublicApi;
 
 #[api_group("User", "public", base = "/user/v1")]
 impl PublicApi {
-
-
-
-
     /// Rest API endpoint untuk mendaftarkan akun baru.
     /// Setelah register akun tidak langsung aktif, perlu melakukan
     /// aktifasi menggunakan endpoint `/user/activate`.
@@ -163,6 +155,34 @@ impl PublicApi {
 
         Ok(ApiResult::success(()))
     }
+
+
+    /// Register and connect current account to event push notif (FCM).
+    /// Parameter `app_id` adalah app id dari client app.
+    #[api_endpoint(path = "/me/connect/create", auth = "required", mutable)]
+    pub fn connect_create(query: UserConnect) -> ApiResult<()> {
+        query.validate()?;
+
+        let conn = state.db();
+        let dao = UserDao::new(&conn);
+
+        dao.create_user_connect(current_user.id, &query.provider_name, &query.app_id)?;
+        Ok(ApiResult::success(()))
+    }
+
+    /// Revoke or disconnect current account to event push notif (FCM).
+    /// Parameter `app_id` adalah app id dari client app.
+    #[api_endpoint(path = "/me/connect/remove", auth = "required", mutable)]
+    pub fn connect_remove(query: UserConnect) -> ApiResult<()> {
+        query.validate()?;
+
+        let conn = state.db();
+        let dao = UserDao::new(&conn);
+
+        dao.remove_user_connect(current_user.id, &query.provider_name, &query.app_id)?;
+        Ok(ApiResult::success(()))
+    }
+
 }
 
 use crate::models as db;
@@ -172,7 +192,6 @@ pub struct PrivateApi;
 
 #[api_group("User", "private", base = "/user/v1")]
 impl PrivateApi {
-
     /// Listing user
     #[api_endpoint(path = "/users", auth = "none")]
     pub fn list_user(query: QueryEntries) -> ApiResult<EntriesResult<db::User>> {
@@ -221,6 +240,4 @@ impl PrivateApi {
             .map(ApiResult::success)
             .map_err(From::from)
     }
-
 }
-

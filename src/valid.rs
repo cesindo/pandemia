@@ -37,7 +37,6 @@ impl Expirable for AdminAccessToken {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::{Expirable, Validable};
@@ -70,4 +69,3 @@ mod tests {
         assert!(access_token.expired());
     }
 }
-

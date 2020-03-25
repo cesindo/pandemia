@@ -3,11 +3,11 @@
 //! menggenerasikan pasangan kunci (keypair) asimetris,
 //! melakukan signing pada data, dll.
 
+use bcrypt;
 use ed25519_dalek::Keypair;
 use hex;
 use rand::thread_rng;
 use sha2::{Digest, Sha256, Sha512};
-use bcrypt;
 
 /// Number of bytes in a public key.
 pub const PUBLIC_KEY_LENGTH: usize = ed25519_dalek::PUBLIC_KEY_LENGTH;
@@ -65,19 +65,17 @@ impl<'a> std::convert::Into<ed25519_dalek::Signature> for &'a Signature {
     }
 }
 
-
 /// Mendapatkan passhash dari sebuah password.
 /// Algo menggunakan Bcrypt.
 pub fn get_passhash(password: &str) -> String {
     bcrypt::hash(password, DEFAULT_BCRYPT_COST)
-        .unwrap_or_else(|_| panic!("Cannot bcrypt password `{}`", password) )
+        .unwrap_or_else(|_| panic!("Cannot bcrypt password `{}`", password))
 }
 
 /// Memverifikasi apakah password match (verified) dengan hash-nya?
-pub fn password_match(password: &str, hashed:&str) -> bool {
+pub fn password_match(password: &str, hashed: &str) -> bool {
     bcrypt::verify(password, hashed).expect("Cannot verify bcrypt hash")
 }
-
 
 /// Generate key pair
 pub fn gen_keypair() -> (PublicKey, SecretKey) {
@@ -155,14 +153,10 @@ pub fn is_verified(message: &[u8], signature: &Signature, pub_key: &PublicKey) -
 mod tests {
     use super::{PublicKey, SecretKey, Signature};
 
-
     #[test]
     fn test_get_passhash() {
         let passhash = super::get_passhash("123");
-        assert_ne!(
-            passhash,
-            ""
-        );
+        assert_ne!(passhash, "");
         assert!(passhash.len() > 10);
     }
 
@@ -232,4 +226,3 @@ mod tests {
         assert!(super::is_verified(DATA, &signature, &p));
     }
 }
-

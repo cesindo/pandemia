@@ -38,4 +38,3 @@ impl PublicApi {
                 "build": env!("BUILD_INFO"), "git": env!("GIT_REV") }))
     }
 }
-

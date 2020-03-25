@@ -3,7 +3,10 @@
 
 use chrono::{NaiveDateTime, Utc};
 use rand::{self, distributions::Alphanumeric, Rng};
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::{
+    thread,
+    time::{Duration, SystemTime, UNIX_EPOCH},
+};
 
 /// Mendapatkan waktu saat ini dalam format milidetik sejak UNIX EPOCH.
 pub fn current_time_millis() -> u64 {
@@ -44,3 +47,8 @@ pub fn random_number_f64() -> f64 {
     f64::from(rng.gen_range(0, 100))
 }
 
+/// Wait or blocking for n millis
+#[inline]
+pub fn sleep(millis: u64) {
+    thread::sleep(Duration::from_millis(millis));
+}

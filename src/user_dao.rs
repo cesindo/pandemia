@@ -11,8 +11,7 @@ use crate::{
     result::Result,
     schema::*,
     sqlutil::lower,
-    token,
-    ID
+    token, ID,
 };
 
 use std::sync::Arc;
@@ -47,7 +46,7 @@ pub struct NewUserPasshash<'a> {
     pub user_id: ID,
     pub passhash: &'a str,
     pub deprecated: bool,
-    pub ver: i32
+    pub ver: i32,
 }
 
 #[derive(Insertable)]
@@ -60,6 +59,15 @@ pub struct NewUserKey {
     pub active: bool,
 }
 
+#[doc(hidden)]
+#[derive(Insertable, AsChangeset)]
+#[table_name = "user_connect"]
+pub struct NewUserConnect<'a> {
+    user_id: ID,
+    provider_name: &'a str,
+    app_id: &'a str,
+}
+
 /// Untuk mengoperasikan skema data di database
 #[derive(Dao)]
 pub struct UserDao<'a> {
@@ -67,7 +75,6 @@ pub struct UserDao<'a> {
 }
 
 impl<'a> UserDao<'a> {
-
     /// Mendapatkan akun berdasarkan emailnya.
     pub fn get_by_email(&self, email: &str) -> Result<User> {
         use crate::schema::users::dsl;
@@ -115,7 +122,7 @@ impl<'a> UserDao<'a> {
                     user_id,
                     passhash,
                     deprecated: false,
-                    ver: 1
+                    ver: 1,
                 })
                 .execute(self.db)?;
             // .map_err(From::from)?;
@@ -129,10 +136,7 @@ impl<'a> UserDao<'a> {
     /// karena user belum aktif, untuk mengaktifkannya perlu memanggil
     /// perintah [UserDao::activate_registered_user].
     pub fn register_user(&self, full_name: &str, email: &str, phone_num: &str) -> Result<String> {
-        use crate::schema::{
-            users::dsl as dsl_user,
-            register_users::{dsl as dsl_ra},
-        };
+        use crate::schema::{register_users::dsl as dsl_ra, users::dsl as dsl_user};
 
         if full_name == "" {
             Err(PandemiaError::InvalidParameter(
@@ -169,11 +173,7 @@ impl<'a> UserDao<'a> {
 
         // check apakah akun dengan email/phone sama sudah ada
         let exists = dsl_user::users
-            .filter(
-                dsl_user::email
-                    .eq(email)
-                    .or(dsl_user::phone_num.eq(phone_num)),
-            )
+            .filter(dsl_user::email.eq(email).or(dsl_user::phone_num.eq(phone_num)))
             .select(dsl_user::id)
             .first::<ID>(self.db)
             .is_ok();
@@ -201,7 +201,7 @@ impl<'a> UserDao<'a> {
     /// Mengaktifkan akun yang telah melakukan registrasi tapi belum aktif.
     pub fn activate_registered_user(&self, token: String) -> Result<User> {
         use crate::schema::user_keys::{self, dsl as ak_dsl};
-        use crate::schema::{users, register_users};
+        use crate::schema::{register_users, users};
 
         self.db.build_transaction().read_write().run(|| {
             let reg_acc: RegisterUser = register_users::dsl::register_users
@@ -339,6 +339,52 @@ impl<'a> UserDao<'a> {
 
         Ok((entries, count))
     }
+
+    /// Create user connect app id untuk spesifik user,
+    /// digunakan untuk event push notif.
+    pub fn create_user_connect(&self, user_id: ID, provider_name: &str, app_id: &str) -> Result<()> {
+        use crate::schema::user_connect::dsl;
+
+        let user_connect = NewUserConnect {
+            user_id,
+            provider_name,
+            app_id,
+        };
+
+        diesel::insert_into(user_connect::table)
+            .values(&user_connect)
+            .on_conflict(dsl::user_id)
+            .do_update()
+            .set(&user_connect)
+            .execute(self.db)?;
+
+        Ok(())
+    }
+
+    /// Remove user connect app id untuk spesifik user.
+    pub fn remove_user_connect(&self, user_id: ID, provider_name: &str, app_id: &str) -> Result<()> {
+        use crate::schema::user_connect::dsl;
+
+        diesel::delete(
+            dsl::user_connect.filter(
+                dsl::user_id
+                    .eq(user_id)
+                    .and(dsl::app_id.eq(app_id).and(dsl::provider_name.eq(provider_name))),
+            ),
+        )
+        .execute(self.db)?;
+
+        Ok(())
+    }
+
+    /// Remove user connect app id berdasarkan user id
+    pub fn remove_user_connect_by_id(&self, user_id: ID) -> Result<()> {
+        use crate::schema::user_connect::dsl;
+
+        diesel::delete(dsl::user_connect.filter(dsl::user_id.eq(user_id))).execute(self.db)?;
+
+        Ok(())
+    }
 }
 
 /// UserDao untuk memudahkan integration testing
@@ -382,4 +428,3 @@ impl<'a> TestSchema<'a> {
             .map_err(From::from)
     }
 }
-

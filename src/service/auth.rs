@@ -42,7 +42,6 @@ use crate::models::AccessToken;
 pub struct Authorize {
     pub email: Option<String>,
     pub phone: Option<String>,
-    
 
     pub password: String,
 }
@@ -75,7 +74,7 @@ impl PrivateApi {
         dao.clear_access_token_by_user_id(query.id)?;
 
         Ok(ApiResult::success(()))
-     }
+    }
 }
 
 struct PublicApi;
@@ -101,7 +100,7 @@ impl PublicApi {
                 ))?
             }
         };
-        
+
         if !user.active {
             return Err(ApiError::InvalidParameter(
                 ErrorCode::Unauthorized as i32,
@@ -111,9 +110,8 @@ impl PublicApi {
 
         let dao = AuthDao::new(&conn);
 
-
         let user_passhash = dao.get_passhash("user", user.id)?;
-        if !crypto::password_match(&query.password, &user_passhash){
+        if !crypto::password_match(&query.password, &user_passhash) {
             warn!("user `{}` try to authorize using wrong password", &user.id);
             Err(ApiError::Unauthorized)?
         }
@@ -121,20 +119,13 @@ impl PublicApi {
         dao.generate_access_token(user.id)
             .map_err(From::from)
             .map(ApiResult::success)
-
     }
 
     /// Unauthorize current user session, this will invalidate all valid access tokens.
     #[api_endpoint(path = "/unauthorize", auth = "optional", mutable)]
     pub fn unauthorize(query: ()) -> ApiResult<()> {
         match current_user {
-            Some(current_user) => PrivateApi::unauthorize(
-                state,
-                IdQuery {
-                    id: current_user.id,
-                },
-                req,
-            ),
+            Some(current_user) => PrivateApi::unauthorize(state, IdQuery { id: current_user.id }, req),
             None => Ok(ApiResult::success(())),
         }
     }
@@ -151,4 +142,3 @@ impl PublicApi {
         ))
     }
 }
-

@@ -82,7 +82,7 @@ class PersistentSmartRepo extends SmartRepo {
 
   Future<Database> get getDb async {
     var dbClient = await DatabaseHelper().db;
-    print("Create db table $key...");
+    // print("Create db table $key...");
     dbClient.execute(
         "CREATE TABLE IF NOT EXISTS $key (t_key TEXT PRIMARY KEY, t_val TEXT)");
     return dbClient;

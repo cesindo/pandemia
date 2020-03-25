@@ -1,9 +1,9 @@
-
 #[macro_use]
 extern crate log;
 extern crate dotenv;
 extern crate env_logger;
 
+use pandemia::monitor;
 use pandemia::prelude::*;
 use pandemia::service::load_services;
 
@@ -19,12 +19,12 @@ fn main() {
 ____________    __      ____________,
 \_____     /   /_ \     \     _____/
  \_____    \____/__\____/    _____/
-  \_____      |  M  |       _____/
+  \_____      |  P  |       _____/
      \________\__|__/_________/
                /___\
             ._//___\\_.
     
-             MAINFRAME
+          PANDEMIA SERVER
     "#
     );
 
@@ -49,6 +49,7 @@ ____________    __      ____________,
         ApiServer::new(ApiAccess::Private, private_listening_address),
     ]);
 
+    monitor::start_monitors();
+
     api::start(ApiAggregator::new(services), config);
 }
-

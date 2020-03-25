@@ -16,6 +16,9 @@ class AboutPage extends StatelessWidget {
               child: Container(
                   child: Table(columnWidths: {1:FixedColumnWidth(5)},children: [
                     TableRow(children: [
+                      Text("Data by : ", textAlign: TextAlign.end,), Container(width: 1,), Text("https://www.worldometers.info")
+                    ]),
+                    TableRow(children: [
                       Text("Icon by : ", textAlign: TextAlign.end,), Container(width: 1,), Text("photo3idea-studio")
                     ])
                   ],)

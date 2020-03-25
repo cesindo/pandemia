@@ -9,7 +9,7 @@ use crate::crypto::{self, SecretKey};
 use crate::{
     api::{Error as ApiError, HttpRequest as ApiHttpRequest, Result as ApiResult},
     auth, models,
-    prelude::*
+    prelude::*,
 };
 
 use crate::api::user::{PrivateApi, PublicApi};
@@ -34,4 +34,3 @@ impl Service for UserService {
         builder.private_scope().link(PrivateApi::wire);
     }
 }
-

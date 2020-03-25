@@ -103,7 +103,6 @@ impl From<validator::ValidationErrors> for Error {
     }
 }
 
-
 use diesel::result::DatabaseErrorKind;
 
 impl From<PandemiaError> for Error {

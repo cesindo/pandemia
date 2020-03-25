@@ -87,4 +87,3 @@ enum Level {
     Warning,
     Error,
 }
-

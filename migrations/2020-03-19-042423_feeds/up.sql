@@ -1,0 +1,11 @@
+CREATE TABLE feeds (
+  id BIGSERIAL PRIMARY KEY,
+  creator_id BIGINT NOT NULL DEFAULT 0 REFERENCES users(id) ON DELETE SET DEFAULT,
+  creator_name VARCHAR NOT NULL,
+  loc TEXT NOT NULL,
+  kind SMALLINT NOT NULL, -- Untuk jenis-jenisnya lihat [[FeedKind]]
+  "text" TEXT NOT NULL,
+  hashtags TEXT[] NOT NULL DEFAULT '{}',
+  meta TEXT[] NOT NULL DEFAULT '{}',
+  ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

@@ -2,17 +2,29 @@
 //!
 #![doc(hidden)]
 
-use validator::Validate;
+use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
+use validator::Validate;
 
 use crate::crypto::{self, PublicKey, SecretKey, Signature};
 
 use crate::{
-    ID,
     api,
     error::{Error, ErrorCode},
     prelude::*,
+    ID,
 };
+
+pub trait ToApiType<T> {
+    // Convert db model into api type
+    // updated:
+    // menambahkan parameter user untuk mengetahui status
+    // apakah user sudah menyukai feed/comment
+    fn to_api_type(&self, conn: &PgConnection) -> T;
+    // fn to_api_type2(&self, params: i32, conn: &PgConnection) -> T {
+    //     self.to_api_type(conn)
+    // }
+}
 
 #[derive(Serialize, Deserialize)]
 pub struct EntriesResult<T> {
@@ -43,5 +55,26 @@ pub struct ResetPassword {
     pub password: Option<String>,
 }
 
+#[derive(Deserialize, Validate)]
+pub struct LocationQuery {
+    #[validate(length(min = 1, max = 100))]
+    pub loc: Option<String>,
+}
 
+#[derive(Serialize, Validate)]
+pub struct LocationInfoResult {
+    pub name: String,
+    pub odp: i32,
+    pub pdp: i32,
+    pub positive: i32,
+    pub death: i32,
+    pub recovered: i32,
+}
 
+#[derive(Deserialize, Validate)]
+pub struct UserConnect {
+    #[validate(length(min = 1, message = "Client app id can't be empty"))]
+    pub app_id: String,
+    #[validate(length(min = 1, message = "Provider name must be set, eg: android, apple"))]
+    pub provider_name: String,
+}

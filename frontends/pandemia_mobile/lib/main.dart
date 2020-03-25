@@ -6,20 +6,27 @@ import 'package:pandemia_mobile/blocs/pandemia/pandemia_bloc.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_event.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_state.dart';
 import 'package:pandemia_mobile/blocs/simple_bloc_delegate.dart';
+import 'package:pandemia_mobile/blocs/stats/stats.dart';
 import 'package:pandemia_mobile/blocs/tab/tab_bloc.dart';
+import 'package:pandemia_mobile/notification_util.dart';
 import 'package:pandemia_mobile/screens/home.dart';
 import 'package:pandemia_mobile/screens/about/about_page.dart';
 import 'package:pandemia_mobile/screens/splash/splash_page.dart';
+import 'package:pandemia_mobile/time_helper.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
 import 'blocs/notif/notif.dart';
 import 'core/core.dart';
 
-void main() {
+void main() async {
   BlocSupervisor.delegate = SimpleBlocDelegate();
 
   final UserRepository userRepository = UserRepository();
 
   ApiClient.userRepository = userRepository;
+
+  WidgetsFlutterBinding.ensureInitialized();
+
+  TimeHelper.setup();
 
   runApp(BlocProvider(
     builder: (ctx) {
@@ -61,6 +68,9 @@ class PandemiaApp extends StatelessWidget {
             BlocProvider<TabBloc>(
               builder: (context) => TabBloc(),
             ),
+            BlocProvider<StatsBloc>(
+              builder: (context) => StatsBloc(),
+            ),
             BlocProvider<NotifBloc>(
               builder: (context) => NotifBloc(pandemiaBloc: pandemiaBloc),
             ),
@@ -68,7 +78,7 @@ class PandemiaApp extends StatelessWidget {
           child: HomeScreen(title: "PANDEMIA", pandemiaBloc: pandemiaBloc),
         );
       },
-      PandemiaRoutes.about : (context){
+      PandemiaRoutes.about: (context) {
         return AboutPage();
       }
     });
@@ -89,8 +99,7 @@ class PandemiaTheme {
         display1: TextStyle(color: Colors.black),
         display2: TextStyle(color: Colors.black),
         display3: TextStyle(color: Colors.black),
-        button: TextStyle(color: Colors.black)
-        );
+        button: TextStyle(color: Colors.black));
     final originalBody1 = originalTextTheme.body1;
 
     return ThemeData.light().copyWith(
@@ -102,8 +111,9 @@ class PandemiaTheme {
         toggleableActiveColor: Colors.cyan[300],
         primaryTextTheme: originalTextTheme,
         textTheme: originalTextTheme.copyWith(
-            body1:
-                originalBody1.copyWith(decorationColor: Colors.transparent)));
-                
+            body1: originalBody1.copyWith(
+                decorationColor: Colors.transparent,
+                fontSize: 20,
+                fontFamily: "Roboto, Times new roman")));
   }
 }

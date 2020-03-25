@@ -3,10 +3,10 @@
 use diesel::sql_types;
 
 pub use crate::admin_dao::AdminDao;
-
-sql_function!(
-    /// To lowerize sql column value typely
-    fn lower(x: sql_types::Text) -> sql_types::Text);
+pub use crate::feed_dao::FeedDao;
+pub use crate::notif_dao::NotifDao;
+pub use crate::record_dao::RecordDao;
+pub use crate::user_dao::UserDao;
 
 /// Search result type from DAO (not rest API)
 pub struct EntriesResult<T> {
@@ -22,4 +22,3 @@ impl<T> EntriesResult<T> {
         Self { entries, count }
     }
 }
-

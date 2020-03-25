@@ -48,7 +48,6 @@ pub struct AdminDao<'a> {
 }
 
 impl<'a> AdminDao<'a> {
-
     /// Create new Admin
     pub fn create(
         &self,
@@ -57,7 +56,6 @@ impl<'a> AdminDao<'a> {
         phone_num: &'a str,
         labels: &'a Vec<String>,
     ) -> Result<Admin> {
-
         diesel::insert_into(admins::table)
             .values(&NewAdmin {
                 name,
@@ -166,4 +164,3 @@ impl<'a> AdminDao<'a> {
         })
     }
 }
-

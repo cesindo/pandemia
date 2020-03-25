@@ -1,11 +1,19 @@
 //! Definisi struct untuk model-model yang ada di dalam database.
 
+use crate::types::RecordDiff;
 use chrono::NaiveDateTime;
 use serde::Serialize;
 
 use std::fmt;
 
 use crate::ID;
+
+/// Interface untuk model yang pasti memiliki id
+/// sehingga bisa dijadikan model generik untuk mendapatkan id
+pub trait HasID {
+    /// Get this record ID.
+    fn get_id(&self) -> ID;
+}
 
 /// Bentuk model akun di dalam database.
 #[derive(Queryable, Clone, Serialize, PartialEq)]
@@ -118,7 +126,6 @@ impl fmt::Display for UserKey {
     }
 }
 
-
 #[doc(hidden)]
 #[derive(Queryable, Serialize)]
 pub struct Admin {
@@ -149,3 +156,94 @@ pub struct ResetPasswordAdmin {
     pub expiration: Option<NaiveDateTime>,
 }
 
+#[doc(hidden)]
+#[derive(Queryable, Serialize, Clone, Debug)]
+pub struct Record {
+    pub id: ID,
+    pub loc: String,
+    pub loc_kind: i16,
+    pub total_cases: i32,
+    pub total_deaths: i32,
+    pub total_recovered: i32,
+    pub active_cases: i32,
+    pub critical_cases: i32,
+    pub cases_to_pop: f64,
+    pub meta: Vec<String>,
+    pub last_updated: NaiveDateTime,
+}
+
+impl Record {
+    /// Get diff for this with other
+    pub fn diff(&self, other: &Self) -> RecordDiff {
+        let new_cases = self.total_cases - other.total_cases;
+        let new_deaths = self.total_deaths - other.total_deaths;
+        let new_recovered = self.total_recovered - other.total_recovered;
+        let new_critical = self.critical_cases - other.critical_cases;
+
+        RecordDiff {
+            new_cases,
+            new_deaths,
+            new_recovered,
+            new_critical,
+        }
+    }
+}
+
+#[doc(hidden)]
+#[derive(Queryable, Serialize)]
+pub struct Notif {
+    pub id: ID,
+    pub kind: i16,
+    pub text: String,
+    pub initiator_id: ID,
+    pub receiver_id: ID,
+    pub read: bool,
+    pub keywords: Vec<String>,
+    pub meta: Vec<String>,
+    pub ts: NaiveDateTime,
+}
+
+#[doc(hidden)]
+#[derive(Queryable, Serialize)]
+pub struct Feed {
+    pub id: ID,
+    pub creator_id: ID,
+    pub creator_name: String,
+    pub loc: String,
+    pub kind: i16,
+    pub text: String,
+    pub hashtags: Vec<String>,
+    pub meta: Vec<String>,
+    pub ts: NaiveDateTime,
+}
+
+/// Untuk serialize json dari server
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ResultItem {
+    /// Field ID
+    #[serde(rename = "FID")]
+    pub fid: i64,
+
+    /// Provinsi
+    #[serde(rename = "Provinsi")]
+    pub province: String,
+
+    /// Jumlah Kasus Meninggal
+    #[serde(rename = "Kasus_Meni")]
+    pub total_deaths: i32,
+
+    /// Jumlah Kasus Positif
+    #[serde(rename = "Kasus_Posi")]
+    pub active_cases: i32,
+
+    /// Jumlah Kasus Sembuh
+    #[serde(rename = "Kasus_Semb")]
+    pub total_recovered: i32,
+}
+
+/// Untuk serialize json object dari server
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ResultObject {
+    /// Field attributes
+    pub attributes: ResultItem,
+}

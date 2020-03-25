@@ -21,8 +21,7 @@ fn test_register_and_activate_user() {
     let helper = testkit.helper();
     let api_helper = testkit.api_helper();
     let name = helper.generate_full_name();
-    let reg_token =
-        api_helper.register_user(&name, &helper.generate_email(), &helper.generate_phone_num());
+    let reg_token = api_helper.register_user(&name, &helper.generate_email(), &helper.generate_phone_num());
     assert!(reg_token.code == ErrorCode::NoError as i32);
     let reg_token = reg_token.result.unwrap();
     let user = api_helper.activate_user(reg_token, "123");
@@ -85,4 +84,3 @@ test_register_empty_param!(
     "phone_num cannot be empty",
     ((helper, apih) | apih.register_user(&helper.generate_full_name(), &helper.generate_email(), "",))
 );
-
