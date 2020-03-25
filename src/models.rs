@@ -216,3 +216,34 @@ pub struct Feed {
     pub meta: Vec<String>,
     pub ts: NaiveDateTime,
 }
+
+/// Untuk serialize json dari server
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ResultItem {
+    /// Field ID
+    #[serde(rename = "FID")]
+    pub fid: i64,
+
+    /// Provinsi
+    #[serde(rename = "Provinsi")]
+    pub province: String,
+
+    /// Jumlah Kasus Meninggal
+    #[serde(rename = "Kasus_Meni")]
+    pub total_deaths: i32,
+
+    /// Jumlah Kasus Positif
+    #[serde(rename = "Kasus_Posi")]
+    pub active_cases: i32,
+
+    /// Jumlah Kasus Sembuh
+    #[serde(rename = "Kasus_Semb")]
+    pub total_recovered: i32,
+}
+
+/// Untuk serialize json object dari server
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ResultObject {
+    /// Field attributes
+    pub attributes: ResultItem,
+}
