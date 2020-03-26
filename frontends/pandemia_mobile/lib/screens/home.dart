@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:package_info/package_info.dart';
 import 'package:pandemia_mobile/blocs/blocs.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia.dart';
 import 'package:pandemia_mobile/core/core.dart';
+import 'package:pandemia_mobile/main.dart';
 import 'package:pandemia_mobile/models/models.dart';
 import 'package:pandemia_mobile/widgets/widgets.dart';
 
@@ -26,7 +28,7 @@ class HomeScreen extends StatelessWidget {
         Widget body;
         if (activeTab == AppTab.updates) {
           body = NotifList(context);
-        } else if (activeTab == AppTab.stats){
+        } else if (activeTab == AppTab.stats) {
           body = StatsPage();
         } else {
           // @TODO(*): fix this
@@ -45,11 +47,17 @@ class HomeScreen extends StatelessWidget {
             ),
             actions: [
               FlatButton(
-              child: Icon(Icons.info, color: Colors.white,),
-              onPressed: (){
-                Navigator.of(context).pushNamed(PandemiaRoutes.about);
-              },
-            )
+                child: Icon(
+                  Icons.info,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
+                    PandemiaApp.packageInfo = packageInfo;
+                  });
+                  Navigator.of(context).pushNamed(PandemiaRoutes.about);
+                },
+              )
             ],
           ),
           // drawer: new Drawer(
