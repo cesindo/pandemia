@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:package_info/package_info.dart';
+import 'package:pandemia_mobile/api/api_client.dart';
+import 'package:pandemia_mobile/api/pandemia_api.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pandemia_mobile/api/api_client.dart';
 import 'package:pandemia_mobile/blocs/fcm/fcm_bloc.dart';
@@ -11,8 +14,8 @@ import 'package:pandemia_mobile/blocs/pandemia/pandemia_state.dart';
 import 'package:pandemia_mobile/blocs/simple_bloc_delegate.dart';
 import 'package:pandemia_mobile/blocs/stats/stats.dart';
 import 'package:pandemia_mobile/blocs/tab/tab_bloc.dart';
-import 'package:pandemia_mobile/screens/home.dart';
 import 'package:pandemia_mobile/screens/about/about_page.dart';
+import 'package:pandemia_mobile/screens/home.dart';
 import 'package:pandemia_mobile/screens/splash/splash_page.dart';
 import 'package:pandemia_mobile/time_helper.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
@@ -42,6 +45,7 @@ void main() async {
 
 class PandemiaApp extends StatelessWidget {
   final UserRepository userRepository;
+  static PackageInfo packageInfo;
 
   PandemiaApp({Key key, @required this.userRepository}) : super(key: key);
 
@@ -88,7 +92,9 @@ class PandemiaApp extends StatelessWidget {
         );
       },
       PandemiaRoutes.about: (context) {
-        return AboutPage();
+        return AboutPage(
+          packageInfo: packageInfo,
+        );
       }
     });
   }
