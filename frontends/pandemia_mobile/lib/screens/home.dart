@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:package_info/package_info.dart';
 import 'package:pandemia_mobile/blocs/blocs.dart';
 import 'package:pandemia_mobile/blocs/feed/feed_bloc.dart';
 import 'package:pandemia_mobile/blocs/notif/notif_bloc.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia.dart';
 import 'package:pandemia_mobile/core/core.dart';
+import 'package:pandemia_mobile/main.dart';
 import 'package:pandemia_mobile/models/models.dart';
 import 'package:pandemia_mobile/notification_util.dart';
 import 'package:pandemia_mobile/screens/feed/feed_tab_screen.dart';
@@ -55,6 +57,9 @@ class HomeScreen extends StatelessWidget {
                   color: Colors.white,
                 ),
                 onPressed: () {
+                  PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
+                    PandemiaApp.packageInfo = packageInfo;
+                  });
                   Navigator.of(context).pushNamed(PandemiaRoutes.about);
                 },
               )
