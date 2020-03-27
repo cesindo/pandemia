@@ -73,6 +73,8 @@ pub struct LocationInfoResult {
 
 #[derive(Deserialize, Validate)]
 pub struct UserConnect {
+    #[validate(length(min = 1, message = "Device id can't be empty"))]
+    pub device_id: String,
     #[validate(length(min = 1, message = "Client app id can't be empty"))]
     pub app_id: String,
     #[validate(length(min = 1, message = "Provider name must be set, eg: android, apple"))]

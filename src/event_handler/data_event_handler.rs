@@ -25,6 +25,11 @@ pub fn new_record_update(
     let feed_dao = FeedDao::new(conn);
     if let Some(old_record) = old_record {
         let diff = new_record.diff(old_record);
+        let title = if new_record.loc != "Indonesia" {
+            format!("Update Wilayah {}", new_record.loc)
+        } else {
+            "Update Nasional".to_string()
+        };
 
         if diff.new_cases > 0 {
             let message = format!("+{} kasus baru, total {}", diff.new_cases, new_record.total_cases);
@@ -48,7 +53,7 @@ pub fn new_record_update(
                     receiver_id: 0,
                     target_id: 0,
                     kind: NotifKind::NewCases,
-                    title: "Update",
+                    title: &title,
                     item: "",
                     message: &message,
                     created: util::now(),
@@ -84,7 +89,7 @@ pub fn new_record_update(
                     receiver_id: 0,
                     target_id: 0,
                     kind: NotifKind::NewDeaths,
-                    title: "Update",
+                    title: &title,
                     item: "",
                     message: &message,
                     created: util::now(),
@@ -120,7 +125,7 @@ pub fn new_record_update(
                     receiver_id: 0,
                     target_id: 0,
                     kind: NotifKind::NewRecovered,
-                    title: "Update",
+                    title: &title,
                     item: "",
                     message: &message,
                     created: util::now(),

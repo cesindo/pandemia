@@ -1,4 +1,6 @@
 PODS:
+  - device_info (0.0.1):
+    - Flutter
   - Firebase/Analytics (6.13.0):
     - Firebase/Core
   - Firebase/Core (6.13.0):
@@ -97,6 +99,7 @@ PODS:
     - FMDB (~> 2.7.2)
 
 DEPENDENCIES:
+  - device_info (from `.symlinks/plugins/device_info/ios`)
   - Firebase/Analytics
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
   - Flutter (from `Flutter`)
@@ -125,6 +128,8 @@ SPEC REPOS:
     - Protobuf
 
 EXTERNAL SOURCES:
+  device_info:
+    :path: ".symlinks/plugins/device_info/ios"
   firebase_messaging:
     :path: ".symlinks/plugins/firebase_messaging/ios"
   Flutter:
@@ -139,6 +144,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/sqflite/ios"
 
 SPEC CHECKSUMS:
+  device_info: cbf09d2ec12aa7110e0b09fabe54b5bd6c8efe74
   Firebase: 458d109512200d1aca2e1b9b6cf7d68a869a4a46
   firebase_messaging: cffb57ce40958c6204f03fb0c81713e4cd1e240c
   FirebaseAnalytics: 45f36d9c429fc91d206283900ab75390cd05ee8a

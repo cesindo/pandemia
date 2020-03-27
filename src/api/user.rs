@@ -159,27 +159,27 @@ impl PublicApi {
 
     /// Register and connect current account to event push notif (FCM).
     /// Parameter `app_id` adalah app id dari client app.
-    #[api_endpoint(path = "/me/connect/create", auth = "required", mutable)]
+    #[api_endpoint(path = "/me/connect/create", auth = "none", mutable)]
     pub fn connect_create(query: UserConnect) -> ApiResult<()> {
         query.validate()?;
 
         let conn = state.db();
         let dao = UserDao::new(&conn);
 
-        dao.create_user_connect(current_user.id, &query.provider_name, &query.app_id)?;
+        dao.create_user_connect(&query.device_id, &query.provider_name, &query.app_id)?;
         Ok(ApiResult::success(()))
     }
 
     /// Revoke or disconnect current account to event push notif (FCM).
     /// Parameter `app_id` adalah app id dari client app.
-    #[api_endpoint(path = "/me/connect/remove", auth = "required", mutable)]
+    #[api_endpoint(path = "/me/connect/remove", auth = "none", mutable)]
     pub fn connect_remove(query: UserConnect) -> ApiResult<()> {
         query.validate()?;
 
         let conn = state.db();
         let dao = UserDao::new(&conn);
 
-        dao.remove_user_connect(current_user.id, &query.provider_name, &query.app_id)?;
+        dao.remove_user_connect(&query.device_id, &query.provider_name, &query.app_id)?;
         Ok(ApiResult::success(()))
     }
 

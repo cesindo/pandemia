@@ -1,11 +1,11 @@
 import 'dart:io';
-
 import 'package:bloc/bloc.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:pandemia_mobile/api/pandemia_api.dart';
 import 'package:pandemia_mobile/blocs/fcm/fcm_event.dart';
 import 'package:pandemia_mobile/blocs/fcm/fcm_state.dart';
 import 'package:pandemia_mobile/throttle.dart';
+import 'package:pandemia_mobile/util/device_util.dart';
 
 class FcmBloc extends Bloc<FcmEvent, FcmState> {
   final FirebaseMessaging firebaseMessaging = new FirebaseMessaging();
@@ -33,6 +33,7 @@ class FcmBloc extends Bloc<FcmEvent, FcmState> {
     String fcmToken = await firebaseMessaging.getToken();
 
     final data = await PublicApi.post("/user/v1/me/connect/create", {
+      "device_id": await DeviceUtil.getID(),
       "app_id": fcmToken,
       "provider_name": Platform.isAndroid ? "android" : "ios"
     });

@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pandemia_mobile/api/api_client.dart';
+import 'package:pandemia_mobile/blocs/fcm/fcm_bloc.dart';
+import 'package:pandemia_mobile/blocs/feed/feed.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_bloc.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_event.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_state.dart';
 import 'package:pandemia_mobile/blocs/simple_bloc_delegate.dart';
 import 'package:pandemia_mobile/blocs/stats/stats.dart';
 import 'package:pandemia_mobile/blocs/tab/tab_bloc.dart';
-import 'package:pandemia_mobile/notification_util.dart';
 import 'package:pandemia_mobile/screens/home.dart';
 import 'package:pandemia_mobile/screens/about/about_page.dart';
 import 'package:pandemia_mobile/screens/splash/splash_page.dart';
@@ -18,6 +20,7 @@ import 'blocs/notif/notif.dart';
 import 'core/core.dart';
 
 void main() async {
+  await DotEnv().load('.env');
   BlocSupervisor.delegate = SimpleBlocDelegate();
 
   final UserRepository userRepository = UserRepository();
@@ -71,6 +74,12 @@ class PandemiaApp extends StatelessWidget {
             BlocProvider<StatsBloc>(
               builder: (context) => StatsBloc(),
             ),
+            BlocProvider<FeedBloc>(
+              builder: (context) => FeedBloc()..dispatch(LoadFeed()),
+            ),
+            BlocProvider<FcmBloc>(
+              builder: (context) => FcmBloc(),
+            ),
             BlocProvider<NotifBloc>(
               builder: (context) => NotifBloc(pandemiaBloc: pandemiaBloc),
             ),
@@ -103,13 +112,14 @@ class PandemiaTheme {
     final originalBody1 = originalTextTheme.body1;
 
     return ThemeData.light().copyWith(
-        primaryColor: Colors.green[600],
+        primaryColor: Color(0xFF7A58FF),
         accentColor: Colors.cyan[300],
         buttonColor: Colors.grey[800],
         textSelectionColor: Colors.cyan[100],
         backgroundColor: Colors.grey[900],
         toggleableActiveColor: Colors.cyan[300],
         primaryTextTheme: originalTextTheme,
+        scaffoldBackgroundColor: Color(0xFFF1F6FB),
         textTheme: originalTextTheme.copyWith(
             body1: originalBody1.copyWith(
                 decorationColor: Colors.transparent,

@@ -10,14 +10,8 @@ import 'package:pandemia_mobile/blocs/fcm/fcm.dart';
 import 'package:pandemia_mobile/blocs/feed/feed_bloc.dart';
 import 'package:pandemia_mobile/blocs/feed/feed_event.dart';
 import 'package:pandemia_mobile/blocs/notif/notif_bloc.dart';
-import 'package:pandemia_mobile/blocs/notif/notif_event.dart';
-import 'package:pandemia_mobile/core/core.dart';
-import 'package:pandemia_mobile/core/feed_kind.dart';
 import 'package:pandemia_mobile/feed_attributes.dart';
-import 'package:pandemia_mobile/models/feed.dart';
-import 'package:pandemia_mobile/models/models.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
-import 'package:pandemia_mobile/util/json_helper.dart';
 
 class NotificationUtil {
   static NotificationUtil _singleton;
@@ -34,7 +28,7 @@ class NotificationUtil {
     return _singleton;
   }
 
-  NotificationUtil._internal() {}
+  NotificationUtil._internal();
 
   void init(BuildContext context, NotifBloc notifBloc, FeedBloc feedBloc) {
     _userRepository.getUserInfo();
@@ -82,7 +76,7 @@ class NotificationUtil {
 
       String msgTitle = "";
       String msgBody = "";
-      if (Platform.isIOS) {
+      if (message.containsKey('aps')) {
         msgTitle = message['aps']['alert']['title'] as String;
         msgBody = message['aps']['alert']['body'] as String;
       } else {
@@ -110,7 +104,7 @@ class NotificationUtil {
           duration: Duration(seconds: 5))
         ..show(context);
 
-      _feedBloc.dispatch(LoadFeed());
+      _feedBloc.dispatch(RefreshFeed());
     } catch (e) {
       print("ERROR: $e");
     }

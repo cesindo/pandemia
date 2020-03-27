@@ -88,13 +88,23 @@ impl FCMHandler {
     }
 
     /// Get app id from user connect.
-    fn get_user_app_id(&self, user_id: ID, conn: &PgConnection) -> Result<String> {
+    // fn get_user_app_id(&self, user_id: ID, conn: &PgConnection) -> Result<String> {
+    //     use crate::schema::user_connect::{self, dsl};
+
+    //     dsl::user_connect
+    //         .select(dsl::app_id)
+    //         .filter(dsl::user_id.eq(user_id))
+    //         .first(conn)
+    //         .map_err(From::from)
+    // }
+
+    /// Get app ids from user connect
+    fn get_user_app_ids(&self, conn: &PgConnection) -> Result<Vec<String>> {
         use crate::schema::user_connect::{self, dsl};
 
         dsl::user_connect
             .select(dsl::app_id)
-            .filter(dsl::user_id.eq(user_id))
-            .first(conn)
+            .get_results::<String>(conn)
             .map_err(From::from)
     }
 
@@ -106,9 +116,16 @@ impl FCMHandler {
         conn: &'a PgConnection,
     ) -> Result<()> {
         if !self.server_key.is_empty() {
-            if let Ok(app_id) = self.get_user_app_id(payload.receiver_id, conn) {
-                debug!("Sending to app_id: {}", &app_id);
-                let mut m_builder = MessageBuilder::new(&self.server_key, &app_id);
+            // if let Ok(app_id) = self.get_user_app_id(payload.receiver_id, conn) {
+            if let Ok(app_ids) = self.get_user_app_ids(conn) {
+                if app_ids.len() == 0 {
+                    debug!("No target to send notification");
+                    return Ok(());
+                }
+
+                debug!("Sending to app_ids: {:?}", &app_ids);
+                // let mut m_builder = MessageBuilder::new(&self.server_key, &app_id);
+                let mut m_builder = MessageBuilder::new_multi(&self.server_key, &app_ids);
 
                 if provider != "web" {
                     let mut n_builder = NotificationBuilder::new();
