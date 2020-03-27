@@ -4,7 +4,7 @@
 use chrono::prelude::*;
 use diesel::prelude::*;
 
-use crate::{models::Record, result::Result, schema::records, ID, types::LocKind};
+use crate::{models::Record, result::Result, schema::records, types::LocKind, ID};
 
 /// This model structure modeled after data from https://www.worldometers.info/coronavirus/
 #[derive(Insertable)]
@@ -61,19 +61,28 @@ impl<'a> RecordDao<'a> {
     }
 
     /// Get stock histories based on Record
-    pub fn get_latest_records(&self, loc: &str, offset: i64, limit: i64) -> Result<Vec<Record>> {
+    pub fn get_latest_records(&self, loc: Option<&str>, offset: i64, limit: i64) -> Result<Vec<Record>> {
         use crate::schema::records::dsl;
 
         assert!(offset > -1, "Invalid offset");
         assert!(limit > -1, "Invalid limit");
         assert!(limit < 1_000_000, "Invalid limit");
 
-        dsl::records
-            .filter(dsl::loc.eq(loc))
-            .offset(offset)
-            .limit(limit)
-            .order(dsl::last_updated.desc())
-            .load(self.db)
-            .map_err(From::from)
+        if let Some(loc) = loc {
+            dsl::records
+                .filter(dsl::loc.eq(loc))
+                .order(dsl::last_updated.desc())
+                .offset(offset)
+                .limit(limit)
+                .load(self.db)
+                .map_err(From::from)
+        } else {
+            dsl::records
+                .order(dsl::last_updated.desc())
+                .offset(offset)
+                .limit(limit)
+                .load(self.db)
+                .map_err(From::from)
+        }
     }
 }

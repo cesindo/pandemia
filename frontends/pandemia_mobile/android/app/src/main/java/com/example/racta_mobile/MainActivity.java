@@ -1,4 +1,4 @@
-package com.example.pandemia_mobile;
+package org.ces.pandemia;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;
