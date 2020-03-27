@@ -89,7 +89,7 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
 flutter_icons:
-  image_path_ios: 'assets/img/pandemia-logo.png'
-  image_path_android: 'assets/img/pandemia-logo.png'
+  image_path_ios: "assets/img/pandemia-logo.png"
+  image_path_android: "assets/img/pandemia-logo.png"
   android: true
   ios: true

@@ -23,7 +23,11 @@ class AboutPage extends StatelessWidget {
               padding: EdgeInsets.all(MediaQuery.of(context).padding.top),
               child: Text(
                 "Version : " + packageInfo.version,
-                style: TextStyle(color: Colors.black),
+                style: TextStyle(
+                  fontWeight: FontWeight.normal,
+                  color: Colors.black,
+                  fontSize: 16,
+                ),
               ),
             ),
           ],
