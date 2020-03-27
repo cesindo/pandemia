@@ -1,4 +1,3 @@
-
 CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
     full_name VARCHAR NOT NULL,
@@ -15,8 +14,7 @@ VALUES
 (1, 'Dummy User 1', 'dummy1@pandemia.id', '+62856789', TRUE),
 (2, 'Dummy User 2', 'dummy2@pandemia.id', '+62856789124', TRUE),
 (3, 'Dummy User 3', 'dummy3@pandemia.id', '+62856789125', TRUE),
-(4, 'Anonym', 'anonym@pandemia.id', '+62856789126', TRUE),
-;
+(4, 'Anonym', 'anonym@pandemia.id', '+62856789126', TRUE);
 
 SELECT SETVAL('users_id_seq', 4);
 
@@ -43,9 +41,8 @@ INSERT INTO user_passhash (user_id, passhash, deprecated, ver)
 VALUES
 (1, '$2y$05$mw56Wls35HoufQH7QipJnOzqzVmZuwcVUojcqQxKZ5hcG8aBdZRo.', FALSE, 1),
 (2, '$2y$05$mw56Wls35HoufQH7QipJnOzqzVmZuwcVUojcqQxKZ5hcG8aBdZRo.', FALSE, 1),
-(3, '$2y$05$mw56Wls35HoufQH7QipJnOzqzVmZuwcVUojcqQxKZ5hcG8aBdZRo.', FALSE, 1)
-(4, '$2y$05$mw56Wls35HoufQH7QipJnOzqzVmZuwcVUojcqQxKZ5hcG8aBdZRo.', FALSE, 1)
-;
+(3, '$2y$05$mw56Wls35HoufQH7QipJnOzqzVmZuwcVUojcqQxKZ5hcG8aBdZRo.', FALSE, 1),
+(4, '$2y$05$mw56Wls35HoufQH7QipJnOzqzVmZuwcVUojcqQxKZ5hcG8aBdZRo.', FALSE, 1);
 
 -- Tabel untuk menampung user-user yang baru mendaftar tapi belum melakukan aktifasi
 CREATE TABLE register_users (

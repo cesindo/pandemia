@@ -1,4 +1,3 @@
-
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 import 'package:pandemia_mobile/models/feed.dart';
@@ -10,10 +9,22 @@ abstract class FeedEvent extends Equatable {
 
 class LoadFeed extends FeedEvent {
   final bool force;
-  LoadFeed({this.force=false});
+  LoadFeed({this.force = false});
 
   @override
   String toString() => "LoadFeed";
+}
+
+class LoadMoreFeed extends FeedEvent {
+  LoadMoreFeed();
+  @override
+  String toString() => "LoadMoreFeed";
+}
+
+class RefreshFeed extends FeedEvent {
+  RefreshFeed();
+  @override
+  String toString() => "RefreshFeed";
 }
 
 class CreateFeed extends FeedEvent {
@@ -31,4 +42,3 @@ class DeleteFeed extends FeedEvent {
   @override
   String toString() => "DeleteFeed";
 }
-  

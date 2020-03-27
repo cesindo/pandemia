@@ -23,14 +23,14 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
-
+  flutter_dotenv: ^2.1.0
   bloc: ^0.14.0
   flutter_bloc: ^0.20.0
   meta: ">=1.1.0 <2.0.0"
   equatable: ^0.2.0
   http: ^0.12.0
   sqflite: ^1.1.0
-  firebase_messaging: ^6.0.1
+  firebase_messaging: ^6.0.13
   path_provider: ^1.1.0
   localstorage: ^2.0.0
   flutter_launcher_icons: ^0.7.4
@@ -39,6 +39,7 @@ dependencies:
   intl: ^0.16.0
   flutter_ringtone_player: ^1.0.3
   flushbar: ^1.9.1
+  device_info: ^0.4.2+1
 
 dev_dependencies:
   flutter_test:
@@ -56,6 +57,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - .env
     - assets/img/pandemia-logo.png
     - assets/img/pandemia-logo-256.png
     - assets/img/pandemia-logo-64.png

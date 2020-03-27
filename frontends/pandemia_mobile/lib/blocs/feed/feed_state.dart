@@ -26,9 +26,26 @@ class FeedsLoaded extends FeedState {
 
 class FeedsUpdated extends FeedState {
   final List<Feed> items;
-  FeedsUpdated(this.items);
+  final bool hasReachedMax;
+  final bool isLoading;
+
+  FeedsUpdated({this.items, this.hasReachedMax, this.isLoading})
+      : super([items, hasReachedMax, isLoading]);
+
+  FeedsUpdated copyWith({
+    List<Feed> items,
+    bool hasReachedMax,
+    bool isLoading,
+  }) {
+    return FeedsUpdated(
+        items: items ?? this.items,
+        hasReachedMax: hasReachedMax ?? this.hasReachedMax,
+        isLoading: isLoading ?? this.isLoading);
+  }
+
   @override
-  String toString() => "FeedsUpdated";
+  String toString() =>
+      'FeedsUpdated { Feeds: ${items.length}, hasReachedMax: $hasReachedMax, isLoading: $isLoading}';
 }
 
 /// State when error/failure occurred
@@ -44,6 +61,12 @@ class FeedCreated extends FeedState {
   FeedCreated(this.item);
   @override
   String toString() => "FeedCreated";
+}
+
+class DoRefreshFeed extends FeedState {
+  DoRefreshFeed();
+  @override
+  String toString() => "DoRefreshFeed";
 }
 
 /// State when Feed already deleted

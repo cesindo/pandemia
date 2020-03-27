@@ -63,7 +63,7 @@ pub struct NewUserKey {
 #[derive(Insertable, AsChangeset)]
 #[table_name = "user_connect"]
 pub struct NewUserConnect<'a> {
-    user_id: ID,
+    device_id: &'a str,
     provider_name: &'a str,
     app_id: &'a str,
 }
@@ -342,18 +342,18 @@ impl<'a> UserDao<'a> {
 
     /// Create user connect app id untuk spesifik user,
     /// digunakan untuk event push notif.
-    pub fn create_user_connect(&self, user_id: ID, provider_name: &str, app_id: &str) -> Result<()> {
+    pub fn create_user_connect(&self, device_id: &str, provider_name: &str, app_id: &str) -> Result<()> {
         use crate::schema::user_connect::dsl;
 
         let user_connect = NewUserConnect {
-            user_id,
+            device_id,
             provider_name,
             app_id,
         };
 
         diesel::insert_into(user_connect::table)
             .values(&user_connect)
-            .on_conflict(dsl::user_id)
+            .on_conflict(dsl::device_id)
             .do_update()
             .set(&user_connect)
             .execute(self.db)?;
@@ -362,13 +362,13 @@ impl<'a> UserDao<'a> {
     }
 
     /// Remove user connect app id untuk spesifik user.
-    pub fn remove_user_connect(&self, user_id: ID, provider_name: &str, app_id: &str) -> Result<()> {
+    pub fn remove_user_connect(&self, device_id: &str, provider_name: &str, app_id: &str) -> Result<()> {
         use crate::schema::user_connect::dsl;
 
         diesel::delete(
             dsl::user_connect.filter(
-                dsl::user_id
-                    .eq(user_id)
+                dsl::device_id
+                    .eq(device_id)
                     .and(dsl::app_id.eq(app_id).and(dsl::provider_name.eq(provider_name))),
             ),
         )
@@ -378,10 +378,10 @@ impl<'a> UserDao<'a> {
     }
 
     /// Remove user connect app id berdasarkan user id
-    pub fn remove_user_connect_by_id(&self, user_id: ID) -> Result<()> {
+    pub fn remove_user_connect_by_id(&self, device_id: &str) -> Result<()> {
         use crate::schema::user_connect::dsl;
 
-        diesel::delete(dsl::user_connect.filter(dsl::user_id.eq(user_id))).execute(self.db)?;
+        diesel::delete(dsl::user_connect.filter(dsl::device_id.eq(device_id))).execute(self.db)?;
 
         Ok(())
     }

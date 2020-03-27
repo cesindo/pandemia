@@ -7,7 +7,7 @@ const Map<int, IconData> IconsByKind = {
   FeedKind.systemFeed: Icons.info,
   FeedKind.info: Icons.info,
   FeedKind.announcement: Icons.warning,
-  FeedKind.newCases: Icons.group,
+  FeedKind.newCases: Icons.group_add,
   FeedKind.newDeaths: Icons.hotel,
   FeedKind.newRecovered: Icons.assignment_turned_in
 };

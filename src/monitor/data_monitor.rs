@@ -230,6 +230,7 @@ impl DataMonitor {
                 match &a.as_slice() {
                     &[country_name, total_cases, new_cases, total_deaths, new_deaths, recovered, active_cases, critical_cases, cases_to_pop] =>
                     {
+                        debug!("country_name: {}", &country_name);
                         // sementara ini Indonesia saja dulu
                         if country_name != "Indonesia" {
                             continue;

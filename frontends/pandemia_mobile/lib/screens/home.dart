@@ -18,7 +18,7 @@ class HomeScreen extends StatelessWidget {
   final String title;
   final PandemiaBloc pandemiaBloc;
 
-  HomeScreen({Key key, this.title, this.pandemiaBloc}) : super(key: key) {}
+  HomeScreen({Key key, this.title, this.pandemiaBloc}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -44,15 +44,10 @@ class HomeScreen extends StatelessWidget {
         }
         return Scaffold(
           appBar: AppBar(
-            title: Row(
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.only(right: 10),
-                  child: Image.asset("assets/img/pandemia-logo-32.png"),
-                ),
-                Text(title)
-              ],
-            ),
+            elevation: 2.0,
+            leading: Image.asset("assets/img/pandemia-logo-32.png"),
+            title: Text(title, style: TextStyle()),
+            titleSpacing: 0.0,
             actions: [
               FlatButton(
                 child: Icon(
