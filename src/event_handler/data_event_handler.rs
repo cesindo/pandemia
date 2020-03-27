@@ -25,6 +25,7 @@ pub fn new_record_update(
     let feed_dao = FeedDao::new(conn);
     if let Some(old_record) = old_record {
         let diff = new_record.diff(old_record);
+        debug!("diff: {:?}", diff);
         let title = if new_record.loc != "Indonesia" {
             format!("Update Wilayah {}", new_record.loc)
         } else {

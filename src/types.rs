@@ -51,6 +51,7 @@ impl<T> EntriesResult<T> {
 }
 
 /// Record diff result
+#[derive(Debug)]
 pub struct RecordDiff {
     /// +/- new cases
     pub new_cases: i32,
