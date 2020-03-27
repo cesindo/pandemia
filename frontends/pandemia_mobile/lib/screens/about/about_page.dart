@@ -19,17 +19,6 @@ class AboutPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             _getBody(context),
-            Padding(
-              padding: EdgeInsets.all(MediaQuery.of(context).padding.top),
-              child: Text(
-                "Version : " + packageInfo.version,
-                style: TextStyle(
-                  fontWeight: FontWeight.normal,
-                  color: Colors.black,
-                  fontSize: 16,
-                ),
-              ),
-            ),
           ],
         ),
       ),
@@ -39,7 +28,7 @@ class AboutPage extends StatelessWidget {
   Widget _getBody(BuildContext context) {
     return Container(
       padding: EdgeInsets.only(
-        left: MediaQuery.of(context).size.width / 5,
+        left: MediaQuery.of(context).size.width / 7,
         right: MediaQuery.of(context).size.width / 5,
       ),
       child: Column(
@@ -65,14 +54,18 @@ class AboutPage extends StatelessWidget {
               ),
             ),
           ),
-          _sizedBox(context),
-          Text(
-            "Thanks to :",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
+          Padding(
+              padding: EdgeInsets.only(top: 10),
+              child: Text(
+                "Version : " + packageInfo.version,
+                style: TextStyle(
+                  fontWeight: FontWeight.normal,
+                  color: Colors.black,
+                  fontSize: 16,
+                ),
+              ),
             ),
-          ),
+          _sizedBox(context),
           Container(
             color: Colors.black,
             height: 1,
@@ -127,21 +120,21 @@ class AboutPage extends StatelessWidget {
         fontWeight: FontWeight.normal,
         color: Colors.black,
         fontSize: 16,
+        
       ),
       textAlign: TextAlign.left,
-    );
+    overflow: TextOverflow.ellipsis,);
   }
 
   _row({String label, String midText, String value}) {
     return Container(
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Expanded(
-            child: _textDefault(label),
-          ),
+          Container(width: 80, child: _textDefault(label),),
           _textDefault(midText + "   "),
           Expanded(
-            flex: 2,
+            flex: 3,
             child: _textDefault(value),
           ),
         ],
