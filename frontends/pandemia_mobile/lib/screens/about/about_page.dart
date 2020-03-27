@@ -59,8 +59,8 @@ class _AboutPageState extends State<AboutPage> {
   Widget _getBody(BuildContext context) {
     return Container(
       padding: EdgeInsets.only(
-        left: MediaQuery.of(context).size.width / 6,
-        right: MediaQuery.of(context).size.width / 6,
+        left: MediaQuery.of(context).size.width / 7,
+        right: MediaQuery.of(context).size.width / 5,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -85,14 +85,18 @@ class _AboutPageState extends State<AboutPage> {
               ),
             ),
           ),
-          _sizedBox(context),
-          Text(
-            "Thanks to :",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
+          Padding(
+              padding: EdgeInsets.only(top: 10),
+              child: Text(
+                "Version : ${PandemiaApp.appVersion}",
+                style: TextStyle(
+                  fontWeight: FontWeight.normal,
+                  color: Colors.black,
+                  fontSize: 16,
+                ),
+              ),
             ),
-          ),
+          _sizedBox(context),
           Container(
             color: Colors.black,
             height: 1,
@@ -147,21 +151,21 @@ class _AboutPageState extends State<AboutPage> {
         fontWeight: FontWeight.normal,
         color: Colors.black,
         fontSize: 16,
+        
       ),
       textAlign: TextAlign.left,
-    );
+    overflow: TextOverflow.ellipsis,);
   }
 
   _row({String label, String midText, String value}) {
     return Container(
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Expanded(
-            child: _textDefault(label),
-          ),
+          Container(width: 80, child: _textDefault(label),),
           _textDefault(midText + "   "),
           Expanded(
-            flex: 2,
+            flex: 3,
             child: _textDefault(value),
           ),
         ],
