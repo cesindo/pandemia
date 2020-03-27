@@ -45,7 +45,6 @@ void main() async {
 
 class PandemiaApp extends StatelessWidget {
   final UserRepository userRepository;
-  static PackageInfo packageInfo;
 
   PandemiaApp({Key key, @required this.userRepository}) : super(key: key);
 
@@ -91,11 +90,7 @@ class PandemiaApp extends StatelessWidget {
           child: HomeScreen(title: "PANDEMIA", pandemiaBloc: pandemiaBloc),
         );
       },
-      PandemiaRoutes.about: (context) {
-        return AboutPage(
-          packageInfo: packageInfo,
-        );
-      }
+      PandemiaRoutes.about: (context) => AboutPage(),
     });
   }
 }

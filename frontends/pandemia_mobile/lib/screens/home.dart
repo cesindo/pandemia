@@ -57,9 +57,6 @@ class HomeScreen extends StatelessWidget {
                   color: Colors.white,
                 ),
                 onPressed: () {
-                  PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
-                    PandemiaApp.packageInfo = packageInfo;
-                  });
                   Navigator.of(context).pushNamed(PandemiaRoutes.about);
                 },
               )

@@ -1,10 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:package_info/package_info.dart';
 
-class AboutPage extends StatelessWidget {
-  final PackageInfo packageInfo;
+class AboutPage extends StatefulWidget {
+  AboutPage({Key key}) : super(key: key);
 
-  AboutPage({Key key, this.packageInfo}) : super(key: key);
+  @override
+  _AboutPageState createState() => _AboutPageState();
+}
+
+class _AboutPageState extends State<AboutPage> {
+  String version;
+
+  @override
+  void initState() {
+    super.initState();
+    getPackageInfo();
+  }
+
+  getPackageInfo() async {
+    PackageInfo pInfo = await PackageInfo.fromPlatform();
+    setState(() => version = pInfo.version);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,6 +36,17 @@ class AboutPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             _getBody(context),
+            Padding(
+              padding: EdgeInsets.all(MediaQuery.of(context).padding.top),
+              child: Text(
+                "Version : $version",
+                style: TextStyle(
+                  fontWeight: FontWeight.normal,
+                  color: Colors.black,
+                  fontSize: 16,
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -55,16 +83,16 @@ class AboutPage extends StatelessWidget {
             ),
           ),
           Padding(
-              padding: EdgeInsets.only(top: 10),
-              child: Text(
-                "Version : " + packageInfo.version,
-                style: TextStyle(
-                  fontWeight: FontWeight.normal,
-                  color: Colors.black,
-                  fontSize: 16,
-                ),
+            padding: EdgeInsets.only(top: 10),
+            child: Text(
+              "Version : $version",
+              style: TextStyle(
+                fontWeight: FontWeight.normal,
+                color: Colors.black,
+                fontSize: 16,
               ),
             ),
+          ),
           _sizedBox(context),
           Container(
             color: Colors.black,
@@ -120,10 +148,10 @@ class AboutPage extends StatelessWidget {
         fontWeight: FontWeight.normal,
         color: Colors.black,
         fontSize: 16,
-        
       ),
       textAlign: TextAlign.left,
-    overflow: TextOverflow.ellipsis,);
+      overflow: TextOverflow.ellipsis,
+    );
   }
 
   _row({String label, String midText, String value}) {
@@ -131,7 +159,10 @@ class AboutPage extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Container(width: 80, child: _textDefault(label),),
+          Container(
+            width: 80,
+            child: _textDefault(label),
+          ),
           _textDefault(midText + "   "),
           Expanded(
             flex: 3,
