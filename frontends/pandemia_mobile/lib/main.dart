@@ -45,17 +45,8 @@ void main() async {
 
 class PandemiaApp extends StatelessWidget {
   final UserRepository userRepository;
-  static PackageInfo packageInfo;
-  static String appVersion;
 
-  PandemiaApp({Key key, @required this.userRepository}) : super(key: key) {
-    initVersion();
-  }
-
-  initVersion() async {
-    packageInfo = await PackageInfo.fromPlatform();
-    appVersion = packageInfo.version;
-  }
+  PandemiaApp({Key key, @required this.userRepository}) : super(key: key);
 
   // This widget is the root of your application.
   @override
@@ -99,11 +90,7 @@ class PandemiaApp extends StatelessWidget {
           child: HomeScreen(title: "PANDEMIA", pandemiaBloc: pandemiaBloc),
         );
       },
-      PandemiaRoutes.about: (context) {
-        return AboutPage(
-          packageInfo: packageInfo,
-        );
-      }
+      PandemiaRoutes.about: (context) => AboutPage(),
     });
   }
 }
