@@ -46,8 +46,16 @@ void main() async {
 class PandemiaApp extends StatelessWidget {
   final UserRepository userRepository;
   static PackageInfo packageInfo;
+  static String appVersion;
 
-  PandemiaApp({Key key, @required this.userRepository}) : super(key: key);
+  PandemiaApp({Key key, @required this.userRepository}) : super(key: key) {
+    initVersion();
+  }
+
+  initVersion() async {
+    packageInfo = await PackageInfo.fromPlatform();
+    appVersion = packageInfo.version;
+  }
 
   // This widget is the root of your application.
   @override

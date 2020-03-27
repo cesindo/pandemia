@@ -1,10 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:package_info/package_info.dart';
+import 'package:pandemia_mobile/main.dart';
 
-class AboutPage extends StatelessWidget {
+class AboutPage extends StatefulWidget {
   final PackageInfo packageInfo;
 
   AboutPage({Key key, this.packageInfo}) : super(key: key);
+
+  @override
+  _AboutPageState createState() => _AboutPageState();
+}
+
+class _AboutPageState extends State<AboutPage> {
+  String version;
+
+  @override
+  void initState() {
+    super.initState();
+    getPackageInfo();
+  }
+
+  getPackageInfo() async {
+    PackageInfo pInfo = await PackageInfo.fromPlatform();
+    setState(() => version = pInfo.version);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,7 +42,7 @@ class AboutPage extends StatelessWidget {
             Padding(
               padding: EdgeInsets.all(MediaQuery.of(context).padding.top),
               child: Text(
-                "Version : " + packageInfo.version,
+                "Version : ${PandemiaApp.appVersion}",
                 style: TextStyle(
                   fontWeight: FontWeight.normal,
                   color: Colors.black,
@@ -39,8 +59,8 @@ class AboutPage extends StatelessWidget {
   Widget _getBody(BuildContext context) {
     return Container(
       padding: EdgeInsets.only(
-        left: MediaQuery.of(context).size.width / 5,
-        right: MediaQuery.of(context).size.width / 5,
+        left: MediaQuery.of(context).size.width / 6,
+        right: MediaQuery.of(context).size.width / 6,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,

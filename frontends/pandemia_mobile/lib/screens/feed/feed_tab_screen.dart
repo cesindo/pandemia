@@ -78,13 +78,8 @@ class _FeedTabScreenState extends State<FeedTabScreen> {
         if (state is FeedLoading) {
           return LoadingIndicator(key: PandemiaKeys.loading);
         } else if (state is FeedFailure) {
-          return Center(
-              child: refreshable(
-                  context,
-                  Text(
-                    "Cannot fetch data from server :(\n please try again later",
-                    textAlign: TextAlign.center,
-                  )));
+          return refreshableText(
+              "Cannot fetch data from server :(\n please try again later");
         } else if (state is FeedsLoaded) {
           feeds = state.items;
         } else if (state is FeedsUpdated) {
@@ -114,13 +109,7 @@ class _FeedTabScreenState extends State<FeedTabScreen> {
                 },
               ));
         } else {
-          return Center(
-              child: refreshable(
-                  context,
-                  Text(
-                    "No Feed",
-                    textAlign: TextAlign.center,
-                  )));
+          return refreshableText("No updates yet");
         }
       },
     );
@@ -134,5 +123,22 @@ class _FeedTabScreenState extends State<FeedTabScreen> {
           feedBloc.dispatch(LoadFeed(force: true));
           return Future<void>(() {});
         });
+  }
+
+  Widget refreshableText(String text) {
+    return refreshable(
+        context,
+        SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(),
+          child: Container(
+            height: MediaQuery.of(context).size.height / 1.3,
+            child: Center(
+              child: Text(
+                text,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ));
   }
 }
