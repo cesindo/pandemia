@@ -1,7 +1,17 @@
 Pandemia
 ============================
 
-Monitor pandemic disease via  mobile App with push notification.
+Aplikasi mobile iOS dan Android untuk memonitor pandemi dengan push notification dan deteksi lokasi, sudah termasuk juga dengan server dan web panel-nya.
+
+**Goals:**
+
+1. [x] Realtime feed berupa data update kasus terbaru pada suatu daerah.
+2. [x] Push notif untuk setiap update kasus terbaru.
+3. [x] Data statistik daerah.
+4. [ ] Data Fakta dan Hoax berkaitan dengan pandemi.
+5. [ ] Push notif berupa peringatan ketika memasuki daerah dengan riwayat korban positif.
+6. [ ] Tracing.
+
 
 Kebutuhan
 ----------------
