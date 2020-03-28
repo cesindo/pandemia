@@ -3,6 +3,7 @@ Pandemia
 
 [![Build Status](https://travis-ci.org/cesindo/pandemia.svg?branch=master)](https://travis-ci.org/cesindo/pandemia)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+![Platform](https://img.shields.io/badge/platform-ios%20%7C%20android-%23989898)
 
 Aplikasi mobile iOS dan Android untuk memonitor pandemi dengan push notification dan deteksi lokasi, sudah termasuk juga dengan server dan web panel-nya.
 
