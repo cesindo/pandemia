@@ -9,7 +9,7 @@ const Map<int, IconData> IconsByKind = {
   FeedKind.announcement: Icons.warning,
   FeedKind.newCases: Icons.group_add,
   FeedKind.newDeaths: Icons.hotel,
-  FeedKind.newRecovered: Icons.assignment_turned_in
+  FeedKind.newRecovered: Icons.check_box
 };
 
 const Map<int, Color> ColorsByKind = {
