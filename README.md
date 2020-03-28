@@ -1,6 +1,10 @@
 Pandemia
 ============================
 
+[![Build Status](https://travis-ci.org/cesindo/pandemia.svg?branch=master)](https://travis-ci.org/cesindo/pandemia)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+![Platform](https://img.shields.io/badge/platform-ios%20%7C%20android-%23989898)
+
 Aplikasi mobile iOS dan Android untuk memonitor pandemi dengan push notification dan deteksi lokasi, sudah termasuk juga dengan server dan web panel-nya.
 
 **Goals:**
@@ -10,8 +14,12 @@ Aplikasi mobile iOS dan Android untuk memonitor pandemi dengan push notification
 3. [x] Data statistik daerah.
 4. [ ] Data Fakta dan Hoax berkaitan dengan pandemi.
 5. [ ] Push notif berupa peringatan ketika memasuki daerah dengan riwayat korban positif.
-6. [ ] Tracing.
+6. [ ] Peta Pandemi.
+7. [ ] Tracing, memonitor pergerakan ODP, PDP, Terkonfirmasi, dan Sembuh secara anonim (menjaga privasi) diset secara mandiri (crowd sourcing).
 
+![Pandemia Feed](/img/pandemia-feed.jpg)
+![Pandemia Push Notif](/img/pandemia-push-notif.jpg)
+![Pandemia Push Notif Android](/img/pandemia-push-notif-android.jpg)
 
 Kebutuhan
 ----------------
