@@ -181,7 +181,7 @@ impl PublicApi {
     }
 
     /// Unauthorize current user session, this will invalidate all valid access tokens.
-    #[api_endpoint(path = "/admin/unauthorize", auth = "optional", mutable)]
+    #[api_endpoint(path = "/admin/unauthorize", auth = "optional", mutable, accessor = "admin")]
     pub fn admin_unauthorize(query: ()) -> ApiResult<()> {
         match current_admin {
             Some(current_admin) => {

@@ -274,12 +274,16 @@ impl Monitor for DataMonitor {
             // util::sleep(1000);
             // debug!("[DataMonitor] monitor checking...");
 
-            let cm = db::clone();
-            let conn = cm.get().unwrap();
+            let th = thread::spawn(move || {
+                let cm = db::clone();
+                let conn = cm.get().unwrap();
 
-            if let Err(e) = DataMonitor::check_data(&conn) {
-                error!("Data monitor check_data error: {}", e);
-            }
+                if let Err(e) = DataMonitor::check_data(&conn) {
+                    error!("Data monitor check_data error: {}", e);
+                }
+            });
+
+            let _ = th.join();
 
             if rx.try_recv().ok() == Some(true) {
                 debug!("[DataMonitor] down.");
