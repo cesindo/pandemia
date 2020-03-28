@@ -64,7 +64,7 @@ impl<'a> FeedDao<'a> {
     ) -> Result<Vec<Feed>> {
         use crate::schema::feeds::{self, dsl};
         use diesel::dsl::not;
-        
+
         let mut filterer: Box<dyn BoxableExpression<feeds::table, _, SqlType = sql_types::Bool>> =
             Box::new(dsl::id.ne(0));
 

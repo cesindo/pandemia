@@ -32,7 +32,7 @@ let router = new Router({
     },
     {
       path: '/dashboard/users',
-      name: 'user',
+      name: 'User',
       component: Dashboard,
       meta: {
         title: 'Dashboard' + titleDesc,
@@ -40,7 +40,7 @@ let router = new Router({
     },
     {
       path: '/dashboard/users/:id',
-      name: 'user_detail',
+      name: 'User Detail',
       component: Dashboard,
       meta: {
         title: 'Dashboard' + titleDesc,

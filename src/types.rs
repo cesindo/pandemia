@@ -1,5 +1,14 @@
 //! Pandemia Types collection
 
+/// Kind of account available in this system
+pub enum AccountKind {
+    /// Admin
+    Admin = 0,
+
+    /// User
+    User = 1,
+}
+
 /// Notification kind or types
 #[derive(Serialize, Copy, Clone)]
 pub enum NotifKind {

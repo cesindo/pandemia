@@ -29,9 +29,10 @@
         :searchable="true"
         :withActionButton="true"
         :mapItemFunc="userListAllMapper"
+        :showDetailFunc="showDetail"
       />
 
-      <UserDetail v-if="$route.path.startsWith('/dashboard/users/')" :accountId="$route.params.id"/>
+      <UserDetail v-if="$route.path.startsWith('/dashboard/users/')" :userId="$route.params.id"/>
     </div>
 
     <notifications group="default" position="top center" classes="vue-notification" />
@@ -93,6 +94,9 @@ export default {
     clearInterval(this.loginCheckerIval);
   },
   methods: {
+    showDetail(item){
+      this.$router.push("/dashboard/users/" + item.id);
+    },
     txItemMap(item) {
       return item;
     },
@@ -117,7 +121,7 @@ export default {
             self.$router.replace("/");
           }
         });
-      }, 3000);
+      }, 6000);
     },
     onCollapse(state) {
       this.collapsed = state;

@@ -104,7 +104,7 @@ impl PublicApi {
     }
 
     /// Mendapatkan informasi current admin.
-    #[api_endpoint(path = "/me/info", auth = "required")]
+    #[api_endpoint(path = "/me/info", auth = "required", accessor = "admin")]
     pub fn me_info(state: &AppState, query: (), req: &ApiHttpRequest) -> ApiResult<models::Admin> {
         Ok(ApiResult::success(current_admin))
     }
@@ -116,7 +116,7 @@ impl PublicApi {
 
         let conn = state.db();
         let dao = AdminDao::new(&conn);
-        let admin = dao.get_admin_by_email(&query.email)?;
+        let admin = dao.get_by_email(&query.email)?;
 
         dao.reset_password(admin.id, admin.name, admin.email)?;
 
@@ -130,7 +130,7 @@ impl PublicApi {
 
         let conn = state.db();
         let dao = AdminDao::new(&conn);
-        let admin = dao.get_admin_by_email(&query.email)?;
+        let admin = dao.get_by_email(&query.email)?;
 
         if let Some(token) = query.token {
             dao.verify_reset_password(admin.id, &token)?;
@@ -148,7 +148,7 @@ impl PublicApi {
 
         let conn = state.db();
         let dao = AdminDao::new(&conn);
-        let admin = dao.get_admin_by_email(&query.email)?;
+        let admin = dao.get_by_email(&query.email)?;
 
         match (query.token, query.password) {
             (Some(token), Some(password)) => {

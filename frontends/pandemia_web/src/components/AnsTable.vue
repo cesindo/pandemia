@@ -3,7 +3,7 @@
     <div class="ui grid">
       <div class="ten wide column">
         <div v-if="searchable" class="ui icon input">
-          <input type="text" placeholder="Search..." v-on:keyup.13="doSearch" ref="inputSearch">
+          <input type="text" placeholder="Search..." v-on:keyup.13="doSearch" ref="inputSearch" />
           <i class="search icon"></i>
         </div>
 
@@ -16,7 +16,9 @@
           <tbody>
             <tr v-for="item in items" v-bind:key="item.id">
               <td v-for="td in item" v-bind:key="td">{{td}}</td>
-              <td><button v-on:click="showDetail(item)">detail</button></td>
+              <td>
+                <button v-on:click="showDetail(item)">detail</button>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -36,7 +38,8 @@ export default {
     columns: Array,
     searchable: Boolean,
     withActionButton: Boolean,
-    mapItemFunc: Function
+    mapItemFunc: Function,
+    showDetailFunc: Function
   },
   data() {
     return initialState;
@@ -45,7 +48,7 @@ export default {
     doSearch() {
       var url =
         this.dataSourceUrl +
-        `?query=${this.$refs.inputSearch.value}&page=${this.page}&limit=${this.limit}`;
+        `?query=${this.$refs.inputSearch.value}&offset=${this.offset}&limit=${this.limit}`;
       this.$pandemia
         .api()
         .privateApi.get(url)
@@ -53,25 +56,25 @@ export default {
           this.items = resp.data.result.entries.map(this.mapItemFunc);
         });
     },
-    showDetail(item){
-      this.$router.push("/dashboard/users/" + item.id);
+    showDetail(item) {
+      this.showDetailFunc(item);
     }
   },
   created() {
     this.items = [];
-    this.page = 0;
+    this.offset = 0;
     this.limit = 5;
     var self = this;
     var url;
 
     if (this.searchable && this.query) {
-      url = this.dataSourceUrl + "?q=" + this.query + "&page=0&limit=10";
+      url = this.dataSourceUrl + "?q=" + this.query + "&offset=0&limit=10";
     } else {
-      url = this.dataSourceUrl + "?page=0&limit=10";
+      url = this.dataSourceUrl + "?offset=0&limit=10";
     }
 
-    if (this.withActionButton){
-      this.columns.push('Action');
+    if (this.withActionButton) {
+      this.columns.push("Action");
     }
 
     this.$pandemia
@@ -81,7 +84,6 @@ export default {
         self.items = resp.data.result.entries.map(this.mapItemFunc);
       });
   }
-
 };
 </script>
 

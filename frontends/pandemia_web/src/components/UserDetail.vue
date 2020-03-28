@@ -53,8 +53,9 @@ export default {
     if (!this.userId) return;
     this.$pandemia
       .api()
-      .privateApi.get(`/user/v1/user/info?id=${this.userId}`)
+      .publicApi.get(`/user/v1/user/info?id=${this.userId}`)
       .then(resp => {
+        console.log(resp);
         this.d = resp.data.result;
       });
   },
@@ -62,6 +63,7 @@ export default {
   }
 };
 </script>
+
 
 <style lang="less" scoped>
 .value {

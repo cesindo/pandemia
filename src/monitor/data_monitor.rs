@@ -267,7 +267,8 @@ impl Monitor for DataMonitor {
         self._tx = Some(tx);
         self._started = true;
         thread::spawn(move || loop {
-            for i in 0..60 {
+            for i in 0..(60 * 30) {
+                // setiap setengah jam
                 util::sleep(1000);
             }
             // util::sleep(1000);
