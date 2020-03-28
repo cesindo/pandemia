@@ -12,6 +12,9 @@ Aplikasi mobile iOS dan Android untuk memonitor pandemi dengan push notification
 5. [ ] Push notif berupa peringatan ketika memasuki daerah dengan riwayat korban positif.
 6. [ ] Tracing.
 
+![Pandemia Feed](/img/pandemia-feed.jpg)
+![Pandemia Push Notif](/img/pandemia-push-notif.jpg)
+
 
 Kebutuhan
 ----------------
