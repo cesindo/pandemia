@@ -81,7 +81,10 @@ class FeedItemView extends StatelessWidget {
                       child: Column(children: [
                         Text("+${leftNum.toNumberFormat()}",
                             style: TextStyle(
-                                fontSize: 26, color: Color(0xFF987FFF))),
+                                fontSize: 26,
+                                color: ColorsByKind[item.kind]
+                                // color: Color(0xFF987FFF)
+                                )),
                         SizedBox(height: 10),
                         Text(
                           text[0].replaceAll(leftNum + " ", "").capitalize(),
@@ -96,7 +99,10 @@ class FeedItemView extends StatelessWidget {
                       child: Column(children: [
                         Text(rightNum.toNumberFormat(),
                             style: TextStyle(
-                                fontSize: 26, color: Color(0xFF987FFF))),
+                                fontSize: 26,
+                                color: ColorsByKind[item.kind]
+                                // color: Color(0xFF987FFF)
+                                )),
                         SizedBox(height: 10),
                         Text(
                           text[1].replaceAll(" " + rightNum, "").capitalize(),

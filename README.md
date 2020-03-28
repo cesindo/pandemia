@@ -14,7 +14,8 @@ Aplikasi mobile iOS dan Android untuk memonitor pandemi dengan push notification
 3. [x] Data statistik daerah.
 4. [ ] Data Fakta dan Hoax berkaitan dengan pandemi.
 5. [ ] Push notif berupa peringatan ketika memasuki daerah dengan riwayat korban positif.
-6. [ ] Tracing.
+6. [ ] Peta Pandemi.
+7. [ ] Tracing, memonitor pergerakan ODP, PDP, Terkonfirmasi, dan Sembuh secara anonim (menjaga privasi) diset secara mandiri (crowd sourcing).
 
 ![Pandemia Feed](/img/pandemia-feed.jpg)
 ![Pandemia Push Notif](/img/pandemia-push-notif.jpg)
