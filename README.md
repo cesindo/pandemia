@@ -92,6 +92,9 @@ Selanjutkan jalankan Pandemia servernya:
 
     $ cargo run --bin pandemia_server
 
+Atau untuk development gunakan script:
+
+    $ ./etc/script/run-dev.sh
 
 Frontend
 ------------

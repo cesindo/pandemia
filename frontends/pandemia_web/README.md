@@ -11,6 +11,14 @@ $ yarn install
 $ yarn proto
 ```
 
+Copy environment config file:
+
+```
+$ cp .env.example .env
+```
+
+Edit `.env` file as you need.
+
 ### Compiles and hot-reloads for development
 ```
 $ yarn run serve
