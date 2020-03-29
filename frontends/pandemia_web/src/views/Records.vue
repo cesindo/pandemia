@@ -2,12 +2,17 @@
   <div>
     <div class="ui grid right floated">
       <div class="ten wide column">
-        <button class="ui text icon green button right floated" @click="commit">
+        <button
+          v-if="isDirty"
+          class="ui text icon green button right floated"
+          @click="commit"
+        >
           <i class="fa-angle-double-up icon"></i> Commit
         </button>
       </div>
     </div>
-    <AnsTable :key="tableRecords"
+    <AnsTable
+      :key="tableRecords"
       data-source-url="/pandemia/v1/search_records"
       :columns="['ID', 'Lokasi', 'Jenis', 'ODP', 'PDP', 'Positive', 'Sembuh', 'Meninggal', 'Action']"
       :searchable="true"
@@ -76,7 +81,7 @@
           </span>
         </td>
         <td>
-          <button class="ui icon button">
+          <button class="ui icon button" @click="confirmDelete(self.item)">
             <i class="trash icon"></i>
           </button>
         </td>
@@ -119,6 +124,16 @@
     >
       <p>Yakin untuk melakukan commit? Semua perubahan akan di-simpan ke server, pastikan koneksi internet Anda lancar.</p>
     </ConfirmDialog>
+
+    <ConfirmDialog
+      modalName="Delete"
+      caption="Confirmation"
+      approveText="Hapus"
+      :withCloseButton="true"
+      @onApprove="doDelete"
+    >
+      <p>Yakin untuk menghapus record {{toDelete['id']}} "{{toDelete['loc']}}"?</p>
+    </ConfirmDialog>
   </div>
 </template>
 
@@ -142,7 +157,9 @@ export default {
       editedCatName: "",
       editedCat: "",
       commitLogs: {},
-      tableRecords: "-0"
+      isDirty: false,
+      tableRecords: "-0",
+      toDelete: { id: 0, loc: "" }
     };
   },
   methods: {
@@ -180,26 +197,18 @@ export default {
       this.$refs["newValue"].focus();
     },
     approveDialog() {
-      // console.log("approved");
-
-      // var d = Object.assign(this.commitLogs[this.editedItem["id"]] || {}, this.editedItem);
-
-      // d = Object.assign({}, this.editedItem);
-
       var commitLog = this.commitLogs[this.editedItem["id"]];
 
       if (commitLog == undefined) {
         commitLog = Object.assign({}, this.editedItem);
+        this.isDirty = true;
       }
 
       commitLog[this.editedCat] = parseInt(this.$refs.newValue.value);
 
-      // logs = this.commitLogs;
-
-      // logs[this.editedItem["id"]] = d;
-
-      // this.commitLogs = Object.assign(logs, this.commitLogs);
       this.$set(this.commitLogs, this.editedItem["id"], commitLog);
+
+      this.isDirty = true;
 
       this.$modal.hide("EditValueModal");
     },
@@ -208,7 +217,6 @@ export default {
     },
     doCommit() {
       this.$modal.hide("Commit");
-      console.log(obMapToArrayValues(this));
       var normCommitLogs = obMapToArrayValues(this.commitLogs);
       this.$pandemia
         .api()
@@ -216,10 +224,42 @@ export default {
           records: normCommitLogs
         })
         .then(resp => {
-          console.log(resp);
-          this.commitLogs = {};
-          this.tableRecords = 'A-' + new Date().getTime();
+          // console.log(resp);
+          if (resp.data.code == 0) {
+            this.isDirty = false;
+            this.commitLogs = {};
+            this.refreshTable();
+            this.showSuccess("Data telah sukses diunggah ke server pusat");
+          } else {
+            this.showError(resp.data.description);
+          }
         });
+    },
+    confirmDelete(item) {
+      this.toDelete = item;
+      this.$modal.show("Delete");
+    },
+    doDelete() {
+      this.$modal.hide("Delete");
+      this.$pandemia
+        .api()
+        .publicApi.post("/pandemia/v1/delete_record", {
+          id: this.toDelete["id"]
+        })
+        .then(resp => {
+          // console.log(resp);
+          if (resp.data.code == 0) {
+            this.refreshTable();
+            this.showSuccess("Record telah berhasil dihapus");
+          } else {
+            this.showError(
+              "Gagal menghapus record, hubungi sistem administrator"
+            );
+          }
+        });
+    },
+    refreshTable() {
+      this.tableRecords = "A-" + new Date().getTime();
     }
   }
 };

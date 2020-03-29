@@ -123,6 +123,16 @@ impl PublicApi {
 
         Ok(ApiResult::success(()))
     }
+
+    /// Delete record by id
+    #[api_endpoint(path = "/delete_record", auth = "required", mutable, accessor="admin")]
+    pub fn delete_record(query: IdQuery) -> ApiResult<()> {
+        let conn = state.db();
+        let dao = RecordDao::new(&conn);
+        let rec = dao.get_by_id(query.id)?;
+        dao.delete_by_id(rec.id)?;
+        Ok(ApiResult::success(()))
+    }
 }
 
 #[derive(Deserialize, Validate)]
