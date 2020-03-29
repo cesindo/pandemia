@@ -50,6 +50,20 @@ impl PublicApi {
     //     let count = dao.count()?;
     //     Ok(ApiResult::success(EntriesResult { count, entries }))
     // }
+
+    /// Search for records
+    #[api_endpoint(path = "/search_records", auth = "required", accessor="admin")]
+    pub fn search_records(query: QueryEntries) -> ApiResult<EntriesResult<models::Record>> {
+        let conn = state.db();
+        let dao = RecordDao::new(&conn);
+
+        let result = dao.search(&query.query.unwrap_or("".to_string()), query.offset, query.limit)?;
+
+        Ok(ApiResult::success(EntriesResult {
+            count: result.count,
+            entries: result.entries,
+        }))
+    }
 }
 
 /// Holder untuk implementasi API endpoint privat.

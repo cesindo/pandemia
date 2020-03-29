@@ -32,7 +32,17 @@
         :showDetailFunc="showDetail"
       />
 
-      <UserDetail v-if="$route.path.startsWith('/dashboard/users/')" :userId="$route.params.id"/>
+      <AnsTable
+        v-if="currentPage['/dashboard/records']"
+        data-source-url="/pandemia/v1/search_records"
+        :columns="['ID', 'Lokasi', 'Jenis', 'ODP', 'PDP', 'Positive', 'Sembuh', 'Meninggal']"
+        :searchable="true"
+        :withActionButton="true"
+        :mapItemFunc="recordMapper"
+        :showDetailFunc="showDetail"
+      />
+
+      <UserDetail v-if="$route.path.startsWith('/dashboard/users/')" :userId="$route.params.id" />
     </div>
 
     <notifications group="default" position="top center" classes="vue-notification" />
@@ -72,6 +82,11 @@ export default {
           href: "/dashboard/users"
         },
         {
+          title: "Records",
+          icon: "fa fa-address-card",
+          href: "/dashboard/records"
+        },
+        {
           title: "Logout",
           icon: "fa fa-sign-out-alt"
         }
@@ -94,7 +109,29 @@ export default {
     clearInterval(this.loginCheckerIval);
   },
   methods: {
-    showDetail(item){
+    recordMapper(item) {
+      return {
+        id: item["id"],
+        location:
+          item["loc"] +
+          "<br /> <small>last update: " +
+          item["last_updated"] +
+          "</small>",
+        kind: item["loc_kind"],
+        odp: 0,
+        pdp: 1,
+        positive: item["total_cases"],
+        recovered: item["total_recovered"],
+        deaths: item["total_deaths"]
+      };
+    },
+    publicApiScope(self) {
+      return self.$pandemia.api().publicApi;
+    },
+    privateApiScope(self) {
+      return self.$pandemia.api().privateApi;
+    },
+    showDetail(item) {
       this.$router.push("/dashboard/users/" + item.id);
     },
     txItemMap(item) {
@@ -131,12 +168,13 @@ export default {
       };
     },
     onItemClick(_event, item) {
-      if (item.title == 'Logout'){
-        this.$dialog.confirm("Are you sure to logout?")
-          .then((_dialog) => {
+      if (item.title == "Logout") {
+        this.$dialog
+          .confirm("Are you sure to logout?")
+          .then(_dialog => {
             this.$pandemia.unauthorize();
           })
-          .catch(()=>{});
+          .catch(() => {});
       }
     }
   }

@@ -95,6 +95,7 @@ table! {
         cases_to_pop -> Float8,
         meta -> Array<Text>,
         last_updated -> Timestamp,
+        latest -> Bool,
     }
 }
 

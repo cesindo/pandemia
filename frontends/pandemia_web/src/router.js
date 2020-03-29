@@ -3,7 +3,6 @@ import Router from 'vue-router'
 import Home from './views/Home.vue'
 import Dashboard from './views/Dashboard.vue'
 import NotFound from './views/NotFound.vue'
-import Example from './views/Example.vue'
 
 Vue.use(Router)
 
@@ -47,12 +46,12 @@ let router = new Router({
       },
     },
     {
-      path: '/example',
-      name: 'example',
-      component: Example,
+      path: '/dashboard/records',
+      name: 'Records',
+      component: Dashboard,
       meta: {
-        title: 'Example' + titleDesc,
-      }
+        title: 'Dashboard' + titleDesc,
+      },
     },
     {
       path: '*',

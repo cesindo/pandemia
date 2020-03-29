@@ -14,8 +14,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in items" v-bind:key="item.id">
-              <td v-for="td in item" v-bind:key="td">{{td}}</td>
+            <tr v-for="(item,a_idx) in items" v-bind:key="item.id">
+              <td v-for="(td,b_idx) in item" v-bind:key="item.id + '-' + a_idx + '-' + b_idx" v-html="td"></td>
               <td>
                 <button v-on:click="showDetail(item)">detail</button>
               </td>
@@ -39,7 +39,13 @@ export default {
     searchable: Boolean,
     withActionButton: Boolean,
     mapItemFunc: Function,
-    showDetailFunc: Function
+    showDetailFunc: Function,
+    apiScopeBuilder: {
+      type: Function,
+      default: (a) => {
+        return a.$pandemia.api().publicApi;
+      }
+    }
   },
   data() {
     return initialState;
@@ -49,9 +55,8 @@ export default {
       var url =
         this.dataSourceUrl +
         `?query=${this.$refs.inputSearch.value}&offset=${this.offset}&limit=${this.limit}`;
-      this.$pandemia
-        .api()
-        .privateApi.get(url)
+      this.apiScopeBuilder(this)
+        .get(url)
         .then(resp => {
           this.items = resp.data.result.entries.map(this.mapItemFunc);
         });
@@ -77,9 +82,7 @@ export default {
       this.columns.push("Action");
     }
 
-    this.$pandemia
-      .api()
-      .privateApi.get(url)
+    this.apiScopeBuilder(this).get(url)
       .then(resp => {
         self.items = resp.data.result.entries.map(this.mapItemFunc);
       });

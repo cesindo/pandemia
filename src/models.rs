@@ -170,6 +170,7 @@ pub struct Record {
     pub cases_to_pop: f64,
     pub meta: Vec<String>,
     pub last_updated: NaiveDateTime,
+    pub latest:bool
 }
 
 impl Record {
