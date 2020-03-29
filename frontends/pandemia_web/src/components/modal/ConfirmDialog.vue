@@ -2,6 +2,8 @@
   <Modal
     :modalName="modalName"
     :clickToClose="clickToClose"
+    rejectText="Batal"
+    approveText="Oke"
     @beforeOpen="beforeOpen"
     @beforeClose="beforeClose"
     @opened="opened"
@@ -10,10 +12,13 @@
       <slot name="content">
         <h2 class="ui header">{{ caption }}</h2>
       </slot>
+      <slot name="default">
+        <p>{{content}}</p>
+      </slot>
     </div>
     <div class="ui basic center aligned segment">
-      <button class="ui button" @click="onReject">{{ buttonsText.reject }}</button>
-      <button class="ui primary button" @click="onApprove">{{ buttonsText.approve }}</button>
+      <button class="ui button" @click="onReject">{{ rejectText }}</button>
+      <button class="ui primary button" @click="onApprove">{{ approveText }}</button>
     </div>
   </Modal>
 </template>
@@ -35,15 +40,9 @@ export default {
       default: false
     },
     caption: String,
-    buttonsText: {
-      type: Object,
-      default: function() {
-        return {
-          reject: "No",
-          approve: "Yes"
-        };
-      }
-    }
+    content: String,
+    approveText: {type: String, default: "Oke"},
+    rejectText: {type: String, default: "Batal"},
   },
   methods: {
     closeModal() {
@@ -62,7 +61,7 @@ export default {
     beforeClose() {
       this.$emit("beforeClose");
     },
-    opened(){
+    opened() {
       this.$emit("opened");
     }
   }

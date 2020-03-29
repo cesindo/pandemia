@@ -5,16 +5,22 @@ use actix_web::{HttpRequest, HttpResponse};
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
+use validator::Validate;
 
 use crate::{
     api,
     api::types::*,
-    api::{error::param_error, ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest},
+    api::{
+        error::{param_error, Error},
+        ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest,
+    },
+    eventstream::{self, Event::NewRecordUpdate},
     auth,
     dao::RecordDao,
-    error::{Error, ErrorCode},
+    error::{self, ErrorCode},
     models,
     prelude::*,
+    types::LocKind,
     ID,
 };
 
@@ -52,7 +58,7 @@ impl PublicApi {
     // }
 
     /// Search for records
-    #[api_endpoint(path = "/search_records", auth = "required", accessor="admin")]
+    #[api_endpoint(path = "/search_records", auth = "required", accessor = "admin")]
     pub fn search_records(query: QueryEntries) -> ApiResult<EntriesResult<models::Record>> {
         let conn = state.db();
         let dao = RecordDao::new(&conn);
@@ -64,6 +70,81 @@ impl PublicApi {
             entries: result.entries,
         }))
     }
+
+    /// Update multiple records at once.
+    #[api_endpoint(path = "/update_records", auth = "required", mutable, accessor = "admin")]
+    pub fn update_records(query: UpdateRecords) -> ApiResult<()> {
+        use crate::schema::records::{self, dsl};
+        query.validate()?;
+
+        let conn = state.db();
+
+        conn.build_transaction()
+            .read_write()
+            .run::<_, error::Error, _>(|| {
+                let dao = RecordDao::new(&conn);
+
+                for record in query.records {
+                    let old_record = dao.get_latest_records(Some(record.loc.as_ref()), 0, 1)?.pop();
+
+                    let new_record = dao.create(
+                        &record.loc,
+                        record.loc_kind.into(),
+                        record.total_cases,
+                        record.total_deaths,
+                        record.total_recovered,
+                        record.active_cases,
+                        record.critical_cases,
+                        record.cases_to_pop,
+                        &record.meta.iter().map(|a| a.as_str()).collect(),
+                        true
+                    )?;
+
+                    if let Some(old_record) = old_record {
+                        let diff = new_record.diff(&old_record);
+
+                        if diff.new_cases > 0
+                            || diff.new_deaths > 0
+                            || diff.new_recovered > 0
+                            || diff.new_critical > 0
+                        {
+                            eventstream::emit(NewRecordUpdate(
+                                Some(old_record.clone()),
+                                new_record.clone(),
+                            ));
+                        }
+                    }
+
+                    debug!("updating record {}...", record.id);
+                }
+
+                Ok(())
+            })?;
+
+        Ok(ApiResult::success(()))
+    }
+}
+
+#[derive(Deserialize, Validate)]
+pub struct RecordUpdate {
+    #[validate(range(min = 1, max = 9999999999))]
+    pub id: i64,
+    #[validate(length(min = 2, max = 1000))]
+    pub loc: String,
+    pub loc_kind: i16,
+    pub total_cases: i32,
+    pub total_deaths: i32,
+    pub total_recovered: i32,
+    pub active_cases: i32,
+    pub critical_cases: i32,
+    pub cases_to_pop: f64,
+    pub meta: Vec<String>,
+    pub last_updated: NaiveDateTime,
+}
+
+#[derive(Deserialize, Validate)]
+pub struct UpdateRecords {
+    records: Vec<RecordUpdate>,
 }
 
 /// Holder untuk implementasi API endpoint privat.

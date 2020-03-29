@@ -32,15 +32,7 @@
         :showDetailFunc="showDetail"
       />
 
-      <AnsTable
-        v-if="currentPage['/dashboard/records']"
-        data-source-url="/pandemia/v1/search_records"
-        :columns="['ID', 'Lokasi', 'Jenis', 'ODP', 'PDP', 'Positive', 'Sembuh', 'Meninggal']"
-        :searchable="true"
-        :withActionButton="true"
-        :mapItemFunc="recordMapper"
-        :showDetailFunc="showDetail"
-      />
+      <Records v-if="currentPage['/dashboard/records']" />
 
       <UserDetail v-if="$route.path.startsWith('/dashboard/users/')" :userId="$route.params.id" />
     </div>
@@ -53,12 +45,14 @@
 // @ is an alias to /src
 import AnsTable from "@/components/AnsTable.vue";
 import UserDetail from "@/components/UserDetail.vue";
+import Records from "@/views/Records.vue";
 
 export default {
   name: "Dashboard",
   components: {
     AnsTable,
-    UserDetail
+    UserDetail,
+    Records
   },
   data() {
     return {
@@ -109,22 +103,7 @@ export default {
     clearInterval(this.loginCheckerIval);
   },
   methods: {
-    recordMapper(item) {
-      return {
-        id: item["id"],
-        location:
-          item["loc"] +
-          "<br /> <small>last update: " +
-          item["last_updated"] +
-          "</small>",
-        kind: item["loc_kind"],
-        odp: 0,
-        pdp: 1,
-        positive: item["total_cases"],
-        recovered: item["total_recovered"],
-        deaths: item["total_deaths"]
-      };
-    },
+    
     publicApiScope(self) {
       return self.$pandemia.api().publicApi;
     },

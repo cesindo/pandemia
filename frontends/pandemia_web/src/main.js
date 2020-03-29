@@ -24,7 +24,7 @@ import VTooltip from 'v-tooltip'
 Vue.use(VTooltip)
 
 import vmodal from 'vue-js-modal'
-Vue.use(vmodal)
+Vue.use(vmodal, { dynamic: true, injectModalsContainer: true })
 
 import './registerServiceWorker'
 
