@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:pandemia_mobile/blocs/issue/issue_bloc.dart';
@@ -7,8 +8,8 @@ import 'package:pandemia_mobile/blocs/issue/issue_state.dart';
 import 'package:pandemia_mobile/core/core.dart';
 import 'package:pandemia_mobile/models/issue_detail.dart';
 import 'package:pandemia_mobile/time_helper.dart';
+import 'package:pandemia_mobile/widgets/image_view.dart';
 import 'package:pandemia_mobile/widgets/widgets.dart';
-import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
 
 class IssueDetailPage extends StatefulWidget {
@@ -65,8 +66,15 @@ class _IssueDetailPageState extends State<IssueDetailPage> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Image.network(item.primaryImage,
-                  width: 160, height: 160, fit: BoxFit.fill),
+              InkWell(
+                onTap: () => Navigator.push(
+                    context, ViewImage(imageUrl: item.primaryImage)),
+                child: CachedNetworkImage(
+                    imageUrl: item.primaryImage,
+                    width: 160,
+                    height: 160,
+                    fit: BoxFit.fill),
+              ),
               SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -74,11 +82,12 @@ class _IssueDetailPageState extends State<IssueDetailPage> {
                     children: <Widget>[
                       Text("${item.classification}".toUpperCase(),
                           style: TextStyle(
-                              fontSize: 40, fontWeight: FontWeight.w500)),
+                              fontSize: 36, fontWeight: FontWeight.w500)),
                       Text(
                         "${item.name}",
                         style: TextStyle(
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 18,
                             color: Colors.grey[800]),
                       ),
                       Container(
@@ -87,7 +96,7 @@ class _IssueDetailPageState extends State<IssueDetailPage> {
                           TimeHelper.formatSimple(
                               DateTime.parse(item.registerTime)),
                           style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w400),
+                              fontSize: 16, fontWeight: FontWeight.w400),
                         ),
                       )
                     ]),
@@ -108,9 +117,10 @@ class _IssueDetailPageState extends State<IssueDetailPage> {
                     children: <Widget>[
                       Text("Penjelasan:",
                           style: TextStyle(fontWeight: FontWeight.w500)),
+                      SizedBox(height: 5),
                       Text("${item.desc}",
                           style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w300))
+                              fontSize: 17, fontWeight: FontWeight.w300))
                     ],
                   ))),
         ),
@@ -133,8 +143,13 @@ class _IssueDetailPageState extends State<IssueDetailPage> {
                     contentPadding:
                         EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     title: Text("${ref.caption}"),
-                    leading: Image.network(ref.thumbnailUrl,
-                        width: 60, height: 60, fit: BoxFit.fill),
+                    leading: CachedNetworkImage(
+                        imageUrl: ref.thumbnailUrl,
+                        errorWidget: (context, text, object) =>
+                            Image.asset("assets/img/no_image.png"),
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.fill),
                     onTap: () => _launchURL(context, ref.urlLink),
                   );
                 })

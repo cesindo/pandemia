@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:pandemia_mobile/blocs/issue/issue_bloc.dart';
@@ -24,14 +25,17 @@ class IssueItemView extends StatelessWidget {
           color: Colors.white),
       child: new ListTile(
         contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-        leading: Image.network(item.primaryImage,
-            width: 80, height: 80, fit: BoxFit.fill),
+        leading: CachedNetworkImage(
+            imageUrl: item.primaryImage,
+            width: 80,
+            height: 80,
+            fit: BoxFit.fill),
         title: Text(
           item.name,
           style: TextStyle(
               color: Colors.grey[800],
               fontWeight: FontWeight.w300,
-              fontSize: 21),
+              fontSize: 19),
         ),
         subtitle: Container(
           margin: EdgeInsets.only(top: 8),

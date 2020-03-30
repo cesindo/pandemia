@@ -9,26 +9,24 @@ import 'package:pandemia_mobile/widgets/issue/issue_item_view.dart';
 import 'package:pandemia_mobile/widgets/loading_indicator.dart';
 
 class IssuePage extends StatefulWidget {
-  const IssuePage({Key key}) : super(key: key);
+  final IssueBloc issueBloc;
+  const IssuePage({Key key, @required this.issueBloc}) : super(key: key);
 
   @override
-  _IssuePageState createState() => _IssuePageState();
+  _IssuePageState createState() => _IssuePageState(this.issueBloc);
 }
 
 class _IssuePageState extends State<IssuePage> {
   List<Issue> issues = [];
-  IssueBloc issueBloc;
+  final IssueBloc issueBloc;
   bool isLoading = false;
   bool hasReachedMax = false;
   final ScrollController _scrollController = new ScrollController();
 
+  _IssuePageState(this.issueBloc);
+
   @override
   void initState() {
-    Future.delayed(Duration.zero, () {
-      setState(() {
-        issueBloc = BlocProvider.of<IssueBloc>(context);
-      });
-    });
     _scrollController.addListener(_onScroll);
     super.initState();
   }
@@ -38,7 +36,7 @@ class _IssuePageState extends State<IssuePage> {
     final currentScroll = _scrollController.position.pixels;
     if (currentScroll == maxScroll) {
       if (issues.isNotEmpty) {
-        // issueBloc.dispatch(LoadMoreIssue());
+        issueBloc.dispatch(LoadMoreIssue());
       }
     }
   }
@@ -102,7 +100,9 @@ class _IssuePageState extends State<IssuePage> {
     return new RefreshIndicator(
         child: child,
         onRefresh: () {
-          return Future<void>(() {});
+          return Future<void>(() {
+            issueBloc.dispatch(LoadIssue(force: true));
+          });
         });
   }
 }
