@@ -13,15 +13,15 @@ import 'package:pandemia_mobile/widgets/loading_indicator.dart';
 
 class FeedTabScreen extends StatefulWidget {
   final BuildContext context;
+  final FeedBloc feedBloc;
 
-  FeedTabScreen(this.context);
+  FeedTabScreen(this.context, this.feedBloc);
 
   @override
   _FeedTabScreenState createState() => _FeedTabScreenState();
 }
 
 class _FeedTabScreenState extends State<FeedTabScreen> {
-  FeedBloc feedBloc;
   StreamSubscription _subs;
   List<Feed> feeds = [];
   bool hasReachedMax = false;
@@ -33,16 +33,13 @@ class _FeedTabScreenState extends State<FeedTabScreen> {
 
   @override
   void initState() {
-    Future.delayed(Duration.zero, () {
-      setState(() {
-        feedBloc = BlocProvider.of<FeedBloc>(context);
-        _subs = feedBloc.state.listen((state) {
-          if (state is DoRefreshFeed) {
-            feedBloc.dispatch(LoadFeed(force: true));
-          }
-        });
-      });
+    this.widget.feedBloc.dispatch(LoadFeed());
+    _subs = this.widget.feedBloc.state.listen((state) {
+      if (state is DoRefreshFeed) {
+        this.widget.feedBloc.dispatch(LoadFeed(force: true));
+      }
     });
+
     _scrollController.addListener(_onScroll);
     super.initState();
   }
@@ -58,7 +55,7 @@ class _FeedTabScreenState extends State<FeedTabScreen> {
     final currentScroll = _scrollController.position.pixels;
     if (currentScroll == maxScroll) {
       if (feeds.isNotEmpty) {
-        feedBloc.dispatch(LoadMoreFeed());
+        this.widget.feedBloc.dispatch(LoadMoreFeed());
       }
     }
   }
@@ -120,7 +117,7 @@ class _FeedTabScreenState extends State<FeedTabScreen> {
         child: child,
         key: _refreshKey,
         onRefresh: () {
-          feedBloc.dispatch(LoadFeed(force: true));
+          this.widget.feedBloc.dispatch(LoadFeed(force: true));
           return Future<void>(() {});
         });
   }

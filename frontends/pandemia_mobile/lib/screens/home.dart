@@ -39,13 +39,13 @@ class HomeScreen extends StatelessWidget {
       builder: (context, activeTab) {
         Widget body;
         if (activeTab == AppTab.updates) {
-          body = FeedTabScreen(context);
+          body = FeedTabScreen(context, feedBloc);
         } else if (activeTab == AppTab.stats) {
           body = StatsPage();
         } else if (activeTab == AppTab.map) {
           body = Container();
         } else if (activeTab == AppTab.hoax) {
-          body = IssuePage(issueBloc: issueBloc);
+          body = IssuePage(issueBloc);
         } else {
           // @TODO(*): fix this
           body = Container();

@@ -10,24 +10,23 @@ import 'package:pandemia_mobile/widgets/loading_indicator.dart';
 
 class IssuePage extends StatefulWidget {
   final IssueBloc issueBloc;
-  const IssuePage({Key key, @required this.issueBloc}) : super(key: key);
+  const IssuePage(this.issueBloc);
 
   @override
-  _IssuePageState createState() => _IssuePageState(this.issueBloc);
+  _IssuePageState createState() => _IssuePageState();
 }
 
 class _IssuePageState extends State<IssuePage> {
   List<Issue> issues = [];
-  final IssueBloc issueBloc;
   bool isLoading = false;
   bool hasReachedMax = false;
   final ScrollController _scrollController = new ScrollController();
 
-  _IssuePageState(this.issueBloc);
+  _IssuePageState();
 
   @override
   void initState() {
-    this.issueBloc.dispatch(LoadIssue());
+    this.widget.issueBloc.dispatch(LoadIssue());
     _scrollController.addListener(_onScroll);
     super.initState();
   }
@@ -37,7 +36,7 @@ class _IssuePageState extends State<IssuePage> {
     final currentScroll = _scrollController.position.pixels;
     if (currentScroll == maxScroll) {
       if (issues.isNotEmpty) {
-        issueBloc.dispatch(LoadMoreIssue());
+        this.widget.issueBloc.dispatch(LoadMoreIssue());
       }
     }
   }
@@ -81,7 +80,8 @@ class _IssuePageState extends State<IssuePage> {
                   }
 
                   final item = issues[index];
-                  return new IssueItemView(item: item, issueBloc: issueBloc);
+                  return new IssueItemView(
+                      item: item, issueBloc: this.widget.issueBloc);
                 },
               ));
         } else {
@@ -102,7 +102,7 @@ class _IssuePageState extends State<IssuePage> {
         child: child,
         onRefresh: () {
           return Future<void>(() {
-            issueBloc.dispatch(LoadIssue(force: true));
+            this.widget.issueBloc.dispatch(LoadIssue(force: true));
           });
         });
   }
