@@ -6,10 +6,10 @@ import 'package:pandemia_mobile/blocs/feed/feed_bloc.dart';
 import 'package:pandemia_mobile/blocs/notif/notif_bloc.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia.dart';
 import 'package:pandemia_mobile/core/core.dart';
-import 'package:pandemia_mobile/main.dart';
 import 'package:pandemia_mobile/models/models.dart';
 import 'package:pandemia_mobile/notification_util.dart';
 import 'package:pandemia_mobile/screens/feed/feed_tab_screen.dart';
+import 'package:pandemia_mobile/screens/issue/issue_page.dart';
 import 'package:pandemia_mobile/widgets/widgets.dart';
 
 import '../core/core.dart';
@@ -40,6 +40,10 @@ class HomeScreen extends StatelessWidget {
           body = FeedTabScreen(context);
         } else if (activeTab == AppTab.stats) {
           body = StatsPage();
+        } else if (activeTab == AppTab.map) {
+          body = Container();
+        } else if (activeTab == AppTab.hoax) {
+          body = IssuePage();
         } else {
           // @TODO(*): fix this
           body = Container();
