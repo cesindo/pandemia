@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:pandemia_mobile/core/feed_kind.dart';
 import 'package:pandemia_mobile/feed_attributes.dart';
 import 'package:pandemia_mobile/models/feed.dart';
 import 'package:pandemia_mobile/time_helper.dart';
@@ -16,6 +17,22 @@ class FeedItemView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (item.kind == FeedKind.newCases ||
+        item.kind == FeedKind.newDeaths ||
+        item.kind == FeedKind.newRecovered) {
+      return _buildNewUpdate(context);
+    } else {
+      return _buildOther(context);
+    }
+  }
+
+  Widget _buildOther(BuildContext context) {
+    return Container(
+      child: Text("coming soon"),
+    );
+  }
+
+  Widget _buildNewUpdate(BuildContext context) {
     var text = item.text.split(", ");
     var leftNum = RegExp(r"\+[0-9]*").firstMatch(text[0]).group(0);
     var rightNum = RegExp(r'(\d+)+')
@@ -81,8 +98,7 @@ class FeedItemView extends StatelessWidget {
                       child: Column(children: [
                         Text("+${leftNum.toNumberFormat()}",
                             style: TextStyle(
-                                fontSize: 26,
-                                color: ColorsByKind[item.kind]
+                                fontSize: 26, color: ColorsByKind[item.kind]
                                 // color: Color(0xFF987FFF)
                                 )),
                         SizedBox(height: 10),
@@ -90,7 +106,9 @@ class FeedItemView extends StatelessWidget {
                           text[0].replaceAll(leftNum + " ", "").capitalize(),
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                              fontSize: 13, fontWeight: FontWeight.w300, ),
+                            fontSize: 15,
+                            fontWeight: FontWeight.w300,
+                          ),
                         ),
                       ]),
                     ),
@@ -99,8 +117,7 @@ class FeedItemView extends StatelessWidget {
                       child: Column(children: [
                         Text(rightNum.toNumberFormat(),
                             style: TextStyle(
-                                fontSize: 26,
-                                color: ColorsByKind[item.kind]
+                                fontSize: 26, color: ColorsByKind[item.kind]
                                 // color: Color(0xFF987FFF)
                                 )),
                         SizedBox(height: 10),
@@ -108,7 +125,7 @@ class FeedItemView extends StatelessWidget {
                           text[1].replaceAll(" " + rightNum, "").capitalize(),
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                              fontSize: 13, fontWeight: FontWeight.w300),
+                              fontSize: 15, fontWeight: FontWeight.w300),
                         ),
                       ]),
                     ),
