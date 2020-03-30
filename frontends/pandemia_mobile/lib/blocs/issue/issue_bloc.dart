@@ -26,7 +26,7 @@ class IssueBloc extends Bloc<IssueEvent, IssueState> {
       yield* _mapDeleteToState(event);
     } else if (event is LoadDetailIssue) {
       yield* _mapDetailToState(event);
-    }
+    } 
   }
 
   Stream<IssueState> _mapDetailToState(LoadDetailIssue event) async* {
@@ -48,7 +48,7 @@ class IssueBloc extends Bloc<IssueEvent, IssueState> {
         .fetchGradually(
             "entries",
             () => DetaxApi.get(
-                "/detax/v1/issue/search?query=covid-19&offset=0&limit=10"),
+                "/detax/v1/issue/search?query=covid-19&offset=0&limit=20"),
             force: event.force)
         .map((d) {
       if (d != null) {

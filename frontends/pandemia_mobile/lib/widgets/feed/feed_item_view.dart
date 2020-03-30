@@ -42,7 +42,7 @@ class FeedItemView extends StatelessWidget {
         .first;
 
     var size = MediaQuery.of(context).size;
-    final double itemHeight = (size.height - kToolbarHeight - 24) / 3.5;
+    final double itemHeight = (size.height - kToolbarHeight - 24) / 3.4;
     final double itemWidth = size.width / 1;
 
     return Card(

@@ -102,7 +102,9 @@ class _IssuePageState extends State<IssuePage> {
     return new RefreshIndicator(
         child: child,
         onRefresh: () {
-          return Future<void>(() {});
+          return Future<void>(() {
+            issueBloc.dispatch(LoadIssue(force: true));
+          });
         });
   }
 }
