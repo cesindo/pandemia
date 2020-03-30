@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
-import 'package:pandemia_mobile/core/feed_kind.dart';
-import 'package:pandemia_mobile/feed_attributes.dart';
 import 'package:pandemia_mobile/models/info_location.dart';
 import 'package:pandemia_mobile/time_helper.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -15,7 +13,6 @@ class StatsItemView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final numfa = new NumberFormat("#,##0", "en_US");
     return Card(
       elevation: 2.0,
       margin: new EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
@@ -67,7 +64,7 @@ class StatsItemView extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 5.0),
           child: Column(children: [
-            Text(numfa.format(item.latestRecord.activeCases),
+            Text(numfa.format(item.latestRecord.totalCases),
                 style: TextStyle(fontSize: 26, color: Colors.red)),
             SizedBox(height: 5),
             Text(
