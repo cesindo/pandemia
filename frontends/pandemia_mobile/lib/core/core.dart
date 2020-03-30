@@ -21,6 +21,8 @@ class PandemiaKeys {
   static final updatesTab = const Key('updatesTab__');
   static final statsTab = const Key('statsTab__');
   static final settingsTab = const Key('__dashboardTab__');
+  static final hoaxTab = const Key('__hoaxTab__');
+  static final mapTab = const Key('__mapTab__');
 
   // Notif
   static final notifList = const Key('__notifList__');

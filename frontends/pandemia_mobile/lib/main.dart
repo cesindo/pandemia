@@ -6,6 +6,8 @@ import 'package:pandemia_mobile/api/pandemia_api.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pandemia_mobile/blocs/fcm/fcm_bloc.dart';
 import 'package:pandemia_mobile/blocs/feed/feed.dart';
+import 'package:pandemia_mobile/blocs/issue/issue_bloc.dart';
+import 'package:pandemia_mobile/blocs/issue/issue_event.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_bloc.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_event.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_state.dart';
@@ -74,6 +76,9 @@ class PandemiaApp extends StatelessWidget {
             ),
             BlocProvider<StatsBloc>(
               builder: (context) => StatsBloc(),
+            ),
+            BlocProvider<IssueBloc>(
+              builder: (context) => IssueBloc()..dispatch(LoadIssue()),
             ),
             BlocProvider<FeedBloc>(
               builder: (context) => FeedBloc()..dispatch(LoadFeed()),

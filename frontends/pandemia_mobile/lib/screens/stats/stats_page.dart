@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:pandemia_mobile/blocs/stats/stats_bloc.dart';
 import 'package:pandemia_mobile/blocs/stats/stats_event.dart';
 import 'package:pandemia_mobile/blocs/stats/stats_state.dart';
-import 'package:pandemia_mobile/models/record.dart';
-import 'package:pandemia_mobile/time_helper.dart';
 import 'package:pandemia_mobile/widgets/stats/stats_item_view.dart';
 import 'package:pandemia_mobile/widgets/widgets.dart';
-import 'package:timeago/timeago.dart' as timeago;
 
 class StatsPage extends StatelessWidget {
   @override

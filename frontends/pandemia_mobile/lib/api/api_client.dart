@@ -26,6 +26,8 @@ class ApiClient {
       new ApiResource(DotEnv().env['BASE_URL_PRIVATE'], userRepository);
   ApiResource public() =>
       new ApiResource(DotEnv().env['BASE_URL_PUBLIC'], userRepository);
+  ApiResource detax() =>
+      new ApiResource(DotEnv().env['BASE_URL_DETAX'], userRepository);
 
   factory ApiClient() => _singleton;
 

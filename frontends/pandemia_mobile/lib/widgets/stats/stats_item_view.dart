@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+import 'package:pandemia_mobile/core/feed_kind.dart';
+import 'package:pandemia_mobile/feed_attributes.dart';
 import 'package:pandemia_mobile/models/info_location.dart';
 import 'package:pandemia_mobile/time_helper.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -16,7 +18,7 @@ class StatsItemView extends StatelessWidget {
     final numfa = new NumberFormat("#,##0", "en_US");
     return Card(
       elevation: 2.0,
-      margin: new EdgeInsets.fromLTRB(16.0,16.0,16.0,0),
+      margin: new EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -37,29 +39,7 @@ class StatsItemView extends StatelessWidget {
               )
             ]),
           ),
-          Padding(
-            padding: EdgeInsets.all(10),
-            child: Table(
-              columnWidths: {0: FlexColumnWidth(0.7), 1: FixedColumnWidth(20)},
-              children: [
-                TableRow(children: [
-                  Text("Total kasus"),
-                  Text(":"),
-                  Text(numfa.format(item.latestRecord.totalCases))
-                ]),
-                TableRow(children: [
-                  Text("Total kematian"),
-                  Text(":"),
-                  Text(numfa.format(item.latestRecord.totalDeaths))
-                ]),
-                TableRow(children: [
-                  Text("Total sembuh"),
-                  Text(":"),
-                  Text(numfa.format(item.latestRecord.totalRecovered))
-                ])
-              ],
-            ),
-          ),
+          Padding(padding: EdgeInsets.all(10), child: _buildCount(context)),
           Center(
             child: SizedBox(
               height: 150,
@@ -69,6 +49,70 @@ class StatsItemView extends StatelessWidget {
           )
         ],
       ),
+    );
+  }
+
+  Widget _buildCount(BuildContext context) {
+    final numfa = new NumberFormat("#,##0", "en_US");
+    var size = MediaQuery.of(context).size;
+    final double itemHeight = (size.height - kToolbarHeight - 24) / 3.5;
+    final double itemWidth = size.width / 1;
+
+    return GridView.count(
+      shrinkWrap: true,
+      primary: false,
+      crossAxisCount: 3,
+      childAspectRatio: (itemWidth / itemHeight),
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 5.0),
+          child: Column(children: [
+            Text(numfa.format(item.latestRecord.activeCases),
+                style: TextStyle(fontSize: 26, color: Colors.red)),
+            SizedBox(height: 5),
+            Text(
+              "Positif",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w300,
+              ),
+            ),
+          ]),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 5.0),
+          child: Column(children: [
+            Text(numfa.format(item.latestRecord.totalRecovered),
+                style: TextStyle(fontSize: 26, color: Colors.green)),
+            SizedBox(height: 5),
+            Text(
+              "Sembuh",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w300,
+              ),
+            ),
+          ]),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 5.0),
+          child: Column(children: [
+            Text(numfa.format(item.latestRecord.totalDeaths),
+                style: TextStyle(fontSize: 26, color: Colors.grey)),
+            SizedBox(height: 5),
+            Text(
+              "Meninggal",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w300,
+              ),
+            ),
+          ]),
+        ),
+      ],
     );
   }
 

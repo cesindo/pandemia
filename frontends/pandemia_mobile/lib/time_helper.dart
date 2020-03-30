@@ -33,7 +33,7 @@ class TimeHelper {
   }
 
   static String formatSimple(DateTime dt) {
-    return DateFormat('yyyy-MM-dd - kk:mm').format(dt);
+    return DateFormat('dd MMMM yyyy kk:mm').format(dt);
   }
 
   /// Membentuk format untuk mempermudah serialize di client <-> server.
