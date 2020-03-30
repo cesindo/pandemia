@@ -43,6 +43,8 @@ dependencies:
   device_info: ^0.4.2+1
   charts_flutter: ^0.9.0
   url_launcher: ^5.4.2
+  photo_view: ^0.9.0
+  cached_network_image: ^2.0.0-rc.1
 
 dev_dependencies:
   flutter_test:
@@ -65,6 +67,7 @@ flutter:
     - assets/img/pandemia-logo-256.png
     - assets/img/pandemia-logo-64.png
     - assets/img/pandemia-logo-32.png
+    - assets/img/no_image.png
     - assets/timezone/data/2019b.tzf
 
   # An image asset can refer to one or more resolution-specific "variants", see

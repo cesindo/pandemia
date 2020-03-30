@@ -26,8 +26,13 @@ class IssueBloc extends Bloc<IssueEvent, IssueState> {
       yield* _mapDeleteToState(event);
     } else if (event is LoadDetailIssue) {
       yield* _mapDetailToState(event);
+    } else if (event is LoadMoreIssue && !_hasReachedMax(currentState)) {
+      yield* _mapMoreIssueToState(event);
     }
   }
+
+  bool _hasReachedMax(IssueState state) =>
+      state is IssueListUpdated && state.hasReachedMax;
 
   Stream<IssueState> _mapDetailToState(LoadDetailIssue event) async* {
     yield IssueLoading();
@@ -38,6 +43,36 @@ class IssueBloc extends Bloc<IssueEvent, IssueState> {
       yield IssueDetailLoaded(result);
     } else {
       yield IssueFailure(error: "Cannot get issue data from server");
+    }
+  }
+
+  Stream<IssueState> _mapMoreIssueToState(LoadMoreIssue event) async* {
+    yield (currentState as IssueListUpdated).copyWith(isLoading: true);
+
+    // await new Future.delayed(new Duration(milliseconds: 300));
+
+    final entries = await _fetchIssues(
+        (currentState as IssueListUpdated).items.length, 10, true);
+    (currentState as IssueListUpdated).items.addAll(entries);
+    var data = (currentState as IssueListUpdated).items;
+    data = data.toSet().toList();
+    repo.putData(
+        "entries", {"entries": data.map((f) => f.toMap() as dynamic).toList()});
+
+    yield entries.isEmpty
+        ? (currentState as IssueListUpdated).copyWith(hasReachedMax: true)
+        : IssueListUpdated(items: data, hasReachedMax: false, isLoading: false);
+  }
+
+  Future<List<Issue>> _fetchIssues(int offset, int limit, bool force) async {
+    final d = await DetaxApi.get(
+        "/detax/v1/issue/search?query=covid-19&offset=$offset&limit=$limit");
+    if (d != null) {
+      return (d["result"]["entries"] as List<dynamic>)
+          .map((a) => Issue.fromMap(a))
+          .toList();
+    } else {
+      return null;
     }
   }
 
