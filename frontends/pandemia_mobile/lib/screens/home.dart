@@ -11,6 +11,7 @@ import 'package:pandemia_mobile/models/models.dart';
 import 'package:pandemia_mobile/notification_util.dart';
 import 'package:pandemia_mobile/screens/feed/feed_tab_screen.dart';
 import 'package:pandemia_mobile/screens/issue/issue_page.dart';
+import 'package:pandemia_mobile/screens/map/map_page.dart';
 import 'package:pandemia_mobile/widgets/widgets.dart';
 
 import '../core/core.dart';
@@ -43,7 +44,7 @@ class HomeScreen extends StatelessWidget {
         } else if (activeTab == AppTab.stats) {
           body = StatsPage();
         } else if (activeTab == AppTab.map) {
-          body = Container();
+          body = MapPage();
         } else if (activeTab == AppTab.hoax) {
           body = IssuePage(issueBloc: issueBloc);
         } else {

@@ -45,6 +45,8 @@ dependencies:
   url_launcher: ^5.4.2
   photo_view: ^0.9.0
   cached_network_image: ^2.0.0-rc.1
+  google_maps_flutter: ^0.5.25+2
+  location: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -68,6 +70,7 @@ flutter:
     - assets/img/pandemia-logo-64.png
     - assets/img/pandemia-logo-32.png
     - assets/img/no_image.png
+    - assets/img/destination_map_marker.png
     - assets/timezone/data/2019b.tzf
 
   # An image asset can refer to one or more resolution-specific "variants", see
