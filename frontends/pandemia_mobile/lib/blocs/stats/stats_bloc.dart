@@ -1,3 +1,4 @@
+import 'package:pandemia_mobile/api/pandemia_api.dart';
 import 'package:pandemia_mobile/core/smart_repo.dart';
 
 import 'package:bloc/bloc.dart';
@@ -10,6 +11,8 @@ class StatsBloc extends Bloc<StatsEvent, StatsState> {
 
   StatsBloc() {
     repo = PersistentSmartRepo("bloc_stats");
+    // @TODO(*): remove this, for dev purpose
+    repo.clear();
   }
 
   @override
@@ -25,61 +28,27 @@ class StatsBloc extends Bloc<StatsEvent, StatsState> {
   Stream<StatsState> _mapLoadStatsToState(LoadStats event) async* {
     yield StatsLoading();
 
-    // yield* repo
-    //     .fetchGradually("entries",
-    //         () => PublicApi.get("/pandemia/v1/info_location?loc=global"),
-    //         force: event.force)
-    //     .map((d) {
-    //   if (d != null) {
-    //     final entries = (d.data["entries"] as List<dynamic>)
-    //         .map((a) => Record.fromMap(a))
-    //         .toList();
+    yield* repo
+        .fetchGradually(
+            "entries",
+            () => PublicApi.get(
+                "/pandemia/v1/info_locations?loc=global,Indonesia"),
+            force: event.force)
+        .asyncExpand((d) async* {
+      if (d != null) {
+        final entries =
+            (d.data as List<dynamic>).map((a) => Record.fromMap(a)).toList();
 
-    //     if (d.isLocal) {
-    //       return StatsLoaded(entries);
-    //     } else {
-    //       return StatsUpdated(entries);
-    //     }
-    //   } else {
-    //     return StatsFailure(error: "Cannot get Stats data from server");
-    //   }
-    // });
+        entries.sort((a, b) => a.loc == "global" ? -1 : 1);
 
-    // print("data2: $data2");
-    // if (data2 != null) {
-    //   dataAll.add(data2);
-    // } else {
-    //   yield StatsFailure(error: "Cannot get stats data from server");
-    // }
-
-    final dataAll = await getStats(event.force);
-
-    if (dataAll.isNotEmpty) {
-      yield StatsLoaded(dataAll.map((a) => Record.fromMap(a)).toList());
-    }
-
-    if (!event.force || dataAll.isEmpty) {
-      final dataAll = await getStats(true);
-      yield StatsUpdated(dataAll.map((a) => Record.fromMap(a)).toList());
-    }
-  }
-
-  Future<List<dynamic>> getStats(bool force) async {
-    List<dynamic> dataAll = [];
-    final data = await repo.fetchApi(
-        "entries_global", "/pandemia/v1/info_location?loc=global",
-        force: force);
-
-    if (data != null) {
-      dataAll.add(data);
-    }
-    final data2 = await repo.fetchApi(
-        "entries_indo", "/pandemia/v1/info_location?loc=Indonesia",
-        force: force);
-
-    if (data2 != null) {
-      dataAll.add(data2);
-    }
-    return dataAll;
+        if (d.isLocal) {
+          yield StatsLoaded(entries);
+        } else {
+          yield StatsUpdated(entries);
+        }
+      } else {
+        yield StatsFailure(error: "Cannot get Record data from server");
+      }
+    });
   }
 }

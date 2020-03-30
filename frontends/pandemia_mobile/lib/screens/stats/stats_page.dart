@@ -78,7 +78,7 @@ class Section extends StatelessWidget {
           Padding(
             padding: EdgeInsets.all(10),
             child: Table(
-              columnWidths: {0: FlexColumnWidth(0.5), 1: FixedColumnWidth(20)},
+              columnWidths: {0: FlexColumnWidth(0.7), 1: FixedColumnWidth(20)},
               children: [
                 TableRow(children: [
                   Text("Total kasus"),

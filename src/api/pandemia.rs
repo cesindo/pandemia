@@ -29,18 +29,34 @@ pub struct PublicApi;
 
 #[api_group("Pandemia", "public", base = "/pandemia/v1")]
 impl PublicApi {
-    /// Get location info.
+    /// Get location info (single mode)
     #[api_endpoint(path = "/info_location", auth = "none")]
     pub fn get_info_location(query: LocationQuery) -> ApiResult<Option<models::Record>> {
         let conn = state.db();
         let dao = RecordDao::new(&conn);
-        let mut rec = dao.get_latest_records(query.loc.as_ref().map(|a| a.as_str()), 0, 3)?;
+        let locs:Vec<&str> = vec![query.loc.as_str()];
+        let mut rec = dao.get_latest_records(locs, 0, 3)?;
 
         if rec.first().is_some() {
             Ok(ApiResult::success(Some(rec.swap_remove(0))))
         } else {
             Ok(ApiResult::success(None))
         }
+    }
+
+    /// Get location info (multiple mode)
+    #[api_endpoint(path = "/info_locations", auth = "none")]
+    pub fn get_info_locations(query: LocationQuery) -> ApiResult<Vec<models::Record>> {
+        let conn = state.db();
+        let dao = RecordDao::new(&conn);
+
+        let locs:Vec<&str> = query.loc.split(',').collect();
+
+        let result = dao.get_latest_records(locs, 0, 10)?;
+
+        Ok(ApiResult::success(
+            result
+        ))
     }
 
     // /// Search for records
@@ -85,7 +101,7 @@ impl PublicApi {
                 let dao = RecordDao::new(&conn);
 
                 for record in query.records {
-                    let old_record = dao.get_latest_records(Some(record.loc.as_ref()), 0, 1)?.pop();
+                    let old_record = dao.get_latest_records(vec![record.loc.as_ref()], 0, 1)?.pop();
 
                     let new_record = dao.create(
                         &record.loc,

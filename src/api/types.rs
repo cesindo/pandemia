@@ -58,7 +58,7 @@ pub struct ResetPassword {
 #[derive(Deserialize, Validate)]
 pub struct LocationQuery {
     #[validate(length(min = 1, max = 100))]
-    pub loc: Option<String>,
+    pub loc: String,
 }
 
 #[derive(Serialize, Validate)]

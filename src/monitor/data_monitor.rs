@@ -81,7 +81,7 @@ impl DataMonitor {
         for data in &items {
             let item = &data.attributes;
             let total_cases: i32 = item.active_cases + item.total_deaths + item.total_recovered;
-            let latest_data = dao.get_latest_records(Some(&item.province), 0, 1)?.pop();
+            let latest_data = dao.get_latest_records(vec![&item.province], 0, 1)?.pop();
 
             debug!(
                 "Fetching data for Prov. {}, with total cases: {}",
@@ -153,7 +153,7 @@ impl DataMonitor {
                 let total_deaths = total_deaths.replace(",", "").trim().parse::<i32>().unwrap_or(0);
                 let recovered = recovered.replace(",", "").trim().parse::<i32>().unwrap_or(0);
 
-                let latest_record = dao.get_latest_records(Some("global"), 0, 1)?.pop();
+                let latest_record = dao.get_latest_records(vec!["global"], 0, 1)?.pop();
 
                 if let Some(latest_record) = latest_record {
                     if latest_record.total_cases != total_cases {
@@ -211,7 +211,7 @@ impl DataMonitor {
                 let total_deaths = total_deaths.replace(",", "").trim().parse::<i32>().unwrap_or(0);
                 let recovered = recovered.replace(",", "").trim().parse::<i32>().unwrap_or(0);
 
-                let latest_record = dao.get_latest_records(Some("Indonesia"), 0, 1)?.pop();
+                let latest_record = dao.get_latest_records(vec!["Indonesia"], 0, 1)?.pop();
 
                 if let Some(latest_record) = latest_record {
                     if latest_record.total_cases != total_cases {

@@ -3,7 +3,7 @@
 
 use chrono::prelude::*;
 use diesel::prelude::*;
-use diesel::sql_types;
+use diesel::{sql_types, dsl::any};
 
 use crate::{
     models::Record, result::Result, schema::records, sqlutil::lower, types::EntriesResult, types::LocKind, ID,
@@ -121,16 +121,16 @@ impl<'a> RecordDao<'a> {
     }
 
     /// Get stock histories based on Record
-    pub fn get_latest_records(&self, loc: Option<&str>, offset: i64, limit: i64) -> Result<Vec<Record>> {
+    pub fn get_latest_records(&self, locs: Vec<&str>, offset: i64, limit: i64) -> Result<Vec<Record>> {
         use crate::schema::records::dsl;
 
         assert!(offset > -1, "Invalid offset");
         assert!(limit > -1, "Invalid limit");
         assert!(limit < 1_000_000, "Invalid limit");
 
-        if let Some(loc) = loc {
+        if !locs.is_empty() {
             dsl::records
-                .filter(dsl::loc.eq(loc))
+                .filter(dsl::loc.eq(any(locs)).and(dsl::latest.eq(true)))
                 .order(dsl::last_updated.desc())
                 .offset(offset)
                 .limit(limit)
