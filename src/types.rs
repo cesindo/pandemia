@@ -30,6 +30,7 @@ pub enum NotifKind {
 }
 
 /// Location kind
+#[derive(Copy, Clone)]
 pub enum LocKind {
     /// Global
     Global = 0,
@@ -41,6 +42,25 @@ pub enum LocKind {
     Province = 3,
     /// City
     City = 4,
+    /// Unknown
+    Unknown = 10,
+}
+
+impl From<i16> for LocKind {
+    fn from(d: i16) -> Self {
+        use LocKind::*;
+        match d {
+            0 => Global,
+            1 => Continent,
+            2 => Country,
+            3 => Province,
+            4 => City,
+            x => {
+                error!("Unknown loc kind code: {}", x);
+                Unknown
+            }
+        }
+    }
 }
 
 /// Entries result type

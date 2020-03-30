@@ -5,7 +5,9 @@ use chrono::prelude::*;
 use diesel::prelude::*;
 use diesel::sql_types;
 
-use crate::{models::Record, result::Result, schema::records, types::EntriesResult, types::LocKind, ID};
+use crate::{
+    models::Record, result::Result, schema::records, sqlutil::lower, types::EntriesResult, types::LocKind, ID,
+};
 
 /// This model structure modeled after data from https://www.worldometers.info/coronavirus/
 #[derive(Insertable)]
@@ -20,7 +22,7 @@ struct NewRecord<'a> {
     pub critical_cases: i32,
     pub cases_to_pop: f64,
     pub meta: &'a Vec<&'a str>,
-    pub latest:bool
+    pub latest: bool,
 }
 
 /// Data Access Object for Record
@@ -43,20 +45,25 @@ impl<'a> RecordDao<'a> {
         critical_cases: i32,
         cases_to_pop: f64,
         meta: &'a Vec<&'a str>,
+        no_tx: bool,
     ) -> Result<Record> {
-        use crate::schema::records::{self, dsl};
-
-        self.db.build_transaction().read_write().run::<_, _, _>(|| {
-            // reset dulu yang ada flag latest-nya ke false
-            diesel::update(dsl::records.filter(dsl::latest.eq(true)))
-                .set(dsl::latest.eq(false))
-                .execute(self.db)?;
-
-            // tambahkan record baru dengan latest=true
-            diesel::insert_into(records::table)
-                .values(&NewRecord {
+        if no_tx {
+            self.do_update(
+                loc,
+                loc_kind,
+                total_cases,
+                total_deaths,
+                total_recovered,
+                active_cases,
+                critical_cases,
+                cases_to_pop,
+                meta,
+            )
+        } else {
+            self.db.build_transaction().read_write().run::<_, _, _>(|| {
+                self.do_update(
                     loc,
-                    loc_kind: loc_kind as i16,
+                    loc_kind,
                     total_cases,
                     total_deaths,
                     total_recovered,
@@ -64,11 +71,53 @@ impl<'a> RecordDao<'a> {
                     critical_cases,
                     cases_to_pop,
                     meta,
-                    latest: true,
-                })
-                .get_result(self.db)
-                .map_err(From::from)
-        })
+                )
+            })
+        }
+    }
+
+    fn do_update(
+        &self,
+        loc: &'a str,
+        loc_kind: LocKind,
+        total_cases: i32,
+        total_deaths: i32,
+        total_recovered: i32,
+        active_cases: i32,
+        critical_cases: i32,
+        cases_to_pop: f64,
+        meta: &'a Vec<&'a str>,
+    ) -> Result<Record> {
+        use crate::schema::records::{self, dsl};
+
+        // reset dulu yang ada flag latest-nya ke false
+        diesel::update(
+            dsl::records.filter(
+                dsl::loc
+                    .eq(loc)
+                    .and(dsl::loc_kind.eq(loc_kind as i16))
+                    .and(dsl::latest.eq(true)),
+            ),
+        )
+        .set(dsl::latest.eq(false))
+        .execute(self.db)?;
+
+        // tambahkan record baru dengan latest=true
+        diesel::insert_into(records::table)
+            .values(&NewRecord {
+                loc,
+                loc_kind: loc_kind as i16,
+                total_cases,
+                total_deaths,
+                total_recovered,
+                active_cases,
+                critical_cases,
+                cases_to_pop,
+                meta,
+                latest: true,
+            })
+            .get_result(self.db)
+            .map_err(From::from)
     }
 
     /// Get stock histories based on Record
@@ -101,19 +150,21 @@ impl<'a> RecordDao<'a> {
     pub fn search(&self, query: &str, offset: i64, limit: i64) -> Result<EntriesResult<Record>> {
         use crate::schema::records::{self, dsl};
 
+        // deprecated, telah digantikan dengan pre-set column latest lebih murah dan optimal
         // select * from (select *, rank() OVER (PARTITION BY loc order by last_updated desc) from records) as d where d.rank=1;
 
-        let like_clause = format!("%{}%", query);
+        let like_clause = format!("%{}%", query.to_lowercase());
         let mut filterer: Box<dyn BoxableExpression<records::table, _, SqlType = sql_types::Bool>> =
-            Box::new(dsl::id.ne(0).and(dsl::latest.eq(true)) );
+            Box::new(dsl::id.ne(0).and(dsl::latest.eq(true)));
 
-        filterer = Box::new(filterer.and(dsl::loc.like(&like_clause)));
+        filterer = Box::new(filterer.and(lower(dsl::loc).like(&like_clause)));
 
         Ok(EntriesResult::new(
             dsl::records
                 .filter(&filterer)
                 .offset(offset)
                 .limit(limit)
+                .order(dsl::last_updated.desc())
                 .load::<Record>(self.db)?,
             dsl::records
                 .filter(filterer)

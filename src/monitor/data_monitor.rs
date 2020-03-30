@@ -100,6 +100,7 @@ impl DataMonitor {
                         0,
                         0.0,
                         &vec![],
+                        false,
                     )?;
 
                     debug!("new record from Prov. {} saved.", &item.province);
@@ -125,6 +126,7 @@ impl DataMonitor {
                     0,
                     0.0,
                     &vec![],
+                    false,
                 )?;
             }
         }
@@ -165,6 +167,7 @@ impl DataMonitor {
                             0,
                             0.0,
                             &vec![],
+                            false,
                         )?;
                     }
                 } else {
@@ -178,6 +181,7 @@ impl DataMonitor {
                         0,
                         0.0,
                         &vec![],
+                        false,
                     )?;
                 }
             }
@@ -221,6 +225,7 @@ impl DataMonitor {
                             0,
                             0.0,
                             &vec![],
+                            false,
                         )?;
 
                         debug!("new record saved.");
@@ -249,6 +254,7 @@ impl DataMonitor {
                         0,
                         0.0,
                         &vec![],
+                        false,
                     )?;
                 }
             }
