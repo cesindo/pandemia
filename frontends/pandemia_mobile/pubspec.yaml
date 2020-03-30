@@ -41,6 +41,7 @@ dependencies:
   flutter_ringtone_player: ^1.0.3
   flushbar: ^1.9.1
   device_info: ^0.4.2+1
+  charts_flutter: ^0.9.0
 
 dev_dependencies:
   flutter_test:

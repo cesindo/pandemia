@@ -3,7 +3,7 @@
 
 use chrono::prelude::*;
 use diesel::prelude::*;
-use diesel::{sql_types, dsl::any};
+use diesel::{dsl::any, sql_types};
 
 use crate::{
     models::Record, result::Result, schema::records, sqlutil::lower, types::EntriesResult, types::LocKind, ID,
@@ -120,7 +120,7 @@ impl<'a> RecordDao<'a> {
             .map_err(From::from)
     }
 
-    /// Get stock histories based on Record
+    /// Get latest records
     pub fn get_latest_records(&self, locs: Vec<&str>, offset: i64, limit: i64) -> Result<Vec<Record>> {
         use crate::schema::records::dsl;
 
@@ -144,6 +144,23 @@ impl<'a> RecordDao<'a> {
                 .load(self.db)
                 .map_err(From::from)
         }
+    }
+
+    /// Get all records by loc
+    pub fn get_record_history(&self, loc: &str, offset: i64, limit: i64) -> Result<Vec<Record>> {
+        use crate::schema::records::dsl;
+
+        assert!(offset > -1, "Invalid offset");
+        assert!(limit > -1, "Invalid limit");
+        assert!(limit < 1_000_000, "Invalid limit");
+
+        dsl::records
+            .filter(dsl::loc.eq(loc))
+            .order(dsl::last_updated.desc())
+            .offset(offset)
+            .limit(limit)
+            .load(self.db)
+            .map_err(From::from)
     }
 
     /// Search for specific records only take the latest one for each location

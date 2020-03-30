@@ -5,6 +5,7 @@ use actix_web::{HttpRequest, HttpResponse};
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
+use std::collections::HashMap;
 use validator::Validate;
 
 use crate::{
@@ -14,15 +15,44 @@ use crate::{
         error::{param_error, Error},
         ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest,
     },
-    eventstream::{self, Event::NewRecordUpdate},
     auth,
     dao::RecordDao,
     error::{self, ErrorCode},
+    eventstream::{self, Event::NewRecordUpdate},
     models,
     prelude::*,
     types::LocKind,
     ID,
 };
+
+#[derive(Deserialize, Validate)]
+pub struct RecordUpdate {
+    #[validate(range(min = 1, max = 9999999999))]
+    pub id: i64,
+    #[validate(length(min = 2, max = 1000))]
+    pub loc: String,
+    pub loc_kind: i16,
+    pub total_cases: i32,
+    pub total_deaths: i32,
+    pub total_recovered: i32,
+    pub active_cases: i32,
+    pub critical_cases: i32,
+    pub cases_to_pop: f64,
+    pub meta: Vec<String>,
+    pub last_updated: NaiveDateTime,
+}
+
+#[derive(Deserialize, Validate)]
+pub struct UpdateRecords {
+    records: Vec<RecordUpdate>,
+}
+
+#[derive(Serialize)]
+pub struct InfoLocation {
+    pub name: String,
+    pub latest_record: models::Record,
+    pub history: Vec<models::Record>,
+}
 
 /// Holder untuk implementasi API endpoint publik untuk Pandemia.
 pub struct PublicApi;
@@ -34,7 +64,7 @@ impl PublicApi {
     pub fn get_info_location(query: LocationQuery) -> ApiResult<Option<models::Record>> {
         let conn = state.db();
         let dao = RecordDao::new(&conn);
-        let locs:Vec<&str> = vec![query.loc.as_str()];
+        let locs: Vec<&str> = vec![query.loc.as_str()];
         let mut rec = dao.get_latest_records(locs, 0, 3)?;
 
         if rec.first().is_some() {
@@ -46,17 +76,31 @@ impl PublicApi {
 
     /// Get location info (multiple mode)
     #[api_endpoint(path = "/info_locations", auth = "none")]
-    pub fn get_info_locations(query: LocationQuery) -> ApiResult<Vec<models::Record>> {
+    pub fn get_info_locations(query: LocationQuery) -> ApiResult<Vec<InfoLocation>> {
         let conn = state.db();
         let dao = RecordDao::new(&conn);
 
-        let locs:Vec<&str> = query.loc.split(',').collect();
+        let locs: Vec<&str> = query.loc.split(',').collect();
 
-        let result = dao.get_latest_records(locs, 0, 10)?;
+        let records = dao.get_latest_records(locs, 0, 10)?;
 
-        Ok(ApiResult::success(
-            result
-        ))
+        let mut result = vec![];
+
+        for rec in records {
+            let mut history: Vec<models::Record> = vec![];
+
+            if query.with_history == Some(true) {
+                history = dao.get_record_history(&rec.loc, 0, 30)?;
+            }
+
+            result.push(InfoLocation {
+                name: rec.loc.to_owned(),
+                latest_record: rec,
+                history,
+            });
+        }
+
+        Ok(ApiResult::success(result))
     }
 
     // /// Search for records
@@ -113,7 +157,7 @@ impl PublicApi {
                         record.critical_cases,
                         record.cases_to_pop,
                         &record.meta.iter().map(|a| a.as_str()).collect(),
-                        true
+                        true,
                     )?;
 
                     if let Some(old_record) = old_record {
@@ -124,10 +168,7 @@ impl PublicApi {
                             || diff.new_recovered > 0
                             || diff.new_critical > 0
                         {
-                            eventstream::emit(NewRecordUpdate(
-                                Some(old_record.clone()),
-                                new_record.clone(),
-                            ));
+                            eventstream::emit(NewRecordUpdate(Some(old_record.clone()), new_record.clone()));
                         }
                     }
 
@@ -141,7 +182,7 @@ impl PublicApi {
     }
 
     /// Delete record by id
-    #[api_endpoint(path = "/delete_record", auth = "required", mutable, accessor="admin")]
+    #[api_endpoint(path = "/delete_record", auth = "required", mutable, accessor = "admin")]
     pub fn delete_record(query: IdQuery) -> ApiResult<()> {
         let conn = state.db();
         let dao = RecordDao::new(&conn);
@@ -149,28 +190,6 @@ impl PublicApi {
         dao.delete_by_id(rec.id)?;
         Ok(ApiResult::success(()))
     }
-}
-
-#[derive(Deserialize, Validate)]
-pub struct RecordUpdate {
-    #[validate(range(min = 1, max = 9999999999))]
-    pub id: i64,
-    #[validate(length(min = 2, max = 1000))]
-    pub loc: String,
-    pub loc_kind: i16,
-    pub total_cases: i32,
-    pub total_deaths: i32,
-    pub total_recovered: i32,
-    pub active_cases: i32,
-    pub critical_cases: i32,
-    pub cases_to_pop: f64,
-    pub meta: Vec<String>,
-    pub last_updated: NaiveDateTime,
-}
-
-#[derive(Deserialize, Validate)]
-pub struct UpdateRecords {
-    records: Vec<RecordUpdate>,
 }
 
 /// Holder untuk implementasi API endpoint privat.

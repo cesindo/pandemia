@@ -1,7 +1,7 @@
 
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
-import 'package:pandemia_mobile/models/record.dart';
+import 'package:pandemia_mobile/models/info_location.dart';
 
 @immutable
 abstract class StatsState extends Equatable {
@@ -18,14 +18,14 @@ class StatsLoading extends StatsState {
 }
 
 class StatsLoaded extends StatsState {
-  final List<Record> items;
+  final List<InfoLocation> items;
   StatsLoaded(this.items);
   @override
   String toString() => "StatsLoaded";
 }
 
 class StatsUpdated extends StatsState {
-  final List<Record> items;
+  final List<InfoLocation> items;
   StatsUpdated(this.items);
   @override
   String toString() => "StatsUpdated";
