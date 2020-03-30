@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:package_info/package_info.dart';
 import 'package:pandemia_mobile/blocs/blocs.dart';
 import 'package:pandemia_mobile/blocs/feed/feed_bloc.dart';
+import 'package:pandemia_mobile/blocs/issue/issue_bloc.dart';
 import 'package:pandemia_mobile/blocs/notif/notif_bloc.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia.dart';
 import 'package:pandemia_mobile/core/core.dart';
@@ -28,6 +29,7 @@ class HomeScreen extends StatelessWidget {
     final tabBloc = BlocProvider.of<TabBloc>(context);
     final notifBloc = BlocProvider.of<NotifBloc>(context);
     final feedBloc = BlocProvider.of<FeedBloc>(context);
+    final issueBloc = BlocProvider.of<IssueBloc>(context);
 
     new Future.delayed(Duration.zero, () {
       NotificationUtil().init(context, notifBloc, feedBloc);
@@ -43,7 +45,7 @@ class HomeScreen extends StatelessWidget {
         } else if (activeTab == AppTab.map) {
           body = Container();
         } else if (activeTab == AppTab.hoax) {
-          body = IssuePage();
+          body = IssuePage(issueBloc: issueBloc);
         } else {
           // @TODO(*): fix this
           body = Container();
