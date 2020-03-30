@@ -27,6 +27,7 @@ class _IssuePageState extends State<IssuePage> {
 
   @override
   void initState() {
+    this.issueBloc.dispatch(LoadIssue());
     _scrollController.addListener(_onScroll);
     super.initState();
   }

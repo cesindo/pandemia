@@ -78,7 +78,7 @@ class PandemiaApp extends StatelessWidget {
               builder: (context) => StatsBloc(),
             ),
             BlocProvider<IssueBloc>(
-              builder: (context) => IssueBloc()..dispatch(LoadIssue()),
+              builder: (context) => IssueBloc(),
             ),
             BlocProvider<FeedBloc>(
               builder: (context) => FeedBloc()..dispatch(LoadFeed()),
