@@ -36,17 +36,6 @@ class _AboutPageState extends State<AboutPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             _getBody(context),
-            Padding(
-              padding: EdgeInsets.all(MediaQuery.of(context).padding.top),
-              child: Text(
-                "Version : $version",
-                style: TextStyle(
-                  fontWeight: FontWeight.normal,
-                  color: Colors.black,
-                  fontSize: 16,
-                ),
-              ),
-            ),
           ],
         ),
       ),
@@ -54,94 +43,121 @@ class _AboutPageState extends State<AboutPage> {
   }
 
   Widget _getBody(BuildContext context) {
+    List<Widget> credits = [
+      _sizedBox(context),
+      Container(
+        alignment: Alignment.center,
+        child: Image.asset(
+          "assets/img/pandemia-logo.png",
+          fit: BoxFit.cover,
+          width: MediaQuery.of(context).size.width / 3,
+        ),
+      ),
+      Padding(
+        padding: EdgeInsets.only(top: 10),
+        child: Text(
+          "Pandemia",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+      Padding(
+        padding: EdgeInsets.only(top: 10),
+        child: Text(
+          "Version : $version",
+          style: TextStyle(
+            fontWeight: FontWeight.normal,
+            color: Colors.black,
+            fontSize: 16,
+          ),
+        ),
+      ),
+      _sizedBox(context),
+      _textDefault(
+          "Adalah program sumber terbuka (open source) yang dikembangkan oleh komunitas " +
+              "untuk memudahkan " +
+              "kita dalam memantau persebaran wabah, sehingga kita dapat mengambil keputusan yang " +
+              "lebih bijak dan terukur dalam melakukan kegiatan kesehariannya.",
+          maxLines: 10, textAlign: TextAlign.center),
+      Container(
+        color: Colors.black,
+        height: 1,
+        margin: EdgeInsets.only(
+          left: MediaQuery.of(context).size.width / 8,
+          right: MediaQuery.of(context).size.width / 8,
+          top: MediaQuery.of(context).padding.top / 3,
+          bottom: MediaQuery.of(context).padding.top,
+        ),
+      ),
+      _row(
+        label: "Data by",
+        midText: ":",
+        value: "www.kawalcorona.com",
+      ),
+      _row(
+        label: " ",
+        midText: " ",
+        value: "www.worldmeters.info",
+      ),
+      SizedBox(
+        height: MediaQuery.of(context).padding.top / 2,
+      ),
+      _row(
+        label: "Server by",
+        midText: ":",
+        value: "Delameta",
+      ),
+      _divider(),
+      _row(
+        label: "Icon by",
+        midText: ":",
+        value: "photo3idea-studio",
+      ),
+      _divider(),
+    ];
+
+    List<String> Programmers = [
+      "Robin (@anvie)",
+      "Fatkhur",
+      "Samsul",
+      "Muiz",
+      "Rifai"
+    ];
+
+    credits.add(Text("Programmers:"));
+    credits.add(_divider());
+    Programmers.forEach((p) {
+      credits.add(_textDefault(p));
+    });
+
     return Container(
       padding: EdgeInsets.only(
-        left: MediaQuery.of(context).size.width / 7,
-        right: MediaQuery.of(context).size.width / 5,
+        left: MediaQuery.of(context).size.width / 10,
+        right: MediaQuery.of(context).size.width / 10,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          _sizedBox(context),
-          Container(
-            alignment: Alignment.center,
-            child: Image.asset(
-              "assets/img/pandemia-logo.png",
-              fit: BoxFit.cover,
-              width: MediaQuery.of(context).size.width / 3,
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: 10),
-            child: Text(
-              "Pandemia",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: 10),
-            child: Text(
-              "Version : $version",
-              style: TextStyle(
-                fontWeight: FontWeight.normal,
-                color: Colors.black,
-                fontSize: 16,
-              ),
-            ),
-          ),
-          _sizedBox(context),
-          Container(
-            color: Colors.black,
-            height: 1,
-            margin: EdgeInsets.only(
-              left: MediaQuery.of(context).size.width / 8,
-              right: MediaQuery.of(context).size.width / 8,
-              top: MediaQuery.of(context).padding.top / 3,
-              bottom: MediaQuery.of(context).padding.top,
-            ),
-          ),
-          _row(
-            label: "Data by",
-            midText: ":",
-            value: "www.kawalcorona.com",
-          ),
-          _row(
-            label: " ",
-            midText: " ",
-            value: "www.worldmeters.info",
-          ),
-          SizedBox(
-            height: MediaQuery.of(context).padding.top / 2,
-          ),
-          _row(
-            label: "Server by",
-            midText: ":",
-            value: "Delameta",
-          ),
-          SizedBox(
-            height: MediaQuery.of(context).padding.top / 2,
-          ),
-          _row(
-            label: "Icon by",
-            midText: ":",
-            value: "photo3idea-studio",
-          ),
-        ],
+        children: credits,
       ),
     );
   }
 
-  _sizedBox(BuildContext parentcontext) {
+  Widget _divider() {
+    return SizedBox(
+      height: MediaQuery.of(context).padding.top / 2,
+    );
+  }
+
+  Widget _sizedBox(BuildContext parentcontext) {
     return SizedBox(
       height: MediaQuery.of(parentcontext).size.width / 10,
     );
   }
 
-  _textDefault(String text) {
+  Widget _textDefault(String text, {maxLines: 1, textAlign: TextAlign.left}) {
     return Text(
       text,
       style: TextStyle(
@@ -149,8 +165,9 @@ class _AboutPageState extends State<AboutPage> {
         color: Colors.black,
         fontSize: 16,
       ),
-      textAlign: TextAlign.left,
+      textAlign: textAlign,
       overflow: TextOverflow.ellipsis,
+      maxLines: maxLines,
     );
   }
 
@@ -160,7 +177,7 @@ class _AboutPageState extends State<AboutPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Container(
-            width: 80,
+            width: 100,
             child: _textDefault(label),
           ),
           _textDefault(midText + "   "),
