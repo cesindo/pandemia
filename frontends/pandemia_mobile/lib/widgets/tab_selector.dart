@@ -20,6 +20,10 @@ class TabSelector extends StatelessWidget {
       key: PandemiaKeys.tabs,
       currentIndex: AppTab.values.indexOf(activeTab),
       onTap: (index) => onTabSelected(AppTab.values[index]),
+      unselectedItemColor: Colors.grey,
+      unselectedLabelStyle: TextStyle(color: Colors.grey),
+      selectedItemColor: Theme.of(context).primaryColor,
+      type: BottomNavigationBarType.fixed,
       items: AppTab.values.map((tab) {
         IconData icon;
         Key key;
@@ -29,19 +33,27 @@ class TabSelector extends StatelessWidget {
         //   key = PandemiaKeys.timelineTab;
         //   title = "Timeline";
         // }else if (tab == AppTab.notif){
-        if (tab == AppTab.updates){
+        if (tab == AppTab.updates) {
           icon = Icons.notifications;
           key = PandemiaKeys.updatesTab;
           title = "Updates";
-        }else if (tab == AppTab.stats){
+        } else if (tab == AppTab.stats) {
           icon = Icons.assessment;
           key = PandemiaKeys.statsTab;
           title = "Stats";
-        }else if (tab == AppTab.settings){
+        } else if (tab == AppTab.map) {
+          icon = Icons.map;
+          key = PandemiaKeys.mapTab;
+          title = "Map";
+        } else if (tab == AppTab.hoax) {
+          icon = Icons.burst_mode;
+          key = PandemiaKeys.hoaxTab;
+          title = "Hoax/Fact";
+        } else if (tab == AppTab.settings) {
           icon = Icons.dashboard;
           key = PandemiaKeys.settingsTab;
           title = "Settings";
-        }
+        } 
         return BottomNavigationBarItem(
           icon: Icon(
             icon,
@@ -53,4 +65,3 @@ class TabSelector extends StatelessWidget {
     );
   }
 }
-

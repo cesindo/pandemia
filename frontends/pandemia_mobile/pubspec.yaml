@@ -41,6 +41,7 @@ dependencies:
   flutter_ringtone_player: ^1.0.3
   flushbar: ^1.9.1
   device_info: ^0.4.2+1
+  url_launcher: ^5.4.2
 
 dev_dependencies:
   flutter_test:

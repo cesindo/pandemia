@@ -19,6 +19,43 @@ import 'package:pandemia_mobile/api/api_client.dart';
 import 'package:pandemia_mobile/core/error.dart';
 import 'package:pandemia_mobile/util/json_helper.dart';
 
+class DetaxApi {
+  static Future<Map<String, dynamic>> get(String path) async {
+    // print("GET $path (public)");
+    return ApiClient().detax().get(path).then((resp) {
+      if (resp == null || resp.body == null){
+        throw PandemiaException("Cannot connect to server (code: 5832)");
+      }
+      // print("GET resp: ${resp.body}");
+      final respData = tryDecode(resp.body);
+      if (respData == null){
+        throw PandemiaException("Cannot connect to server (code: 5832)");
+      }
+      checkValidResp(respData);
+      checkValidResultResp(respData);
+      return respData;
+    }).catchError(handleError);
+  }
+
+  static Future<Map<String, dynamic>> post(
+      String path, Map<String, dynamic> data) async {
+    // print("POST $path (public)");
+    final rv = await ApiClient().detax().post(path, body: data).then((resp) {
+      if (resp == null || resp.body == null){
+        throw PandemiaException("Cannot connect to server (code: 5832)");
+      }
+      final respData = tryDecode(resp.body);
+      if (respData == null){
+        throw PandemiaException("Cannot connect to server (code: 5832)");
+      }
+      checkValidResp(respData);
+      checkValidResultResp(respData);
+      return respData;
+    }).catchError(handleError);
+    return rv;
+  }
+}
+
 class PublicApi {
   static Future<Map<String, dynamic>> get(String path) async {
     // print("GET $path (public)");
