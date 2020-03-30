@@ -5,7 +5,7 @@ use diesel::prelude::*;
 use reqwest;
 use select::document::Document;
 use select::node::Data::*;
-use select::predicate::{Attr, Name};
+use select::predicate::{Attr, Class, Name};
 use std::{fs::File, io::BufReader};
 
 use crate::{
@@ -13,7 +13,6 @@ use crate::{
     db,
     error::Error,
     eventstream::{self, Event::NewRecordUpdate},
-    models::{ResultItem, ResultObject},
     // event_handler::FCM,
     // models::{User, Comment, HasID, MonitoredData},
     monitor::{Monitor, PandemiaMonitor},
@@ -33,6 +32,37 @@ use std::{
     thread,
     time::Duration,
 };
+
+/// Untuk serialize json dari server
+#[derive(Debug, Serialize, Deserialize)]
+struct ResultItem {
+    /// Field ID
+    #[serde(rename = "FID")]
+    pub fid: i64,
+
+    /// Provinsi
+    #[serde(rename = "Provinsi")]
+    pub province: String,
+
+    /// Jumlah Kasus Meninggal
+    #[serde(rename = "Kasus_Meni")]
+    pub total_deaths: i32,
+
+    /// Jumlah Kasus Positif
+    #[serde(rename = "Kasus_Posi")]
+    pub active_cases: i32,
+
+    /// Jumlah Kasus Sembuh
+    #[serde(rename = "Kasus_Semb")]
+    pub total_recovered: i32,
+}
+
+/// Untuk serialize json object dari server
+#[derive(Debug, Serialize, Deserialize)]
+struct ResultObject {
+    /// Field attributes
+    pub attributes: ResultItem,
+}
 
 /// Data monitoring
 pub struct DataMonitor {
@@ -80,6 +110,12 @@ impl DataMonitor {
         let items: Vec<ResultObject> = serde_json::from_str(&resp?.text()?)?;
         for data in &items {
             let item = &data.attributes;
+            // beberapa provinsi ini di-exclude karena data
+            // akan diambil terpisah dari sumber resmi
+            if item.province.to_lowercase() == "jawa tengah" {
+                continue;
+            }
+
             let total_cases: i32 = item.active_cases + item.total_deaths + item.total_recovered;
             let latest_data = dao.get_latest_records(vec![&item.province], 0, 1)?.pop();
 
@@ -131,6 +167,94 @@ impl DataMonitor {
             }
         }
 
+        if let Err(e) = Self::get_jatengprov(conn) {
+            error!("Cannot get data from jatengprov.go.id");
+        }
+
+        Ok(())
+    }
+
+    /// Get data from official Jateng Province site https://corona.jatengprov.go.id/
+    pub fn get_jatengprov(conn: &PgConnection) -> Result<()> {
+        let resp = reqwest::get("https://corona.jatengprov.go.id/")?;
+        let doc = Document::from_read(resp)?;
+
+        // dapatkan total cases global
+        let counter_numbers = doc
+            .find(Class("font-counter"))
+            .map(|a| a.text().trim().to_string())
+            .flat_map(|a| {
+                a.split(' ')
+                    .flat_map(|a| a.parse::<i32>().ok())
+                    .collect::<Vec<i32>>()
+                    .first()
+                    .cloned()
+            })
+            .collect::<Vec<i32>>();
+
+        dbg!(&counter_numbers);
+
+        if counter_numbers.len() != 5 {
+            return Err(Error::InvalidParameter(
+                "Bad data from server, html structure changed".to_string(),
+            ));
+        }
+
+        let name = "Jawa Tengah";
+
+        let dao = RecordDao::new(conn);
+
+        let prev_record = dao.get_latest_records(vec![&name], 0, 1)?.pop();
+
+        if let Some(prev_record) = prev_record {
+            match &counter_numbers[0..4] {
+                &[active_cases, positive, recovered, deaths] => {
+                    if prev_record.total_cases != positive {
+                        let new_record = dao.create(
+                            name,
+                            LocKind::Province,
+                            positive,
+                            deaths,
+                            recovered,
+                            active_cases,
+                            0,
+                            0.0,
+                            &vec![],
+                            false,
+                        )?;
+                        debug!("new record from Prov. {} saved.", name);
+                        let diff = new_record.diff(&prev_record);
+                        if diff.new_cases > 0
+                            || diff.new_deaths > 0
+                            || diff.new_recovered > 0
+                            || diff.new_critical > 0
+                        {
+                            eventstream::emit(NewRecordUpdate(Some(prev_record.clone()), new_record.clone()));
+                        }
+                    }
+                }
+                _ => (),
+            }
+        } else {
+            match &counter_numbers[0..4] {
+                &[active_cases, positive, recovered, deaths] => {
+                    dao.create(
+                        name,
+                        LocKind::Province,
+                        positive,
+                        deaths,
+                        recovered,
+                        active_cases,
+                        0,
+                        0.0,
+                        &vec![],
+                        false,
+                    )?;
+                },
+                _ => ()
+            }
+        }
+
         Ok(())
     }
 
@@ -143,7 +267,7 @@ impl DataMonitor {
         let doc = Document::from_read(resp?)?;
         // dapatkan total cases global
         let main_counter_numbers = doc
-            .find(Attr("class", "maincounter-number"))
+            .find(Class("maincounter-number"))
             .map(|a| a.text().trim().to_string())
             .collect::<Vec<String>>();
 
