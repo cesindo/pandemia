@@ -12,7 +12,7 @@ Aplikasi mobile iOS dan Android untuk memonitor pandemi dengan push notification
 1. [x] Realtime feed berupa data update kasus terbaru pada suatu daerah.
 2. [x] Push notif untuk setiap update kasus terbaru.
 3. [x] Data statistik daerah.
-4. [ ] Data Fakta dan Hoax berkaitan dengan pandemi.
+4. [x] Data Fakta dan Hoax berkaitan dengan pandemi.
 5. [ ] Push notif berupa peringatan ketika memasuki daerah dengan riwayat korban positif.
 6. [ ] Peta Pandemi.
 7. [ ] Peta Keluhan, menandai diri kita sedang mengalami keluhan kesehatan secara anonim, sehingga membantu proses tracing.
