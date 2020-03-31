@@ -99,23 +99,6 @@
 			"}"
 		]
 	},
-	"Implement API endpoint for update": {
-		"scope": "rust",
-		"prefix": "apiendpointupdate",
-		"body": [
-			"/// Update ${1:name}.",
-			"#[api_endpoint(path = \"/update\", auth = \"required\", mutable)]",
-			"pub fn update_${1:name}(query: Update${2:Name}) -> ApiResult<()> {",
-			"    let conn = state.db();",
-			"    use crate::schema::${1:name}s::{self, dsl};",
-			"    diesel::update(dsl::${1:name}s.filter(dsl::id.eq(query.id)))",
-			"        .set(dsl::name.eq(&query.name))",
-			"        .execute(&conn)",
-			"        .map_err(Error::from)?;",
-			"        Ok(ApiResult::success(()))",
-			"}"
-		]
-	},
 	"Implement custom Dao": {
 		"scope": "rust",
 		"prefix": "impldao",
