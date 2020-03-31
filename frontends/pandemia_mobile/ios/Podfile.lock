@@ -51,11 +51,16 @@ PODS:
     - GoogleUtilities/UserDefaults (~> 6.2)
     - Protobuf (>= 3.9.2, ~> 3.9)
   - Flutter (1.0.0)
+  - flutter_plugin_android_lifecycle (0.0.1):
+    - Flutter
   - flutter_ringtone_player (0.0.1):
     - Flutter
   - FMDB (2.7.5):
     - FMDB/standard (= 2.7.5)
   - FMDB/standard (2.7.5)
+  - google_maps_flutter (0.0.1):
+    - Flutter
+    - GoogleMaps
   - GoogleAppMeasurement (6.1.6):
     - GoogleUtilities/AppDelegateSwizzler (~> 6.0)
     - GoogleUtilities/MethodSwizzler (~> 6.0)
@@ -66,6 +71,11 @@ PODS:
   - GoogleDataTransportCCTSupport (1.2.2):
     - GoogleDataTransport (~> 3.2)
     - nanopb (~> 0.3.901)
+  - GoogleMaps (2.7.0):
+    - GoogleMaps/Maps (= 2.7.0)
+  - GoogleMaps/Base (2.7.0)
+  - GoogleMaps/Maps (2.7.0):
+    - GoogleMaps/Base
   - GoogleUtilities/AppDelegateSwizzler (6.3.2):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
@@ -84,6 +94,10 @@ PODS:
     - GoogleUtilities/Logger
   - GoogleUtilities/UserDefaults (6.3.2):
     - GoogleUtilities/Logger
+  - location (0.0.1):
+    - Flutter
+  - location_web (0.0.1):
+    - Flutter
   - nanopb (0.3.9011):
     - nanopb/decode (= 0.3.9011)
     - nanopb/encode (= 0.3.9011)
@@ -111,7 +125,11 @@ DEPENDENCIES:
   - Firebase/Analytics
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
   - Flutter (from `Flutter`)
+  - flutter_plugin_android_lifecycle (from `.symlinks/plugins/flutter_plugin_android_lifecycle/ios`)
   - flutter_ringtone_player (from `.symlinks/plugins/flutter_ringtone_player/ios`)
+  - google_maps_flutter (from `.symlinks/plugins/google_maps_flutter/ios`)
+  - location (from `.symlinks/plugins/location/ios`)
+  - location_web (from `.symlinks/plugins/location_web/ios`)
   - package_info (from `.symlinks/plugins/package_info/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
   - path_provider_macos (from `.symlinks/plugins/path_provider_macos/ios`)
@@ -135,6 +153,7 @@ SPEC REPOS:
     - GoogleAppMeasurement
     - GoogleDataTransport
     - GoogleDataTransportCCTSupport
+    - GoogleMaps
     - GoogleUtilities
     - nanopb
     - Protobuf
@@ -146,8 +165,16 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_messaging/ios"
   Flutter:
     :path: Flutter
+  flutter_plugin_android_lifecycle:
+    :path: ".symlinks/plugins/flutter_plugin_android_lifecycle/ios"
   flutter_ringtone_player:
     :path: ".symlinks/plugins/flutter_ringtone_player/ios"
+  google_maps_flutter:
+    :path: ".symlinks/plugins/google_maps_flutter/ios"
+  location:
+    :path: ".symlinks/plugins/location/ios"
+  location_web:
+    :path: ".symlinks/plugins/location_web/ios"
   package_info:
     :path: ".symlinks/plugins/package_info/ios"
   path_provider:
@@ -175,12 +202,17 @@ SPEC CHECKSUMS:
   FirebaseInstanceID: ebd2ea79ee38db0cb5f5167b17a0d387e1cc7b6e
   FirebaseMessaging: e8d71368a5c579083da02203146c953f3386d503
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  flutter_plugin_android_lifecycle: 47de533a02850f070f5696a623995e93eddcdb9b
   flutter_ringtone_player: 15eba85187230b87b2512f0e1b92225618bc03e7
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
+  google_maps_flutter: d0dd62f5a7d39bae61057eb9f52dd778d99c7c6c
   GoogleAppMeasurement: dfe55efa543e899d906309eaaac6ca26d249862f
   GoogleDataTransport: 8e9b210c97d55fbff306cc5468ff91b9cb32dcf5
   GoogleDataTransportCCTSupport: ef79a4728b864946a8aafdbab770d5294faf3b5f
+  GoogleMaps: f79af95cb24d869457b1f961c93d3ce8b2f3b848
   GoogleUtilities: 547a86735c6f0ee30ad17e94df4fc21f616b71cb
+  location: 3a2eed4dd2fab25e7b7baf2a9efefe82b512d740
+  location_web: b94e7433cfe28c0f7c8923c2ee482824b32e55a7
   nanopb: 18003b5e52dab79db540fe93fe9579f399bd1ccd
   package_info: 48b108e75b8802c2d5e126f208ef540561c98aef
   path_provider: fb74bd0465e96b594bb3b5088ee4a4e7bb1f2a9d
