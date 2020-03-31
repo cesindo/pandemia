@@ -37,7 +37,7 @@ class FcmBloc extends Bloc<FcmEvent, FcmState> {
       "app_id": fcmToken,
       "provider_name": Platform.isAndroid ? "android" : "ios"
     });
-    print("APP_ID: $fcmToken");
+    // print("APP_ID: $fcmToken");
 
     if (data != null) {
       print("resp data: $data");

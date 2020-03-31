@@ -59,7 +59,7 @@ pub struct ResetPassword {
 pub struct LocationQuery {
     #[validate(length(min = 1, max = 100))]
     pub loc: String,
-    pub with_history: Option<bool>
+    pub with_history: Option<bool>,
 }
 
 #[derive(Serialize, Validate)]

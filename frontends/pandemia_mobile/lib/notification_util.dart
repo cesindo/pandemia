@@ -20,6 +20,7 @@ class NotificationUtil {
   UserRepository _userRepository = UserRepository();
   NotifBloc _notifBloc;
   FeedBloc _feedBloc;
+  bool _initialized = false;
 
   factory NotificationUtil() {
     if (_singleton == null) {
@@ -31,16 +32,20 @@ class NotificationUtil {
   NotificationUtil._internal();
 
   void init(BuildContext context, NotifBloc notifBloc, FeedBloc feedBloc) {
-    _userRepository.getUserInfo();
+    if (_initialized){
+      throw Exception("Notification already initialized");
+    }
+    _initialized = true;
+    // _userRepository.getUserInfo();
     // _chatBloc = BlocProvider.of<ChatBloc>(context);
     _notifBloc = notifBloc;
     _feedBloc = feedBloc;
 
-    if (Platform.isIOS) {
-      iOSPermission(context);
-    } else {
-      _sendFCMToken(context);
-    }
+    // if (Platform.isIOS) {
+    //   getIOSPermrission(context);
+    // } else {
+    //   _sendFCMToken(context);
+    // }
 
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
@@ -110,19 +115,19 @@ class NotificationUtil {
     }
   }
 
-  void _sendFCMToken(BuildContext context) {
-    var fcmBloc = BlocProvider.of<FcmBloc>(context);
-    fcmBloc.dispatch(CreateFcm());
-  }
+  // void _sendFCMToken(BuildContext context) {
+  //   var fcmBloc = BlocProvider.of<FcmBloc>(context);
+  //   fcmBloc.dispatch(CreateFcm());
+  // }
 
-  void iOSPermission(BuildContext context) {
+  void getIOSPermission() {
     print("=> checking IOS permission");
     _firebaseMessaging.requestNotificationPermissions(
         IosNotificationSettings(sound: true, badge: true, alert: true));
     _firebaseMessaging.onIosSettingsRegistered
         .listen((IosNotificationSettings settings) {
       print("=> Settings registered: $settings");
-      _sendFCMToken(context);
+      // _sendFCMToken(context);
     });
   }
 }

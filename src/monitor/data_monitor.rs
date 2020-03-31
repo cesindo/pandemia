@@ -250,8 +250,8 @@ impl DataMonitor {
                         &vec![],
                         false,
                     )?;
-                },
-                _ => ()
+                }
+                _ => (),
             }
         }
 

@@ -63,9 +63,9 @@ pub struct NewUserKey {
 #[derive(Insertable, AsChangeset)]
 #[table_name = "user_connect"]
 pub struct NewUserConnect<'a> {
-    device_id: &'a str,
-    provider_name: &'a str,
-    app_id: &'a str,
+    pub device_id: &'a str,
+    pub provider_name: &'a str,
+    pub app_id: &'a str,
 }
 
 /// Untuk mengoperasikan skema data di database
@@ -92,12 +92,6 @@ impl<'a> UserDao<'a> {
             .first(self.db)
             .map_err(From::from)
     }
-
-    // /// Get user by ID.
-    // pub fn get_by_id(&self, user_id: ID) -> Result<User> {
-    //     use crate::schema::users::dsl::users;
-    //     users.find(user_id).first(self.db).map_err(From::from)
-    // }
 
     /// Setting user's password
     pub fn set_password(&self, user_id: ID, password: &str) -> Result<()> {
@@ -253,28 +247,45 @@ impl<'a> UserDao<'a> {
     }
 
     /// Buat akun baru secara langsung.
-    pub fn create_user(&self, new_user: &NewUser) -> Result<(User, (PublicKey, SecretKey))> {
-        use crate::schema::user_keys::{self, dsl as ak_dsl};
-        use crate::schema::users;
-
+    pub fn create_user(
+        &self,
+        new_user: &NewUser,
+        connect: Option<NewUserConnect>,
+    ) -> Result<(User, (PublicKey, SecretKey))> {
         self.db.build_transaction().read_write().run(|| {
-            let user = diesel::insert_into(users::table)
-                .values(new_user)
-                .get_result::<User>(self.db)?;
+            let retv = {
+                use crate::schema::user_keys::{self, dsl as ak_dsl};
+                use crate::schema::users;
+                let user = diesel::insert_into(users::table)
+                    .values(new_user)
+                    .get_result::<User>(self.db)?;
 
-            // Buatkan key pair untuk akun yang baru saja dibuat.
-            let keypair = crypto::gen_keypair();
+                // Buatkan key pair untuk akun yang baru saja dibuat.
+                let keypair = crypto::gen_keypair();
 
-            diesel::insert_into(user_keys::table)
-                .values(&NewUserKey {
-                    user_id: user.id,
-                    pub_key: keypair.0.to_hex(),
-                    secret_key: keypair.1.to_hex(),
-                    active: true,
-                })
-                .execute(self.db)?;
+                diesel::insert_into(user_keys::table)
+                    .values(&NewUserKey {
+                        user_id: user.id,
+                        pub_key: keypair.0.to_hex(),
+                        secret_key: keypair.1.to_hex(),
+                        active: true,
+                    })
+                    .execute(self.db)?;
 
-            Ok((user, keypair))
+                (user, keypair)
+            };
+
+            if let Some(new_user_connect) = connect {
+                use crate::schema::user_connect::{self, dsl};
+                diesel::insert_into(user_connect::table)
+                    .values(&new_user_connect)
+                    .on_conflict(dsl::device_id)
+                    .do_update()
+                    .set(&new_user_connect)
+                    .execute(self.db)?;
+            }
+
+            Ok(retv)
         })
     }
 

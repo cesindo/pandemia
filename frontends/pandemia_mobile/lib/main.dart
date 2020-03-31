@@ -35,8 +35,7 @@ void main() async {
 
   runApp(BlocProvider(
     builder: (ctx) {
-      return PandemiaBloc(userRepository: userRepository)
-        ..dispatch(StartupEvent());
+      return PandemiaBloc(userRepository: userRepository);
     },
     child: PandemiaApp(userRepository: userRepository),
   ));
