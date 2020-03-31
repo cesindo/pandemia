@@ -81,107 +81,141 @@ class FeedItemView extends StatelessWidget {
         .first;
 
     var size = MediaQuery.of(context).size;
-    final double itemHeight = (size.height - kToolbarHeight - 24) / 3.4;
-    final double itemWidth = size.width / 1;
 
     return Card(
-        elevation: 2.0,
-        margin: new EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),
-        child: Container(
-          // decoration: BoxDecoration(color: Color.fromRGBO(64, 75, 96, .9)),
-          child: new ListTile(
-            isThreeLine: true,
-            contentPadding:
-                EdgeInsets.symmetric(horizontal: 0.0, vertical: 10.0),
-            title: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Row(
-                children: <Widget>[
-                  Icon(
-                    IconsByKind[item.kind],
-                    color: ColorsByKind[item.kind],
-                    size: 32,
-                  ),
-                  SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        item.loc.capitalize(),
-                        style: TextStyle(
-                            color: Colors.grey[700],
-                            fontWeight: FontWeight.w500,
-                            fontSize: 19),
-                      ),
-                      Divider(height: 5),
-                      Text(
-                        timeago.format(TimeHelper.parseAsUtc(item.ts)),
-                        style: TextStyle(fontSize: 13, color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            subtitle: Column(
+      elevation: 2.0,
+      margin: new EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),
+      child: Container(
+        child: new ListTile(
+          isThreeLine: true,
+          contentPadding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
+          title: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Row(
               children: <Widget>[
-                Divider(color: Colors.grey[300], height: 22),
-                GridView.count(
-                  shrinkWrap: true,
-                  primary: false,
-                  crossAxisCount: 2,
-                  childAspectRatio: (itemWidth / itemHeight),
+                Icon(
+                  IconsByKind[item.kind],
+                  color: ColorsByKind[item.kind],
+                  size: 32,
+                ),
+                SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                      child: Column(children: [
-                        Text("+${leftNum.toNumberFormat()}",
-                            style: TextStyle(
-                                fontSize: 26, color: ColorsByKind[item.kind]
-                                // color: Color(0xFF987FFF)
-                                )),
-                        SizedBox(height: 10),
-                        Text(
-                          text[0].replaceAll(leftNum + " ", "").capitalize(),
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w300,
-                          ),
-                        ),
-                      ]),
+                    Text(
+                      item.loc.capitalize(),
+                      style: TextStyle(
+                          color: Colors.grey[700],
+                          fontWeight: FontWeight.w500,
+                          fontSize: 19),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                      child: Column(children: [
-                        Text(rightNum.toNumberFormat(),
-                            style: TextStyle(
-                                fontSize: 26, color: ColorsByKind[item.kind]
-                                // color: Color(0xFF987FFF)
-                                )),
-                        SizedBox(height: 10),
-                        Text(
-                          text[1].replaceAll(rightNum, "").trim().capitalize(),
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w300),
-                        ),
-                      ]),
+                    Divider(height: 5),
+                    Text(
+                      timeago.format(TimeHelper.parseAsUtc(item.ts)),
+                      style: TextStyle(fontSize: 13, color: Colors.grey),
                     ),
                   ],
                 ),
               ],
             ),
-            // onTap: () {
-            //   Navigator.of(context)
-            //       .push(MaterialPageRoute(
-            //           builder: (context) => FeedDetailPage(item: item)))
-            //       .then((result) {
-            //     // @TODO(*): code here after view item
-            //     // this.onUpdated(result);
-            //   });
-            // },
           ),
-        ));
+          subtitle: Column(
+            children: <Widget>[
+              Divider(color: Colors.grey[300], height: 22),
+              Container(
+                child: GridViewCustom(
+                  text1: "+${leftNum.toNumberFormat()}",
+                  text2: rightNum.toNumberFormat(),
+                  desc1: text[0].replaceAll(leftNum + " ", "").capitalize(),
+                  desc2: text[1].replaceAll(" " + rightNum, "").capitalize(),
+                  colorText: ColorsByKind[item.kind],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class GridViewCustom extends StatelessWidget {
+  final String text1;
+  final String text2;
+  final String desc1;
+  final String desc2;
+  final Color colorText;
+
+  const GridViewCustom(
+      {Key key, this.text1, this.text2, this.desc1, this.desc2, this.colorText})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
+    final double itemHeight = (size.height - kToolbarHeight - 180) / 3.4;
+    final double itemWidth = size.width / 1.3;
+    return Container(
+      child: GridView.builder(
+        addAutomaticKeepAlives: true,
+        shrinkWrap: true,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: itemWidth / itemHeight,
+        ),
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: 2,
+        itemBuilder: (context, index) {
+          String value;
+          String descValue;
+          if (index == 0) {
+            value = text1;
+            descValue = desc1;
+          } else if (index == 1) {
+            value = text2;
+            descValue = desc2;
+          }
+          return _itemView(
+            context: context,
+            text: value,
+            desc: descValue,
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _itemView({context, String text, String desc}) {
+    return Container(
+      child: Column(
+        children: <Widget>[
+          Expanded(
+            flex: 2,
+            child: Container(
+              alignment: Alignment.center,
+              child: Text(
+                text,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w700,
+                  color: colorText,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Container(
+              alignment: Alignment.topCenter,
+              child: Text(
+                desc,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
