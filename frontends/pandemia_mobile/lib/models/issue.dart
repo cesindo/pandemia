@@ -18,16 +18,7 @@ class Issue extends Equatable {
 
   Issue(this.id, this.name, this.classification, this.classificationNum,
       this.creatorName, this.desc, this.primaryImage, this.registerTime)
-      : super([
-          id,
-          name,
-          classification,
-          classificationNum,
-          creatorName,
-          desc,
-          primaryImage,
-          registerTime
-        ]);
+      : super();
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> data = Map();
@@ -80,4 +71,17 @@ class Issue extends Equatable {
         primaryImage ?? this.primaryImage,
         registerTime ?? this.registerTime);
   }
+
+  @override
+  // TODO: implement props
+  List<Object> get props => [
+          id,
+          name,
+          classification,
+          classificationNum,
+          creatorName,
+          desc,
+          primaryImage,
+          registerTime
+        ];
 }

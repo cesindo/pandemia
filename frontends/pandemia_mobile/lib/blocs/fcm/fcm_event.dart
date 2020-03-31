@@ -3,8 +3,8 @@ import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 @immutable
-abstract class FcmEvent extends Equatable {
-  FcmEvent([List props = const []]) : super(props);
+abstract class FcmEvent {
+  FcmEvent([List props = const []]);
 }
 
 // class LoadFcm extends FcmEvent {

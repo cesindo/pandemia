@@ -4,8 +4,8 @@ import 'package:meta/meta.dart';
 import 'package:pandemia_mobile/models/info_location.dart';
 
 @immutable
-abstract class StatsState extends Equatable {
-  StatsState([List props = const []]) : super(props);
+abstract class StatsState {
+  StatsState([List props = const []]);
 }
 
 /// Loading state

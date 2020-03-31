@@ -19,8 +19,7 @@ class Feed extends Equatable {
 
   Feed(this.id, this.creatorId, this.creatorName, this.loc, this.kind,
       this.text, this.hashtags, this.meta, this.ts)
-      : super(
-            [id, creatorId, creatorName, loc, kind, text, hashtags, meta, ts]);
+      : super();
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> data = Map();
@@ -75,4 +74,8 @@ class Feed extends Equatable {
         meta ?? this.meta,
         ts ?? this.ts);
   }
+
+  @override
+  List<Object> get props =>
+      [id, creatorId, creatorName, loc, kind, text, hashtags, meta, ts];
 }

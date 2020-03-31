@@ -10,7 +10,7 @@ class Session extends Equatable {
   final String token;
 
   Session(this.userId,this.token)
-      : super([userId,token,]);
+      : super();
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> data = Map();
@@ -28,4 +28,7 @@ class Session extends Equatable {
   Session copy({int userId, String token }) {
     return Session(userId ?? this.userId, token ?? this.token);
   }
+
+  @override
+  List<Object> get props => [userId,token,];
 }

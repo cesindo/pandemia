@@ -3,8 +3,8 @@ import 'package:meta/meta.dart';
 import 'package:pandemia_mobile/models/models.dart';
 
 @immutable
-abstract class NotifState extends Equatable {
-  NotifState([List props = const []]) : super(props);
+abstract class NotifState {
+  NotifState([List props = const []]);
 }
 
 class NotifListLoading extends NotifState {

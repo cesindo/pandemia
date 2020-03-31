@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:pandemia_mobile/core/core.dart';
 import 'package:pandemia_mobile/widgets/widgets.dart';
+import 'package:geolocator/geolocator.dart';
 
 class MapPage extends StatefulWidget {
   @override
@@ -69,6 +70,12 @@ class _MapPageState extends State<MapPage> {
       return LoadingIndicator(key: PandemiaKeys.loading);
     }
     var pinPosition = LatLng(_locationData.latitude, _locationData.longitude);
+    _getAddress(Position(
+            altitude: pinPosition.latitude, longitude: pinPosition.longitude))
+        .then((d) {
+      print("currentLocation: ${d}");
+    });
+
     return GoogleMap(
       mapType: MapType.normal,
       markers: _markers,
@@ -88,5 +95,15 @@ class _MapPageState extends State<MapPage> {
         });
       },
     );
+  }
+
+  Future<String> _getAddress(Position pos) async {
+    List<Placemark> placemarks = await Geolocator()
+        .placemarkFromCoordinates(pos.latitude, pos.longitude);
+    if (placemarks != null && placemarks.isNotEmpty) {
+      final Placemark pos = placemarks[0];
+      return pos.thoroughfare + ', ' + pos.locality;
+    }
+    return "";
   }
 }

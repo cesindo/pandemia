@@ -5,8 +5,8 @@ import 'package:pandemia_mobile/models/models.dart';
 
 
 @immutable
-abstract class PandemiaEvent extends Equatable {
-  PandemiaEvent([List props = const []]) : super(props);
+abstract class PandemiaEvent {
+  PandemiaEvent([List props = const []]);
 }
 
 class StartupEvent extends PandemiaEvent {

@@ -8,7 +8,7 @@ class User extends Equatable {
   final String email;
 
   User(this.id, this.fullName, this.email)
-      : super([id, fullName, email]);
+      : super();
 
   Map<String,dynamic> toMap(){
     Map<String,dynamic> data;
@@ -21,5 +21,9 @@ class User extends Equatable {
   static User fromMap(Map<String, dynamic> data){
     return User(data['id'], data['fullName'], data['email']);
   }
+
+  @override
+  // TODO: implement props
+  List<Object> get props => [id, fullName, email];
 }
 

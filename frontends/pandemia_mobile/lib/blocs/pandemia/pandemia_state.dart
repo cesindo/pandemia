@@ -4,8 +4,8 @@ import 'package:pandemia_mobile/models/models.dart';
 import 'package:pandemia_mobile/api/pandemia_api.dart';
 
 @immutable
-abstract class PandemiaState extends Equatable {
-  PandemiaState([List props = const []]): super(props);
+abstract class PandemiaState {
+  PandemiaState([List props = const []]);
 }
 
 class PandemiaLoading extends PandemiaState {

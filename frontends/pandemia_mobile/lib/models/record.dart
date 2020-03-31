@@ -31,19 +31,7 @@ class Record extends Equatable {
       this.casesToPop,
       this.meta,
       this.lastUpdated)
-      : super([
-          id,
-          loc,
-          locKind,
-          totalCases,
-          totalDeaths,
-          totalRecovered,
-          activeCases,
-          criticalCases,
-          casesToPop,
-          meta,
-          lastUpdated
-        ]);
+      : super();
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> data = Map();
@@ -109,4 +97,20 @@ class Record extends Equatable {
         meta ?? this.meta,
         lastUpdated ?? this.lastUpdated);
   }
+
+  @override
+  // TODO: implement props
+  List<Object> get props => [
+          id,
+          loc,
+          locKind,
+          totalCases,
+          totalDeaths,
+          totalRecovered,
+          activeCases,
+          criticalCases,
+          casesToPop,
+          meta,
+          lastUpdated
+        ];
 }

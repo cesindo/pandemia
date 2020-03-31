@@ -1,3 +1,5 @@
+compileSdkVersion 28
+
 buildscript {
     repositories {
         google()

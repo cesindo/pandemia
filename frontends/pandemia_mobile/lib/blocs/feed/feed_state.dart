@@ -4,8 +4,8 @@ import 'package:meta/meta.dart';
 import 'package:pandemia_mobile/models/feed.dart';
 
 @immutable
-abstract class FeedState extends Equatable {
-  FeedState([List props = const []]) : super(props);
+abstract class FeedState{
+  FeedState([List props = const []]);
 }
 
 /// Loading state

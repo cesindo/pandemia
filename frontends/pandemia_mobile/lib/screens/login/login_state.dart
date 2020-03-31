@@ -2,7 +2,10 @@ import 'package:meta/meta.dart';
 import 'package:equatable/equatable.dart';
 
 abstract class LoginState extends Equatable {
-  LoginState([List props = const []]) : super(props);
+  LoginState([List props = const []]) : super();
+
+  @override
+  List<Object> get props => props;
 }
 
 class LoginInitial extends LoginState {
@@ -23,4 +26,3 @@ class LoginFailure extends LoginState {
   @override
   String toString() => 'LoginFailure { error: $error }';
 }
-

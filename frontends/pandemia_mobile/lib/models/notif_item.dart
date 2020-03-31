@@ -12,7 +12,11 @@ class NotifItem extends Equatable {
   final String ts;
 
   NotifItem(this.id, this.kind, this.text, this.initiatorId, this.projectId, this.keywords, this.ts): 
-    super([id, kind, text, initiatorId, projectId, keywords, ts]);
+    super();
+
+  @override
+  // TODO: implement props
+  List<Object> get props => [id, kind, text, initiatorId, projectId, keywords, ts];
   
 }
 

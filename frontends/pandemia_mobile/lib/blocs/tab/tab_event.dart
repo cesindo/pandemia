@@ -3,8 +3,8 @@ import 'package:meta/meta.dart';
 import 'package:pandemia_mobile/models/models.dart';
 
 @immutable
-abstract class TabEvent extends Equatable {
-  TabEvent([List props = const []]) : super(props);
+abstract class TabEvent {
+  TabEvent([List props = const []]);
 }
 
 class UpdateTab extends TabEvent {

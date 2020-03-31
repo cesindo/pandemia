@@ -3,8 +3,8 @@ import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 @immutable
-abstract class FcmState extends Equatable {
-  FcmState([List props = const []]) : super(props);
+abstract class FcmState{
+  FcmState([List props = const []]);
 }
 
 /// Loading state

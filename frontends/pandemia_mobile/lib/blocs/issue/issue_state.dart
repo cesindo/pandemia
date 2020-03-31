@@ -1,11 +1,10 @@
-import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 import 'package:pandemia_mobile/models/issue.dart';
 import 'package:pandemia_mobile/models/issue_detail.dart';
 
 @immutable
-abstract class IssueState extends Equatable {
-  IssueState([List props = const []]) : super(props);
+abstract class IssueState {
+  IssueState([List props = const []]);
 }
 
 /// Loading state

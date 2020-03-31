@@ -3,8 +3,8 @@ import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 @immutable
-abstract class StatsEvent extends Equatable {
-  StatsEvent([List props = const []]) : super(props);
+abstract class StatsEvent {
+  StatsEvent([List props = const []]);
 }
 
 class LoadStats extends StatsEvent {

@@ -14,7 +14,7 @@ class InfoLocation extends Equatable {
   final List<Record> history;
 
   InfoLocation(this.id, this.name, this.latestRecord, this.history)
-      : super([id, name, latestRecord, history]);
+      : super();
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> data = Map();
@@ -46,4 +46,7 @@ class InfoLocation extends Equatable {
     return InfoLocation(this.id, name ?? this.name,
         latestRecord ?? this.latestRecord, history ?? this.history);
   }
+
+  @override
+  List<Object> get props => [id, name, latestRecord, history];
 }

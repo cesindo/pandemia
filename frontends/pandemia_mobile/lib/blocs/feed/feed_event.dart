@@ -3,8 +3,8 @@ import 'package:meta/meta.dart';
 import 'package:pandemia_mobile/models/feed.dart';
 
 @immutable
-abstract class FeedEvent extends Equatable {
-  FeedEvent([List props = const []]) : super(props);
+abstract class FeedEvent{
+  FeedEvent([List props = const []]);
 }
 
 class LoadFeed extends FeedEvent {

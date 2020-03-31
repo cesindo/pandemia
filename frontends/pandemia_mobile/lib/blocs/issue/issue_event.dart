@@ -4,7 +4,10 @@ import 'package:pandemia_mobile/models/issue.dart';
 
 @immutable
 abstract class IssueEvent extends Equatable {
-  IssueEvent([List props = const []]) : super(props);
+  IssueEvent([List props = const []]) : super();
+
+  @override
+  List<Object> get props => props;
 }
 
 class LoadIssue extends IssueEvent {

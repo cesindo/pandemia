@@ -9,7 +9,11 @@ class Task extends Equatable {
   final String expireTime;
 
   Task(this.id, this.assigneeName, this.text, this.expireTime):
-   super([id, assigneeName, text, expireTime]);
+   super();
+
+  @override
+  // TODO: implement props
+  List<Object> get props => [id, assigneeName, text, expireTime];
   
 }
 
