@@ -222,11 +222,11 @@
 			"pub fn update_${1:something}(&self, ${2:param}) -> Result<()> {",
 			"    use crate::schema::${3:table_name}s::{self, dsl};",
 			"",
-			"	   diesel::update(dsl::${3:table_name}s.filter(dsl::id.eq(${3:table_name}.id)))",
-			"		   	.set(dsl::${4:name}.eq(${5:}))",
-			"			  .execute(self.db)",
-			"		  	.map_err(Error::from)?;",
-			"	   Ok(())",
+			"    diesel::update(dsl::${3:table_name}s.filter(dsl::id.eq(${3:table_name}.id)))",
+			"       .set(dsl::${4:name}.eq(${5:}))",
+			"       .execute(self.db)",
+			"       .map_err(Error::from)?;",
+			"    Ok(())",
 			"}"
 		]
 	},
