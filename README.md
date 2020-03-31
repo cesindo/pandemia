@@ -33,6 +33,8 @@ Kebutuhan
 Daftar kebutuhan berikut dibutuhkan apabila kita ingin melakukan build di mesin environment lokal, kamu bisa juga melakukan build menggunakan Docker sehingga tidak perlu menginstall satu-per-satu kebutuhan ini. Untuk build menggunakan Docker lihat bagian *Build menngunakan Docker*.
 Berikut kebutuhan pokok untuk bisa melakukan build di mesin lokal:
 
+**Backend Server:**
+
 1. [Rust](https://www.rust-lang.org/)
 2. PostgreSQL >= 9.x
 3. [diesel](http://diesel.rs)
@@ -41,6 +43,18 @@ Berikut kebutuhan pokok untuk bisa melakukan build di mesin lokal:
 5. [Cargo clippy](https://github.com/rust-lang/rust-clippy)
 6. [Cargo audit](https://github.com/RustSec/cargo-audit)
 7. [Protocol Buffer](https://developers.google.com/protocol-buffers/)
+
+**Web Frontend:**
+
+1. [Node JS](https://nodejs.org)
+2. [NPM](https://www.npmjs.com/)
+3. [Yarn](https://yarnpkg.com/)
+
+**Mobile Frontend:**
+
+1. [Flutter](https://flutter.dev/)
+2. [Xcode](https://developer.apple.com/xcode/) <-- untuk iOS
+3. [Android SDK](https://developer.android.com/studio/releases/sdk-tools) <-- untuk Android
 
 Build
 -----------
