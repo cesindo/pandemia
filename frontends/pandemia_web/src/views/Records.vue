@@ -18,6 +18,7 @@
       :searchable="true"
       :withActionButton="false"
       :showDetailFunc="showDetail"
+      limit="10"
     >
       <template v-slot:tdmap="self">
         <td>{{self.item['id']}}</td>
