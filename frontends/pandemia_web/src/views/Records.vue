@@ -2,12 +2,11 @@
   <div>
     <div class="ui grid right floated">
       <div class="ten wide column">
-        <button
-          v-if="isDirty"
-          class="ui text icon green button right floated"
-          @click="commit"
-        >
+        <button v-if="isDirty" class="ui text icon green button right floated" @click="commit">
           <i class="fa-angle-double-up icon"></i> Commit
+        </button>
+        <button class="ui text icon button right floated" @click="addRecord">
+          <i class="fa-plus icon"></i> Tambah
         </button>
       </div>
     </div>
@@ -18,6 +17,7 @@
       :searchable="true"
       :withActionButton="false"
       :showDetailFunc="showDetail"
+      limit="10"
     >
       <template v-slot:tdmap="self">
         <td>{{self.item['id']}}</td>
@@ -115,6 +115,71 @@
       </template>
     </DialogModal>
 
+    <DialogModal
+      modalName="AddRecordModal"
+      caption="Tambah Rekod"
+      :withCloseButton="true"
+      @onApprove="doAddRecord"
+      @opened="onAddRecordOpened"
+      :buttonsText="{reject: 'Cancel', approve: 'Ok'}"
+    >
+      <template v-slot:content>
+        <h2 class="ui header">Tambah rekod baru</h2>
+
+        <div style="text-align: left;">
+          <div class="ui form">
+            <div class="field">
+              <label>Nama Lokasi:</label>
+              <input ref="addRecLocInput" type="text" name="Loc" id="Loc" />
+            </div>
+            <div class="field">
+              <label>Jenis:</label>
+              <select ref="addRecLocKind" class="ui fluid dropdown" name="Kind" id="Kind">
+                <option value="4">Kota/Kabupaten</option>
+                <option value="3">Provinsi</option>
+                <option value="2">Negara</option>
+                <option value="1">Benua</option>
+                <option value="0">Global</option>
+                <option value="5">Unknown</option>
+              </select>
+            </div>
+            <div class="ui grid">
+              <div class="three wide column">
+                <div class="field">
+                  <label>ODP:</label>
+                  <input ref="addRecOdp" type="text" name="Odp" id="Odp" />
+                </div>
+              </div>
+              <div class="three wide column">
+                <div class="field">
+                  <label>PDP:</label>
+                  <input ref="addRecPdp" type="text" name="Pdp" id="Pdp" />
+                </div>
+              </div>
+              <div class="three wide column">
+                <div class="field">
+                  <label>Positive:</label>
+                  <input ref="addRecPositive" type="text" name="Positive" id="Positive" />
+                </div>
+              </div>
+              <div class="three wide column">
+                <div class="field">
+                  <label>Sembuh:</label>
+                  <input ref="addRecTotalRecovered" type="text" name="Recovered" id="Recovered" />
+                </div>
+              </div>
+              <div class="three wide column">
+                <div class="field">
+                  <label>Meninggal:</label>
+                  <input ref="addRecTotalDeaths" type="text" name="Deaths" id="Deaths" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </DialogModal>
+
     <ConfirmDialog
       modalName="Commit"
       caption="Commit data"
@@ -163,6 +228,43 @@ export default {
     };
   },
   methods: {
+    addRecord() {
+      this.$modal.show("AddRecordModal");
+    },
+    doAddRecord() {
+      var loc = this.$refs['addRecLocInput'].value,
+        locKind = parseInt(this.$refs['addRecLocKind'].value),
+        // Odp = parseInt(this.$refs['addRecOdp'].value),
+        // Pdp = parseInt(this.$refs['addRecPdp'].value),
+        totalCases = parseInt(this.$refs['addRecPositive'].value) || 0,
+        totalDeaths = parseInt(this.$refs['addRecTotalDeaths'].value) || 0,
+        totalRecovered = parseInt(this.$refs['addRecTotalRecovered'].value) || 0
+        ;
+      this.$pandemia
+        .api()
+        .publicApi.post("/pandemia/v1/add_record", {
+          loc: loc,
+          loc_kind: locKind,
+          total_cases: totalCases,
+          total_deaths: totalDeaths,
+          total_recovered: totalRecovered,
+          active_cases: 0,
+          critical_cases: 0
+        })
+        .then(resp => {
+          if (resp.data.code == 0) {
+            this.$modal.hide("AddRecordModal");
+
+            this.showSuccess("Rekod berhasil ditambahkan");
+            this.refreshTable();
+          }else{
+            this.showError("Gagal menambahkan rekod");
+          }
+        });
+    },
+    onAddRecordOpened() {
+      this.$refs["addRecLocInput"].focus();
+    },
     showDetail(item) {
       this.$router.push("/dashboard/records/" + item.id);
     },

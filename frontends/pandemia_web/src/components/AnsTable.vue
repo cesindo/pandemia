@@ -48,6 +48,7 @@ export default {
       type: Function,
       default: a => a
     },
+    limit: { type: Number, default: 10 },
     showDetailFunc: Function,
     apiScopeBuilder: {
       type: Function,
@@ -77,12 +78,15 @@ export default {
   created() {
     this.items = [];
     this.offset = 0;
-    this.limit = 5;
     var self = this;
     var url;
 
     if (this.searchable && this.query) {
-      url = this.dataSourceUrl + "?q=" + this.query + "&offset=0&limit=10";
+      url =
+        this.dataSourceUrl +
+        "?q=" +
+        this.query +
+        `&offset=0&limit=${this.limit}`;
     } else {
       url = this.dataSourceUrl + "?offset=0&limit=10";
     }

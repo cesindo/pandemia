@@ -54,11 +54,47 @@ pub struct InfoLocation {
     pub history: Vec<models::Record>,
 }
 
+#[derive(Deserialize, Validate)]
+pub struct AddRecord {
+    pub loc: String,
+    pub loc_kind: i16,
+    pub total_cases: i32,
+    pub total_deaths: i32,
+    pub total_recovered: i32,
+    pub active_cases: i32,
+    pub critical_cases: i32,
+}
+
 /// Holder untuk implementasi API endpoint publik untuk Pandemia.
 pub struct PublicApi;
 
 #[api_group("Pandemia", "public", base = "/pandemia/v1")]
 impl PublicApi {
+    /// Add record.
+    #[api_endpoint(path = "/add_record", auth = "required", mutable, accessor = "admin")]
+    pub fn add_record(query: AddRecord) -> ApiResult<models::Record> {
+        query.validate()?;
+        let conn = state.db();
+        let dao = RecordDao::new(&conn);
+
+        let record = dao.create(
+            &query.loc,
+            query.loc_kind.into(),
+            query.total_cases,
+            query.total_deaths,
+            query.total_recovered,
+            query.active_cases,
+            query.critical_cases,
+            0.0,
+            &vec![],
+            false,
+        )?;
+
+        eventstream::emit(NewRecordUpdate(None, record.clone()));
+
+        Ok(ApiResult::success(record))
+    }
+
     /// Get location info (single mode)
     #[api_endpoint(path = "/info_location", auth = "none")]
     pub fn get_info_location(query: LocationQuery) -> ApiResult<Option<models::Record>> {
