@@ -9,6 +9,29 @@ import 'package:pandemia_mobile/blocs/pandemia/pandemia_state.dart';
 import 'package:pandemia_mobile/notification_util.dart';
 
 class SplashPage extends StatelessWidget {
+  SplashPage() {
+    initPermission();
+  }
+
+  initPermission() async {
+    Location location = new Location();
+    bool _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    }
+
+    PermissionStatus _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     PandemiaBloc pandemiaBloc = BlocProvider.of<PandemiaBloc>(context);
