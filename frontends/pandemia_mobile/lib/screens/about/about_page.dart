@@ -8,6 +8,14 @@ class AboutPage extends StatefulWidget {
   _AboutPageState createState() => _AboutPageState();
 }
 
+const List<String> Programmers = [
+  "Robin (@anvie)",
+  "Fatkhur",
+  "Samsul",
+  "Muiz",
+  "Rifai"
+];
+
 class _AboutPageState extends State<AboutPage> {
   String version;
 
@@ -80,7 +88,8 @@ class _AboutPageState extends State<AboutPage> {
               "untuk memudahkan " +
               "kita dalam memantau persebaran wabah, sehingga kita dapat mengambil keputusan yang " +
               "lebih bijak dan terukur dalam melakukan kegiatan kesehariannya.",
-          maxLines: 10, textAlign: TextAlign.center),
+          maxLines: 10,
+          textAlign: TextAlign.center),
       Container(
         color: Colors.black,
         height: 1,
@@ -92,6 +101,11 @@ class _AboutPageState extends State<AboutPage> {
         ),
       ),
       _row(
+        label: "Kode sumber",
+        midText: ":",
+        value: "https://github.com/cesindo/pandemia",
+      ),
+      _row(
         label: "Data by",
         midText: ":",
         value: "www.kawalcorona.com",
@@ -100,6 +114,11 @@ class _AboutPageState extends State<AboutPage> {
         label: " ",
         midText: " ",
         value: "www.worldmeters.info",
+      ),
+      _row(
+        label: " ",
+        midText: " ",
+        value: "corona.jatengprov.go.id",
       ),
       SizedBox(
         height: MediaQuery.of(context).padding.top / 2,
@@ -118,15 +137,7 @@ class _AboutPageState extends State<AboutPage> {
       _divider(),
     ];
 
-    List<String> Programmers = [
-      "Robin (@anvie)",
-      "Fatkhur",
-      "Samsul",
-      "Muiz",
-      "Rifai"
-    ];
-
-    credits.add(Text("Programmers:"));
+    credits.add(Text("Kontributor:"));
     credits.add(_divider());
     Programmers.forEach((p) {
       credits.add(_textDefault(p));
