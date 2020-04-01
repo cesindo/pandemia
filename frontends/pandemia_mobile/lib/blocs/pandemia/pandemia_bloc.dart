@@ -51,7 +51,7 @@ class PandemiaBloc extends Bloc<PandemiaEvent, PandemiaState> {
       yield ValidateToken();
 
       final latestLocation = await repo.getData("latest_location");
-      if (latestLocation["loc_name"] != locationName) {
+      if (latestLocation != null && latestLocation["loc_name"] != locationName) {
         print("[LOC] Changing location...");
         PublicApi.post("/user/v1/me/update_loc", {
           'device_id': deviceId,
