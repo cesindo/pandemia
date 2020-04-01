@@ -7,6 +7,8 @@ import 'package:pandemia_mobile/api/pandemia_api.dart';
 import 'package:pandemia_mobile/blocs/fcm/fcm_bloc.dart';
 import 'package:pandemia_mobile/blocs/feed/feed.dart';
 import 'package:pandemia_mobile/blocs/issue/issue_bloc.dart';
+import 'package:pandemia_mobile/blocs/map/map_bloc.dart';
+import 'package:pandemia_mobile/blocs/map/map_event.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_bloc.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_event.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_state.dart';
@@ -84,6 +86,9 @@ class PandemiaApp extends StatelessWidget {
             ),
             BlocProvider<FcmBloc>(
               builder: (context) => FcmBloc(),
+            ),
+            BlocProvider<MapBloc>(
+              builder: (context) => MapBloc()..dispatch(LoadMap()),
             ),
             BlocProvider<NotifBloc>(
               builder: (context) => NotifBloc(pandemiaBloc: pandemiaBloc),

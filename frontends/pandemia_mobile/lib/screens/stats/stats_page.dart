@@ -35,7 +35,6 @@ class StatsPage extends StatelessWidget {
 
       return ListView(children: viewItems);
     });
-    ;
   }
 }
 

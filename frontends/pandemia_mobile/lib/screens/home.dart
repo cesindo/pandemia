@@ -4,6 +4,8 @@ import 'package:pandemia_mobile/blocs/blocs.dart';
 import 'package:pandemia_mobile/blocs/feed/feed.dart';
 import 'package:pandemia_mobile/blocs/feed/feed_bloc.dart';
 import 'package:pandemia_mobile/blocs/issue/issue_bloc.dart';
+import 'package:pandemia_mobile/blocs/map/map_bloc.dart';
+import 'package:pandemia_mobile/blocs/map/map_event.dart';
 import 'package:pandemia_mobile/blocs/notif/notif_bloc.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia.dart';
 import 'package:pandemia_mobile/blocs/stats/stats_bloc.dart';
@@ -35,10 +37,11 @@ class HomeScreen extends StatelessWidget {
     final statsBloc = BlocProvider.of<StatsBloc>(context);
     final feedBloc = BlocProvider.of<FeedBloc>(context);
     final issueBloc = BlocProvider.of<IssueBloc>(context);
+    final mapBloc = BlocProvider.of<MapBloc>(context);
 
     final feed = FeedTabScreen(feedBloc);
     final stats = StatsPage();
-    final map = MapPage();
+    final map = MapPage(mapBloc);
     final issue = IssuePage(issueBloc);
     final settings = SettingScreen();
 
@@ -56,6 +59,7 @@ class HomeScreen extends StatelessWidget {
           statsBloc.dispatch(LoadStats(withLoading: false));
           body = stats;
         } else if (activeTab == AppTab.map) {
+          mapBloc.dispatch(LoadMap(withLoading: false));
           body = map;
         } else if (activeTab == AppTab.hoax) {
           body = issue;
