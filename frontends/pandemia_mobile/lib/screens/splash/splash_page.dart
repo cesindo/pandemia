@@ -8,6 +8,7 @@ import 'package:pandemia_mobile/blocs/pandemia/pandemia_state.dart';
 import 'package:pandemia_mobile/notification_util.dart';
 
 class SplashPage extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     PandemiaBloc pandemiaBloc = BlocProvider.of<PandemiaBloc>(context);

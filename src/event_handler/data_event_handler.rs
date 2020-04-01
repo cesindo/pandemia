@@ -51,7 +51,7 @@ pub fn new_record_update(
             if let Err(e) = FCM.push(
                 "fcm",
                 &FCMPayloadData {
-                    receiver_id: 0,
+                    receiver_loc: &new_record.loc,
                     target_id: 0,
                     kind: NotifKind::NewCases,
                     title: &title,
@@ -87,7 +87,7 @@ pub fn new_record_update(
             if let Err(e) = FCM.push(
                 "fcm",
                 &FCMPayloadData {
-                    receiver_id: 0,
+                    receiver_loc: &new_record.loc,
                     target_id: 0,
                     kind: NotifKind::NewDeaths,
                     title: &title,
@@ -123,7 +123,7 @@ pub fn new_record_update(
             if let Err(e) = FCM.push(
                 "fcm",
                 &FCMPayloadData {
-                    receiver_id: 0,
+                    receiver_loc: &new_record.loc,
                     target_id: 0,
                     kind: NotifKind::NewRecovered,
                     title: &title,
