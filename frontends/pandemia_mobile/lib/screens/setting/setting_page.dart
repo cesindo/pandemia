@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:pandemia_mobile/blocs/settings/settings.dart';
+import 'package:pandemia_mobile/blocs/settings/settings_bloc.dart';
+import 'package:pandemia_mobile/user_repository/user_repository.dart';
 
 class SettingScreen extends StatefulWidget {
-  SettingScreen({Key key}) : super(key: key);
+  final SettingsBloc settingsBloc;
+  SettingScreen({Key key, @required this.settingsBloc}) : super(key: key);
 
   @override
-  _SettingScreenState createState() => _SettingScreenState();
+  _SettingScreenState createState() => _SettingScreenState(this.settingsBloc);
 }
 
 class _SettingScreenState extends State<SettingScreen> {
+  final UserRepository _userRepo = UserRepository();
+  final SettingsBloc settingsBloc;
   bool _onTap = false;
   bool _pushIsChecked = false;
   bool _petaIsChecked = false;
@@ -15,6 +21,16 @@ class _SettingScreenState extends State<SettingScreen> {
   bool _isDemam = false;
   bool _isFlu = false;
   bool _isPusing = false;
+
+  _SettingScreenState(this.settingsBloc){
+
+    _pushIsChecked = _userRepo.currentUser.settings.enablePushNotif;
+    _petaIsChecked = _userRepo.currentUser.settings.complaintMap;
+    _isBatuk = _userRepo.currentUser.settings.hasCough;
+    _isDemam = _userRepo.currentUser.settings.hasFever;
+    _isFlu = _userRepo.currentUser.settings.hasFlu;
+    _isPusing = _userRepo.currentUser.settings.hasHeadache;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +48,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     onChanged: (value) {
                       setState(() {
                         _pushIsChecked = value;
+                        settingsBloc.dispatch(SetSetting("enable_push_notif", _pushIsChecked ? "true": "false"));
                         _onTap = true;
                       });
                     }),
@@ -65,7 +82,7 @@ class _SettingScreenState extends State<SettingScreen> {
           ),
           Divider(),
           Padding(
-            padding: EdgeInsets.only(left: 15, top: 0, bottom: 10),
+            padding: EdgeInsets.only(left: 15, top: 0, bottom: 0),
             child: Row(
               children: <Widget>[
                 Checkbox(
@@ -109,12 +126,7 @@ class _SettingScreenState extends State<SettingScreen> {
 
                     setState(() {
                       _petaIsChecked = value;
-                      print("value peta sekaran : $_petaIsChecked");
-
-                      _isBatuk == false ? null : _isBatuk = !_isBatuk;
-                      _isDemam == false ? null : _isDemam = !_isDemam;
-                      _isFlu == false ? null : _isFlu = !_isFlu;
-                      _isPusing == false ? null : _isPusing = !_isPusing;
+                      settingsBloc.dispatch(SetSetting("complaint_map", _petaIsChecked ? "true": "false"));
                     });
                   },
                 ),
@@ -126,6 +138,15 @@ class _SettingScreenState extends State<SettingScreen> {
                 )
               ],
             ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 30, right: 30, bottom: 15),
+            child: Text(
+                "Menandai daerah keberadaan kita dengan keluhan kita, data hanya dalam bentuk " +
+                    "statistik anonim (tidak ada data pribadi yang ditampilkan), " +
+                    "fitur ini mempermudah kita dalam melakukan tracing.",
+                maxLines: 5,
+                style: TextStyle(fontSize: 16)),
           ),
           Padding(
             padding: EdgeInsets.only(left: 30, bottom: 15),
@@ -150,6 +171,7 @@ class _SettingScreenState extends State<SettingScreen> {
                             ? (value) {
                                 setState(() {
                                   _isBatuk = value;
+                                  settingsBloc.dispatch(SetSetting("has_cough", _isBatuk ? "true": "false"));
                                 });
                               }
                             : null,
@@ -173,6 +195,7 @@ class _SettingScreenState extends State<SettingScreen> {
                             ? (value) {
                                 setState(() {
                                   _isDemam = value;
+                                  settingsBloc.dispatch(SetSetting("has_fever", _isDemam ? "true": "false"));
                                 });
                               }
                             : null,
@@ -196,6 +219,7 @@ class _SettingScreenState extends State<SettingScreen> {
                             ? (value) {
                                 setState(() {
                                   _isFlu = value;
+                                  settingsBloc.dispatch(SetSetting("has_flu", _isFlu ? "true": "false"));
                                 });
                               }
                             : null,
@@ -219,6 +243,7 @@ class _SettingScreenState extends State<SettingScreen> {
                             ? (value) {
                                 setState(() {
                                   _isPusing = value;
+                                  settingsBloc.dispatch(SetSetting("has_headache", _isPusing ? "true": "false"));
                                 });
                               }
                             : null,
@@ -241,28 +266,28 @@ class _SettingScreenState extends State<SettingScreen> {
   }
 }
 
-Widget _buildInfoDialog(BuildContext context) {
-  return new AlertDialog(
-    title: const Text("Info"),
-    content: new Container(
-      child: _buildText(context),
-    ),
-    actions: <Widget>[
-      new Center(
-        child: FlatButton(
-          child: const Text("OKE"),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-      )
-    ],
-  );
-}
+// Widget _buildInfoDialog(BuildContext context) {
+//   return new AlertDialog(
+//     title: const Text("Info"),
+//     content: new Container(
+//       child: _buildText(context),
+//     ),
+//     actions: <Widget>[
+//       new Center(
+//         child: FlatButton(
+//           child: const Text("OKE"),
+//           onPressed: () {
+//             Navigator.of(context).pop();
+//           },
+//         ),
+//       )
+//     ],
+//   );
+// }
 
-Widget _buildText(BuildContext context) {
-  return new RichText(
-      text: TextSpan(
-          text:
-              "Fitur ini memungkinkan anda untuk mendapatkan informasi Covid-19 ( Corona ) di daerah sekitar kita."));
-}
+// Widget _buildText(BuildContext context) {
+//   return new RichText(
+//       text: TextSpan(
+//           text:
+//               "Fitur ini memungkinkan anda untuk mendapatkan informasi Covid-19 ( Corona ) di daerah sekitar kita."));
+// }

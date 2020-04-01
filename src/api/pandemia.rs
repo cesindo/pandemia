@@ -70,6 +70,7 @@ pub struct PublicApi;
 
 #[api_group("Pandemia", "public", base = "/pandemia/v1")]
 impl PublicApi {
+
     /// Add record.
     #[api_endpoint(path = "/add_record", auth = "required", mutable, accessor = "admin")]
     pub fn add_record(query: AddRecord) -> ApiResult<models::Record> {

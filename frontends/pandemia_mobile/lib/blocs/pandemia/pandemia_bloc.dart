@@ -8,6 +8,7 @@ import 'package:pandemia_mobile/api/pandemia_api.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_event.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_state.dart';
 import 'package:pandemia_mobile/core/smart_repo.dart';
+import 'package:pandemia_mobile/models/user_settings.dart';
 import 'package:pandemia_mobile/notification_util.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
 import 'package:pandemia_mobile/util/address_util.dart';
@@ -38,6 +39,35 @@ class PandemiaBloc extends Bloc<PandemiaEvent, PandemiaState> {
     }
   }
 
+  Stream<PandemiaState> _loadUserSettings() async* {
+    yield LoadSettings();
+
+    final resp = await PublicApi.get("/user/v1/settings");
+
+    if (resp != null) {
+      final List<dynamic> ss = resp["result"] as List<dynamic>;
+      UserSettings settings =
+          UserSettings(0, true, false, false, false, false, false);
+      for (final s in ss) {
+        if (s["s_key"] == "has_push_notif") {
+          settings = settings.copy(enablePushNotif: s["s_value"] == "true");
+        } else if (s["s_key"] == "complaint_map") {
+          settings = settings.copy(complaintMap: s["s_value"] == "true");
+        } else if (s["s_key"] == "has_cough") {
+          settings = settings.copy(hasCough: s["s_value"] == "true");
+        } else if (s["s_key"] == "has_fever") {
+          settings = settings.copy(hasFever: s["s_value"] == "true");
+        } else if (s["s_key"] == "has_flu") {
+          settings = settings.copy(hasFlu: s["s_value"] == "true");
+        } else if (s["s_key"] == "has_headache") {
+          settings = settings.copy(hasHeadache: s["s_value"] == "true");
+        }
+      }
+      userRepository.currentUser =
+          userRepository.currentUser.copy(settings: settings);
+    }
+  }
+
   Stream<PandemiaState> _mapStartupToState(StartupEvent event) async* {
     yield PandemiaLoading();
 
@@ -51,7 +81,8 @@ class PandemiaBloc extends Bloc<PandemiaEvent, PandemiaState> {
       yield ValidateToken();
 
       final latestLocation = await repo.getData("latest_location");
-      if (latestLocation != null && latestLocation["loc_name"] != locationName) {
+      if (latestLocation != null &&
+          latestLocation["loc_name"] != locationName) {
         print("[LOC] Changing location...");
         PublicApi.post("/user/v1/me/update_loc", {
           'device_id': deviceId,
@@ -64,16 +95,23 @@ class PandemiaBloc extends Bloc<PandemiaEvent, PandemiaState> {
         print("[LOC] Location not changed");
       }
 
-      final user = await userRepository.getUserInfo().catchError((err) {
+      // untuk memeriksa apakah access token-nya masih valid
+      final user = await PublicApi.get("/user/v1/me/info").catchError((err) {
         print("error: $err");
       });
 
       if (user == null) {
         // invalid, reinitialize
         userRepository.deleteToken();
+        ApiResource.accessToken = "";
         yield* _mapStartupToState(event);
         return;
       }
+
+      // yang ini akan meng-update currentUser di userRepository
+      await userRepository.getUserInfo();
+
+      yield* _loadUserSettings();
 
       yield PandemiaReady();
       return;
@@ -97,6 +135,8 @@ class PandemiaBloc extends Bloc<PandemiaEvent, PandemiaState> {
 
       userRepository.persistToken(accessToken);
       repo.putData("latest_location", {"loc_name": locationName});
+
+      yield* _loadUserSettings();
 
       yield PandemiaReady();
     } else {

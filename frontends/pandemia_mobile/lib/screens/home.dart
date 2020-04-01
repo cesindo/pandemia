@@ -8,6 +8,7 @@ import 'package:pandemia_mobile/blocs/map/map_bloc.dart';
 import 'package:pandemia_mobile/blocs/map/map_event.dart';
 import 'package:pandemia_mobile/blocs/notif/notif_bloc.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia.dart';
+import 'package:pandemia_mobile/blocs/settings/settings_bloc.dart';
 import 'package:pandemia_mobile/blocs/stats/stats_bloc.dart';
 import 'package:pandemia_mobile/blocs/stats/stats_event.dart';
 import 'package:pandemia_mobile/core/core.dart';
@@ -38,12 +39,15 @@ class HomeScreen extends StatelessWidget {
     final feedBloc = BlocProvider.of<FeedBloc>(context);
     final issueBloc = BlocProvider.of<IssueBloc>(context);
     final mapBloc = BlocProvider.of<MapBloc>(context);
+    final settingsBloc = BlocProvider.of<SettingsBloc>(context);
 
     final feed = FeedTabScreen(feedBloc);
     final stats = StatsPage();
     final map = MapPage(mapBloc);
     final issue = IssuePage(issueBloc);
-    final settings = SettingScreen();
+    final settings = SettingScreen(
+      settingsBloc: settingsBloc,
+    );
 
     new Future.delayed(Duration.zero, () {
       NotificationUtil().init(context, notifBloc, feedBloc);

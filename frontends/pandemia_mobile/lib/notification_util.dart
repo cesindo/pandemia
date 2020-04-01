@@ -31,7 +31,8 @@ class NotificationUtil {
 
   void init(BuildContext context, NotifBloc notifBloc, FeedBloc feedBloc) {
     if (_initialized){
-      throw Exception("Notification already initialized");
+      //throw Exception("Notification already initialized");
+      return;
     }
     _initialized = true;
     // _userRepository.getUserInfo();

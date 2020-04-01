@@ -150,6 +150,15 @@ table! {
 }
 
 table! {
+    user_settings (id) {
+        id -> Int8,
+        user_id -> Int8,
+        s_key -> Text,
+        s_value -> Text,
+    }
+}
+
+table! {
     users (id) {
         id -> Int8,
         full_name -> Varchar,
@@ -169,6 +178,7 @@ joinable!(notifs -> users (receiver_id));
 joinable!(reset_password_admins -> admins (admin_id));
 joinable!(user_keys -> users (user_id));
 joinable!(user_passhash -> users (user_id));
+joinable!(user_settings -> users (user_id));
 
 allow_tables_to_appear_in_same_query!(
     access_tokens,
@@ -184,5 +194,6 @@ allow_tables_to_appear_in_same_query!(
     user_connect,
     user_keys,
     user_passhash,
+    user_settings,
     users,
 );

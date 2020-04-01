@@ -39,3 +39,8 @@ class PandemiaFailure extends PandemiaState {
   @override
   String toString() => "PandemiaFailure";
 }
+
+class LoadSettings extends PandemiaState {
+  @override
+  String toString() => "LoadSettings";
+}
