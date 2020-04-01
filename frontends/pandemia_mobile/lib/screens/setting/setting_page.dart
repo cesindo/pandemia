@@ -24,7 +24,7 @@ class _SettingScreenState extends State<SettingScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Padding(
-            padding: EdgeInsets.only(left: 15, top: 20, bottom: 25),
+            padding: EdgeInsets.only(left: 15, top: 20, bottom: 5),
             child: Row(
               children: <Widget>[
                 Checkbox(
@@ -45,24 +45,27 @@ class _SettingScreenState extends State<SettingScreen> {
               ],
             ),
           ),
-          Center(
-            child: InkWell(
-              child: Text(
-                "Pilih hanya daerah tertentu saja",
-                style: TextStyle(
-                  fontSize: 16,
+          Padding(
+            padding: EdgeInsets.only(bottom: 10),
+            child: Center(
+              child: InkWell(
+                child: Text(
+                  "Pilih hanya daerah tertentu saja",
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
                 ),
+                onTap: _onTap
+                    ? () {
+                        print("=======> show filter screen");
+                      }
+                    : null,
               ),
-              onTap: _onTap
-                  ? () {
-                      print("=======> show filter screen");
-                    }
-                  : null,
             ),
           ),
           Divider(),
           Padding(
-            padding: EdgeInsets.only(left: 15, top: 20, bottom: 15),
+            padding: EdgeInsets.only(left: 15, top: 0, bottom: 10),
             child: Row(
               children: <Widget>[
                 Checkbox(
@@ -125,7 +128,7 @@ class _SettingScreenState extends State<SettingScreen> {
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(left: 30),
+            padding: EdgeInsets.only(left: 30, bottom: 15),
             child: Text(
               "Keluhan saya :",
               style: TextStyle(
@@ -134,88 +137,100 @@ class _SettingScreenState extends State<SettingScreen> {
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(left: 35),
+            padding: EdgeInsets.only(left: 45),
             child: Column(
               children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Checkbox(
-                      value: _isBatuk,
-                      onChanged: _petaIsChecked
-                          ? (value) {
-                              setState(() {
-                                _isBatuk = value;
-                              });
-                            }
-                          : null,
-                    ),
-                    Text(
-                      "Batuk",
-                      style: TextStyle(
-                        fontSize: 16,
+                Container(
+                  height: 35,
+                  child: Row(
+                    children: <Widget>[
+                      Checkbox(
+                        value: _isBatuk,
+                        onChanged: _petaIsChecked
+                            ? (value) {
+                                setState(() {
+                                  _isBatuk = value;
+                                });
+                              }
+                            : null,
                       ),
-                    )
-                  ],
+                      Text(
+                        "Batuk",
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
+                      )
+                    ],
+                  ),
                 ),
-                Row(
-                  children: <Widget>[
-                    Checkbox(
-                      value: _isDemam,
-                      onChanged: _petaIsChecked
-                          ? (value) {
-                              setState(() {
-                                _isDemam = value;
-                              });
-                            }
-                          : null,
-                    ),
-                    Text(
-                      "Demam",
-                      style: TextStyle(
-                        fontSize: 16,
+                Container(
+                  height: 35,
+                  child: Row(
+                    children: <Widget>[
+                      Checkbox(
+                        value: _isDemam,
+                        onChanged: _petaIsChecked
+                            ? (value) {
+                                setState(() {
+                                  _isDemam = value;
+                                });
+                              }
+                            : null,
                       ),
-                    )
-                  ],
+                      Text(
+                        "Demam",
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
+                      )
+                    ],
+                  ),
                 ),
-                Row(
-                  children: <Widget>[
-                    Checkbox(
-                      value: _isFlu,
-                      onChanged: _petaIsChecked
-                          ? (value) {
-                              setState(() {
-                                _isFlu = value;
-                              });
-                            }
-                          : null,
-                    ),
-                    Text(
-                      "Flu",
-                      style: TextStyle(
-                        fontSize: 16,
+                Container(
+                  height: 35,
+                  child: Row(
+                    children: <Widget>[
+                      Checkbox(
+                        value: _isFlu,
+                        onChanged: _petaIsChecked
+                            ? (value) {
+                                setState(() {
+                                  _isFlu = value;
+                                });
+                              }
+                            : null,
                       ),
-                    )
-                  ],
+                      Text(
+                        "Flu",
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
+                      )
+                    ],
+                  ),
                 ),
-                Row(
-                  children: <Widget>[
-                    Checkbox(
-                      value: _isPusing,
-                      onChanged: _petaIsChecked
-                          ? (value) {
-                              setState(() {
-                                _isPusing = value;
-                              });
-                            }
-                          : null,
-                    ),
-                    Text(
-                      "Pusing",
-                      style: TextStyle(
-                        fontSize: 16,
+                Container(
+                  height: 35,
+                  child: Row(
+                    children: <Widget>[
+                      Checkbox(
+                        value: _isPusing,
+                        onChanged: _petaIsChecked
+                            ? (value) {
+                                setState(() {
+                                  _isPusing = value;
+                                });
+                              }
+                            : null,
                       ),
-                    )
-                  ],
+                      Text(
+                        "Pusing",
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
+                      )
+                    ],
+                  ),
                 )
               ],
             ),
