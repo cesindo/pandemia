@@ -26,7 +26,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final pandemiaBloc = BlocProvider.of<PandemiaBloc>(context);
+    final pandemiaBloc = BlocProvider.of<PandemiaBloc>(context);
     final tabBloc = BlocProvider.of<TabBloc>(context);
     final notifBloc = BlocProvider.of<NotifBloc>(context);
     final feedBloc = BlocProvider.of<FeedBloc>(context);

@@ -169,7 +169,12 @@ impl PublicApi {
         let conn = state.db();
         let dao = UserDao::new(&conn);
 
-        dao.create_user_connect(&query.device_id, &query.provider_name, &query.app_id)?;
+        dao.create_user_connect(
+            &query.device_id,
+            &query.provider_name,
+            &query.app_id,
+            &query.location_name,
+        )?;
         Ok(ApiResult::success(()))
     }
 
@@ -183,6 +188,15 @@ impl PublicApi {
         let dao = UserDao::new(&conn);
 
         dao.remove_user_connect(&query.device_id, &query.provider_name, &query.app_id)?;
+        Ok(ApiResult::success(()))
+    }
+
+    /// Update latest location
+    #[api_endpoint(path = "/me/update_loc", auth = "required", mutable)]
+    pub fn update_location(query: UpdateLocation) -> ApiResult<()> {
+        let conn = state.db();
+        let dao = UserDao::new(&conn);
+        dao.update_user_location(&query.device_id, &query.location_name)?;
         Ok(ApiResult::success(()))
     }
 

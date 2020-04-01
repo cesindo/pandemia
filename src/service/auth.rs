@@ -57,6 +57,8 @@ pub struct DeviceAuthorize {
     pub fcm_token: String,
     #[validate(length(min = 3, max = 10))]
     pub platform: String,
+    #[validate(length(min = 3, max = 50))]
+    pub location_name: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -137,6 +139,7 @@ impl PublicApi {
                 device_id: &query.device_id,
                 provider_name: &query.platform,
                 app_id: &query.fcm_token,
+                latest_location: &query.location_name
             }),
         )?;
 
