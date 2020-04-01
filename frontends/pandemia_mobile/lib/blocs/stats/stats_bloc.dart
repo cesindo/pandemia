@@ -5,7 +5,6 @@ import 'package:bloc/bloc.dart';
 import 'package:pandemia_mobile/blocs/stats/stats_event.dart';
 import 'package:pandemia_mobile/blocs/stats/stats_state.dart';
 import 'package:pandemia_mobile/models/info_location.dart';
-import 'package:pandemia_mobile/models/record.dart';
 
 class StatsBloc extends Bloc<StatsEvent, StatsState> {
   PersistentSmartRepo repo;
@@ -27,7 +26,9 @@ class StatsBloc extends Bloc<StatsEvent, StatsState> {
   }
 
   Stream<StatsState> _mapLoadStatsToState(LoadStats event) async* {
-    yield StatsLoading();
+    if (event.withLoading) {
+      yield StatsLoading();
+    }
 
     yield* repo
         .fetchGradually(

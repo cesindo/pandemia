@@ -9,7 +9,8 @@ abstract class FeedEvent extends Equatable {
 
 class LoadFeed extends FeedEvent {
   final bool force;
-  LoadFeed({this.force = false});
+  final bool withLoading;
+  LoadFeed({this.force = false, this.withLoading=true});
 
   @override
   String toString() => "LoadFeed";
@@ -19,12 +20,6 @@ class LoadMoreFeed extends FeedEvent {
   LoadMoreFeed();
   @override
   String toString() => "LoadMoreFeed";
-}
-
-class RefreshFeed extends FeedEvent {
-  RefreshFeed();
-  @override
-  String toString() => "RefreshFeed";
 }
 
 class CreateFeed extends FeedEvent {

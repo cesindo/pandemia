@@ -49,7 +49,9 @@ class FeedItemView extends StatelessWidget {
                       color: Colors.blue,
                       size: 32,
                     ),
-                    SizedBox(width: 16,),
+                    SizedBox(
+                      width: 16,
+                    ),
                     Text(
                       title,
                       style: TextStyle(
@@ -88,36 +90,34 @@ class FeedItemView extends StatelessWidget {
       child: Container(
         child: new ListTile(
           isThreeLine: true,
-          contentPadding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
-          title: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Row(
-              children: <Widget>[
-                Icon(
-                  IconsByKind[item.kind],
-                  color: ColorsByKind[item.kind],
-                  size: 32,
-                ),
-                SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      item.loc.capitalize(),
-                      style: TextStyle(
-                          color: Colors.grey[700],
-                          fontWeight: FontWeight.w500,
-                          fontSize: 19),
-                    ),
-                    Divider(height: 5),
-                    Text(
-                      timeago.format(TimeHelper.parseAsUtc(item.ts)),
-                      style: TextStyle(fontSize: 13, color: Colors.grey),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          contentPadding:
+              EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+          title: Row(
+            children: <Widget>[
+              Icon(
+                IconsByKind[item.kind],
+                color: ColorsByKind[item.kind],
+                size: 32,
+              ),
+              SizedBox(width: 16),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    item.loc.capitalize(),
+                    style: TextStyle(
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.w500,
+                        fontSize: 19),
+                  ),
+                  Divider(height: 5),
+                  Text(
+                    timeago.format(TimeHelper.parseAsUtc(item.ts)),
+                    style: TextStyle(fontSize: 13, color: Colors.grey),
+                  ),
+                ],
+              ),
+            ],
           ),
           subtitle: Column(
             children: <Widget>[
@@ -127,7 +127,7 @@ class FeedItemView extends StatelessWidget {
                   text1: "+${leftNum.toNumberFormat()}",
                   text2: rightNum.toNumberFormat(),
                   desc1: text[0].replaceAll(leftNum + " ", "").capitalize(),
-                  desc2: text[1].replaceAll(" " + rightNum, "").capitalize(),
+                  desc2: text[1].replaceAll(rightNum, "").capitalize(),
                   colorText: ColorsByKind[item.kind],
                 ),
               ),

@@ -9,7 +9,8 @@ abstract class StatsEvent extends Equatable {
 
 class LoadStats extends StatsEvent {
   final bool force;
-  LoadStats({this.force=false});
+  final bool withLoading;
+  LoadStats({this.force=false, this.withLoading=true});
 
   @override
   String toString() => "LoadStats";

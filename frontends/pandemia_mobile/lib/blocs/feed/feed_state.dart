@@ -55,24 +55,3 @@ class FeedFailure extends FeedState {
   @override
   String toString() => "FeedFailure";
 }
-
-class FeedCreated extends FeedState {
-  final Feed item;
-  FeedCreated(this.item);
-  @override
-  String toString() => "FeedCreated";
-}
-
-class DoRefreshFeed extends FeedState {
-  DoRefreshFeed();
-  @override
-  String toString() => "DoRefreshFeed";
-}
-
-/// State when Feed already deleted
-class FeedDeleted extends FeedState {
-  final Feed feed;
-  FeedDeleted(this.feed);
-  @override
-  String toString() => "FeedDeleted";
-}

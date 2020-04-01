@@ -1,0 +1,1 @@
+ALTER TABLE user_connect ADD COLUMN latest_location VARCHAR(80) NOT NULL DEFAULT '';

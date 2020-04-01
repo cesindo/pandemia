@@ -1,0 +1,1 @@
+ALTER TABLE user_connect DROP COLUMN latest_location;

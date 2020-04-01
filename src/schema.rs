@@ -124,6 +124,7 @@ table! {
         device_id -> Varchar,
         provider_name -> Varchar,
         app_id -> Varchar,
+        latest_location -> Varchar,
     }
 }
 

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:package_info/package_info.dart';
 import 'package:pandemia_mobile/blocs/blocs.dart';
+import 'package:pandemia_mobile/blocs/feed/feed.dart';
 import 'package:pandemia_mobile/blocs/feed/feed_bloc.dart';
 import 'package:pandemia_mobile/blocs/issue/issue_bloc.dart';
 import 'package:pandemia_mobile/blocs/notif/notif_bloc.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia.dart';
+import 'package:pandemia_mobile/blocs/stats/stats_bloc.dart';
+import 'package:pandemia_mobile/blocs/stats/stats_event.dart';
 import 'package:pandemia_mobile/core/core.dart';
 import 'package:pandemia_mobile/models/models.dart';
 import 'package:pandemia_mobile/notification_util.dart';
@@ -29,8 +31,15 @@ class HomeScreen extends StatelessWidget {
     // final pandemiaBloc = BlocProvider.of<PandemiaBloc>(context);
     final tabBloc = BlocProvider.of<TabBloc>(context);
     final notifBloc = BlocProvider.of<NotifBloc>(context);
+    final statsBloc = BlocProvider.of<StatsBloc>(context);
     final feedBloc = BlocProvider.of<FeedBloc>(context);
     final issueBloc = BlocProvider.of<IssueBloc>(context);
+
+    final feed = FeedTabScreen(feedBloc);
+    final stats = StatsPage();
+    final map = Container();
+    final issue = IssuePage(issueBloc);
+    final settings = SettingScreen();
 
     new Future.delayed(Duration.zero, () {
       NotificationUtil().init(context, notifBloc, feedBloc);
@@ -40,15 +49,17 @@ class HomeScreen extends StatelessWidget {
       builder: (context, activeTab) {
         Widget body;
         if (activeTab == AppTab.updates) {
-          body = FeedTabScreen(context, feedBloc);
+          feedBloc.dispatch(LoadFeed(withLoading: false));
+          body = feed;
         } else if (activeTab == AppTab.stats) {
-          body = StatsPage();
+          statsBloc.dispatch(LoadStats(withLoading: false));
+          body = stats;
         } else if (activeTab == AppTab.map) {
-          body = Container();
+          body = map;
         } else if (activeTab == AppTab.hoax) {
-          body = IssuePage(issueBloc);
-        } else {
-          body = SettingScreen();
+          body = issue;
+        } else if (activeTab == AppTab.settings) {
+          body = settings;
         }
         return Scaffold(
           appBar: AppBar(
