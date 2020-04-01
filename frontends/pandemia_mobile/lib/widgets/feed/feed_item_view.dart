@@ -127,7 +127,7 @@ class FeedItemView extends StatelessWidget {
                   text1: "+${leftNum.toNumberFormat()}",
                   text2: rightNum.toNumberFormat(),
                   desc1: text[0].replaceAll(leftNum + " ", "").capitalize(),
-                  desc2: text[1].replaceAll(" " + rightNum, "").capitalize(),
+                  desc2: text[1].replaceAll(rightNum, "").capitalize(),
                   colorText: ColorsByKind[item.kind],
                 ),
               ),

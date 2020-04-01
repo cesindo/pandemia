@@ -24,8 +24,8 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
       yield* _mapCreateFeedToState(event);
     } else if (event is DeleteFeed) {
       yield* _mapDeleteToState(event);
-    } else if (event is RefreshFeed) {
-      yield DoRefreshFeed();
+    // } else if (event is RefreshFeed) {
+    //   yield DoRefreshFeed();
     } else if (event is LoadMoreFeed && !_hasReachedMax(currentState)) {
       yield* _mapMoreFeedToState(event);
     }
@@ -35,7 +35,9 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
       state is FeedsUpdated && state.hasReachedMax;
 
   Stream<FeedState> _mapLoadFeedToState(LoadFeed event) async* {
-    yield FeedLoading();
+    if (event.withLoading){
+      yield FeedLoading();
+    }
 
     yield* repo
         .fetchGradually(
