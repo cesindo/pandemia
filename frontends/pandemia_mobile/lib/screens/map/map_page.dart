@@ -1,4 +1,3 @@
-import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,7 +8,6 @@ import 'package:pandemia_mobile/core/core.dart';
 import 'package:pandemia_mobile/widgets/widgets.dart';
 
 class MapPage extends StatelessWidget {
-  // final Completer<GoogleMapController> _controller = Completer();
   final MapBloc mapBloc;
 
   MapPage(this.mapBloc, {Key key}) : super(key: key);
