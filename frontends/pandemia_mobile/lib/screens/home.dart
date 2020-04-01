@@ -11,6 +11,7 @@ import 'package:pandemia_mobile/models/models.dart';
 import 'package:pandemia_mobile/notification_util.dart';
 import 'package:pandemia_mobile/screens/feed/feed_tab_screen.dart';
 import 'package:pandemia_mobile/screens/issue/issue_page.dart';
+import 'package:pandemia_mobile/screens/setting/setting_page.dart';
 import 'package:pandemia_mobile/widgets/widgets.dart';
 
 import '../core/core.dart';
@@ -47,8 +48,7 @@ class HomeScreen extends StatelessWidget {
         } else if (activeTab == AppTab.hoax) {
           body = IssuePage(issueBloc);
         } else {
-          // @TODO(*): fix this
-          body = Container();
+          body = SettingScreen();
         }
         return Scaffold(
           appBar: AppBar(
