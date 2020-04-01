@@ -52,6 +52,8 @@ class SplashPage extends StatelessWidget {
         statusText = "otorisasi...";
       } else if (state is LoadSettings) {
         statusText = "memuat setelan...";
+      }else if (state is PandemiaFailure){
+        statusText = state.error;
       }
 
       return Scaffold(

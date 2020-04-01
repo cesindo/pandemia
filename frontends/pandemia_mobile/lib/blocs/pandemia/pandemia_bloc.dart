@@ -19,6 +19,7 @@ class PandemiaBloc extends Bloc<PandemiaEvent, PandemiaState> {
   final PersistentSmartRepo repo = PersistentSmartRepo("pandemia");
   final NotificationUtil notifUtil = NotificationUtil();
   final FirebaseMessaging firebaseMessaging = new FirebaseMessaging();
+  int _totalRetries = 0;
 
   PandemiaBloc({@required this.userRepository})
       : assert(userRepository != null);
@@ -104,6 +105,12 @@ class PandemiaBloc extends Bloc<PandemiaEvent, PandemiaState> {
         // invalid, reinitialize
         userRepository.deleteToken();
         ApiResource.accessToken = "";
+
+        if (++_totalRetries == 5) {
+          yield PandemiaFailure("Cannot connect to server :(");
+          return;
+        }
+
         yield* _mapStartupToState(event);
         return;
       }
@@ -140,7 +147,7 @@ class PandemiaBloc extends Bloc<PandemiaEvent, PandemiaState> {
 
       yield PandemiaReady();
     } else {
-      yield PandemiaFailure("Initialization failed");
+      yield PandemiaFailure("Initialization failed :(");
     }
   }
 

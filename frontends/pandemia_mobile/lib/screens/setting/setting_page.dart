@@ -70,6 +70,8 @@ class _SettingScreenState extends State<SettingScreen> {
                   "Pilih hanya daerah tertentu saja",
                   style: TextStyle(
                     fontSize: 16,
+                    color: Colors.blue,
+                    decoration: TextDecoration.underline
                   ),
                 ),
                 onTap: _onTap
