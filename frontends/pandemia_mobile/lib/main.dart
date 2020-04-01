@@ -8,6 +8,7 @@ import 'package:pandemia_mobile/blocs/fcm/fcm_bloc.dart';
 import 'package:pandemia_mobile/blocs/feed/feed.dart';
 import 'package:pandemia_mobile/blocs/issue/issue_bloc.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_bloc.dart';
+import 'package:pandemia_mobile/blocs/pandemia/pandemia_event.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_state.dart';
 import 'package:pandemia_mobile/blocs/simple_bloc_delegate.dart';
 import 'package:pandemia_mobile/blocs/stats/stats.dart';
@@ -34,7 +35,8 @@ void main() async {
 
   runApp(BlocProvider(
     builder: (ctx) {
-      return PandemiaBloc(userRepository: userRepository);
+      return PandemiaBloc(userRepository: userRepository)
+        ..dispatch(StartupEvent());
     },
     child: PandemiaApp(userRepository: userRepository),
   ));

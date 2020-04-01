@@ -20,10 +20,10 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
   Stream<FeedState> mapEventToState(FeedEvent event) async* {
     if (event is LoadFeed) {
       yield* _mapLoadFeedToState(event);
-    } else if (event is CreateFeed) {
-      yield* _mapCreateFeedToState(event);
-    } else if (event is DeleteFeed) {
-      yield* _mapDeleteToState(event);
+    // } else if (event is CreateFeed) {
+    //   yield* _mapCreateFeedToState(event);
+    // } else if (event is DeleteFeed) {
+    //   yield* _mapDeleteToState(event);
     // } else if (event is RefreshFeed) {
     //   yield DoRefreshFeed();
     } else if (event is LoadMoreFeed && !_hasReachedMax(currentState)) {
@@ -109,38 +109,38 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
     }
   }
 
-  Stream<FeedState> _mapCreateFeedToState(CreateFeed event) async* {
-    yield FeedLoading();
+  // Stream<FeedState> _mapCreateFeedToState(CreateFeed event) async* {
+  //   yield FeedLoading();
 
-    final data = await PublicApi.post("/feed/v1/add", {
-      // @TODO(you): add params to post here
-    });
+  //   final data = await PublicApi.post("/feed/v1/add", {
+  //     // @TODO(you): add params to post here
+  //   });
 
-    if (data != null) {
-      print("resp data: $data");
+  //   if (data != null) {
+  //     print("resp data: $data");
 
-      repo.updateEntriesItem("entries", data["result"]);
+  //     repo.updateEntriesItem("entries", data["result"]);
 
-      yield FeedCreated(Feed.fromMap(data["result"]));
+  //     yield FeedCreated(Feed.fromMap(data["result"]));
 
-      dispatch(LoadFeed());
-    } else {
-      yield FeedFailure(error: "Cannot add Feed");
-    }
-  }
+  //     dispatch(LoadFeed());
+  //   } else {
+  //     yield FeedFailure(error: "Cannot add Feed");
+  //   }
+  // }
 
-  Stream<FeedState> _mapDeleteToState(DeleteFeed event) async* {
-    yield FeedLoading();
+  // Stream<FeedState> _mapDeleteToState(DeleteFeed event) async* {
+  //   yield FeedLoading();
 
-    final data = await PublicApi.post("/feed/v1/delete", {"id": event.feed.id});
+  //   final data = await PublicApi.post("/feed/v1/delete", {"id": event.feed.id});
 
-    if (data != null) {
-      await repo.deleteEntriesItem("entries", event.feed.toMap());
+  //   if (data != null) {
+  //     await repo.deleteEntriesItem("entries", event.feed.toMap());
 
-      yield FeedDeleted(event.feed);
-      dispatch(LoadFeed(force: false));
-    } else {
-      yield FeedFailure(error: "Cannot delete Feed");
-    }
-  }
+  //     yield FeedDeleted(event.feed);
+  //     dispatch(LoadFeed(force: false));
+  //   } else {
+  //     yield FeedFailure(error: "Cannot delete Feed");
+  //   }
+  // }
 }
