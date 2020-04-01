@@ -106,8 +106,6 @@ class NotificationUtil {
           },
           duration: Duration(seconds: 5))
         ..show(context);
-
-      _feedBloc.dispatch(RefreshFeed());
     } catch (e) {
       print("ERROR: $e");
     }
