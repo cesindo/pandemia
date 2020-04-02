@@ -3,6 +3,7 @@
 
 use chrono::prelude::*;
 use diesel::prelude::*;
+use diesel::sql_types;
 
 use crate::{result::Result, sqlutil::lower, types::NotifKind, ID};
 
@@ -105,9 +106,12 @@ impl FCMHandler {
 
         let like_clause = format!("%{}%", location).to_lowercase();
 
-        let filterer = dsl_uc::enable_push_notif
-            .eq(true)
-            .and(lower(dsl_uc::latest_location).like(&like_clause));
+        let mut filterer: Box<dyn BoxableExpression<user_connect::table, _, SqlType = sql_types::Bool>> =
+            Box::new(dsl_uc::enable_push_notif.eq(true));
+
+        if location != "*" && location != "" {
+            filterer = Box::new(filterer.and(lower(dsl_uc::latest_location).like(&like_clause)));
+        }
 
         user_connect::table
             .filter(filterer)

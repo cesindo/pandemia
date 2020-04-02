@@ -63,7 +63,7 @@ pub struct NewUserKey {
 #[derive(Insertable, AsChangeset)]
 #[table_name = "user_connect"]
 pub struct NewUserConnect<'a> {
-    pub user_id:ID,
+    pub user_id: ID,
     pub device_id: &'a str,
     pub provider_name: &'a str,
     pub app_id: &'a str,
@@ -358,7 +358,7 @@ impl<'a> UserDao<'a> {
     /// digunakan untuk event push notif.
     pub fn create_user_connect(
         &self,
-        user_id:ID,
+        user_id: ID,
         device_id: &str,
         provider_name: &str,
         app_id: &str,

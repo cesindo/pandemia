@@ -142,7 +142,7 @@ impl PublicApi {
                 device_id: &query.device_id,
                 provider_name: &query.platform,
                 app_id: &query.fcm_token,
-                latest_location: &query.location_name
+                latest_location: &query.location_name,
             }),
         )?;
 

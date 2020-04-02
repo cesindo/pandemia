@@ -97,8 +97,8 @@ pub mod types {
 
 #[derive(Deserialize, Validate)]
 pub struct SetUserSetting {
-    pub key:String,
-    pub value:String,
+    pub key: String,
+    pub value: String,
 }
 
 #[derive(Deserialize)]
