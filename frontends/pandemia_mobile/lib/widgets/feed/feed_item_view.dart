@@ -82,6 +82,8 @@ class FeedItemView extends StatelessWidget {
         .toList()
         .first;
 
+    var rightText = text[1].replaceAll(rightNum, "").capitalize();
+
     var size = MediaQuery.of(context).size;
 
     return Card(
@@ -160,9 +162,9 @@ class GridViewCustom extends StatelessWidget {
         addAutomaticKeepAlives: true,
         shrinkWrap: true,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: itemWidth / itemHeight,
-        ),
+            crossAxisCount: 2,
+            childAspectRatio: itemWidth / itemHeight,
+            crossAxisSpacing: 0.0),
         physics: NeverScrollableScrollPhysics(),
         itemCount: 2,
         itemBuilder: (context, index) {
@@ -173,7 +175,9 @@ class GridViewCustom extends StatelessWidget {
             descValue = desc1;
           } else if (index == 1) {
             value = text2;
-            descValue = desc2;
+
+            descValue = desc2.replaceAll(
+                "Total  yang telah meninggal", "Total telah meninggal");
           }
           return _itemView(
             context: context,
@@ -190,7 +194,7 @@ class GridViewCustom extends StatelessWidget {
       child: Column(
         children: <Widget>[
           Expanded(
-            flex: 2,
+            flex: 3,
             child: Container(
               alignment: Alignment.center,
               child: Text(
