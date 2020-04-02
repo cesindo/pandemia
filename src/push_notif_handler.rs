@@ -3,8 +3,9 @@
 
 use chrono::prelude::*;
 use diesel::prelude::*;
+use diesel::sql_types;
 
-use crate::{result::Result, types::NotifKind, ID};
+use crate::{result::Result, sqlutil::lower, types::NotifKind, ID};
 
 use fcm::{Client, MessageBuilder, NotificationBuilder, Priority};
 use futures::{future::lazy, Future};
@@ -14,8 +15,8 @@ use std::env;
 
 /// FCM payload data.
 pub struct FCMPayloadData<'a> {
-    /// Receiver id.
-    pub receiver_id: ID,
+    /// Receiver location.
+    pub receiver_loc: &'a str,
     /// Target id.
     pub target_id: ID,
     /// Target item
@@ -35,8 +36,8 @@ pub struct FCMPayloadData<'a> {
 /// FCM payload data.
 #[derive(Serialize)]
 struct FCMPayloadDataWire<'a> {
-    /// Receiver id.
-    pub receiver_id: ID,
+    /// Receiver location.
+    pub receiver_loc: &'a str,
     /// Target id.
     pub target_id: ID,
     /// Target item
@@ -56,7 +57,7 @@ struct FCMPayloadDataWire<'a> {
 // impl<'a> From<FCMPayloadData<'a>> for FCMPayloadDataWire<'a> {
 //     fn from(a: FCMPayloadData<'a>) -> Self {
 //         Self {
-//             receiver_id: a.receiver_id,
+//             receiver_loc: a.receiver_loc,
 //             target_id: a.target_id,
 //             item: a.item,
 //             kind: a.kind as i32,
@@ -99,11 +100,22 @@ impl FCMHandler {
     // }
 
     /// Get app ids from user connect
-    fn get_user_app_ids(&self, conn: &PgConnection) -> Result<Vec<String>> {
-        use crate::schema::user_connect::{self, dsl};
+    fn get_user_app_ids(&self, conn: &PgConnection, location: &str) -> Result<Vec<String>> {
+        use crate::schema::user_connect::{self, dsl as dsl_uc};
+        use crate::schema::user_settings::{self, dsl as dsl_us};
 
-        dsl::user_connect
-            .select(dsl::app_id)
+        let like_clause = format!("%{}%", location).to_lowercase();
+
+        let mut filterer: Box<dyn BoxableExpression<user_connect::table, _, SqlType = sql_types::Bool>> =
+            Box::new(dsl_uc::enable_push_notif.eq(true));
+
+        if location != "*" && location != "" {
+            filterer = Box::new(filterer.and(lower(dsl_uc::latest_loc).like(&like_clause)));
+        }
+
+        user_connect::table
+            .filter(filterer)
+            .select(dsl_uc::app_id)
             .get_results::<String>(conn)
             .map_err(From::from)
     }
@@ -116,8 +128,8 @@ impl FCMHandler {
         conn: &'a PgConnection,
     ) -> Result<()> {
         if !self.server_key.is_empty() {
-            // if let Ok(app_id) = self.get_user_app_id(payload.receiver_id, conn) {
-            if let Ok(app_ids) = self.get_user_app_ids(conn) {
+            // if let Ok(app_id) = self.get_user_app_id(payload.receiver_loc, conn) {
+            if let Ok(app_ids) = self.get_user_app_ids(conn, payload.receiver_loc) {
                 if app_ids.len() == 0 {
                     debug!("No target to send notification");
                     return Ok(());
@@ -140,7 +152,7 @@ impl FCMHandler {
                 m_builder.priority(Priority::High);
                 m_builder
                     .data(&FCMPayloadDataWire {
-                        receiver_id: payload.receiver_id,
+                        receiver_loc: payload.receiver_loc,
                         target_id: payload.target_id,
                         item: payload.item,
                         kind: payload.kind as i32,

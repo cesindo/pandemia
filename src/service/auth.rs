@@ -5,6 +5,7 @@ use actix_web::{HttpRequest, HttpResponse};
 use chrono::NaiveDateTime;
 use serde::Serialize;
 use serde_json::Value as JsonValue;
+use validator::Validate;
 
 use crate::crypto::{self, SecretKey};
 use crate::{
@@ -14,7 +15,8 @@ use crate::{
     models,
     prelude::*,
     types::AccountKind,
-    user_dao::UserDao,
+    user_dao::{NewUser, NewUserConnect, UserDao},
+    util,
 };
 
 /// Core basis service untuk authentikasi.
@@ -44,8 +46,21 @@ use crate::models::AccessToken;
 pub struct Authorize {
     pub email: Option<String>,
     pub phone: Option<String>,
-
     pub password: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Validate)]
+pub struct DeviceAuthorize {
+    #[validate(length(min = 5, max = 1000))]
+    pub device_id: String,
+    #[validate(length(min = 5, max = 1000))]
+    pub fcm_token: String,
+    #[validate(length(min = 3, max = 10))]
+    pub platform: String,
+    #[validate(length(min = 3, max = 50))]
+    pub loc_name: String,
+    pub loc_long: f64,
+    pub loc_lat: f64,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -95,39 +110,50 @@ struct PublicApi;
 /// API endpoint untuk keperluan otorisasi.
 #[api_group("Authorization", "public", base = "/auth/v1")]
 impl PublicApi {
-    /// Meng-otorisasi akun yang telah teregister
-    /// User bisa melakukan otorisasi menggunakan email / nomor telp.
-    #[api_endpoint(path = "/authorize", auth = "none", mutable)]
-    pub fn authorize(state: &mut AppState, query: Authorize) -> ApiResult<AccessToken> {
-        let conn = state.db();
-        let user = {
-            let dao = UserDao::new(&conn);
-            if let Some(email) = query.email {
-                dao.get_by_email(&email)?
-            } else if let Some(phone) = query.phone {
-                dao.get_by_phone_num(&phone)?
-            } else {
-                Err(ApiError::InvalidParameter(
-                    ErrorCode::NoLoginInfo as i32,
-                    "No email/phone parameter".to_string(),
-                ))?
-            }
-        };
+    /// Authorize user's device.
+    /// Ini akan otomatis membuat user baru dan menghubungkan token push notif provider
+    /// ke user tersebut.
+    #[api_endpoint(path = "/device/authorize", auth = "none", mutable)]
+    pub fn authorize_device(query: DeviceAuthorize) -> ApiResult<AccessToken> {
+        query.validate()?;
 
-        if !user.active {
-            return Err(ApiError::InvalidParameter(
-                ErrorCode::Unauthorized as i32,
-                "Account blocked".to_string(),
-            ));
-        }
+        let conn = state.db();
+
+        let dao = UserDao::new(&conn);
+
+        // gunakan semuanya random hanya untuk memudahkan push notif saja
+        let gen_name = format!("gen__{}_{}", util::random_string(20), util::random_number());
+
+        let (user, (_, _)) = dao.create_user(
+            &NewUser {
+                full_name: &gen_name,
+                email: &format!("{}@pandemia.net", gen_name),
+                phone_num: &format!(
+                    "085{}{}{}{}{}",
+                    util::random_number(),
+                    util::random_number(),
+                    util::random_number(),
+                    util::random_number(),
+                    util::current_time_millis()
+                ),
+                active: true,
+                register_time: util::now(),
+            },
+            Some(NewUserConnect {
+                user_id: 0,
+                device_id: &query.device_id,
+                provider_name: &query.platform,
+                app_id: &query.fcm_token,
+                latest_loc: &query.loc_name,
+                latest_loc_long: query.loc_long,
+                latest_loc_lat: query.loc_lat,
+            }),
+        )?;
+
+        // set default settings
+        let _ = user.set_setting("enable_push_notif", "true", &conn);
 
         let dao = AuthDao::new(&conn);
-
-        let user_passhash = dao.get_passhash(AccountKind::User, user.id)?;
-        if !crypto::password_match(&query.password, &user_passhash) {
-            warn!("user `{}` try to authorize using wrong password", &user.id);
-            Err(ApiError::Unauthorized)?
-        }
 
         dao.generate_access_token(user.id)
             .map_err(From::from)

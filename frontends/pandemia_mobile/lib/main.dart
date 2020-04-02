@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pandemia_mobile/api/api_client.dart';
 import 'package:pandemia_mobile/api/pandemia_api.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pandemia_mobile/blocs/fcm/fcm_bloc.dart';
 import 'package:pandemia_mobile/blocs/feed/feed.dart';
 import 'package:pandemia_mobile/blocs/issue/issue_bloc.dart';
+import 'package:pandemia_mobile/blocs/map/map_bloc.dart';
+import 'package:pandemia_mobile/blocs/map/map_event.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_bloc.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_event.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_state.dart';
+import 'package:pandemia_mobile/blocs/settings/settings_bloc.dart';
 import 'package:pandemia_mobile/blocs/simple_bloc_delegate.dart';
 import 'package:pandemia_mobile/blocs/stats/stats.dart';
 import 'package:pandemia_mobile/blocs/tab/tab_bloc.dart';
@@ -84,6 +87,12 @@ class PandemiaApp extends StatelessWidget {
             ),
             BlocProvider<FcmBloc>(
               builder: (context) => FcmBloc(),
+            ),
+            BlocProvider<MapBloc>(
+              builder: (context) => MapBloc(),
+            ),
+            BlocProvider<SettingsBloc>(
+              builder: (context) => SettingsBloc(),
             ),
             BlocProvider<NotifBloc>(
               builder: (context) => NotifBloc(pandemiaBloc: pandemiaBloc),

@@ -11,52 +11,22 @@ import 'package:pandemia_mobile/widgets/bottom_loader.dart';
 import 'package:pandemia_mobile/widgets/feed/feed_item_view.dart';
 import 'package:pandemia_mobile/widgets/loading_indicator.dart';
 
-class FeedTabScreen extends StatefulWidget {
-  final BuildContext context;
+class FeedTabScreen extends StatelessWidget {
   final FeedBloc feedBloc;
-
-  FeedTabScreen(this.context, this.feedBloc);
-
-  @override
-  _FeedTabScreenState createState() => _FeedTabScreenState();
-}
-
-class _FeedTabScreenState extends State<FeedTabScreen> {
-  StreamSubscription _subs;
-  List<Feed> feeds = [];
-  bool hasReachedMax = false;
-  bool isLoading = false;
+  final bool isLoading = false;
   final GlobalKey<RefreshIndicatorState> _refreshKey = new GlobalKey();
   final ScrollController _scrollController = new ScrollController();
 
-  _FeedTabScreenState();
-
-  @override
-  void initState() {
-    this.widget.feedBloc.dispatch(LoadFeed());
-    _subs = this.widget.feedBloc.state.listen((state) {
-      if (state is DoRefreshFeed) {
-        this.widget.feedBloc.dispatch(LoadFeed(force: true));
-      }
-    });
-
+  FeedTabScreen(this.feedBloc) {
+    this.feedBloc.dispatch(LoadFeed(withLoading: true));
     _scrollController.addListener(_onScroll);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _subs.cancel();
-    super.dispose();
   }
 
   void _onScroll() {
     final maxScroll = _scrollController.position.maxScrollExtent;
     final currentScroll = _scrollController.position.pixels;
     if (currentScroll == maxScroll) {
-      if (feeds.isNotEmpty) {
-        this.widget.feedBloc.dispatch(LoadMoreFeed());
-      }
+      this.feedBloc.dispatch(LoadMoreFeed());
     }
   }
 
@@ -72,16 +42,21 @@ class _FeedTabScreenState extends State<FeedTabScreen> {
     return BlocBuilder<FeedBloc, FeedState>(
       builder: (context, state) {
         print("[FEED_STATE] $state");
+        List<Feed> feeds;
+        bool hasReachedMax = false;
+
         if (state is FeedLoading) {
           return LoadingIndicator(key: PandemiaKeys.loading);
         } else if (state is FeedFailure) {
-          return refreshableText(
+          return refreshableText(context,
               "Cannot fetch data from server :(\n please try again later");
         } else if (state is FeedsLoaded) {
+          // _loaded = true;
           feeds = state.items;
         } else if (state is FeedsUpdated) {
+          // _loaded = true;
           feeds = state.items;
-          isLoading = state.isLoading;
+          // isLoading = state.isLoading;
           hasReachedMax = state.hasReachedMax;
         } else {
           return Text("Unknown state");
@@ -106,7 +81,8 @@ class _FeedTabScreenState extends State<FeedTabScreen> {
                 },
               ));
         } else {
-          return refreshableText("No updates yet");
+          return refreshableText(
+              context, "Data masih kosong, coba beberapa saat lagi");
         }
       },
     );
@@ -117,25 +93,27 @@ class _FeedTabScreenState extends State<FeedTabScreen> {
         child: child,
         key: _refreshKey,
         onRefresh: () {
-          this.widget.feedBloc.dispatch(LoadFeed(force: true));
+          this.feedBloc.dispatch(LoadFeed(force: true));
           return Future<void>(() {});
         });
   }
 
-  Widget refreshableText(String text) {
+  Widget refreshableText(BuildContext context, String text) {
     return refreshable(
         context,
         SingleChildScrollView(
           physics: AlwaysScrollableScrollPhysics(),
           child: Container(
-            height: MediaQuery.of(context).size.height / 1.3,
-            child: Center(
-              child: Text(
-                text,
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
+              height: MediaQuery.of(context).size.height / 1.3,
+              child: Center(
+                child: Container(
+                    width: MediaQuery.of(context).size.width / 1.3,
+                    child: Text(
+                      text,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                    )),
+              )),
         ));
   }
 }

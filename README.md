@@ -12,20 +12,29 @@ Aplikasi mobile iOS dan Android untuk memonitor pandemi dengan push notification
 1. [x] Realtime feed berupa data update kasus terbaru pada suatu daerah.
 2. [x] Push notif untuk setiap update kasus terbaru.
 3. [x] Data statistik daerah.
-4. [ ] Data Fakta dan Hoax berkaitan dengan pandemi.
+4. [x] Data Fakta dan Hoax berkaitan dengan pandemi.
 5. [ ] Push notif berupa peringatan ketika memasuki daerah dengan riwayat korban positif.
 6. [ ] Peta Pandemi.
-7. [ ] Tracing, memonitor pergerakan ODP, PDP, Terkonfirmasi, dan Sembuh secara anonim (menjaga privasi) diset secara mandiri (crowd sourcing).
+7. [ ] Peta Keluhan, menandai diri kita sedang mengalami keluhan kesehatan secara anonim, sehingga membantu proses tracing.
 
 ![Pandemia Feed](/img/pandemia-feed.jpg)
 ![Pandemia Push Notif](/img/pandemia-push-notif.jpg)
 ![Pandemia Push Notif Android](/img/pandemia-push-notif-android.jpg)
+![Pandemia Stats](/img/pandemia-stats.png)
+![Pandemia Hoax/Fact](/img/pandemia-hoaxfact.png)
+![Pandemia Map](/img/pandemia-map.png)
+
+**Tersedia juga control center (dashboard) dalam bentuk web untuk mempermudah komunitas dalam memperbaharui data.**
+
+![Pandemia Control Center](/img/pandemia-control-center.png)
 
 Kebutuhan
 ----------------
 
 Daftar kebutuhan berikut dibutuhkan apabila kita ingin melakukan build di mesin environment lokal, kamu bisa juga melakukan build menggunakan Docker sehingga tidak perlu menginstall satu-per-satu kebutuhan ini. Untuk build menggunakan Docker lihat bagian *Build menngunakan Docker*.
 Berikut kebutuhan pokok untuk bisa melakukan build di mesin lokal:
+
+**Backend Server:**
 
 1. [Rust](https://www.rust-lang.org/)
 2. PostgreSQL >= 9.x
@@ -35,6 +44,18 @@ Berikut kebutuhan pokok untuk bisa melakukan build di mesin lokal:
 5. [Cargo clippy](https://github.com/rust-lang/rust-clippy)
 6. [Cargo audit](https://github.com/RustSec/cargo-audit)
 7. [Protocol Buffer](https://developers.google.com/protocol-buffers/)
+
+**Web Frontend:**
+
+1. [Node JS](https://nodejs.org)
+2. [NPM](https://www.npmjs.com/)
+3. [Yarn](https://yarnpkg.com/)
+
+**Mobile Frontend:**
+
+1. [Flutter](https://flutter.dev/)
+2. [Xcode](https://developer.apple.com/xcode/) <-- untuk iOS
+3. [Android SDK](https://developer.android.com/studio/releases/sdk-tools) <-- untuk Android
 
 Build
 -----------

@@ -59,7 +59,7 @@ pub struct ResetPassword {
 pub struct LocationQuery {
     #[validate(length(min = 1, max = 100))]
     pub loc: String,
-    pub with_history: Option<bool>
+    pub with_history: Option<bool>,
 }
 
 #[derive(Serialize, Validate)]
@@ -80,4 +80,22 @@ pub struct UserConnect {
     pub app_id: String,
     #[validate(length(min = 1, message = "Provider name must be set, eg: android, apple"))]
     pub provider_name: String,
+    #[validate(length(min = 1, message = "Location name can't be empty"))]
+    pub location_name: String,
+}
+
+#[derive(Validate, Serialize, Deserialize)]
+pub struct UpdateLocation {
+    #[validate(length(min = 1, message = "Device id can't be empty"))]
+    pub device_id: String,
+    #[validate(length(min = 1, message = "Location name can't be empty"))]
+    pub location_name: String,
+}
+
+#[derive(Serialize)]
+pub struct MapMarker {
+    pub longitude: f64,
+    pub latitude: f64,
+    pub kind: i32,
+    pub caption: String,
 }

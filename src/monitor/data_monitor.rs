@@ -134,7 +134,6 @@ impl DataMonitor {
                         item.total_recovered,
                         item.active_cases,
                         0,
-                        0.0,
                         &vec![],
                         false,
                     )?;
@@ -160,7 +159,6 @@ impl DataMonitor {
                     item.total_recovered,
                     item.active_cases,
                     0,
-                    0.0,
                     &vec![],
                     false,
                 )?;
@@ -218,7 +216,6 @@ impl DataMonitor {
                             recovered,
                             active_cases,
                             0,
-                            0.0,
                             &vec![],
                             false,
                         )?;
@@ -246,12 +243,11 @@ impl DataMonitor {
                         recovered,
                         active_cases,
                         0,
-                        0.0,
                         &vec![],
                         false,
                     )?;
-                },
-                _ => ()
+                }
+                _ => (),
             }
         }
 
@@ -289,7 +285,6 @@ impl DataMonitor {
                             recovered,
                             0,
                             0,
-                            0.0,
                             &vec![],
                             false,
                         )?;
@@ -303,7 +298,6 @@ impl DataMonitor {
                         recovered,
                         0,
                         0,
-                        0.0,
                         &vec![],
                         false,
                     )?;
@@ -347,7 +341,6 @@ impl DataMonitor {
                             recovered,
                             0,
                             0,
-                            0.0,
                             &vec![],
                             false,
                         )?;
@@ -376,7 +369,6 @@ impl DataMonitor {
                         recovered,
                         0,
                         0,
-                        0.0,
                         &vec![],
                         false,
                     )?;

@@ -82,6 +82,7 @@ test-env-redo:
 
 reset-db:
 	diesel database reset
+	diesel migration run
 
 .PHONY: prepare docs lib-docs api-docs fmt \
 		test test-dev lint audit commit \

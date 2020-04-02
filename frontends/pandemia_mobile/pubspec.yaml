@@ -14,7 +14,7 @@ description: Monitor pandemic disease via  mobile App with push notification
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.2.0 <3.0.0"
 
 dependencies:
   flutter:
@@ -32,7 +32,6 @@ dependencies:
   sqflite: ^1.3.0
   path_provider: ^1.6.5
   localstorage: ^3.0.1+4
-  google_maps_flutter: ^0.5.25+2
   package_info: ^0.4.0+16
   flutter_launcher_icons: ^0.7.4
   timeago: ^2.0.21
@@ -46,6 +45,8 @@ dependencies:
   photo_view: ^0.9.0
   cached_network_image: ^2.0.0-rc.1
   firebase_messaging: ^6.0.13
+  google_maps_flutter: ^0.5.25+2
+  location: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -69,6 +70,8 @@ flutter:
     - assets/img/pandemia-logo-64.png
     - assets/img/pandemia-logo-32.png
     - assets/img/no_image.png
+    - assets/img/sick-pin-icon.png
+    - assets/img/sick-pin-icon2.png
     - assets/timezone/data/2019b.tzf
 
   # An image asset can refer to one or more resolution-specific "variants", see

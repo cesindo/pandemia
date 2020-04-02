@@ -54,11 +54,46 @@ pub struct InfoLocation {
     pub history: Vec<models::Record>,
 }
 
+#[derive(Deserialize, Validate)]
+pub struct AddRecord {
+    pub loc: String,
+    pub loc_kind: i16,
+    pub total_cases: i32,
+    pub total_deaths: i32,
+    pub total_recovered: i32,
+    pub active_cases: i32,
+    pub critical_cases: i32,
+}
+
 /// Holder untuk implementasi API endpoint publik untuk Pandemia.
 pub struct PublicApi;
 
 #[api_group("Pandemia", "public", base = "/pandemia/v1")]
 impl PublicApi {
+    /// Add record.
+    #[api_endpoint(path = "/add_record", auth = "required", mutable, accessor = "admin")]
+    pub fn add_record(query: AddRecord) -> ApiResult<models::Record> {
+        query.validate()?;
+        let conn = state.db();
+        let dao = RecordDao::new(&conn);
+
+        let record = dao.create(
+            &query.loc,
+            query.loc_kind.into(),
+            query.total_cases,
+            query.total_deaths,
+            query.total_recovered,
+            query.active_cases,
+            query.critical_cases,
+            &vec![],
+            false,
+        )?;
+
+        eventstream::emit(NewRecordUpdate(None, record.clone()));
+
+        Ok(ApiResult::success(record))
+    }
+
     /// Get location info (single mode)
     #[api_endpoint(path = "/info_location", auth = "none")]
     pub fn get_info_location(query: LocationQuery) -> ApiResult<Option<models::Record>> {
@@ -155,7 +190,6 @@ impl PublicApi {
                         record.total_recovered,
                         record.active_cases,
                         record.critical_cases,
-                        record.cases_to_pop,
                         &record.meta.iter().map(|a| a.as_str()).collect(),
                         true,
                     )?;
@@ -192,8 +226,48 @@ impl PublicApi {
     }
 }
 
+use crate::{
+    event_handler::FCM,
+    push_notif_handler::{FCMHandler, FCMPayloadData},
+    types::NotifKind,
+    util,
+};
+
+use std::thread;
+
+#[derive(Deserialize, Validate)]
+pub struct TestPushNotifQuery {
+    pub loc: String,
+}
+
 /// Holder untuk implementasi API endpoint privat.
 pub struct PrivateApi;
 
 #[api_group("Pandemia", "private", base = "/pandemia/v1")]
-impl PrivateApi {}
+impl PrivateApi {
+    /// Test push notif functionality, only for internal testing purposes.
+    #[api_endpoint(path = "/test/push_notif", auth = "none", mutable)]
+    pub fn test_push_notif(query: TestPushNotifQuery) -> ApiResult<()> {
+        let conn = state.db();
+        let _ = thread::spawn(move || {
+            if let Err(e) = FCM.push(
+                "fcm",
+                &FCMPayloadData {
+                    receiver_loc: &query.loc,
+                    target_id: 0,
+                    kind: NotifKind::NewCases,
+                    title: "Test",
+                    item: "",
+                    message: "This is test message",
+                    created: util::now(),
+                    click_action: "FLUTTER_NOTIFICATION_CLICK",
+                },
+                &conn,
+            ) {
+                error!("Cannot test send push notif. {}", e);
+            }
+        });
+
+        Ok(ApiResult::success(()))
+    }
+}

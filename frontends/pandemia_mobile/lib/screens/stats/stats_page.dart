@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pandemia_mobile/blocs/stats/stats_bloc.dart';
-import 'package:pandemia_mobile/blocs/stats/stats_event.dart';
 import 'package:pandemia_mobile/blocs/stats/stats_state.dart';
 import 'package:pandemia_mobile/widgets/stats/stats_item_view.dart';
 import 'package:pandemia_mobile/widgets/widgets.dart';
@@ -9,7 +8,6 @@ import 'package:pandemia_mobile/widgets/widgets.dart';
 class StatsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    BlocProvider.of<StatsBloc>(context).dispatch(LoadStats());
     return _getBody(context);
   }
 
@@ -35,10 +33,18 @@ class StatsPage extends StatelessWidget {
         // print("viewItems: $viewItems");
       }
 
+      if (viewItems.isEmpty) {
+        return Container(
+          child: Center(
+            child: Container(
+              child: Text("Belum ada data masuk", textAlign: TextAlign.center,),
+              width: MediaQuery.of(context).size.width / 1.3,
+            ),
+          ),
+        );
+      }
+
       return ListView(children: viewItems);
     });
-    ;
   }
 }
-
-

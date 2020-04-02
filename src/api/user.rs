@@ -18,24 +18,25 @@ use crate::{
     },
     auth,
     error::{Error, ErrorCode},
+    models,
     prelude::*,
     types::AccountKind,
 };
 
-/// Definisi query untuk mendaftarkan akun baru via rest API.
-#[derive(Debug, Serialize, Deserialize)]
-pub struct RegisterUser {
-    pub full_name: String,
-    pub email: String,
-    pub phone_num: String,
-}
+// /// Definisi query untuk mendaftarkan akun baru via rest API.
+// #[derive(Debug, Serialize, Deserialize)]
+// pub struct RegisterUser {
+//     pub full_name: String,
+//     pub email: String,
+//     pub phone_num: String,
+// }
 
-/// Definisi query untuk mengaktifkan akun yang telah didaftarkan.
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ActivateUser {
-    pub token: String,
-    pub password: String,
-}
+// /// Definisi query untuk mengaktifkan akun yang telah didaftarkan.
+// #[derive(Debug, Serialize, Deserialize)]
+// pub struct ActivateUser {
+//     pub token: String,
+//     pub password: String,
+// }
 
 /// Model untuk keperluan tukar menukar data API
 /// bukan yang di database (crate::models).
@@ -85,6 +86,21 @@ pub mod types {
     }
 }
 
+// #[derive(Deserialize, Validate)]
+// pub struct SetUserSettings {
+//     pub enable_push_notif: Option<bool>,
+//     pub cough: Option<bool>,
+//     pub fever: Option<bool>,
+//     pub flu: Option<bool>,
+//     pub headache: Option<bool>,
+// }
+
+#[derive(Deserialize, Validate)]
+pub struct SetUserSetting {
+    pub key: String,
+    pub value: String,
+}
+
 #[derive(Deserialize)]
 pub struct UpdatePassword {
     pub old_password: String,
@@ -99,30 +115,30 @@ pub struct PublicApi;
 
 #[api_group("User", "public", base = "/user/v1")]
 impl PublicApi {
-    /// Rest API endpoint untuk mendaftarkan akun baru.
-    /// Setelah register akun tidak langsung aktif, perlu melakukan
-    /// aktifasi menggunakan endpoint `/user/activate`.
-    #[api_endpoint(path = "/user/register", mutable, auth = "none")]
-    pub fn register_user(query: RegisterUser) -> ApiResult<String> {
-        let conn = state.db();
-        let schema = UserDao::new(&conn);
+    // /// Rest API endpoint untuk mendaftarkan akun baru.
+    // /// Setelah register akun tidak langsung aktif, perlu melakukan
+    // /// aktifasi menggunakan endpoint `/user/activate`.
+    // #[api_endpoint(path = "/user/register", mutable, auth = "none")]
+    // pub fn register_user(query: RegisterUser) -> ApiResult<String> {
+    //     let conn = state.db();
+    //     let schema = UserDao::new(&conn);
 
-        schema
-            .register_user(&query.full_name, &query.email, &query.phone_num)
-            .map_err(From::from)
-            .map(ApiResult::success)
-    }
+    //     schema
+    //         .register_user(&query.full_name, &query.email, &query.phone_num)
+    //         .map_err(From::from)
+    //         .map(ApiResult::success)
+    // }
 
-    /// Mengaktifkan user yang telah teregister.
-    /// Ini nantinya dijadikan link yang akan dikirimkan ke email pendaftar.
-    #[api_endpoint(path = "/user/activate", auth = "none", mutable)]
-    pub fn activate_user(query: ActivateUser) -> ApiResult<types::User> {
-        let conn = state.db();
-        let schema = UserDao::new(&conn);
-        let user = schema.activate_registered_user(query.token)?;
-        schema.set_password(user.id, &query.password)?;
-        Ok(user.into())
-    }
+    // /// Mengaktifkan user yang telah teregister.
+    // /// Ini nantinya dijadikan link yang akan dikirimkan ke email pendaftar.
+    // #[api_endpoint(path = "/user/activate", auth = "none", mutable)]
+    // pub fn activate_user(query: ActivateUser) -> ApiResult<types::User> {
+    //     let conn = state.db();
+    //     let schema = UserDao::new(&conn);
+    //     let user = schema.activate_registered_user(query.token)?;
+    //     schema.set_password(user.id, &query.password)?;
+    //     Ok(user.into())
+    // }
 
     /// Mendapatkan informasi current user.
     #[api_endpoint(path = "/me/info", auth = "required")]
@@ -162,14 +178,20 @@ impl PublicApi {
 
     /// Register and connect current account to event push notif (FCM).
     /// Parameter `app_id` adalah app id dari client app.
-    #[api_endpoint(path = "/me/connect/create", auth = "none", mutable)]
+    #[api_endpoint(path = "/me/connect/create", auth = "required", mutable)]
     pub fn connect_create(query: UserConnect) -> ApiResult<()> {
         query.validate()?;
 
         let conn = state.db();
         let dao = UserDao::new(&conn);
 
-        dao.create_user_connect(&query.device_id, &query.provider_name, &query.app_id)?;
+        dao.create_user_connect(
+            current_user.id,
+            &query.device_id,
+            &query.provider_name,
+            &query.app_id,
+            &query.location_name,
+        )?;
         Ok(ApiResult::success(()))
     }
 
@@ -186,6 +208,15 @@ impl PublicApi {
         Ok(ApiResult::success(()))
     }
 
+    /// Update latest location
+    #[api_endpoint(path = "/me/update_loc", auth = "required", mutable)]
+    pub fn update_location(query: UpdateLocation) -> ApiResult<()> {
+        let conn = state.db();
+        let dao = UserDao::new(&conn);
+        dao.update_user_location(&query.device_id, &query.location_name)?;
+        Ok(ApiResult::success(()))
+    }
+
     /// Mendapatkan data akun.
     #[api_endpoint(path = "/user/info", accessor = "admin", auth = "required")]
     pub fn user_info(query: IdQuery) -> ApiResult<db::User> {
@@ -195,6 +226,26 @@ impl PublicApi {
         dao.get_by_id(query.id)
             .map(ApiResult::success)
             .map_err(From::from)
+    }
+
+    /// Update user settings.
+    #[api_endpoint(path = "/update_setting", auth = "required", mutable)]
+    pub fn update_setting(query: SetUserSetting) -> ApiResult<()> {
+        use crate::schema::users::{self, dsl};
+        let conn = state.db();
+
+        current_user.set_setting(&query.key, &query.value, &conn)?;
+
+        Ok(ApiResult::success(()))
+    }
+
+    /// Get user settings.
+    #[api_endpoint(path = "/settings", auth = "required")]
+    pub fn get_settings(query: ()) -> ApiResult<Vec<models::UserSetting>> {
+        let conn = state.db();
+        let user_settings = current_user.get_settings(&conn)?;
+
+        Ok(ApiResult::success(user_settings))
     }
 }
 

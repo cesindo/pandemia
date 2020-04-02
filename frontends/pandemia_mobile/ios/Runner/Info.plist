@@ -48,5 +48,11 @@
 	<false/>
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<true/>
+	<key>io.flutter.embedded_views_preview</key>
+	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Menggunakan lokasi ketika aplikasi berjalan</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Selalu gunakan lokasi</string>
 </dict>
 </plist>

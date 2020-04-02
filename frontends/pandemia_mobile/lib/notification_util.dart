@@ -4,9 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
-import 'package:pandemia_mobile/blocs/fcm/fcm.dart';
 import 'package:pandemia_mobile/blocs/feed/feed_bloc.dart';
 import 'package:pandemia_mobile/blocs/feed/feed_event.dart';
 import 'package:pandemia_mobile/blocs/notif/notif_bloc.dart';
@@ -20,6 +18,7 @@ class NotificationUtil {
   UserRepository _userRepository = UserRepository();
   NotifBloc _notifBloc;
   FeedBloc _feedBloc;
+  bool _initialized = false;
 
   factory NotificationUtil() {
     if (_singleton == null) {
@@ -31,16 +30,21 @@ class NotificationUtil {
   NotificationUtil._internal();
 
   void init(BuildContext context, NotifBloc notifBloc, FeedBloc feedBloc) {
-    _userRepository.getUserInfo();
+    if (_initialized){
+      //throw Exception("Notification already initialized");
+      return;
+    }
+    _initialized = true;
+    // _userRepository.getUserInfo();
     // _chatBloc = BlocProvider.of<ChatBloc>(context);
     _notifBloc = notifBloc;
     _feedBloc = feedBloc;
 
-    if (Platform.isIOS) {
-      iOSPermission(context);
-    } else {
-      _sendFCMToken(context);
-    }
+    // if (Platform.isIOS) {
+    //   getIOSPermrission(context);
+    // } else {
+    //   _sendFCMToken(context);
+    // }
 
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
@@ -104,25 +108,25 @@ class NotificationUtil {
           duration: Duration(seconds: 5))
         ..show(context);
 
-      _feedBloc.dispatch(RefreshFeed());
+      _feedBloc.dispatch(LoadFeed());
     } catch (e) {
       print("ERROR: $e");
     }
   }
 
-  void _sendFCMToken(BuildContext context) {
-    var fcmBloc = BlocProvider.of<FcmBloc>(context);
-    fcmBloc.dispatch(CreateFcm());
-  }
+  // void _sendFCMToken(BuildContext context) {
+  //   var fcmBloc = BlocProvider.of<FcmBloc>(context);
+  //   fcmBloc.dispatch(CreateFcm());
+  // }
 
-  void iOSPermission(BuildContext context) {
+  void getIOSPermission() {
     print("=> checking IOS permission");
     _firebaseMessaging.requestNotificationPermissions(
         IosNotificationSettings(sound: true, badge: true, alert: true));
     _firebaseMessaging.onIosSettingsRegistered
         .listen((IosNotificationSettings settings) {
       print("=> Settings registered: $settings");
-      _sendFCMToken(context);
+      // _sendFCMToken(context);
     });
   }
 }

@@ -1,7 +1,8 @@
 //! Definisi struct untuk model-model yang ada di dalam database.
 
-use crate::types::RecordDiff;
+use crate::{result::Result, schema::user_settings, types::RecordDiff};
 use chrono::NaiveDateTime;
+use diesel::prelude::*;
 use serde::Serialize;
 
 use std::fmt;
@@ -167,10 +168,9 @@ pub struct Record {
     pub total_recovered: i32,
     pub active_cases: i32,
     pub critical_cases: i32,
-    pub cases_to_pop: f64,
+    pub latest: bool,
     pub meta: Vec<String>,
     pub last_updated: NaiveDateTime,
-    pub latest:bool
 }
 
 impl Record {
@@ -216,4 +216,81 @@ pub struct Feed {
     pub hashtags: Vec<String>,
     pub meta: Vec<String>,
     pub ts: NaiveDateTime,
+}
+
+#[doc(hidden)]
+#[derive(Queryable, Serialize)]
+pub struct UserSetting {
+    pub id: ID,
+    pub user_id: ID,
+    pub s_key: String,
+    pub s_value: String,
+}
+
+#[derive(Insertable)]
+#[table_name = "user_settings"]
+struct NewUserSetting<'a> {
+    user_id: ID,
+    s_key: &'a str,
+    s_value: &'a str,
+}
+impl User {
+    /// Set user setting
+    pub fn set_setting(&self, key: &str, value: &str, conn: &PgConnection) -> Result<()> {
+        {
+            use crate::schema::user_settings::{self, dsl};
+
+            let already_exists: bool = user_settings::table
+                .filter(dsl::user_id.eq(self.id).and(dsl::s_key.eq(key)))
+                .count()
+                .first::<i64>(conn)?
+                > 0;
+            if already_exists {
+                diesel::update(dsl::user_settings.filter(dsl::user_id.eq(self.id).and(dsl::s_key.eq(key))))
+                    .set(dsl::s_value.eq(&value))
+                    .execute(conn)?;
+            } else {
+                diesel::insert_into(user_settings::table)
+                    .values(&NewUserSetting {
+                        user_id: self.id,
+                        s_key: key,
+                        s_value: value,
+                    })
+                    .execute(conn)?;
+            }
+        }
+
+        // for optimization only
+        if key == "enable_push_notif" {
+            use crate::schema::user_connect::{self, dsl};
+            diesel::update(dsl::user_connect.filter(dsl::user_id.eq(self.id)))
+                .set(dsl::enable_push_notif.eq(value == "true"))
+                .execute(conn)?;
+        }
+
+        Ok(())
+    }
+
+    /// Get user setting value.
+    pub fn get_setting(&self, key: &str, conn: &PgConnection) -> Result<Option<String>> {
+        use crate::schema::user_settings::{self, dsl};
+        match user_settings::table
+            .filter(dsl::user_id.eq(self.id).and(dsl::s_key.eq(key)))
+            .select(dsl::s_value)
+            .first::<String>(conn)
+        {
+            Ok(a) => Ok(Some(a)),
+            Err(diesel::result::Error::NotFound) => Ok(None),
+            Err(e) => Err(e.into()),
+        }
+    }
+
+    /// Get all user settings
+    pub fn get_settings(&self, conn: &PgConnection) -> Result<Vec<UserSetting>> {
+        use crate::schema::user_settings::{self, dsl};
+        user_settings::table
+            .filter(dsl::user_id.eq(self.id))
+            .load(conn)
+            .map_err(From::from)
+    }
 }

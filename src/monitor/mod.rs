@@ -44,7 +44,7 @@ lazy_static! {
 /// Run all monitors
 pub fn start_monitors() {
     debug!("Starting monitors...");
-    
+
     // for debugging purpose
     // let conn = db::clone().get().unwrap();
     // let _ = DataMonitor::get_jatengprov(&conn);
