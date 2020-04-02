@@ -125,7 +125,9 @@ table! {
         provider_name -> Varchar,
         app_id -> Text,
         enable_push_notif -> Bool,
-        latest_location -> Text,
+        latest_loc -> Text,
+        latest_loc_long -> Float8,
+        latest_loc_lat -> Float8,
     }
 }
 

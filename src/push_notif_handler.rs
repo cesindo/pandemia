@@ -110,7 +110,7 @@ impl FCMHandler {
             Box::new(dsl_uc::enable_push_notif.eq(true));
 
         if location != "*" && location != "" {
-            filterer = Box::new(filterer.and(lower(dsl_uc::latest_location).like(&like_clause)));
+            filterer = Box::new(filterer.and(lower(dsl_uc::latest_loc).like(&like_clause)));
         }
 
         user_connect::table

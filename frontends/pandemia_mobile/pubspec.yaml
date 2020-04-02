@@ -70,6 +70,8 @@ flutter:
     - assets/img/pandemia-logo-64.png
     - assets/img/pandemia-logo-32.png
     - assets/img/no_image.png
+    - assets/img/sick-pin-icon.png
+    - assets/img/sick-pin-icon2.png
     - assets/timezone/data/2019b.tzf
 
   # An image asset can refer to one or more resolution-specific "variants", see

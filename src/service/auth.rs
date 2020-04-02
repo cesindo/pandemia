@@ -58,7 +58,9 @@ pub struct DeviceAuthorize {
     #[validate(length(min = 3, max = 10))]
     pub platform: String,
     #[validate(length(min = 3, max = 50))]
-    pub location_name: String,
+    pub loc_name: String,
+    pub loc_long: f64,
+    pub loc_lat: f64,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -142,7 +144,9 @@ impl PublicApi {
                 device_id: &query.device_id,
                 provider_name: &query.platform,
                 app_id: &query.fcm_token,
-                latest_location: &query.location_name,
+                latest_loc: &query.loc_name,
+                latest_loc_long: query.loc_long,
+                latest_loc_lat: query.loc_lat,
             }),
         )?;
 

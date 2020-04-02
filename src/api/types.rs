@@ -91,3 +91,11 @@ pub struct UpdateLocation {
     #[validate(length(min = 1, message = "Location name can't be empty"))]
     pub location_name: String,
 }
+
+#[derive(Serialize)]
+pub struct MapMarker {
+    pub longitude: f64,
+    pub latitude: f64,
+    pub kind: i32,
+    pub caption: String,
+}

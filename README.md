@@ -22,6 +22,7 @@ Aplikasi mobile iOS dan Android untuk memonitor pandemi dengan push notification
 ![Pandemia Push Notif Android](/img/pandemia-push-notif-android.jpg)
 ![Pandemia Stats](/img/pandemia-stats.png)
 ![Pandemia Hoax/Fact](/img/pandemia-hoaxfact.png)
+![Pandemia Map](/img/pandemia-map.png)
 
 **Tersedia juga control center (dashboard) dalam bentuk web untuk mempermudah komunitas dalam memperbaharui data.**
 

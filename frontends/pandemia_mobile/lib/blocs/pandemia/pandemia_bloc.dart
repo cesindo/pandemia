@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:meta/meta.dart';
 import 'package:pandemia_mobile/api/pandemia_api.dart';
@@ -112,6 +113,9 @@ class PandemiaBloc extends Bloc<PandemiaEvent, PandemiaState> {
         }
 
         yield* _mapStartupToState(event);
+
+        userRepository.currentUser = userRepository.currentUser
+            .copy(loc: LatLng(locationData.latitude, locationData.longitude));
         return;
       }
 
@@ -119,6 +123,9 @@ class PandemiaBloc extends Bloc<PandemiaEvent, PandemiaState> {
       await userRepository.getUserInfo();
 
       yield* _loadUserSettings();
+
+      userRepository.currentUser = userRepository.currentUser
+            .copy(loc: LatLng(locationData.latitude, locationData.longitude));
 
       yield PandemiaReady();
       return;
@@ -132,7 +139,9 @@ class PandemiaBloc extends Bloc<PandemiaEvent, PandemiaState> {
       "device_id": deviceId,
       "fcm_token": fcmToken,
       "platform": Platform.isAndroid ? "android" : "ios",
-      "location_name": locationName,
+      "loc_name": locationName,
+      "loc_lat": locationData.latitude,
+      "loc_long": locationData.longitude,
     });
 
     if (data != null) {
