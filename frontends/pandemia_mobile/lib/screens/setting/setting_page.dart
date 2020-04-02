@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:multiselect_formfield/multiselect_formfield.dart';
 import 'package:pandemia_mobile/blocs/settings/settings.dart';
 import 'package:pandemia_mobile/blocs/settings/settings_bloc.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
+import 'package:pandemia_mobile/widgets/filter_location.dart';
 
 class SettingScreen extends StatefulWidget {
   final SettingsBloc settingsBloc;
@@ -25,11 +27,15 @@ class _SettingScreenState extends State<SettingScreen> {
   bool _isPusing = false;
   StreamSubscription<SettingsState> subs;
 
+<<<<<<< HEAD
   _SettingScreenState(this.settingsBloc) {}
 
   @override
   void initState() {
     super.initState();
+=======
+  _SettingScreenState(this.settingsBloc) {
+>>>>>>> 540496e... Add filter location
     _pushIsChecked = _userRepo.currentUser.settings.enablePushNotif;
     _petaIsChecked = _userRepo.currentUser.settings.complaintMap;
     _isBatuk = _userRepo.currentUser.settings.hasCough;
@@ -106,8 +112,9 @@ class _SettingScreenState extends State<SettingScreen> {
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(bottom: 10),
+            padding: EdgeInsets.only(bottom: 10, left: 30, right: 30),
             child: Center(
+<<<<<<< HEAD
               child: InkWell(
                 child: Text(
                   "Pilih hanya daerah tertentu saja",
@@ -122,6 +129,11 @@ class _SettingScreenState extends State<SettingScreen> {
                       }
                     : null,
               ),
+=======
+              child: _pushIsChecked == true
+                  ? FilterLocation(disabled: false)
+                  : FilterLocation(disabled: true),
+>>>>>>> 540496e... Add filter location
             ),
           ),
           Divider(),
