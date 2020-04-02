@@ -100,15 +100,18 @@ impl FCMHandler {
 
     /// Get app ids from user connect
     fn get_user_app_ids(&self, conn: &PgConnection, location: &str) -> Result<Vec<String>> {
-        use crate::schema::user_connect::{self, dsl};
+        use crate::schema::user_connect::{self, dsl as dsl_uc};
+        use crate::schema::user_settings::{self, dsl as dsl_us};
 
         let like_clause = format!("%{}%", location).to_lowercase();
 
-        let filterer = lower(dsl::latest_location).like(&like_clause);
+        let filterer = dsl_uc::enable_push_notif
+            .eq(true)
+            .and(lower(dsl_uc::latest_location).like(&like_clause));
 
-        dsl::user_connect
+        user_connect::table
             .filter(filterer)
-            .select(dsl::app_id)
+            .select(dsl_uc::app_id)
             .get_results::<String>(conn)
             .map_err(From::from)
     }

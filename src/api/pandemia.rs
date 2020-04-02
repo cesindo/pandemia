@@ -86,7 +86,6 @@ impl PublicApi {
             query.total_recovered,
             query.active_cases,
             query.critical_cases,
-            0.0,
             &vec![],
             false,
         )?;
@@ -192,7 +191,6 @@ impl PublicApi {
                         record.total_recovered,
                         record.active_cases,
                         record.critical_cases,
-                        record.cases_to_pop,
                         &record.meta.iter().map(|a| a.as_str()).collect(),
                         true,
                     )?;

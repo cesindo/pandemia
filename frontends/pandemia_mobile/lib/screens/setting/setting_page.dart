@@ -23,7 +23,11 @@ class _SettingScreenState extends State<SettingScreen> {
   bool _isPusing = false;
 
   _SettingScreenState(this.settingsBloc){
+  }
 
+  @override
+  void initState() {
+    super.initState();
     _pushIsChecked = _userRepo.currentUser.settings.enablePushNotif;
     _petaIsChecked = _userRepo.currentUser.settings.complaintMap;
     _isBatuk = _userRepo.currentUser.settings.hasCough;

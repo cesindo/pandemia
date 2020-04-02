@@ -50,7 +50,7 @@ class PandemiaBloc extends Bloc<PandemiaEvent, PandemiaState> {
       UserSettings settings =
           UserSettings(0, true, false, false, false, false, false);
       for (final s in ss) {
-        if (s["s_key"] == "has_push_notif") {
+        if (s["s_key"] == "enable_push_notif") {
           settings = settings.copy(enablePushNotif: s["s_value"] == "true");
         } else if (s["s_key"] == "complaint_map") {
           settings = settings.copy(complaintMap: s["s_value"] == "true");

@@ -86,14 +86,14 @@ pub mod types {
     }
 }
 
-#[derive(Deserialize, Validate)]
-pub struct SetUserSettings {
-    pub enable_push_notif: Option<bool>,
-    pub cough: Option<bool>,
-    pub fever: Option<bool>,
-    pub flu: Option<bool>,
-    pub headache: Option<bool>,
-}
+// #[derive(Deserialize, Validate)]
+// pub struct SetUserSettings {
+//     pub enable_push_notif: Option<bool>,
+//     pub cough: Option<bool>,
+//     pub fever: Option<bool>,
+//     pub flu: Option<bool>,
+//     pub headache: Option<bool>,
+// }
 
 #[derive(Deserialize, Validate)]
 pub struct SetUserSetting {
@@ -178,7 +178,7 @@ impl PublicApi {
 
     /// Register and connect current account to event push notif (FCM).
     /// Parameter `app_id` adalah app id dari client app.
-    #[api_endpoint(path = "/me/connect/create", auth = "none", mutable)]
+    #[api_endpoint(path = "/me/connect/create", auth = "required", mutable)]
     pub fn connect_create(query: UserConnect) -> ApiResult<()> {
         query.validate()?;
 
@@ -186,6 +186,7 @@ impl PublicApi {
         let dao = UserDao::new(&conn);
 
         dao.create_user_connect(
+            current_user.id,
             &query.device_id,
             &query.provider_name,
             &query.app_id,
@@ -234,39 +235,6 @@ impl PublicApi {
         let conn = state.db();
 
         current_user.set_setting(&query.key, &query.value, &conn)?;
-
-        // conn.build_transaction().read_write().run::<_, Error, _>(|| {
-        //     if query.enable_push_notif == Some(true) {
-        //         current_user.set_setting("enable_push_notif", "true", &conn)?;
-        //     } else {
-        //         current_user.set_setting("enable_push_notif", "false", &conn)?;
-        //     }
-
-        //     if query.cough == Some(true) {
-        //         current_user.set_setting("has_cough", "true", &conn)?;
-        //     } else {
-        //         current_user.set_setting("has_cough", "false", &conn)?;
-        //     }
-
-        //     if query.fever == Some(true) {
-        //         current_user.set_setting("has_fever", "true", &conn)?;
-        //     } else {
-        //         current_user.set_setting("has_fever", "false", &conn)?;
-        //     }
-
-        //     if query.flu == Some(true) {
-        //         current_user.set_setting("has_flu", "true", &conn)?;
-        //     } else {
-        //         current_user.set_setting("has_flu", "false", &conn)?;
-        //     }
-
-        //     if query.headache == Some(true) {
-        //         current_user.set_setting("has_headache", "true", &conn)?;
-        //     } else {
-        //         current_user.set_setting("has_headache", "false", &conn)?;
-        //     }
-        //     Ok(())
-        // })?;
 
         Ok(ApiResult::success(()))
     }

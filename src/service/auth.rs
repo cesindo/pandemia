@@ -113,6 +113,8 @@ impl PublicApi {
     /// ke user tersebut.
     #[api_endpoint(path = "/device/authorize", auth = "none", mutable)]
     pub fn authorize_device(query: DeviceAuthorize) -> ApiResult<AccessToken> {
+        query.validate()?;
+
         let conn = state.db();
 
         let dao = UserDao::new(&conn);
@@ -136,12 +138,16 @@ impl PublicApi {
                 register_time: util::now(),
             },
             Some(NewUserConnect {
+                user_id: 0,
                 device_id: &query.device_id,
                 provider_name: &query.platform,
                 app_id: &query.fcm_token,
                 latest_location: &query.location_name
             }),
         )?;
+
+        // set default settings
+        let _ = user.set_setting("enable_push_notif", "true", &conn);
 
         let dao = AuthDao::new(&conn);
 
