@@ -143,15 +143,14 @@ Untuk Vue.js ada di `/frontends/pandemia_web`:
     $ yarn install
     $ yarn serve
 
+**CATATAN**: Kamu bisa menggunakan npm maupun yarn, tapi direkomendasikan menggunakan yarn.
+
 Untuk frontend mobile menggunakan Flutter, bisa ditemukan di direktori `/frontends/pandemia_mobile`.
 Contoh cara menjalankan:
 
     $ cd frontends/pandemia_mobile
     $ flutter pub get
     $ flutter run
-
-
-**CATATAN**: Kamu bisa menggunakan npm maupun yarn, tapi direkomendasikan menggunakan yarn.
 
 Dokumentasi
 -------------
