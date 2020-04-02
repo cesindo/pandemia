@@ -10,7 +10,7 @@ Aplikasi mobile iOS dan Android untuk memonitor pandemi dengan push notification
 **Goals:**
 
 1. [x] Realtime feed berupa data update kasus terbaru pada suatu daerah.
-2. [x] Push notif untuk setiap update kasus terbaru.
+2. [x] Push notif untuk setiap update kasus terbaru di daerah kita.
 3. [x] Data statistik daerah.
 4. [x] Data Fakta dan Hoax berkaitan dengan pandemi.
 5. [ ] Push notif berupa peringatan ketika memasuki daerah dengan riwayat korban positif.
