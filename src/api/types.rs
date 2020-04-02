@@ -81,15 +81,18 @@ pub struct UserConnect {
     #[validate(length(min = 1, message = "Provider name must be set, eg: android, apple"))]
     pub provider_name: String,
     #[validate(length(min = 1, message = "Location name can't be empty"))]
-    pub location_name: String,
+    pub loc_name: String,
+    pub loc_name_full: String,
 }
 
 #[derive(Validate, Serialize, Deserialize)]
 pub struct UpdateLocation {
-    #[validate(length(min = 1, message = "Device id can't be empty"))]
+    #[validate(length(min = 1, max = 1000, message = "Device id can't be empty"))]
     pub device_id: String,
-    #[validate(length(min = 1, message = "Location name can't be empty"))]
-    pub location_name: String,
+    #[validate(length(min = 1, max = 1000, message = "Location name can't be empty"))]
+    pub loc_name: String,
+    #[validate(length(min = 0, max = 1000, message = "Location full name can't be empty"))]
+    pub loc_name_full: String,
 }
 
 #[derive(Serialize)]

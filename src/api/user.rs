@@ -190,7 +190,8 @@ impl PublicApi {
             &query.device_id,
             &query.provider_name,
             &query.app_id,
-            &query.location_name,
+            &query.loc_name,
+            &query.loc_name_full,
         )?;
         Ok(ApiResult::success(()))
     }
@@ -213,7 +214,7 @@ impl PublicApi {
     pub fn update_location(query: UpdateLocation) -> ApiResult<()> {
         let conn = state.db();
         let dao = UserDao::new(&conn);
-        dao.update_user_location(&query.device_id, &query.location_name)?;
+        dao.update_user_location(&query.device_id, &query.loc_name, &query.loc_name_full)?;
         Ok(ApiResult::success(()))
     }
 

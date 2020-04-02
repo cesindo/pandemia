@@ -17,7 +17,7 @@ class SettingsLoading extends SettingsState {
 }
 
 class SettingsLoaded extends SettingsState {
-  final List<UserSettings> items;
+  final UserSettings items;
   SettingsLoaded(this.items);
   @override
   String toString() => "SettingsLoaded";

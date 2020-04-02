@@ -5,7 +5,12 @@ use chrono::prelude::*;
 use diesel::prelude::*;
 use diesel::sql_types;
 
-use crate::{result::Result, sqlutil::lower, types::NotifKind, ID};
+use crate::{
+    result::Result,
+    sqlutil::lower,
+    types::{LocKind, NotifKind},
+    ID,
+};
 
 use fcm::{Client, MessageBuilder, NotificationBuilder, Priority};
 use futures::{future::lazy, Future};
@@ -17,6 +22,8 @@ use std::env;
 pub struct FCMPayloadData<'a> {
     /// Receiver location.
     pub receiver_loc: &'a str,
+    /// Receiver location kind.
+    pub receiver_loc_kind: LocKind,
     /// Target id.
     pub target_id: ID,
     /// Target item
@@ -91,7 +98,6 @@ impl FCMHandler {
     /// Get app id from user connect.
     // fn get_user_app_id(&self, user_id: ID, conn: &PgConnection) -> Result<String> {
     //     use crate::schema::user_connect::{self, dsl};
-
     //     dsl::user_connect
     //         .select(dsl::app_id)
     //         .filter(dsl::user_id.eq(user_id))
@@ -100,17 +106,41 @@ impl FCMHandler {
     // }
 
     /// Get app ids from user connect
-    fn get_user_app_ids(&self, conn: &PgConnection, location: &str) -> Result<Vec<String>> {
+    fn get_user_app_ids(
+        &self,
+        conn: &PgConnection,
+        location: &str,
+        loc_kind: LocKind,
+    ) -> Result<Vec<String>> {
         use crate::schema::user_connect::{self, dsl as dsl_uc};
         use crate::schema::user_settings::{self, dsl as dsl_us};
 
-        let like_clause = format!("%{}%", location).to_lowercase();
+        // let like_clause = format!("%{}%", location).to_lowercase();
 
         let mut filterer: Box<dyn BoxableExpression<user_connect::table, _, SqlType = sql_types::Bool>> =
             Box::new(dsl_uc::enable_push_notif.eq(true));
 
         if location != "*" && location != "" {
-            filterer = Box::new(filterer.and(lower(dsl_uc::latest_loc).like(&like_clause)));
+            match loc_kind {
+                LocKind::Country => {
+                    filterer =
+                        Box::new(filterer.and(
+                            lower(dsl_uc::latest_loc_full).like(format!("{}/%", location.to_lowercase())),
+                        ));
+                }
+                LocKind::Province => {
+                    filterer = Box::new(filterer.and(
+                        lower(dsl_uc::latest_loc_full).like(format!("%/{}/%", location.to_lowercase())),
+                    ));
+                }
+                LocKind::City => {
+                    filterer =
+                        Box::new(filterer.and(
+                            lower(dsl_uc::latest_loc_full).like(format!("%/{}%", location.to_lowercase())),
+                        ));
+                }
+                _ => (),
+            }
         }
 
         user_connect::table
@@ -129,7 +159,8 @@ impl FCMHandler {
     ) -> Result<()> {
         if !self.server_key.is_empty() {
             // if let Ok(app_id) = self.get_user_app_id(payload.receiver_loc, conn) {
-            if let Ok(app_ids) = self.get_user_app_ids(conn, payload.receiver_loc) {
+            if let Ok(app_ids) = self.get_user_app_ids(conn, payload.receiver_loc, payload.receiver_loc_kind)
+            {
                 if app_ids.len() == 0 {
                     debug!("No target to send notification");
                     return Ok(());

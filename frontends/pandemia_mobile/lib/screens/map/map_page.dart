@@ -44,7 +44,7 @@ class MapPage extends StatelessWidget {
             'assets/img/sick-pin-icon2.png')
         .then((icon) {
       // setState(() {
-        pinIcon = icon;
+      pinIcon = icon;
       // });
     });
 
@@ -60,7 +60,8 @@ class MapPage extends StatelessWidget {
             .map((a) => Marker(
                 markerId: MarkerId(a.caption),
                 position: LatLng(a.latitude, a.longitude),
-                icon: pinIcon))
+                icon: pinIcon,
+                infoWindow: InfoWindow(title: a.caption)))
             .toSet();
       } else if (state is MapUpdated) {
         pinPosition = LatLng(state.location.lat, state.location.long);
@@ -69,7 +70,8 @@ class MapPage extends StatelessWidget {
             .map((a) => Marker(
                 markerId: MarkerId(a.caption),
                 position: LatLng(a.latitude - 0.000520, a.longitude - 0.000010),
-                icon: pinIcon))
+                icon: pinIcon,
+                infoWindow: InfoWindow(title: a.caption)))
             .toSet();
       }
 
@@ -90,7 +92,7 @@ class MapPage extends StatelessWidget {
         },
         onCameraMove: (CameraPosition camPos) {
           // setState(() {
-            movedPos = LatLng(camPos.target.latitude, camPos.target.longitude);
+          movedPos = LatLng(camPos.target.latitude, camPos.target.longitude);
           // });
         },
       );

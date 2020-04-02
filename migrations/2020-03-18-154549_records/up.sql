@@ -13,7 +13,7 @@ CREATE TABLE records (
   last_updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX records_loc_name_lower ON records (
+CREATE INDEX idx_records_loc_name_lower ON records (
     (lower(loc))
 );
 

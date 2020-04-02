@@ -68,6 +68,7 @@ pub struct NewUserConnect<'a> {
     pub provider_name: &'a str,
     pub app_id: &'a str,
     pub latest_loc: &'a str,
+    pub latest_loc_full: &'a str,
     pub latest_loc_long: f64,
     pub latest_loc_lat: f64,
 }
@@ -365,6 +366,7 @@ impl<'a> UserDao<'a> {
         provider_name: &str,
         app_id: &str,
         latest_loc: &str,
+        latest_loc_full: &str,
     ) -> Result<()> {
         use crate::schema::user_connect::dsl;
 
@@ -374,6 +376,7 @@ impl<'a> UserDao<'a> {
             provider_name,
             app_id,
             latest_loc,
+            latest_loc_full,
             latest_loc_long: 0.0,
             latest_loc_lat: 0.0,
         };
@@ -389,10 +392,18 @@ impl<'a> UserDao<'a> {
     }
 
     /// Update user location by device_id
-    pub fn update_user_location(&self, device_id: &str, latest_loc: &str) -> Result<()> {
+    pub fn update_user_location(
+        &self,
+        device_id: &str,
+        latest_loc: &str,
+        latest_loc_full: &str,
+    ) -> Result<()> {
         use crate::schema::user_connect::{self, dsl};
         diesel::update(dsl::user_connect.filter(dsl::device_id.eq(device_id)))
-            .set(dsl::latest_loc.eq(latest_loc))
+            .set((
+                dsl::latest_loc.eq(latest_loc),
+                dsl::latest_loc_full.eq(latest_loc_full),
+            ))
             .execute(self.db)?;
         Ok(())
     }

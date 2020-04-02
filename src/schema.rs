@@ -126,6 +126,7 @@ table! {
         app_id -> Text,
         enable_push_notif -> Bool,
         latest_loc -> Text,
+        latest_loc_full -> Text,
         latest_loc_long -> Float8,
         latest_loc_lat -> Float8,
     }

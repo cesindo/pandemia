@@ -87,13 +87,13 @@ impl PublicApi {
             let mut complaints = vec![];
 
             for copl in user_settings {
-                if copl.s_key == "has_cough" {
+                if copl.s_key == "has_cough" && copl.s_value == "true" {
                     complaints.push("batuk");
-                } else if copl.s_key == "has_fever" {
+                } else if copl.s_key == "has_fever" && copl.s_value == "true" {
                     complaints.push("demam");
-                } else if copl.s_key == "has_flu" {
+                } else if copl.s_key == "has_flu" && copl.s_value == "true" {
                     complaints.push("flu");
-                } else if copl.s_key == "has_headache" {
+                } else if copl.s_key == "has_headache" && copl.s_value == "true" {
                     complaints.push("pusing");
                 }
             }
