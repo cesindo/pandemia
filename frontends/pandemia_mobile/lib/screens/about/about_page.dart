@@ -39,9 +39,9 @@ class _AboutPageState extends State<AboutPage> {
       body: Container(
         height: MediaQuery.of(context).size.height,
         color: Colors.white,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: ListView(
+          shrinkWrap: true,
+          addAutomaticKeepAlives: true,
           children: <Widget>[
             _getBody(context),
           ],
@@ -147,6 +147,7 @@ class _AboutPageState extends State<AboutPage> {
       padding: EdgeInsets.only(
         left: MediaQuery.of(context).size.width / 10,
         right: MediaQuery.of(context).size.width / 10,
+        bottom: MediaQuery.of(context).padding.top
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
