@@ -13,6 +13,7 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pandemia_mobile/core/error.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
@@ -22,9 +23,11 @@ class ApiClient {
   static UserRepository userRepository;
 
   ApiResource private() =>
-      new ApiResource("http://localhost:9090/api", userRepository);
+      new ApiResource(DotEnv().env['BASE_URL_PRIVATE'], userRepository);
   ApiResource public() =>
-      new ApiResource("http://localhost:8080/api", userRepository);
+      new ApiResource(DotEnv().env['BASE_URL_PUBLIC'], userRepository);
+  ApiResource detax() =>
+      new ApiResource(DotEnv().env['BASE_URL_DETAX'], userRepository);
 
   factory ApiClient() => _singleton;
 
@@ -80,6 +83,7 @@ class ApiResource {
     var client = new http.Client();
     await ensureAccessToken();
     try {
+      print('URL: ${this.baseUrl + apiPath}');
       return client.get(this.baseUrl + apiPath, headers: buildHeaders()).then((resp){
         print("[GET $apiPath] resp: ${resp.body}");
         return resp;

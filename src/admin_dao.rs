@@ -68,7 +68,7 @@ impl<'a> AdminDao<'a> {
     }
 
     /// Mendapatkan admin berdasarkan emailnya.
-    pub fn get_admin_by_email(&self, email: &str) -> Result<Admin> {
+    pub fn get_by_email(&self, email: &str) -> Result<Admin> {
         use crate::schema::admins::dsl;
         dsl::admins
             .filter(dsl::email.eq(email))

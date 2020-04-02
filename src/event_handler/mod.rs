@@ -2,13 +2,7 @@
 use chrono::prelude::*;
 use diesel::prelude::*;
 
-use crate::{
-    api::types,
-    models,
-    result::Result,
-    token,
-    util, ID,
-};
+use crate::{api::types, models, result::Result, token, util, ID};
 
 mod data_event_handler;
 

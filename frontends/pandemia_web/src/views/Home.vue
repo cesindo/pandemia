@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <Login title="Pandemia Admin" />
+    <Login title="Pandemia Control Center" desc="Track and monitor Pandemic Disease" />
   </div>
 </template>
 

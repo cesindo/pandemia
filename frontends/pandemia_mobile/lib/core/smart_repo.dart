@@ -82,7 +82,7 @@ class PersistentSmartRepo extends SmartRepo {
 
   Future<Database> get getDb async {
     var dbClient = await DatabaseHelper().db;
-    print("Create db table $key...");
+    // print("Create db table $key...");
     dbClient.execute(
         "CREATE TABLE IF NOT EXISTS $key (t_key TEXT PRIMARY KEY, t_val TEXT)");
     return dbClient;
@@ -113,7 +113,7 @@ class PersistentSmartRepo extends SmartRepo {
     if (resultData == null || force == true) {
       final data = await dataRetriever();
       if (data != null) {
-        // print("resp data: $data");
+        print("resp data: $data");
 
         // await dbClient.insert(
         //     key, {"t_key": storeName, "t_val": json.encode(data["result"])});
@@ -131,18 +131,18 @@ class PersistentSmartRepo extends SmartRepo {
     return resultData;
   }
 
-  /// Fetch data gradually which return stream (generator in Python term).
+  /// Fetch data gradually return in stream (generator in Python term).
   /// first return will be data from local if any, otherwise from remote.
   /// second return will be data from remote
-  Stream<RepoData<T>> fetchGradually<T extends dynamic>(
-      String storeName, Future<T> Function() dataRetriever,
+  Stream<RepoData<dynamic>> fetchGradually(
+      String storeName, Future<dynamic> Function() dataRetriever,
       {force: bool}) async* {
     final dbClient = await getDb;
 
     List<Map> result = await dbClient
         .rawQuery('SELECT * FROM $key WHERE t_key=\'$storeName\' LIMIT 1');
 
-    T resultData;
+    dynamic resultData;
 
     if (result.length > 0) {
       resultData = json.decode(result.first["t_val"]);

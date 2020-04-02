@@ -5,7 +5,7 @@ use diesel::prelude::*;
 use reqwest;
 use select::document::Document;
 use select::node::Data::*;
-use select::predicate::{Attr, Name};
+use select::predicate::{Attr, Class, Name};
 use std::{fs::File, io::BufReader};
 
 use crate::{
@@ -32,6 +32,37 @@ use std::{
     thread,
     time::Duration,
 };
+
+/// Untuk serialize json dari server
+#[derive(Debug, Serialize, Deserialize)]
+struct ResultItem {
+    /// Field ID
+    #[serde(rename = "FID")]
+    pub fid: i64,
+
+    /// Provinsi
+    #[serde(rename = "Provinsi")]
+    pub province: String,
+
+    /// Jumlah Kasus Meninggal
+    #[serde(rename = "Kasus_Meni")]
+    pub total_deaths: i32,
+
+    /// Jumlah Kasus Positif
+    #[serde(rename = "Kasus_Posi")]
+    pub active_cases: i32,
+
+    /// Jumlah Kasus Sembuh
+    #[serde(rename = "Kasus_Semb")]
+    pub total_recovered: i32,
+}
+
+/// Untuk serialize json object dari server
+#[derive(Debug, Serialize, Deserialize)]
+struct ResultObject {
+    /// Field attributes
+    pub attributes: ResultItem,
+}
 
 /// Data monitoring
 pub struct DataMonitor {
@@ -64,84 +95,295 @@ impl DataMonitor {
         if let Err(e) = DataMonitor::check_worldometers(conn) {
             error!("check_worldometers. e {}", e);
         }
+
+        if let Err(e) = DataMonitor::check_indonesian_provinces(conn) {
+            error!("check kawalcorona.com, e {}", e);
+        }
+        Ok(())
+    }
+
+    /// Check data from https://api.kawalcorona.com/indonesia/provinsi/
+    pub fn check_indonesian_provinces(conn: &PgConnection) -> Result<()> {
+        debug!("Fetching data from kawalcorona.com ...");
+        let dao = RecordDao::new(conn);
+        let resp = reqwest::get("https://api.kawalcorona.com/indonesia/provinsi/");
+        let items: Vec<ResultObject> = serde_json::from_str(&resp?.text()?)?;
+        for data in &items {
+            let item = &data.attributes;
+            // beberapa provinsi ini di-exclude karena data
+            // akan diambil terpisah dari sumber resmi
+            if item.province.to_lowercase() == "jawa tengah" {
+                continue;
+            }
+
+            let total_cases: i32 = item.active_cases + item.total_deaths + item.total_recovered;
+            let latest_data = dao.get_latest_records(vec![&item.province], 0, 1)?.pop();
+
+            debug!(
+                "Fetching data for Prov. {}, with total cases: {}",
+                &item.province, &total_cases
+            );
+
+            if let Some(latest_data) = latest_data {
+                if latest_data.total_cases != total_cases {
+                    let new_record = dao.create(
+                        &item.province,
+                        LocKind::Province,
+                        total_cases,
+                        item.total_deaths,
+                        item.total_recovered,
+                        item.active_cases,
+                        0,
+                        0.0,
+                        &vec![],
+                        false,
+                    )?;
+
+                    debug!("new record from Prov. {} saved.", &item.province);
+
+                    let diff = new_record.diff(&latest_data);
+
+                    if diff.new_cases > 0
+                        || diff.new_deaths > 0
+                        || diff.new_recovered > 0
+                        || diff.new_critical > 0
+                    {
+                        eventstream::emit(NewRecordUpdate(Some(latest_data.clone()), new_record.clone()));
+                    }
+                }
+            } else {
+                dao.create(
+                    &item.province,
+                    LocKind::Province,
+                    total_cases,
+                    item.total_deaths,
+                    item.total_recovered,
+                    item.active_cases,
+                    0,
+                    0.0,
+                    &vec![],
+                    false,
+                )?;
+            }
+        }
+
+        if let Err(e) = Self::get_jatengprov(conn) {
+            error!("Cannot get data from jatengprov.go.id");
+        }
+
+        Ok(())
+    }
+
+    /// Get data from official Jateng Province site https://corona.jatengprov.go.id/
+    pub fn get_jatengprov(conn: &PgConnection) -> Result<()> {
+        let resp = reqwest::get("https://corona.jatengprov.go.id/")?;
+        let doc = Document::from_read(resp)?;
+
+        // dapatkan total cases global
+        let counter_numbers = doc
+            .find(Class("font-counter"))
+            .map(|a| a.text().trim().to_string())
+            .flat_map(|a| {
+                a.split(' ')
+                    .flat_map(|a| a.parse::<i32>().ok())
+                    .collect::<Vec<i32>>()
+                    .first()
+                    .cloned()
+            })
+            .collect::<Vec<i32>>();
+
+        dbg!(&counter_numbers);
+
+        if counter_numbers.len() != 5 {
+            return Err(Error::InvalidParameter(
+                "Bad data from server, html structure changed".to_string(),
+            ));
+        }
+
+        let name = "Jawa Tengah";
+
+        let dao = RecordDao::new(conn);
+
+        let prev_record = dao.get_latest_records(vec![&name], 0, 1)?.pop();
+
+        if let Some(prev_record) = prev_record {
+            match &counter_numbers[0..4] {
+                &[active_cases, positive, recovered, deaths] => {
+                    if prev_record.total_cases != positive {
+                        let new_record = dao.create(
+                            name,
+                            LocKind::Province,
+                            positive,
+                            deaths,
+                            recovered,
+                            active_cases,
+                            0,
+                            0.0,
+                            &vec![],
+                            false,
+                        )?;
+                        debug!("new record from Prov. {} saved.", name);
+                        let diff = new_record.diff(&prev_record);
+                        if diff.new_cases > 0
+                            || diff.new_deaths > 0
+                            || diff.new_recovered > 0
+                            || diff.new_critical > 0
+                        {
+                            eventstream::emit(NewRecordUpdate(Some(prev_record.clone()), new_record.clone()));
+                        }
+                    }
+                }
+                _ => (),
+            }
+        } else {
+            match &counter_numbers[0..4] {
+                &[active_cases, positive, recovered, deaths] => {
+                    dao.create(
+                        name,
+                        LocKind::Province,
+                        positive,
+                        deaths,
+                        recovered,
+                        active_cases,
+                        0,
+                        0.0,
+                        &vec![],
+                        false,
+                    )?;
+                },
+                _ => ()
+            }
+        }
+
         Ok(())
     }
 
     /// Check data from https://www.worldometers.info/coronavirus/
     pub fn check_worldometers(conn: &PgConnection) -> Result<()> {
         debug!("Fetching data from Worldometers...");
-        let resp = reqwest::get("https://www.worldometers.info/coronavirus/")?;
-        let collected: Vec<Vec<String>> = Document::from_read(resp)?
-            .find(Attr("id", "main_table_countries"))
-            .map(|a| {
-                a.find(Name("tr"))
-                    .flat_map(|a| {
-                        let mut childs = a.children();
-                        let fname = childs.next()?.next()?;
-                        if fname.inner_html().trim() == "Indonesia" {
-                            Some(
-                                childs
-                                    .filter(|b| b.name().is_some())
-                                    // .map(|b| format!("{:?}", b) )
-                                    .map(|b| b.inner_html().trim().to_owned())
-                                    .collect::<Vec<String>>()
-                                    .join(", "),
-                            )
-                        } else {
-                            None
-                        }
-                    })
-                    .collect::<Vec<String>>()
-            })
-            .collect();
-        // .for_each(|a| {
-        //     println!("[Worldometers] data collected: {:?}", a);
+        let dao = RecordDao::new(conn);
+        let resp = reqwest::get("https://www.worldometers.info/coronavirus/");
+        // dbg!(&resp);
+        let doc = Document::from_read(resp?)?;
+        // dapatkan total cases global
+        let main_counter_numbers = doc
+            .find(Class("maincounter-number"))
+            .map(|a| a.text().trim().to_string())
+            .collect::<Vec<String>>();
 
-        // });
-        if !collected.is_empty() {
-            println!("[Worldometers] data collected: {:?}", collected.len());
-            let dao = RecordDao::new(conn);
+        match &main_counter_numbers.as_slice() {
+            &[total_cases, total_deaths, recovered] => {
+                let total_cases = total_cases.replace(",", "").trim().parse::<i32>().unwrap_or(0);
+                let total_deaths = total_deaths.replace(",", "").trim().parse::<i32>().unwrap_or(0);
+                let recovered = recovered.replace(",", "").trim().parse::<i32>().unwrap_or(0);
 
-            for a in collected {
-                match &a.as_slice() {
-                    &[country_name, total_cases, new_cases, total_deaths, new_deaths, recovered, active_cases, critical_cases, cases_to_pop] =>
-                    {
-                        // sementara ini Indonesia saja dulu
-                        if country_name != "Indonesia" {
-                            continue;
-                        }
+                let latest_record = dao.get_latest_records(vec!["global"], 0, 1)?.pop();
 
-                        // get latest record to diff
-                        let latest_record = dao.get_latest_records(country_name, 0, 1)?.pop();
-
+                if let Some(latest_record) = latest_record {
+                    if latest_record.total_cases != total_cases {
                         let new_record = dao.create(
-                            &country_name,
-                            LocKind::Country,
-                            total_cases.parse().unwrap_or(0),
-                            // new_cases.parse().unwrap_or(0),
-                            total_deaths.parse().unwrap_or(0),
-                            // new_deaths.parse().unwrap_or(0),
-                            recovered.parse().unwrap_or(0),
-                            active_cases.parse().unwrap_or(0),
-                            critical_cases.parse().unwrap_or(0),
-                            cases_to_pop.parse().unwrap_or(0.0),
+                            "global",
+                            LocKind::Global,
+                            total_cases,
+                            total_deaths,
+                            recovered,
+                            0,
+                            0,
+                            0.0,
                             &vec![],
+                            false,
+                        )?;
+                    }
+                } else {
+                    dao.create(
+                        "global",
+                        LocKind::Global,
+                        total_cases,
+                        total_deaths,
+                        recovered,
+                        0,
+                        0,
+                        0.0,
+                        &vec![],
+                        false,
+                    )?;
+                }
+            }
+            x => {
+                warn!("got invalid number of columns, expected {}, got {}", 3, x.len());
+            }
+        }
+
+        let resp = reqwest::get("https://www.worldometers.info/coronavirus/country/indonesia/");
+        // dbg!(&resp);
+        let doc = Document::from_read(resp?)?;
+        // dapatkan total cases global
+        let main_counter_numbers = doc
+            .find(Attr("class", "maincounter-number"))
+            .map(|a| a.text().trim().to_string())
+            .collect::<Vec<String>>();
+
+        // dapatkan total cases nasional
+        let main_counter_numbers = doc
+            .find(Attr("class", "maincounter-number"))
+            .map(|a| a.text().trim().to_string())
+            .collect::<Vec<String>>();
+
+        match &main_counter_numbers.as_slice() {
+            &[total_cases, total_deaths, recovered] => {
+                let total_cases = total_cases.replace(",", "").trim().parse::<i32>().unwrap_or(0);
+                let total_deaths = total_deaths.replace(",", "").trim().parse::<i32>().unwrap_or(0);
+                let recovered = recovered.replace(",", "").trim().parse::<i32>().unwrap_or(0);
+
+                let latest_record = dao.get_latest_records(vec!["Indonesia"], 0, 1)?.pop();
+
+                if let Some(latest_record) = latest_record {
+                    if latest_record.total_cases != total_cases {
+                        let new_record = dao.create(
+                            "Indonesia",
+                            LocKind::Country,
+                            total_cases,
+                            total_deaths,
+                            recovered,
+                            0,
+                            0,
+                            0.0,
+                            &vec![],
+                            false,
                         )?;
 
-                        if let Some(latest_record) = latest_record {
-                            let diff = new_record.diff(&latest_record);
+                        debug!("new record saved.");
 
-                            if diff.new_cases > 0
-                                || diff.new_deaths > 0
-                                || diff.new_recovered > 0
-                                || diff.new_critical > 0
-                            {
-                                eventstream::emit(NewRecordUpdate(latest_record.clone(), new_record.clone()));
-                            }
+                        let diff = new_record.diff(&latest_record);
+
+                        if diff.new_cases > 0
+                            || diff.new_deaths > 0
+                            || diff.new_recovered > 0
+                            || diff.new_critical > 0
+                        {
+                            eventstream::emit(NewRecordUpdate(
+                                Some(latest_record.clone()),
+                                new_record.clone(),
+                            ));
                         }
                     }
-                    _ => (),
+                } else {
+                    dao.create(
+                        "Indonesia",
+                        LocKind::Country,
+                        total_cases,
+                        total_deaths,
+                        recovered,
+                        0,
+                        0,
+                        0.0,
+                        &vec![],
+                        false,
+                    )?;
                 }
+            }
+            x => {
+                warn!("got invalid number of columns, expected {}, got {}", 3, x.len());
             }
         }
 
@@ -155,18 +397,23 @@ impl Monitor for DataMonitor {
         self._tx = Some(tx);
         self._started = true;
         thread::spawn(move || loop {
-            // for i in 0..60 {
-            //     util::sleep(1000);
-            // }
-            util::sleep(1000);
+            for i in 0..(60 * 30) {
+                // setiap setengah jam
+                util::sleep(1000);
+            }
+            // util::sleep(1000);
             // debug!("[DataMonitor] monitor checking...");
 
-            let cm = db::clone();
-            let conn = cm.get().unwrap();
+            let th = thread::spawn(move || {
+                let cm = db::clone();
+                let conn = cm.get().unwrap();
 
-            if let Err(e) = DataMonitor::check_data(&conn) {
-                error!("Data monitor check_data error: {}", e);
-            }
+                if let Err(e) = DataMonitor::check_data(&conn) {
+                    error!("Data monitor check_data error: {}", e);
+                }
+            });
+
+            let _ = th.join();
 
             if rx.try_recv().ok() == Some(true) {
                 debug!("[DataMonitor] down.");

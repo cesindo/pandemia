@@ -5,8 +5,8 @@ extern crate event_stream;
 use diesel::prelude::*;
 
 use self::event_stream::{EventDispatcher, EventDispatcherBuilder, EventListener};
-use crate::{chrono, db, models::Record};
 use crate::event_handler;
+use crate::{chrono, db, models::Record};
 
 use std::{env, sync::Arc, thread::sleep, time::Duration};
 
@@ -18,7 +18,7 @@ pub enum Event {
 
     /// Event when new updates found from remote data sources
     /// params: 1: old record, 2: new record
-    NewRecordUpdate(Record, Record), // @TODO(*): Add more events here
+    NewRecordUpdate(Option<Record>, Record), // @TODO(*): Add more events here
 }
 
 /// Pandemia event listener implemetation

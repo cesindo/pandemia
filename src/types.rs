@@ -1,22 +1,66 @@
 //! Pandemia Types collection
 
+/// Kind of account available in this system
+pub enum AccountKind {
+    /// Admin
+    Admin = 0,
+
+    /// User
+    User = 1,
+}
+
 /// Notification kind or types
 #[derive(Serialize, Copy, Clone)]
 pub enum NotifKind {
-    /// reserved
-    Reserved
+    /// Merupakan notif yang memberikan informasi pengumuman secara global,
+    /// notif ini tidak ada creatornya atau creatornya adalah system.
+    Announcement = 1,
+
+    /// When new cases found
+    NewCases = 2,
+
+    /// When new deaths record found
+    NewDeaths = 3,
+
+    /// When new recovered record found
+    NewRecovered = 4,
+
+    /// Info
+    Info = 6,
 }
 
 /// Location kind
+#[derive(Copy, Clone)]
 pub enum LocKind {
+    /// Global
+    Global = 0,
     /// Continent
-    Continent = 0,
+    Continent = 1,
     /// Country
-    Country = 1,
+    Country = 2,
     /// Province
-    Province = 2,
+    Province = 3,
     /// City
-    City = 3
+    City = 4,
+    /// Unknown
+    Unknown = 10,
+}
+
+impl From<i16> for LocKind {
+    fn from(d: i16) -> Self {
+        use LocKind::*;
+        match d {
+            0 => Global,
+            1 => Continent,
+            2 => Country,
+            3 => Province,
+            4 => City,
+            x => {
+                error!("Unknown loc kind code: {}", x);
+                Unknown
+            }
+        }
+    }
 }
 
 /// Entries result type
@@ -36,6 +80,7 @@ impl<T> EntriesResult<T> {
 }
 
 /// Record diff result
+#[derive(Debug)]
 pub struct RecordDiff {
     /// +/- new cases
     pub new_cases: i32,
@@ -57,11 +102,17 @@ pub enum FeedKind {
     /// feed ini tidak ada creatornya atau creatornya adalah system.
     Announcement = 1,
 
+    /// When new cases found
+    NewCases = 2,
+
     /// When new deaths record found
-    NewDeaths = 2,
+    NewDeaths = 3,
 
     /// When new recovered record found
-    NewRecovered = 3,
+    NewRecovered = 4,
+
+    /// Info
+    Info = 6,
 }
 
 impl From<i16> for FeedKind {

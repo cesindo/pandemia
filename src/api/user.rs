@@ -5,16 +5,21 @@ use actix_web::{HttpRequest, HttpResponse};
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
+use validator::Validate;
 
 use crate::crypto::{self, PublicKey, SecretKey, Signature};
 
 use crate::{
     api,
     api::types::*,
-    api::{error::param_error, ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest},
+    api::{
+        error::{param_error, unauthorized},
+        ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest,
+    },
     auth,
     error::{Error, ErrorCode},
     prelude::*,
+    types::AccountKind,
 };
 
 /// Definisi query untuk mendaftarkan akun baru via rest API.
@@ -141,7 +146,7 @@ impl PublicApi {
 
         let auth_dao = auth::AuthDao::new(&conn);
 
-        let user_passhash = auth_dao.get_passhash("user", current_user.id)?;
+        let user_passhash = auth_dao.get_passhash(AccountKind::User, current_user.id)?;
         if !crypto::password_match(&query.old_password, &user_passhash) {
             warn!(
                 "user `{}` try to update password using wrong password",
@@ -153,6 +158,43 @@ impl PublicApi {
         dao.set_password(current_user.id, &query.new_password)?;
 
         Ok(ApiResult::success(()))
+    }
+
+    /// Register and connect current account to event push notif (FCM).
+    /// Parameter `app_id` adalah app id dari client app.
+    #[api_endpoint(path = "/me/connect/create", auth = "none", mutable)]
+    pub fn connect_create(query: UserConnect) -> ApiResult<()> {
+        query.validate()?;
+
+        let conn = state.db();
+        let dao = UserDao::new(&conn);
+
+        dao.create_user_connect(&query.device_id, &query.provider_name, &query.app_id)?;
+        Ok(ApiResult::success(()))
+    }
+
+    /// Revoke or disconnect current account to event push notif (FCM).
+    /// Parameter `app_id` adalah app id dari client app.
+    #[api_endpoint(path = "/me/connect/remove", auth = "none", mutable)]
+    pub fn connect_remove(query: UserConnect) -> ApiResult<()> {
+        query.validate()?;
+
+        let conn = state.db();
+        let dao = UserDao::new(&conn);
+
+        dao.remove_user_connect(&query.device_id, &query.provider_name, &query.app_id)?;
+        Ok(ApiResult::success(()))
+    }
+
+    /// Mendapatkan data akun.
+    #[api_endpoint(path = "/user/info", accessor = "admin", auth = "required")]
+    pub fn user_info(query: IdQuery) -> ApiResult<db::User> {
+        let conn = state.db();
+        let dao = UserDao::new(&conn);
+
+        dao.get_by_id(query.id)
+            .map(ApiResult::success)
+            .map_err(From::from)
     }
 }
 

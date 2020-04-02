@@ -1,17 +1,25 @@
 <template>
-  <Modal :modalName="modalName" :clickToClose="clickToClose" @before-open="beforeOpen" @before-close="beforeClose">
+  <Modal
+    :modalName="modalName"
+    :clickToClose="clickToClose"
+    @beforeOpen="beforeOpen"
+    @beforeClose="beforeClose"
+    @opened="opened"
+  >
     <div class="ui basic center aligned segment">
-      <h2 class="ui header">{{ textContent }}</h2>
+      <slot name="content">
+        <h2 class="ui header">{{ caption }}</h2>
+      </slot>
     </div>
     <div class="ui basic center aligned segment">
       <button class="ui button" @click="onReject">{{ buttonsText.reject }}</button>
       <button class="ui primary button" @click="onApprove">{{ buttonsText.approve }}</button>
-    </div> 
-  </Modal>  
+    </div>
+  </Modal>
 </template>
 
 <script>
-import Modal from '@/components/modal/BasicSmallModal'
+import Modal from "@/components/modal/BasicSmallModal";
 
 export default {
   components: {
@@ -23,39 +31,42 @@ export default {
       required: true
     },
     clickToClose: {
-      type:Boolean,
+      type: Boolean,
       default: false
     },
-    textContent: String,
+    caption: String,
     buttonsText: {
       type: Object,
       default: function() {
         return {
-          reject: 'No',
-          approve: 'Yes'
-        }
+          reject: "No",
+          approve: "Yes"
+        };
       }
     }
   },
   methods: {
     closeModal() {
-      this.$modal.hide(this.modalName)
+      this.$modal.hide(this.modalName);
     },
     onReject() {
-      this.$emit('onReject')
-      this.closeModal()
+      this.$emit("onReject");
+      this.closeModal();
     },
     onApprove() {
-      this.$emit('onApprove')
+      this.$emit("onApprove");
     },
-    beforeOpen() {
-      this.$emit('beforeOpen')
+    beforeOpen(event) {
+      this.$emit("beforeOpen", event);
     },
     beforeClose() {
-      this.$emit('beforeClose')
+      this.$emit("beforeClose");
+    },
+    opened(){
+      this.$emit("opened");
     }
-  },
-}
+  }
+};
 </script>
 
 

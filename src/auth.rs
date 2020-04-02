@@ -11,7 +11,9 @@ use crate::{
     models::{AccessToken, User},
     prelude::*,
     schema::{access_tokens, admin_access_tokens},
-    token, util, ID,
+    token,
+    types::AccountKind,
+    util, ID,
 };
 
 #[doc(hidden)]
@@ -123,9 +125,9 @@ impl<'a> AuthDao<'a> {
     }
 
     /// Mendapatkan passhash
-    pub fn get_passhash(&self, kind: &str, id: ID) -> Result<String> {
+    pub fn get_passhash(&self, kind: AccountKind, id: ID) -> Result<String> {
         match kind {
-            "user" => {
+            AccountKind::User => {
                 use crate::schema::user_passhash::dsl;
                 dsl::user_passhash
                     .filter(dsl::user_id.eq(id).and(dsl::deprecated.eq(false)))
@@ -133,7 +135,7 @@ impl<'a> AuthDao<'a> {
                     .get_result::<String>(self.db)
                     .map_err(From::from)
             }
-            "admin" => {
+            AccountKind::Admin => {
                 use crate::schema::admin_passhash::dsl;
                 dsl::admin_passhash
                     .filter(dsl::admin_id.eq(id).and(dsl::deprecated.eq(false)))
@@ -141,10 +143,10 @@ impl<'a> AuthDao<'a> {
                     .get_result::<String>(self.db)
                     .map_err(From::from)
             }
-            _ => Err(PandemiaError::BadRequest(
-                ErrorCode::InvalidParameter as i32,
-                "Kind not found".to_string(),
-            ))?,
+            // _ => Err(PandemiaError::BadRequest(
+            //     ErrorCode::InvalidParameter as i32,
+            //     "Kind not found".to_string(),
+            // ))?,
         }
     }
 

@@ -26,7 +26,6 @@ pub trait ToApiType<T> {
     // }
 }
 
-
 #[derive(Serialize, Deserialize)]
 pub struct EntriesResult<T> {
     pub entries: Vec<T>,
@@ -59,7 +58,8 @@ pub struct ResetPassword {
 #[derive(Deserialize, Validate)]
 pub struct LocationQuery {
     #[validate(length(min = 1, max = 100))]
-    pub name: String,
+    pub loc: String,
+    pub with_history: Option<bool>
 }
 
 #[derive(Serialize, Validate)]
@@ -70,4 +70,14 @@ pub struct LocationInfoResult {
     pub positive: i32,
     pub death: i32,
     pub recovered: i32,
+}
+
+#[derive(Deserialize, Validate)]
+pub struct UserConnect {
+    #[validate(length(min = 1, message = "Device id can't be empty"))]
+    pub device_id: String,
+    #[validate(length(min = 1, message = "Client app id can't be empty"))]
+    pub app_id: String,
+    #[validate(length(min = 1, message = "Provider name must be set, eg: android, apple"))]
+    pub provider_name: String,
 }

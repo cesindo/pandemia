@@ -215,29 +215,6 @@
 			"Ok(ApiResult::success(${1:()}))"
 		]
 	},
-	"Create DAO search method": {
-		"prefix": "daosearchmethod",
-		"body": [
-			"/// Search for specific ${1:model_name}s",
-			"pub fn search(&self, query: &str, offset: i64, limit: i64) -> Result<Vec<${2:ReturnType}>> {",
-			"    use crate::schema::${1:model_name}s::{self, dsl};",
-			"",
-			"    let like_clause = format!(\"%{}%\", query);",
-			"",
-			"    let mut filterer: Box<dyn BoxableExpression<${1:model_name}s::table, _, SqlType = sql_types::Bool>> =",
-			"        Box::new(dsl::id.ne(0));",
-			"",
-			"    filterer = Box::new(filterer.and(dsl::name.like(&like_clause)));",
-			"",
-			"    dsl::${1:model_name}s",
-			"        .filter(filterer)",
-			"        .offset(offset)",
-			"        .limit(limit)",
-			"        .load(self.db)",
-			"        .map_err(From::from)",
-			"}"
-		]
-	},
 	"Create DAO update method": {
 		"prefix": "daoupdatemethod",
 		"body": [

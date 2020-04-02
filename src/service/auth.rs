@@ -10,8 +10,10 @@ use crate::crypto::{self, SecretKey};
 use crate::{
     api::{types::IdQuery, ApiResult, Error as ApiError, ErrorCode},
     auth::AuthDao,
+    dao::AdminDao,
     models,
     prelude::*,
+    types::AccountKind,
     user_dao::UserDao,
 };
 
@@ -75,6 +77,17 @@ impl PrivateApi {
 
         Ok(ApiResult::success(()))
     }
+
+    /// Unauthorize user, this will invalidate all valid access tokens.
+    #[api_endpoint(path = "/admin/unauthorize", auth = "required", mutable)]
+    pub fn admin_unauthorize(query: IdQuery) -> ApiResult<()> {
+        let conn = state.db();
+        let dao = AuthDao::new(&conn);
+
+        dao.clear_access_token_by_admin_id(query.id)?;
+
+        Ok(ApiResult::success(()))
+    }
 }
 
 struct PublicApi;
@@ -110,7 +123,7 @@ impl PublicApi {
 
         let dao = AuthDao::new(&conn);
 
-        let user_passhash = dao.get_passhash("user", user.id)?;
+        let user_passhash = dao.get_passhash(AccountKind::User, user.id)?;
         if !crypto::password_match(&query.password, &user_passhash) {
             warn!("user `{}` try to authorize using wrong password", &user.id);
             Err(ApiError::Unauthorized)?
@@ -126,6 +139,54 @@ impl PublicApi {
     pub fn unauthorize(query: ()) -> ApiResult<()> {
         match current_user {
             Some(current_user) => PrivateApi::unauthorize(state, IdQuery { id: current_user.id }, req),
+            None => Ok(ApiResult::success(())),
+        }
+    }
+
+    /// Meng-otorisasi akun admin
+    /// Admin bisa melakukan otorisasi menggunakan email / nomor telp.
+    #[api_endpoint(path = "/admin/authorize", auth = "none", mutable)]
+    pub fn admin_authorize(state: &mut AppState, query: Authorize) -> ApiResult<AccessToken> {
+        let conn = state.db();
+        let user = {
+            let dao = AdminDao::new(&conn);
+            if let Some(email) = query.email {
+                dao.get_by_email(&email)?
+            } else {
+                Err(ApiError::InvalidParameter(
+                    ErrorCode::NoLoginInfo as i32,
+                    "No email parameter".to_string(),
+                ))?
+            }
+        };
+
+        if !user.active {
+            return Err(ApiError::InvalidParameter(
+                ErrorCode::Unauthorized as i32,
+                "Account blocked".to_string(),
+            ));
+        }
+
+        let dao = AuthDao::new(&conn);
+
+        let user_passhash = dao.get_passhash(AccountKind::Admin, user.id)?;
+        if !crypto::password_match(&query.password, &user_passhash) {
+            warn!("user `{}` try to authorize using wrong password", &user.id);
+            Err(ApiError::Unauthorized)?
+        }
+
+        dao.generate_admin_access_token(user.id)
+            .map_err(From::from)
+            .map(ApiResult::success)
+    }
+
+    /// Unauthorize current user session, this will invalidate all valid access tokens.
+    #[api_endpoint(path = "/admin/unauthorize", auth = "optional", mutable, accessor = "admin")]
+    pub fn admin_unauthorize(query: ()) -> ApiResult<()> {
+        match current_admin {
+            Some(current_admin) => {
+                PrivateApi::admin_unauthorize(state, IdQuery { id: current_admin.id }, req)
+            }
             None => Ok(ApiResult::success(())),
         }
     }

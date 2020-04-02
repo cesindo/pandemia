@@ -95,6 +95,7 @@ table! {
         cases_to_pop -> Float8,
         meta -> Array<Text>,
         last_updated -> Timestamp,
+        latest -> Bool,
     }
 }
 
@@ -119,8 +120,8 @@ table! {
 }
 
 table! {
-    user_connect (user_id) {
-        user_id -> Int8,
+    user_connect (device_id) {
+        device_id -> Varchar,
         provider_name -> Varchar,
         app_id -> Varchar,
     }
@@ -165,7 +166,6 @@ joinable!(admin_passhash -> admins (admin_id));
 joinable!(feeds -> users (creator_id));
 joinable!(notifs -> users (receiver_id));
 joinable!(reset_password_admins -> admins (admin_id));
-joinable!(user_connect -> users (user_id));
 joinable!(user_keys -> users (user_id));
 joinable!(user_passhash -> users (user_id));
 

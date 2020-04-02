@@ -76,10 +76,10 @@ impl_service!(FeedService, feed);
 pub fn load_services() -> Vec<Box<dyn Service>> {
     vec![
         AuthService::new(),
-        SystemService::new(),
-        UserService::new(),
         AdminService::new(),
         PandemiaService::new(),
         FeedService::new(),
+        SystemService::new(),
+        UserService::new(),
     ]
 }

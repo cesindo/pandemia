@@ -11,7 +11,7 @@
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=restapi",
+                    "--bin=pandemia_server",
                     "--package=pandemia"
                 ],
                 "filter": {

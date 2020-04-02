@@ -28,9 +28,11 @@ use crate::{
 #[derive(Deserialize, Validate)]
 pub struct FeedQuery {
     #[validate(length(min = 0, max = 500))]
-    pub loc: String,
+    pub loc: Option<String>,
     #[validate(length(min = 0, max = 500))]
     pub query: Option<String>,
+    #[validate(length(min = 0, max = 500))]
+    pub exclude_loc: Option<String>,
     #[validate(range(min = 0, max = 1_000_000))]
     pub offset: i64,
     #[validate(range(min = 1, max = 100))]
@@ -43,13 +45,18 @@ pub struct PublicApi;
 #[api_group("Feed", "public", base = "/feed/v1")]
 impl PublicApi {
     /// Mendapatkan daftar feed
-    #[api_endpoint(path = "/query", auth = "required")]
+    #[api_endpoint(path = "/query", auth = "none")]
     pub fn query_feed(query: FeedQuery) -> ApiResult<EntriesResult<models::Feed>> {
         query.validate()?;
         let conn = state.db();
         let dao = FeedDao::new(&conn);
 
-        let entries = dao.search(&query.loc, query.offset, query.limit)?;
+        let entries = dao.search(
+            query.loc.as_ref().map(|a| a.as_str()),
+            query.exclude_loc.as_ref().map(|a| a.as_str()),
+            query.offset,
+            query.limit,
+        )?;
         Ok(ApiResult::success(EntriesResult {
             count: entries.len() as i64,
             entries,
