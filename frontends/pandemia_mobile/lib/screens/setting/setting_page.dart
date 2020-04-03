@@ -27,15 +27,11 @@ class _SettingScreenState extends State<SettingScreen> {
   bool _isPusing = false;
   StreamSubscription<SettingsState> subs;
 
-<<<<<<< HEAD
   _SettingScreenState(this.settingsBloc) {}
 
   @override
   void initState() {
     super.initState();
-=======
-  _SettingScreenState(this.settingsBloc) {
->>>>>>> 540496e... Add filter location
     _pushIsChecked = _userRepo.currentUser.settings.enablePushNotif;
     _petaIsChecked = _userRepo.currentUser.settings.complaintMap;
     _isBatuk = _userRepo.currentUser.settings.hasCough;
@@ -114,26 +110,9 @@ class _SettingScreenState extends State<SettingScreen> {
           Padding(
             padding: EdgeInsets.only(bottom: 10, left: 30, right: 30),
             child: Center(
-<<<<<<< HEAD
-              child: InkWell(
-                child: Text(
-                  "Pilih hanya daerah tertentu saja",
-                  style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.blue,
-                      decoration: TextDecoration.underline),
-                ),
-                onTap: _onTap
-                    ? () {
-                        print("=======> show filter screen");
-                      }
-                    : null,
-              ),
-=======
               child: _pushIsChecked == true
                   ? FilterLocation(disabled: false)
                   : FilterLocation(disabled: true),
->>>>>>> 540496e... Add filter location
             ),
           ),
           Divider(),
