@@ -294,3 +294,26 @@ impl User {
             .map_err(From::from)
     }
 }
+
+#[doc(hidden)]
+#[derive(Queryable, Serialize)]
+pub struct GeolocCache {
+    pub id: ID,
+    pub name: String,
+    pub latitude: f64,
+    pub longitude: f64,
+    pub ts: NaiveDateTime,
+}
+
+#[doc(hidden)]
+#[derive(Queryable, Serialize)]
+pub struct MapMarker {
+    pub id: ID,
+    pub name: String,
+    pub info: String,
+    pub latitude: f64,
+    pub longitude: f64,
+    pub kind: i16,
+    pub meta: Vec<String>,
+    pub ts: NaiveDateTime,
+}

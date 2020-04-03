@@ -68,13 +68,8 @@ impl PublicApi {
             sql_types::Double,
             sql_types::Double,
         )>(&sql_text))
-        // .bind::<sql_types::Double, _>(query.latitude)
-        // .bind::<sql_types::Double, _>(query.longitude)
         .load(&conn)
         .map_err(Error::from)?;
-
-        // let mut filterer: Box<dyn BoxableExpression<user_settings::table, _, SqlType = sql_types::Bool>> =
-        //     Box::new(dsl::id.ne(0));
 
         let mut map_markers = vec![];
 

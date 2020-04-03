@@ -126,3 +126,28 @@ impl From<i16> for FeedKind {
         }
     }
 }
+
+/// Map marker kind
+pub enum MapMarkerKind {
+    /// Unknown type
+    Unknown = 0,
+
+    /// Pandemic information type
+    PandemicInfo = 1,
+}
+
+impl From<i16> for MapMarkerKind {
+    fn from(i: i16) -> Self {
+        use MapMarkerKind::*;
+        match i {
+            1 => PandemicInfo,
+            _ => Unknown,
+        }
+    }
+}
+
+impl From<MapMarkerKind> for i16 {
+    fn from(a: MapMarkerKind) -> Self {
+        a as i16
+    }
+}
