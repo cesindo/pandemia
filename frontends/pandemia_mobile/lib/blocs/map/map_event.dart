@@ -11,7 +11,7 @@ class LoadMap extends MapEvent {
   final bool withLoading;
   final LatLng location;
 
-  LoadMap(this.location, {this.withLoading=true});
+  LoadMap(this.location, {this.withLoading = true});
 
   @override
   String toString() => "LoadMap";

@@ -75,4 +75,28 @@ impl<'a> MapMarkerDao<'a> {
             .map_err(Error::from)?;
         Ok(())
     }
+
+    // /// Search for specific map_markers
+    // pub fn search(&self, query: &str, offset: i64, limit: i64) -> Result<EntriesResult<MapMarker>> {
+    //     use crate::schema::map_markers::{self, dsl};
+
+    //     let like_clause = format!("%{}%", query);
+
+    //     let mut filterer: Box<dyn BoxableExpression<map_markers::table, _, SqlType = sql_types::Bool>> =
+    //         Box::new(dsl::id.ne(0));
+
+    //     filterer = Box::new(filterer.and(dsl::name.like(&like_clause)));
+
+    //     Ok(EntriesResult::new(
+    //           dsl::map_markers
+    //                 .filter(&filterer)
+    //                 .offset(offset)
+    //                 .limit(limit)
+    //                 .load::<MapMarker>(self.db)?,
+    //           dsl::map_markers
+    //                 .filter(filterer)
+    //                 .select(diesel::dsl::count(dsl::id))
+    //                 .first(self.db)?,
+    //     ))
+    // }
 }

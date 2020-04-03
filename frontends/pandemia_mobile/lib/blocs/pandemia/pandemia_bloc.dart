@@ -10,7 +10,6 @@ import 'package:pandemia_mobile/blocs/pandemia/pandemia_event.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_state.dart';
 import 'package:pandemia_mobile/blocs/settings/settings_util.dart';
 import 'package:pandemia_mobile/core/smart_repo.dart';
-import 'package:pandemia_mobile/models/user_settings.dart';
 import 'package:pandemia_mobile/notification_util.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
 import 'package:pandemia_mobile/util/address_util.dart';

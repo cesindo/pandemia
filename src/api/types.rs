@@ -96,9 +96,18 @@ pub struct UpdateLocation {
 }
 
 #[derive(Serialize)]
+pub struct PandemicInfoDetail {
+    pub total_cases: i32,
+    pub total_deaths: i32,
+    pub total_recovered: i32,
+}
+
+#[derive(Serialize)]
 pub struct MapMarker {
     pub longitude: f64,
     pub latitude: f64,
-    pub kind: i32,
+    pub kind: i16,
     pub caption: String,
+    pub desc: String,
+    pub detail: Option<PandemicInfoDetail>,
 }

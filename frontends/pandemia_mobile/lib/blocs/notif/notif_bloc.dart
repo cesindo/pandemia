@@ -8,14 +8,14 @@ import 'package:pandemia_mobile/models/notif_item.dart';
 
 class NotifBloc extends Bloc<NotifEvent, NotifState> {
   final PandemiaBloc pandemiaBloc;
-  StreamSubscription _pandemiaSubs;
+  // StreamSubscription _pandemiaSubs;
 
   NotifBloc({@required this.pandemiaBloc}){
-    _pandemiaSubs = pandemiaBloc.state.listen((state){
-      // if (state is AuthenticationAuthenticated){
-      //   dispatch(LoadNotif());
-      // }
-    });
+    // _pandemiaSubs = pandemiaBloc.state.listen((state){
+    //   // if (state is AuthenticationAuthenticated){
+    //   //   dispatch(LoadNotif());
+    //   // }
+    // });
   }
 
 

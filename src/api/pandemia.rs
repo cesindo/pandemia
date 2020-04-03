@@ -37,7 +37,7 @@ pub struct RecordUpdate {
     pub total_recovered: i32,
     pub active_cases: i32,
     pub critical_cases: i32,
-    pub cases_to_pop: f64,
+    // pub cases_to_pop: f64,
     pub meta: Vec<String>,
     pub last_updated: NaiveDateTime,
 }

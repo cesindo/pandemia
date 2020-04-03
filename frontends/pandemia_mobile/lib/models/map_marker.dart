@@ -3,24 +3,32 @@
 // use 'ansvia-vscode extension > Edit Model fields' instead.
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
+import 'package:pandemia_mobile/models/pandemic_info_detail.dart';
 
 /// Model for MapMarker
 @immutable
 class MapMarker extends Equatable {
+  final int id;
   final double longitude;
   final double latitude;
   final int kind;
   final String caption;
+  final String desc;
+  final PandemicInfoDetail detail; // Nullable
 
-  MapMarker(this.longitude, this.latitude, this.kind, this.caption)
-      : super([longitude, latitude, kind, caption]);
+  MapMarker(this.id, this.longitude, this.latitude, this.kind, this.caption,
+      this.desc, this.detail)
+      : super([id, longitude, latitude, kind, caption, desc, detail]);
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> data = Map();
+    data["id"] = this.id;
     data["longitude"] = this.longitude;
     data["latitude"] = this.latitude;
     data["kind"] = this.kind;
     data["caption"] = this.caption;
+    data["desc"] = this.desc;
+    data["detail"] = this.detail != null ? this.detail.toMap() : null;
     return data;
   }
 
@@ -29,16 +37,33 @@ class MapMarker extends Equatable {
     assert(data['latitude'] != null, "MapMarker.latitude is null");
     assert(data['kind'] != null, "MapMarker.kind is null");
     assert(data['caption'] != null, "MapMarker.caption is null");
+    assert(data['desc'] != null, "MapMarker.desc is null");
     return MapMarker(
+        data['id'] as int,
         data['longitude'] as double,
         data['latitude'] as double,
         data['kind'] as int,
-        data['caption'] as String);
+        data['caption'] as String,
+        data['desc'] as String,
+        data['detail'] != null
+            ? PandemicInfoDetail.fromMap(data['detail'])
+            : null);
   }
 
   MapMarker copy(
-      {double longitude, double latitude, int kind, String caption}) {
-    return MapMarker(longitude ?? this.longitude,
-        latitude ?? this.latitude, kind ?? this.kind, caption ?? this.caption);
+      {double longitude,
+      double latitude,
+      int kind,
+      String caption,
+      String desc,
+      PandemicInfoDetail detail}) {
+    return MapMarker(
+        this.id,
+        longitude ?? this.longitude,
+        latitude ?? this.latitude,
+        kind ?? this.kind,
+        caption ?? this.caption,
+        desc ?? this.desc,
+        detail ?? this.detail);
   }
 }

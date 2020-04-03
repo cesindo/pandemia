@@ -5,7 +5,6 @@ import 'package:bloc/bloc.dart';
 import 'package:pandemia_mobile/api/pandemia_api.dart';
 import 'package:pandemia_mobile/blocs/settings/settings_event.dart';
 import 'package:pandemia_mobile/blocs/settings/settings_state.dart';
-import 'package:pandemia_mobile/models/user_settings.dart';
 
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   PersistentSmartRepo repo;

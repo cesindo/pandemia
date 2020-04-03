@@ -14,9 +14,11 @@ use crate::{
     api::types::*,
     api::{error::param_error, ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest},
     auth,
+    dao::MapMarkerDao,
     error::{Error, ErrorCode},
     models,
     prelude::*,
+    types::MapMarkerKind,
     ID,
 };
 
@@ -96,9 +98,45 @@ impl PublicApi {
             map_markers.push(MapMarker {
                 longitude: loc_long,
                 latitude: loc_lat,
-                kind: 1,
-                caption: complaints.join(", "),
+                kind: MapMarkerKind::Sick.into(),
+                caption: "Keluhan".to_string(),
+                desc: complaints.join(", "),
+                detail: None,
             });
+        }
+
+        // get from map-markers
+        {
+            let dao = MapMarkerDao::new(&conn);
+            // @TODO(Robin): buat hanya scoped query saja, tidak semuanya
+            match dao.get_map_markers(0, 1000) {
+                Ok(mms) => {
+                    for mm in mms {
+                        // let detail = PandemicInfoDetail {
+                        //     total_cases: mm.meta.iter(),
+                        //     total_deaths: mm.total_deaths,
+                        //     total_cases: mm.total_cases,
+                        // };
+                        let total_cases: i32 = mm.get_meta_value_i32("pandemic.total_cases");
+                        let total_deaths: i32 = mm.get_meta_value_i32("pandemic.total_deaths");
+                        let total_recovered: i32 = mm.get_meta_value_i32("pandemic.total_recovered");
+
+                        map_markers.push(MapMarker {
+                            longitude: mm.longitude,
+                            latitude: mm.latitude,
+                            kind: mm.kind.into(),
+                            caption: mm.name.to_owned(),
+                            desc: mm.info.to_owned(),
+                            detail: Some(PandemicInfoDetail {
+                                total_cases,
+                                total_deaths,
+                                total_recovered,
+                            }),
+                        });
+                    }
+                }
+                Err(e) => error!("Cannot get map markers. {}", e),
+            }
         }
 
         Ok(ApiResult::success(map_markers))

@@ -72,6 +72,9 @@ flutter:
     - assets/img/no_image.png
     - assets/img/sick-pin-icon.png
     - assets/img/sick-pin-icon2.png
+    - assets/img/pandemic-icon-128.png
+    - assets/img/pandemic-pin-icon.png
+    - assets/img/sick-icon-128.png
     - assets/timezone/data/2019b.tzf
 
   # An image asset can refer to one or more resolution-specific "variants", see

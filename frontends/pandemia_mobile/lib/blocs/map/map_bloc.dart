@@ -43,7 +43,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
       // if (currentLocation != null &&
       //     currentLocation["lat_long"] == location.toMap()) {
 
-      if (currentLocation != null){
+      if (currentLocation != null) {
         yield MapLoaded(MapLocation.fromMap(currentLocation), markers);
       }
 

@@ -134,6 +134,9 @@ pub enum MapMarkerKind {
 
     /// Pandemic information type
     PandemicInfo = 1,
+
+    /// Sick
+    Sick = 2,
 }
 
 impl From<i16> for MapMarkerKind {
@@ -141,6 +144,7 @@ impl From<i16> for MapMarkerKind {
         use MapMarkerKind::*;
         match i {
             1 => PandemicInfo,
+            2 => Sick,
             _ => Unknown,
         }
     }
