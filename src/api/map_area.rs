@@ -14,9 +14,11 @@ use crate::{
     api::types::*,
     api::{error::param_error, ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest},
     auth,
+    dao::MapMarkerDao,
     error::{Error, ErrorCode},
     models,
     prelude::*,
+    types::MapMarkerKind,
     ID,
 };
 
@@ -68,13 +70,8 @@ impl PublicApi {
             sql_types::Double,
             sql_types::Double,
         )>(&sql_text))
-        // .bind::<sql_types::Double, _>(query.latitude)
-        // .bind::<sql_types::Double, _>(query.longitude)
         .load(&conn)
         .map_err(Error::from)?;
-
-        // let mut filterer: Box<dyn BoxableExpression<user_settings::table, _, SqlType = sql_types::Bool>> =
-        //     Box::new(dsl::id.ne(0));
 
         let mut map_markers = vec![];
 
@@ -87,13 +84,13 @@ impl PublicApi {
             let mut complaints = vec![];
 
             for copl in user_settings {
-                if copl.s_key == "has_cough" {
+                if copl.s_key == "has_cough" && copl.s_value == "true" {
                     complaints.push("batuk");
-                } else if copl.s_key == "has_fever" {
+                } else if copl.s_key == "has_fever" && copl.s_value == "true" {
                     complaints.push("demam");
-                } else if copl.s_key == "has_flu" {
+                } else if copl.s_key == "has_flu" && copl.s_value == "true" {
                     complaints.push("flu");
-                } else if copl.s_key == "has_headache" {
+                } else if copl.s_key == "has_headache" && copl.s_value == "true" {
                     complaints.push("pusing");
                 }
             }
@@ -101,9 +98,45 @@ impl PublicApi {
             map_markers.push(MapMarker {
                 longitude: loc_long,
                 latitude: loc_lat,
-                kind: 1,
-                caption: complaints.join(", "),
+                kind: MapMarkerKind::Sick.into(),
+                caption: "Keluhan".to_string(),
+                desc: complaints.join(", "),
+                detail: None,
             });
+        }
+
+        // get from map-markers
+        {
+            let dao = MapMarkerDao::new(&conn);
+            // @TODO(Robin): buat hanya scoped query saja, tidak semuanya
+            match dao.get_map_markers(0, 1000) {
+                Ok(mms) => {
+                    for mm in mms {
+                        // let detail = PandemicInfoDetail {
+                        //     total_cases: mm.meta.iter(),
+                        //     total_deaths: mm.total_deaths,
+                        //     total_cases: mm.total_cases,
+                        // };
+                        let total_cases: i32 = mm.get_meta_value_i32("pandemic.total_cases");
+                        let total_deaths: i32 = mm.get_meta_value_i32("pandemic.total_deaths");
+                        let total_recovered: i32 = mm.get_meta_value_i32("pandemic.total_recovered");
+
+                        map_markers.push(MapMarker {
+                            longitude: mm.longitude,
+                            latitude: mm.latitude,
+                            kind: mm.kind.into(),
+                            caption: mm.name.to_owned(),
+                            desc: mm.info.to_owned(),
+                            detail: Some(PandemicInfoDetail {
+                                total_cases,
+                                total_deaths,
+                                total_recovered,
+                            }),
+                        });
+                    }
+                }
+                Err(e) => error!("Cannot get map markers. {}", e),
+            }
         }
 
         Ok(ApiResult::success(map_markers))

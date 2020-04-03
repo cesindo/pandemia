@@ -69,6 +69,29 @@ table! {
 }
 
 table! {
+    geoloc_cache (id) {
+        id -> Int8,
+        name -> Text,
+        latitude -> Float8,
+        longitude -> Float8,
+        ts -> Timestamp,
+    }
+}
+
+table! {
+    map_markers (id) {
+        id -> Int8,
+        name -> Text,
+        info -> Text,
+        latitude -> Float8,
+        longitude -> Float8,
+        kind -> Int2,
+        meta -> Array<Text>,
+        ts -> Timestamp,
+    }
+}
+
+table! {
     notifs (id) {
         id -> Int8,
         kind -> Int2,
@@ -126,6 +149,7 @@ table! {
         app_id -> Text,
         enable_push_notif -> Bool,
         latest_loc -> Text,
+        latest_loc_full -> Text,
         latest_loc_long -> Float8,
         latest_loc_lat -> Float8,
     }
@@ -191,6 +215,8 @@ allow_tables_to_appear_in_same_query!(
     admin_passhash,
     admins,
     feeds,
+    geoloc_cache,
+    map_markers,
     notifs,
     records,
     register_users,

@@ -4,6 +4,7 @@ use diesel::sql_types;
 
 pub use crate::admin_dao::AdminDao;
 pub use crate::feed_dao::FeedDao;
+pub use crate::map_marker_dao::MapMarkerDao;
 pub use crate::notif_dao::NotifDao;
 pub use crate::record_dao::RecordDao;
 pub use crate::user_dao::UserDao;

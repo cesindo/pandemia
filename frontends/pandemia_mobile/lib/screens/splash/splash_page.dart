@@ -50,7 +50,7 @@ class SplashPage extends StatelessWidget {
         statusText = "validasi...";
       } else if (state is AuthorizeToken) {
         statusText = "otorisasi...";
-      } else if (state is LoadSettings) {
+      } else if (state is LoadingSetting) {
         statusText = "memuat setelan...";
       }else if (state is PandemiaFailure){
         statusText = state.error;

@@ -9,6 +9,7 @@ import 'package:pandemia_mobile/blocs/map/map_event.dart';
 import 'package:pandemia_mobile/blocs/notif/notif_bloc.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia.dart';
 import 'package:pandemia_mobile/blocs/settings/settings_bloc.dart';
+import 'package:pandemia_mobile/blocs/settings/settings_event.dart';
 import 'package:pandemia_mobile/blocs/stats/stats_bloc.dart';
 import 'package:pandemia_mobile/blocs/stats/stats_event.dart';
 import 'package:pandemia_mobile/core/core.dart';
@@ -69,6 +70,7 @@ class HomeScreen extends StatelessWidget {
         } else if (activeTab == AppTab.hoax) {
           body = issue;
         } else if (activeTab == AppTab.settings) {
+          settingsBloc.dispatch(LoadSettings(force: true));
           body = settings;
         }
         return Scaffold(

@@ -36,13 +36,16 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     if (event.location != null) {
       final location =
           MapLocation(1, event.location.latitude, event.location.longitude);
+
       final currentLocation = await repo.getData("lat_long");
       final markers = await getMarkers(event.location);
 
       // if (currentLocation != null &&
       //     currentLocation["lat_long"] == location.toMap()) {
 
-      yield MapLoaded(MapLocation.fromMap(currentLocation), markers);
+      if (currentLocation != null) {
+        yield MapLoaded(MapLocation.fromMap(currentLocation), markers);
+      }
 
       repo.putData("lat_long", location.toMap());
       // final markers = await getMarkers(event.location);

@@ -10,7 +10,7 @@ Aplikasi mobile iOS dan Android untuk memonitor pandemi dengan push notification
 **Goals:**
 
 1. [x] Realtime feed berupa data update kasus terbaru pada suatu daerah.
-2. [x] Push notif untuk setiap update kasus terbaru.
+2. [x] Push notif untuk setiap update kasus terbaru di daerah kita.
 3. [x] Data statistik daerah.
 4. [x] Data Fakta dan Hoax berkaitan dengan pandemi.
 5. [ ] Push notif berupa peringatan ketika memasuki daerah dengan riwayat korban positif.
@@ -143,15 +143,14 @@ Untuk Vue.js ada di `/frontends/pandemia_web`:
     $ yarn install
     $ yarn serve
 
+**CATATAN**: Kamu bisa menggunakan npm maupun yarn, tapi direkomendasikan menggunakan yarn.
+
 Untuk frontend mobile menggunakan Flutter, bisa ditemukan di direktori `/frontends/pandemia_mobile`.
 Contoh cara menjalankan:
 
     $ cd frontends/pandemia_mobile
     $ flutter pub get
     $ flutter run
-
-
-**CATATAN**: Kamu bisa menggunakan npm maupun yarn, tapi direkomendasikan menggunakan yarn.
 
 Dokumentasi
 -------------

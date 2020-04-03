@@ -57,7 +57,7 @@ struct ResultItem {
     pub total_recovered: i32,
 }
 
-/// Untuk serialize json object dari server
+/// Untuk serialize json object dari server kawalcorona.com
 #[derive(Debug, Serialize, Deserialize)]
 struct ResultObject {
     /// Field attributes

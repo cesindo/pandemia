@@ -37,7 +37,7 @@ pub struct RecordUpdate {
     pub total_recovered: i32,
     pub active_cases: i32,
     pub critical_cases: i32,
-    pub cases_to_pop: f64,
+    // pub cases_to_pop: f64,
     pub meta: Vec<String>,
     pub last_updated: NaiveDateTime,
 }
@@ -238,6 +238,7 @@ use std::thread;
 #[derive(Deserialize, Validate)]
 pub struct TestPushNotifQuery {
     pub loc: String,
+    pub loc_kind: i16,
 }
 
 /// Holder untuk implementasi API endpoint privat.
@@ -254,6 +255,7 @@ impl PrivateApi {
                 "fcm",
                 &FCMPayloadData {
                     receiver_loc: &query.loc,
+                    receiver_loc_kind: query.loc_kind.into(),
                     target_id: 0,
                     kind: NotifKind::NewCases,
                     title: "Test",

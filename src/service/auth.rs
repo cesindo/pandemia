@@ -57,8 +57,10 @@ pub struct DeviceAuthorize {
     pub fcm_token: String,
     #[validate(length(min = 3, max = 10))]
     pub platform: String,
-    #[validate(length(min = 3, max = 50))]
+    #[validate(length(min = 3, max = 100))]
     pub loc_name: String,
+    #[validate(length(min = 3, max = 100))]
+    pub loc_name_full: String,
     pub loc_long: f64,
     pub loc_lat: f64,
 }
@@ -145,6 +147,7 @@ impl PublicApi {
                 provider_name: &query.platform,
                 app_id: &query.fcm_token,
                 latest_loc: &query.loc_name,
+                latest_loc_full: &query.loc_name_full,
                 latest_loc_long: query.loc_long,
                 latest_loc_lat: query.loc_lat,
             }),

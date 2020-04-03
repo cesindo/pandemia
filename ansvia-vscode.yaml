@@ -13,4 +13,7 @@ sync_gen:
     - src: src/types.rs#NotifKind
       outs:
         - dart:frontends/pandemia_mobile/lib/core/notif_kind.dart
+    - src: src/types.rs#MapMarkerKind
+      outs:
+        - dart:frontends/pandemia_mobile/lib/core/map_marker_kind.dart
 
