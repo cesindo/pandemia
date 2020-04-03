@@ -63,10 +63,14 @@ pub struct NewUserKey {
 #[derive(Insertable, AsChangeset)]
 #[table_name = "user_connect"]
 pub struct NewUserConnect<'a> {
+    pub user_id: ID,
     pub device_id: &'a str,
     pub provider_name: &'a str,
     pub app_id: &'a str,
-    pub latest_location: &'a str,
+    pub latest_loc: &'a str,
+    pub latest_loc_full: &'a str,
+    pub latest_loc_long: f64,
+    pub latest_loc_lat: f64,
 }
 
 /// Untuk mengoperasikan skema data di database
@@ -254,7 +258,7 @@ impl<'a> UserDao<'a> {
         connect: Option<NewUserConnect>,
     ) -> Result<(User, (PublicKey, SecretKey))> {
         self.db.build_transaction().read_write().run(|| {
-            let retv = {
+            let (user, keypair) = {
                 use crate::schema::user_keys::{self, dsl as ak_dsl};
                 use crate::schema::users;
                 let user = diesel::insert_into(users::table)
@@ -276,8 +280,9 @@ impl<'a> UserDao<'a> {
                 (user, keypair)
             };
 
-            if let Some(new_user_connect) = connect {
+            if let Some(mut new_user_connect) = connect {
                 use crate::schema::user_connect::{self, dsl};
+                new_user_connect.user_id = user.id;
                 diesel::insert_into(user_connect::table)
                     .values(&new_user_connect)
                     .on_conflict(dsl::device_id)
@@ -286,7 +291,7 @@ impl<'a> UserDao<'a> {
                     .execute(self.db)?;
             }
 
-            Ok(retv)
+            Ok((user, keypair))
         })
     }
 
@@ -356,18 +361,24 @@ impl<'a> UserDao<'a> {
     /// digunakan untuk event push notif.
     pub fn create_user_connect(
         &self,
+        user_id: ID,
         device_id: &str,
         provider_name: &str,
         app_id: &str,
-        latest_location: &str,
+        latest_loc: &str,
+        latest_loc_full: &str,
     ) -> Result<()> {
         use crate::schema::user_connect::dsl;
 
         let user_connect = NewUserConnect {
+            user_id,
             device_id,
             provider_name,
             app_id,
-            latest_location,
+            latest_loc,
+            latest_loc_full,
+            latest_loc_long: 0.0,
+            latest_loc_lat: 0.0,
         };
 
         diesel::insert_into(user_connect::table)
@@ -381,10 +392,18 @@ impl<'a> UserDao<'a> {
     }
 
     /// Update user location by device_id
-    pub fn update_user_location(&self, device_id: &str, latest_location: &str) -> Result<()> {
+    pub fn update_user_location(
+        &self,
+        device_id: &str,
+        latest_loc: &str,
+        latest_loc_full: &str,
+    ) -> Result<()> {
         use crate::schema::user_connect::{self, dsl};
         diesel::update(dsl::user_connect.filter(dsl::device_id.eq(device_id)))
-            .set(dsl::latest_location.eq(latest_location))
+            .set((
+                dsl::latest_loc.eq(latest_loc),
+                dsl::latest_loc_full.eq(latest_loc_full),
+            ))
             .execute(self.db)?;
         Ok(())
     }

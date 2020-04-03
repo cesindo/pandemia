@@ -8,12 +8,13 @@ use crate::{
     event_handler::FCM,
     eventstream::{self, Event::*},
     models::{Record, User},
-    notif_sender::send_notif,
+    // notif_sender::send_notif,
     push_notif_handler::{FCMHandler, FCMPayloadData},
     result::Result,
     token,
     types::{FeedKind, NotifKind},
-    util, ID,
+    util,
+    ID,
 };
 
 /// Event handler when new record updates found
@@ -52,6 +53,7 @@ pub fn new_record_update(
                 "fcm",
                 &FCMPayloadData {
                     receiver_loc: &new_record.loc,
+                    receiver_loc_kind: new_record.loc_kind.into(),
                     target_id: 0,
                     kind: NotifKind::NewCases,
                     title: &title,
@@ -88,6 +90,7 @@ pub fn new_record_update(
                 "fcm",
                 &FCMPayloadData {
                     receiver_loc: &new_record.loc,
+                    receiver_loc_kind: new_record.loc_kind.into(),
                     target_id: 0,
                     kind: NotifKind::NewDeaths,
                     title: &title,
@@ -124,6 +127,7 @@ pub fn new_record_update(
                 "fcm",
                 &FCMPayloadData {
                     receiver_loc: &new_record.loc,
+                    receiver_loc_kind: new_record.loc_kind.into(),
                     target_id: 0,
                     kind: NotifKind::NewRecovered,
                     title: &title,

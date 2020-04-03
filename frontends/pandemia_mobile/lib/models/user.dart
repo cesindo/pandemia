@@ -2,6 +2,7 @@
 // please don't edit this by hand
 // use 'ansvia-vscode extension > Edit Model fields' instead.
 import 'package:equatable/equatable.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:meta/meta.dart';
 import 'package:pandemia_mobile/models/user_settings.dart';
 
@@ -12,9 +13,10 @@ class User extends Equatable {
   final String fullName;
   final String email;
   final UserSettings settings; // Nullable
+  final LatLng loc; // Nullable
 
-  User(this.id, this.fullName, this.email, this.settings)
-      : super([id, fullName, email, settings]);
+  User(this.id, this.fullName, this.email, this.settings, this.loc)
+      : super([id, fullName, email, settings, loc]);
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> data = Map();
@@ -22,6 +24,7 @@ class User extends Equatable {
     data["full_name"] = this.fullName;
     data["email"] = this.email;
     data["settings"] = this.settings != null ? this.settings.toMap() : null;
+    data["loc"] = this.loc != null ? this.loc : null;
     return data;
   }
 
@@ -34,11 +37,13 @@ class User extends Equatable {
         data['email'] as String,
         data['settings'] != null
             ? UserSettings.fromMap(data['settings'])
-            : null);
+            : null,
+        data['loc'] != null ? LatLng(data['loc']['lat'], data['loc']['long']) : null);
   }
 
-  User copy({String fullName, String email, UserSettings settings}) {
+  User copy(
+      {String fullName, String email, UserSettings settings, LatLng loc}) {
     return User(this.id, fullName ?? this.fullName, email ?? this.email,
-        settings ?? this.settings);
+        settings ?? this.settings, loc ?? this.loc);
   }
 }

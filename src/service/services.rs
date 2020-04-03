@@ -71,6 +71,7 @@ macro_rules! impl_service {
 impl_service!(AdminService, admin);
 impl_service!(PandemiaService, pandemia);
 impl_service!(FeedService, feed);
+impl_service!(MapAreaService, map_area);
 
 /// Initialize and load services
 pub fn load_services() -> Vec<Box<dyn Service>> {
@@ -81,5 +82,6 @@ pub fn load_services() -> Vec<Box<dyn Service>> {
         FeedService::new(),
         SystemService::new(),
         UserService::new(),
+        MapAreaService::new(),
     ]
 }

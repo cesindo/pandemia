@@ -40,7 +40,7 @@ class PandemiaFailure extends PandemiaState {
   String toString() => "PandemiaFailure";
 }
 
-class LoadSettings extends PandemiaState {
+class LoadingSetting extends PandemiaState {
   @override
-  String toString() => "LoadSettings";
+  String toString() => "LoadingSetting";
 }
