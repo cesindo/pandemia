@@ -92,10 +92,9 @@ table! {
         total_recovered -> Int4,
         active_cases -> Int4,
         critical_cases -> Int4,
-        cases_to_pop -> Float8,
+        latest -> Bool,
         meta -> Array<Text>,
         last_updated -> Timestamp,
-        latest -> Bool,
     }
 }
 
@@ -121,10 +120,15 @@ table! {
 
 table! {
     user_connect (device_id) {
-        device_id -> Varchar,
+        device_id -> Text,
+        user_id -> Int8,
         provider_name -> Varchar,
-        app_id -> Varchar,
-        latest_location -> Varchar,
+        app_id -> Text,
+        enable_push_notif -> Bool,
+        latest_loc -> Text,
+        latest_loc_full -> Text,
+        latest_loc_long -> Float8,
+        latest_loc_lat -> Float8,
     }
 }
 
@@ -176,6 +180,7 @@ joinable!(admin_passhash -> admins (admin_id));
 joinable!(feeds -> users (creator_id));
 joinable!(notifs -> users (receiver_id));
 joinable!(reset_password_admins -> admins (admin_id));
+joinable!(user_connect -> users (user_id));
 joinable!(user_keys -> users (user_id));
 joinable!(user_passhash -> users (user_id));
 joinable!(user_settings -> users (user_id));

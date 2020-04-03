@@ -18,6 +18,7 @@ impl Service for PandemiaService {
         // builder.public_scope().link(PublicApi1::wire);
         PublicApi1::wire(builder);
         builder.public_scope().link(api::pandemia::PublicApi::wire);
+        builder.private_scope().link(api::pandemia::PrivateApi::wire);
         // builder.private_scope().link(PrivateApi::wire);
     }
 }

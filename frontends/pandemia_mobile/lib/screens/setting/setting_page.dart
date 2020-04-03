@@ -1,5 +1,6 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:multiselect_formfield/multiselect_formfield.dart';
 import 'package:pandemia_mobile/blocs/settings/settings.dart';
 import 'package:pandemia_mobile/blocs/settings/settings_bloc.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
@@ -23,14 +24,55 @@ class _SettingScreenState extends State<SettingScreen> {
   bool _isDemam = false;
   bool _isFlu = false;
   bool _isPusing = false;
+  StreamSubscription<SettingsState> subs;
 
-  _SettingScreenState(this.settingsBloc) {
+  _SettingScreenState(this.settingsBloc) {}
+
+  @override
+  void initState() {
+    super.initState();
     _pushIsChecked = _userRepo.currentUser.settings.enablePushNotif;
     _petaIsChecked = _userRepo.currentUser.settings.complaintMap;
     _isBatuk = _userRepo.currentUser.settings.hasCough;
     _isDemam = _userRepo.currentUser.settings.hasFever;
     _isFlu = _userRepo.currentUser.settings.hasFlu;
     _isPusing = _userRepo.currentUser.settings.hasHeadache;
+
+    subs = settingsBloc.state.listen((SettingsState state) {
+      if (state is SettingsUpdated) {
+        if (state.key == "enable_push_notif") {
+          _userRepo.currentUser = _userRepo.currentUser.copy(
+              settings: _userRepo.currentUser.settings
+                  .copy(enablePushNotif: state.value == "true"));
+        } else if (state.key == "complaint_map") {
+          _userRepo.currentUser = _userRepo.currentUser.copy(
+              settings: _userRepo.currentUser.settings
+                  .copy(complaintMap: state.value == "true"));
+        } else if (state.key == "has_cough") {
+          _userRepo.currentUser = _userRepo.currentUser.copy(
+              settings: _userRepo.currentUser.settings
+                  .copy(hasCough: state.value == "true"));
+        } else if (state.key == "has_fever") {
+          _userRepo.currentUser = _userRepo.currentUser.copy(
+              settings: _userRepo.currentUser.settings
+                  .copy(hasFever: state.value == "true"));
+        } else if (state.key == "has_flu") {
+          _userRepo.currentUser = _userRepo.currentUser.copy(
+              settings: _userRepo.currentUser.settings
+                  .copy(hasFlu: state.value == "true"));
+        } else if (state.key == "has_headache") {
+          _userRepo.currentUser = _userRepo.currentUser.copy(
+              settings: _userRepo.currentUser.settings
+                  .copy(hasHeadache: state.value == "true"));
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    subs.cancel();
+    super.dispose();
   }
 
   @override

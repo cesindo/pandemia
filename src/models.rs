@@ -168,10 +168,9 @@ pub struct Record {
     pub total_recovered: i32,
     pub active_cases: i32,
     pub critical_cases: i32,
-    pub cases_to_pop: f64,
+    pub latest: bool,
     pub meta: Vec<String>,
     pub last_updated: NaiveDateTime,
-    pub latest: bool,
 }
 
 impl Record {
@@ -238,24 +237,34 @@ struct NewUserSetting<'a> {
 impl User {
     /// Set user setting
     pub fn set_setting(&self, key: &str, value: &str, conn: &PgConnection) -> Result<()> {
-        use crate::schema::user_settings::{self, dsl};
+        {
+            use crate::schema::user_settings::{self, dsl};
 
-        let already_exists: bool = user_settings::table
-            .filter(dsl::user_id.eq(self.id).and(dsl::s_key.eq(key)))
-            .count()
-            .first::<i64>(conn)?
-            > 0;
-        if already_exists {
-            diesel::update(dsl::user_settings.filter(dsl::user_id.eq(self.id).and(dsl::s_key.eq(key))))
-                .set(dsl::s_value.eq(&value))
-                .execute(conn)?;
-        } else {
-            diesel::insert_into(user_settings::table)
-                .values(&NewUserSetting {
-                    user_id: self.id,
-                    s_key: key,
-                    s_value: value,
-                })
+            let already_exists: bool = user_settings::table
+                .filter(dsl::user_id.eq(self.id).and(dsl::s_key.eq(key)))
+                .count()
+                .first::<i64>(conn)?
+                > 0;
+            if already_exists {
+                diesel::update(dsl::user_settings.filter(dsl::user_id.eq(self.id).and(dsl::s_key.eq(key))))
+                    .set(dsl::s_value.eq(&value))
+                    .execute(conn)?;
+            } else {
+                diesel::insert_into(user_settings::table)
+                    .values(&NewUserSetting {
+                        user_id: self.id,
+                        s_key: key,
+                        s_value: value,
+                    })
+                    .execute(conn)?;
+            }
+        }
+
+        // for optimization only
+        if key == "enable_push_notif" {
+            use crate::schema::user_connect::{self, dsl};
+            diesel::update(dsl::user_connect.filter(dsl::user_id.eq(self.id)))
+                .set(dsl::enable_push_notif.eq(value == "true"))
                 .execute(conn)?;
         }
 

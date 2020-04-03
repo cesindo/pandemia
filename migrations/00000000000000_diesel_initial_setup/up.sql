@@ -35,3 +35,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- activate extensions for geolocation search feature
+CREATE EXTENSION cube;
+CREATE EXTENSION earthdistance;

@@ -9,6 +9,7 @@ import 'package:pandemia_mobile/blocs/map/map_event.dart';
 import 'package:pandemia_mobile/blocs/notif/notif_bloc.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia.dart';
 import 'package:pandemia_mobile/blocs/settings/settings_bloc.dart';
+import 'package:pandemia_mobile/blocs/settings/settings_event.dart';
 import 'package:pandemia_mobile/blocs/stats/stats_bloc.dart';
 import 'package:pandemia_mobile/blocs/stats/stats_event.dart';
 import 'package:pandemia_mobile/core/core.dart';
@@ -18,6 +19,7 @@ import 'package:pandemia_mobile/screens/feed/feed_tab_screen.dart';
 import 'package:pandemia_mobile/screens/issue/issue_page.dart';
 import 'package:pandemia_mobile/screens/map/map_page.dart';
 import 'package:pandemia_mobile/screens/setting/setting_page.dart';
+import 'package:pandemia_mobile/user_repository/user_repository.dart';
 import 'package:pandemia_mobile/widgets/widgets.dart';
 
 import '../core/core.dart';
@@ -63,11 +65,12 @@ class HomeScreen extends StatelessWidget {
           statsBloc.dispatch(LoadStats(withLoading: false));
           body = stats;
         } else if (activeTab == AppTab.map) {
-          mapBloc.dispatch(LoadMap(withLoading: false));
+          mapBloc.dispatch(LoadMap(UserRepository().currentUser.loc, withLoading: false));
           body = map;
         } else if (activeTab == AppTab.hoax) {
           body = issue;
         } else if (activeTab == AppTab.settings) {
+          settingsBloc.dispatch(LoadSettings(force: true));
           body = settings;
         }
         return Scaffold(

@@ -20,7 +20,6 @@ struct NewRecord<'a> {
     pub total_recovered: i32,
     pub active_cases: i32,
     pub critical_cases: i32,
-    pub cases_to_pop: f64,
     pub meta: &'a Vec<&'a str>,
     pub latest: bool,
 }
@@ -43,7 +42,6 @@ impl<'a> RecordDao<'a> {
         total_recovered: i32,
         active_cases: i32,
         critical_cases: i32,
-        cases_to_pop: f64,
         meta: &'a Vec<&'a str>,
         no_tx: bool,
     ) -> Result<Record> {
@@ -56,7 +54,6 @@ impl<'a> RecordDao<'a> {
                 total_recovered,
                 active_cases,
                 critical_cases,
-                cases_to_pop,
                 meta,
             )
         } else {
@@ -69,7 +66,6 @@ impl<'a> RecordDao<'a> {
                     total_recovered,
                     active_cases,
                     critical_cases,
-                    cases_to_pop,
                     meta,
                 )
             })
@@ -85,7 +81,6 @@ impl<'a> RecordDao<'a> {
         total_recovered: i32,
         active_cases: i32,
         critical_cases: i32,
-        cases_to_pop: f64,
         meta: &'a Vec<&'a str>,
     ) -> Result<Record> {
         use crate::schema::records::{self, dsl};
@@ -112,7 +107,6 @@ impl<'a> RecordDao<'a> {
                 total_recovered,
                 active_cases,
                 critical_cases,
-                cases_to_pop,
                 meta,
                 latest: true,
             })

@@ -33,9 +33,18 @@ class StatsPage extends StatelessWidget {
         // print("viewItems: $viewItems");
       }
 
+      if (viewItems.isEmpty) {
+        return Container(
+          child: Center(
+            child: Container(
+              child: Text("Belum ada data masuk", textAlign: TextAlign.center,),
+              width: MediaQuery.of(context).size.width / 1.3,
+            ),
+          ),
+        );
+      }
+
       return ListView(children: viewItems);
     });
   }
 }
-
-

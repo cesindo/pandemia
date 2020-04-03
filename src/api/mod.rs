@@ -17,6 +17,7 @@ mod with;
 
 pub mod admin;
 pub mod feed;
+pub mod map_area;
 pub mod pandemia;
 pub mod types;
 pub mod user;
