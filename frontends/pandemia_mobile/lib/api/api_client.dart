@@ -83,7 +83,6 @@ class ApiResource {
     var client = new http.Client();
     await ensureAccessToken();
     try {
-      print('URL: ${this.baseUrl + apiPath}');
       return client.get(this.baseUrl + apiPath, headers: buildHeaders()).then((resp){
         print("[GET $apiPath] resp: ${resp.body}");
         return resp;

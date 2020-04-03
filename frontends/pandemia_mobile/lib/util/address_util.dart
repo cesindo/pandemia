@@ -23,7 +23,6 @@ Future<dynamic> getLocationName(LocationData locationData) async {
   final apiKey = DotEnv().env['GEOLOCATOR_API_KEY'];
   final resp = await http.get(Uri.parse(
       "https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?prox=${locationData.latitude},${locationData.longitude}&mode=retrieveAddresses&maxResults=1&gen=1&apiKey=$apiKey"));
-  print("RSP : $resp");
   if (resp != null) {
     final result = tryDecode(resp.body);
     final addr =

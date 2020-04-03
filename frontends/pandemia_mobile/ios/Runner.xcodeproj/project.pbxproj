@@ -542,13 +542,8 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
 				);
-<<<<<<< HEAD
-				PRODUCT_BUNDLE_IDENTIFIER = com.pandemiaMobile;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-=======
 				PRODUCT_BUNDLE_IDENTIFIER = org.ces.pandemia;
 				PRODUCT_NAME = Runner;
->>>>>>> 708c28965562c05d0322a7c7407c582c21ab3cf1
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -572,13 +567,8 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
 				);
-<<<<<<< HEAD
-				PRODUCT_BUNDLE_IDENTIFIER = com.pandemiaMobile;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-=======
 				PRODUCT_BUNDLE_IDENTIFIER = org.ces.pandemia;
 				PRODUCT_NAME = Runner;
->>>>>>> 708c28965562c05d0322a7c7407c582c21ab3cf1
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
