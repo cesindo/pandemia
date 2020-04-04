@@ -88,8 +88,8 @@ impl PublicApi {
                     complaints.push("batuk");
                 } else if copl.s_key == "has_fever" && copl.s_value == "true" {
                     complaints.push("demam");
-                } else if copl.s_key == "has_flu" && copl.s_value == "true" {
-                    complaints.push("flu");
+                } else if copl.s_key == "has_cold" && copl.s_value == "true" {
+                    complaints.push("cold");
                 } else if copl.s_key == "has_headache" && copl.s_value == "true" {
                     complaints.push("pusing");
                 }

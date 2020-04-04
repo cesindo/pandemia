@@ -21,7 +21,7 @@ class _SettingScreenState extends State<SettingScreen> {
   bool _petaIsChecked = false;
   bool _isBatuk = false;
   bool _isDemam = false;
-  bool _isFlu = false;
+  bool _isCold = false;
   bool _isPusing = false;
   StreamSubscription<SettingsState> subs;
 
@@ -34,7 +34,7 @@ class _SettingScreenState extends State<SettingScreen> {
     _petaIsChecked = _userRepo.currentUser.settings.complaintMap;
     _isBatuk = _userRepo.currentUser.settings.hasCough;
     _isDemam = _userRepo.currentUser.settings.hasFever;
-    _isFlu = _userRepo.currentUser.settings.hasFlu;
+    _isCold = _userRepo.currentUser.settings.hasCold;
     _isPusing = _userRepo.currentUser.settings.hasHeadache;
 
     subs = settingsBloc.state.listen((SettingsState state) {
@@ -55,10 +55,10 @@ class _SettingScreenState extends State<SettingScreen> {
           _userRepo.currentUser = _userRepo.currentUser.copy(
               settings: _userRepo.currentUser.settings
                   .copy(hasFever: state.value == "true"));
-        } else if (state.key == "has_flu") {
+        } else if (state.key == "has_cold") {
           _userRepo.currentUser = _userRepo.currentUser.copy(
               settings: _userRepo.currentUser.settings
-                  .copy(hasFlu: state.value == "true"));
+                  .copy(hasCold: state.value == "true"));
         } else if (state.key == "has_headache") {
           _userRepo.currentUser = _userRepo.currentUser.copy(
               settings: _userRepo.currentUser.settings
@@ -261,13 +261,13 @@ class _SettingScreenState extends State<SettingScreen> {
                   child: Row(
                     children: <Widget>[
                       Checkbox(
-                        value: _isFlu,
+                        value: _isCold,
                         onChanged: _petaIsChecked
                             ? (value) {
                                 setState(() {
-                                  _isFlu = value;
+                                  _isCold = value;
                                   settingsBloc.dispatch(SetSetting(
-                                      "has_flu", _isFlu ? "true" : "false"));
+                                      "has_cold", _isCold ? "true" : "false"));
                                 });
                               }
                             : null,

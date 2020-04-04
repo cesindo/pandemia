@@ -91,7 +91,7 @@ pub mod types {
 //     pub enable_push_notif: Option<bool>,
 //     pub cough: Option<bool>,
 //     pub fever: Option<bool>,
-//     pub flu: Option<bool>,
+//     pub cold: Option<bool>,
 //     pub headache: Option<bool>,
 // }
 
