@@ -1,0 +1,20 @@
+[Unit]
+Description=Pandemia Service
+After=network.target
+StartLimitBurst=5
+StartLimitIntervalSec=0
+StandardOutput=/var/log/pandemia_server.out
+StandardError=/var/log/pandemia_server.err
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=www-data
+Environment="DATABASE_URL={{DATABASE_URL}}"
+Environment="FCM_SERVER_KEY={{FCM_SERVER_KEY}}"
+ExecStart=/usr/local/bin/pandemia_server
+
+
+[Install]
+WantedBy=multi-user.target

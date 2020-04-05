@@ -1,0 +1,6 @@
+---
+project_dir: "{{lookup('env', 'PROJDIR')}}"
+dest_server_path: /root/Development/
+DATABASE_URL: "{{lookup('env', 'DATABASE_URL')}}"
+FCM_SERVER_KEY: "{{lookup('env', 'FCM_SERVER_KEY')}}"
+GEOLOCATOR_API_KEY: "{{lookup('env', 'GEOLOCATOR_API_KEY')}}"
