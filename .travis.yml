@@ -13,6 +13,9 @@ cache: cargo
 before_cache:
   - rm -rf "$TRAVIS_HOME/.cargo/registry/src"
 
+env:
+  - GEOLOCATOR_API_KEY=xxxx
+
 script:
   - cp .env.example .env
   - cargo build
