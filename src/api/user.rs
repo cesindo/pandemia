@@ -248,6 +248,18 @@ impl PublicApi {
 
         Ok(ApiResult::success(user_settings))
     }
+
+    /// Listing user
+    #[api_endpoint(path = "/users", auth = "required", accessor = "admin")]
+    pub fn list_user(query: QueryEntries) -> ApiResult<EntriesResult<db::User>> {
+        let conn = state.db();
+        let dao = UserDao::new(&conn);
+
+        let entries = dao.get_users(query.offset, query.limit)?;
+
+        let count = dao.count()?;
+        Ok(ApiResult::success(EntriesResult { count, entries }))
+    }
 }
 
 use crate::models as db;
