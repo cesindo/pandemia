@@ -12,7 +12,14 @@ fn main() {
         .expect("Cannot get git_rev");
 
     let git_rev = String::from_utf8_lossy(&output.stdout);
-    let git_rev = git_rev.trim();
+    let mut git_rev: String = git_rev.trim().to_string();
+
+    if git_rev == "" {
+        // get from file
+        if let Ok(_git_rev) = fs::read_to_string("GIT_REV") {
+            git_rev = _git_rev.trim().to_string();
+        }
+    }
 
     println!("cargo:rustc-env=GIT_REV={}", git_rev);
 
