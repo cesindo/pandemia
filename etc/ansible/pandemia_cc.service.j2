@@ -11,7 +11,7 @@ RestartSec=1
 User=www
 Environment="DATABASE_URL={{DATABASE_URL}}"
 Environment="FCM_SERVER_KEY={{FCM_SERVER_KEY}}"
-ExecStart=/usr/bin/serve -s "/home/www/pandemia_cc"
+ExecStart=/usr/bin/serve -s "{{dest_server_path}}/pandemia_cc"
 
 
 [Install]

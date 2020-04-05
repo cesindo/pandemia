@@ -5,13 +5,13 @@
     - name: Upload dist package
       synchronize:
         src: "{{project_dir}}/frontends/pandemia_web/dist/"
-        dest: "/home/www/pandemia_cc"
+        dest: "{{dest_server_path}}/pandemia_cc"
         checksum: yes
         recursive: yes
         delete: yes
     - name: set owner
       file:
-        path: "/home/www/pandemia_cc"
+        path: "{{dest_server_path}}/pandemia_cc"
         state: directory
         recurse: yes
         owner: www-data

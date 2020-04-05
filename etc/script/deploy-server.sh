@@ -12,5 +12,14 @@ read confirm
 
 if [ "$confirm" == "y" ]; then
     echo $GIT_REV > $PROJDIR/etc/ansible/GIT_REV
-    ansible-playbook -v -i etc/ansible/hosts -e "server=bc2" etc/ansible/playbook.yml
+    ansible-playbook -v -i etc/ansible/hosts -e "server=api" etc/ansible/api.yml
 fi
+
+echo -n "Deploy web control center? [y/n] "
+read confirm
+
+if [ "$confirm" == "y" ]; then
+    make build-web-frontend
+    ansible-playbook -v -i etc/ansible/hosts -e "server=control_center_web" etc/ansible/control_center_web.yml
+fi
+

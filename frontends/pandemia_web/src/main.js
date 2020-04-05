@@ -32,7 +32,7 @@ import './registerServiceWorker'
 Vue.config.productionTip = false
 
 // Configure your base api endpoint for production here:
-Vue.config.prodApiEndpoint = "http://api.pandemia.com";
+Vue.config.prodApiEndpoint = "http://pandemia.cesindo.top";
 
 // Run mode ini menerima nilai:
 // * `prod` - Apabila ingin menggunakan API dari server production.

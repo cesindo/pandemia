@@ -3,8 +3,8 @@
 
 set -e
 
-SCRIPTDIR=$(dirname $0)
-PROJDIR=$SCRIPTDIR/../..
+export PROJDIR=$(pwd -P)
+export SCRIPTDIR=$PROJDIR/etc/script
 
 source $PROJDIR/.env
 
