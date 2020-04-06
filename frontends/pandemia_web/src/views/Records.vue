@@ -24,6 +24,8 @@
         <td>
           <strong>{{self.item['loc']}}</strong>
           <br />
+          <span>{{self.item['loc_scope']}}</span>
+          <br />
           <small>updated: {{self.item['last_updated']}}</small>
         </td>
         <td>
@@ -143,6 +145,11 @@
                 <option value="5">Unknown</option>
               </select>
             </div>
+            <div class="field">
+              <label>Area (scope):</label>
+              <input ref="addRecLocScopeInput" type="text" name="LocScope" id="LocScope">
+              <small>bisa nama negara di mana lokasi ini berada, contoh: Indonesia</small>
+            </div>
             <div class="ui grid">
               <div class="three wide column">
                 <div class="field">
@@ -234,6 +241,7 @@ export default {
     doAddRecord() {
       var loc = this.$refs['addRecLocInput'].value,
         locKind = parseInt(this.$refs['addRecLocKind'].value),
+        locScope = this.$refs['addRecLocScopeInput'].value,
         // Odp = parseInt(this.$refs['addRecOdp'].value),
         // Pdp = parseInt(this.$refs['addRecPdp'].value),
         totalCases = parseInt(this.$refs['addRecPositive'].value) || 0,
@@ -244,6 +252,7 @@ export default {
         .api()
         .publicApi.post("/pandemia/v1/add_record", {
           loc: loc,
+          loc_scope: locScope,
           loc_kind: locKind,
           total_cases: totalCases,
           total_deaths: totalDeaths,

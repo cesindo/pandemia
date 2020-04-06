@@ -2,15 +2,17 @@
 //!
 #![doc(hidden)]
 
+use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-use crate::crypto::{self, PublicKey, SecretKey, Signature};
+// use crate::crypto::{self, PublicKey, SecretKey, Signature};
 
 use crate::{
     api,
     error::{Error, ErrorCode},
+    models,
     prelude::*,
     ID,
 };
@@ -110,4 +112,40 @@ pub struct MapMarker {
     pub caption: String,
     pub desc: String,
     pub detail: Option<PandemicInfoDetail>,
+}
+
+#[derive(Serialize)]
+pub struct Record {
+    pub id: ID,
+    pub loc: String,
+    pub loc_kind: i16,
+    pub loc_scope: String,
+    pub total_cases: i32,
+    pub total_deaths: i32,
+    pub total_recovered: i32,
+    pub active_cases: i32,
+    pub critical_cases: i32,
+    pub latest: bool,
+    pub meta: Vec<String>,
+    pub last_updated: NaiveDateTime,
+}
+
+impl ToApiType<Record> for models::Record {
+    fn to_api_type(&self, conn: &PgConnection) -> Record {
+        let loc_scope = meta_value_str!(self, "loc_scope");
+        Record {
+            id: self.id,
+            loc: self.loc.to_owned(),
+            loc_kind: self.loc_kind,
+            loc_scope: loc_scope.to_owned(),
+            total_cases: self.total_cases,
+            total_deaths: self.total_deaths,
+            total_recovered: self.total_recovered,
+            active_cases: self.active_cases,
+            critical_cases: self.critical_cases,
+            latest: self.latest,
+            meta: self.meta.clone(),
+            last_updated: self.last_updated,
+        }
+    }
 }

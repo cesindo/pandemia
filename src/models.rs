@@ -318,20 +318,14 @@ pub struct MapMarker {
     pub ts: NaiveDateTime,
 }
 
-macro_rules! meta_value_i32 {
-    ($s:ident, $key:ident) => {
-        $s.meta
-            .iter()
-            .find(|a| a.starts_with($key))
-            .and_then(|a| a.splitn(2, ':').last())
-            .and_then(|a| a.parse::<i32>().ok())
-            .unwrap_or(0)
-    };
-}
-
 impl MapMarker {
     /// Get meta value
     pub fn get_meta_value_i32(&self, key: &str) -> i32 {
-        meta_value_i32!(self, key)
+        self.meta
+            .iter()
+            .find(|a| a.starts_with(&format!("{}:", key)))
+            .and_then(|a| a.splitn(2, ':').last())
+            .and_then(|a| a.parse::<i32>().ok())
+            .unwrap_or(0)
     }
 }

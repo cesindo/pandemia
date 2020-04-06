@@ -3,6 +3,7 @@
 
 use chrono::prelude::*;
 use diesel::prelude::*;
+use diesel::sql_types;
 
 use crate::{
     error::Error, models::MapMarker, result::Result, schema::map_markers, sqlutil::lower,
@@ -54,12 +55,17 @@ impl<'a> MapMarkerDao<'a> {
     }
 
     /// Mendapatkan map_marker berdasarkan nama-nya.
-    pub fn get_by_name(&self, name: &str) -> Result<Option<MapMarker>> {
+    pub fn get_by_name(&self, name: &str, meta_contains: Vec<&str>) -> Result<Option<MapMarker>> {
         use crate::schema::map_markers::{self, dsl};
-        match dsl::map_markers
-            .filter(lower(dsl::name).eq(name.to_lowercase()))
-            .first::<MapMarker>(self.db)
-        {
+
+        let mut filterer: Box<dyn BoxableExpression<map_markers::table, _, SqlType = sql_types::Bool>> =
+            Box::new(lower(dsl::name).eq(name.to_lowercase()));
+
+        if !meta_contains.is_empty() {
+            filterer = Box::new(filterer.and(dsl::meta.contains(meta_contains)));
+        }
+
+        match dsl::map_markers.filter(filterer).first::<MapMarker>(self.db) {
             Ok(marker) => Ok(Some(marker)),
             Err(diesel::result::Error::NotFound) => Ok(None),
             Err(e) => Err(e.into()),

@@ -37,7 +37,6 @@ pub struct RecordUpdate {
     pub total_recovered: i32,
     pub active_cases: i32,
     pub critical_cases: i32,
-    // pub cases_to_pop: f64,
     pub meta: Vec<String>,
     pub last_updated: NaiveDateTime,
 }
@@ -58,6 +57,7 @@ pub struct InfoLocation {
 pub struct AddRecord {
     pub loc: String,
     pub loc_kind: i16,
+    pub loc_scope: String,
     pub total_cases: i32,
     pub total_deaths: i32,
     pub total_recovered: i32,
@@ -85,7 +85,7 @@ impl PublicApi {
             query.total_recovered,
             query.active_cases,
             query.critical_cases,
-            &vec![],
+            &vec![&format!("loc_scope:{}", query.loc_scope)],
             false,
         )?;
 
@@ -138,23 +138,9 @@ impl PublicApi {
         Ok(ApiResult::success(result))
     }
 
-    // /// Search for records
-    // #[api_endpoint(path = "/latest_records", auth = "none")]
-    // pub fn latest_records(query: QueryEntries) -> ApiResult<EntriesResult<models::Record>> {
-    //     let conn = state.db();
-    //     let dao = RecordDao::new(&conn);
-    //     let entries = dao
-    //         .get_latest_records(query.query.as_ref().map(|a| a.as_str()), query.offset, query.limit)?
-    //         .into_iter()
-    //         .map(|p| p.into())
-    //         .collect();
-    //     let count = dao.count()?;
-    //     Ok(ApiResult::success(EntriesResult { count, entries }))
-    // }
-
     /// Search for records
     #[api_endpoint(path = "/search_records", auth = "required", accessor = "admin")]
-    pub fn search_records(query: QueryEntries) -> ApiResult<EntriesResult<models::Record>> {
+    pub fn search_records(query: QueryEntries) -> ApiResult<EntriesResult<Record>> {
         let conn = state.db();
         let dao = RecordDao::new(&conn);
 
@@ -162,7 +148,7 @@ impl PublicApi {
 
         Ok(ApiResult::success(EntriesResult {
             count: result.count,
-            entries: result.entries,
+            entries: result.entries.into_iter().map(|a| a.to_api_type(&conn)).collect(),
         }))
     }
 

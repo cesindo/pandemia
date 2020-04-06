@@ -71,7 +71,7 @@ class PandemiaBloc extends Bloc<PandemiaEvent, PandemiaState> {
         print("[LOC] Changing location...");
         PublicApi.post("/user/v1/me/update_loc", {
           'device_id': deviceId,
-          'loc_name': geoLocName.city,
+          'loc_name': geoLocName,
           'loc_name_full': geoLocName.toString()
         }).whenComplete(() {
           print("[LOC] Location changed");

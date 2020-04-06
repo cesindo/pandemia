@@ -39,7 +39,14 @@ pub fn new_record_update(
 fn update_map_marker(old_record: &Option<Record>, new_record: &Record, conn: &PgConnection) -> Result<()> {
     let dao = MapMarkerDao::new(conn);
 
-    if let Ok(Some(marker)) = dao.get_by_name(&new_record.loc) {
+    let scope_meta = new_record
+        .meta
+        .iter()
+        .filter(|a| a.starts_with("loc_scope:"))
+        .map(|a| a.as_str())
+        .collect();
+
+    if let Ok(Some(marker)) = dao.get_by_name(&new_record.loc, scope_meta) {
         // update
         let mut meta = marker.meta.clone();
         meta = meta
@@ -51,8 +58,9 @@ fn update_map_marker(old_record: &Option<Record>, new_record: &Record, conn: &Pg
         meta.push(format!("pandemic.total_recovered:{}", new_record.total_recovered));
         dao.update_meta(marker.id, meta)?;
     } else {
-        let latlong = geolocator::loc_to_ll(&new_record.loc, conn)?;
-        let mut meta = vec![];
+        let loc_scope = meta_value_str!(new_record, "loc_scope");
+        let latlong = geolocator::loc_to_ll(&format!("{} {}", new_record.loc, loc_scope), conn)?;
+        let mut meta = new_record.meta.clone();
         meta.push(format!("pandemic.total_cases:{}", new_record.total_cases));
         meta.push(format!("pandemic.total_deaths:{}", new_record.total_deaths));
         meta.push(format!("pandemic.total_recovered:{}", new_record.total_recovered));
