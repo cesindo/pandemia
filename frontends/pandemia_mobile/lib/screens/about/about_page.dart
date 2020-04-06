@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:package_info/package_info.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AboutPage extends StatefulWidget {
   AboutPage({Key key}) : super(key: key);
@@ -11,6 +12,7 @@ class AboutPage extends StatefulWidget {
 const List<String> Programmers = [
   "Robin (@anvie)",
   "Fatkhur",
+  "Cak Nasrul (luffynas)",
   "Samsul",
   "Muiz",
   "Rifai"
@@ -97,16 +99,14 @@ class _AboutPageState extends State<AboutPage> {
           left: MediaQuery.of(context).size.width / 8,
           right: MediaQuery.of(context).size.width / 8,
           top: MediaQuery.of(context).padding.top / 3,
-          bottom: MediaQuery.of(context).padding.top,
+          bottom: MediaQuery.of(context).padding.top / 3,
         ),
       ),
+    ];
+
+    credits.addAll([
       _row(
-        label: "Kode sumber",
-        midText: ":",
-        value: "https://github.com/cesindo/pandemia",
-      ),
-      _row(
-        label: "Data by",
+        label: "Data dari",
         midText: ":",
         value: "www.kawalcorona.com",
       ),
@@ -123,14 +123,20 @@ class _AboutPageState extends State<AboutPage> {
       SizedBox(
         height: MediaQuery.of(context).padding.top / 2,
       ),
+    ]);
+
+    credits.add(Text("Kontributor:"));
+    credits.add(_divider());
+
+    credits.addAll([
       _row(
-        label: "Server by",
+        label: "Server oleh",
         midText: ":",
         value: "Delameta",
       ),
       _divider(),
       _row(
-        label: "Icon by",
+        label: "Icon oleh",
         midText: ":",
         value: "photo3idea-studio",
       ),
@@ -140,20 +146,54 @@ class _AboutPageState extends State<AboutPage> {
         value: "freeicons.io",
       ),
       _divider(),
-    ];
+    ]);
 
-    credits.add(Text("Kontributor:"));
+    credits.add(Text("Pemrogram:"));
+
     credits.add(_divider());
     Programmers.forEach((p) {
       credits.add(_textDefault(p));
     });
 
+    credits.add(_divider());
+
+    credits.add(
+      Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          _textDefault(
+              "Anda seorang pemrogram? Mari berkontribusi pada proyek Pandemia",
+              maxLines: 2,
+              textAlign: TextAlign.center),
+          _divider(),
+          Container(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Container(
+                  width: 100,
+                  child: _textDefault("Kode sumber"),
+                ),
+                _textDefault(": "),
+                Expanded(
+                  flex: 3,
+                  child: GestureDetector(child: Text("https://github.com/cesindo/pandemia", style: TextStyle(color: Colors.blue,fontSize: 15),), onTap: (){
+                    launch("https://github.com/cesindo/pandemia");
+                  },)
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+
     return Container(
       padding: EdgeInsets.only(
-        left: MediaQuery.of(context).size.width / 10,
-        right: MediaQuery.of(context).size.width / 10,
-        bottom: MediaQuery.of(context).padding.top
-      ),
+          left: MediaQuery.of(context).size.width / 10,
+          right: MediaQuery.of(context).size.width / 10,
+          bottom: MediaQuery.of(context).padding.top),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
