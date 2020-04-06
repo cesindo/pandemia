@@ -22,7 +22,7 @@ abstract class SmartRepo {
       String storeName, Future<T> Function() dataRetriever,
       {force: bool});
 
-  Future<Map<String, dynamic>> fetchApi(String storeName, String apiPath,
+  Future<dynamic> fetchApi(String storeName, String apiPath,
       {force: bool});
 
   void clear();
@@ -166,7 +166,7 @@ class PersistentSmartRepo extends SmartRepo {
     }
   }
 
-  Future<Map<String, dynamic>> fetchApi(String storeName, String apiPath,
+  Future<dynamic> fetchApi(String storeName, String apiPath,
       {force: bool}) {
     return fetch(storeName, () => PublicApi.get(apiPath), force: force);
   }

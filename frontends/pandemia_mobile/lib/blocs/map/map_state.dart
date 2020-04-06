@@ -1,7 +1,7 @@
-
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 import 'package:pandemia_mobile/models/map_location.dart';
+import 'package:pandemia_mobile/models/map_marker.dart';
 
 @immutable
 abstract class MapState extends Equatable {
@@ -19,14 +19,19 @@ class MapLoading extends MapState {
 
 class MapLoaded extends MapState {
   final MapLocation location;
-  MapLoaded(this.location);
+  final List<MapMarker> markers;
+
+  MapLoaded(this.location, this.markers);
+
   @override
   String toString() => "MapLoaded";
 }
 
 class MapUpdated extends MapState {
   final MapLocation location;
-  MapUpdated(this.location);
+  final List<MapMarker> markers;
+
+  MapUpdated(this.location, this.markers);
   @override
   String toString() => "MapUpdated";
 }

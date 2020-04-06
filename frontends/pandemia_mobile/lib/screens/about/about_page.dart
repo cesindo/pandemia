@@ -134,6 +134,11 @@ class _AboutPageState extends State<AboutPage> {
         midText: ":",
         value: "photo3idea-studio",
       ),
+      _row(
+        label: "",
+        midText: ":",
+        value: "freeicons.io",
+      ),
       _divider(),
     ];
 

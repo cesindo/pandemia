@@ -8,7 +8,13 @@ CREATE TABLE records (
   total_recovered INT NOT NULL DEFAULT 0,
   active_cases INT NOT NULL DEFAULT 0,
   critical_cases INT NOT NULL DEFAULT 0,
-  cases_to_pop DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+  latest BOOLEAN NOT NULL DEFAULT FALSE,
   meta TEXT[] NOT NULL DEFAULT '{}',
   last_updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX idx_records_loc_name_lower ON records (
+    (lower(loc))
+);
+
+

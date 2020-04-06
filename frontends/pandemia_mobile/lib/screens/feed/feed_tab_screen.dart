@@ -81,7 +81,8 @@ class FeedTabScreen extends StatelessWidget {
                 },
               ));
         } else {
-          return refreshableText(context, "No updates yet");
+          return refreshableText(
+              context, "Data masih kosong, coba beberapa saat lagi");
         }
       },
     );
@@ -103,14 +104,16 @@ class FeedTabScreen extends StatelessWidget {
         SingleChildScrollView(
           physics: AlwaysScrollableScrollPhysics(),
           child: Container(
-            height: MediaQuery.of(context).size.height / 1.3,
-            child: Center(
-              child: Text(
-                text,
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
+              height: MediaQuery.of(context).size.height / 1.3,
+              child: Center(
+                child: Container(
+                    width: MediaQuery.of(context).size.width / 1.3,
+                    child: Text(
+                      text,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                    )),
+              )),
         ));
   }
 }

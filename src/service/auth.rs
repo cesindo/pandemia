@@ -57,8 +57,12 @@ pub struct DeviceAuthorize {
     pub fcm_token: String,
     #[validate(length(min = 3, max = 10))]
     pub platform: String,
-    #[validate(length(min = 3, max = 50))]
-    pub location_name: String,
+    #[validate(length(min = 3, max = 100))]
+    pub loc_name: String,
+    #[validate(length(min = 3, max = 100))]
+    pub loc_name_full: String,
+    pub loc_long: f64,
+    pub loc_lat: f64,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -113,6 +117,8 @@ impl PublicApi {
     /// ke user tersebut.
     #[api_endpoint(path = "/device/authorize", auth = "none", mutable)]
     pub fn authorize_device(query: DeviceAuthorize) -> ApiResult<AccessToken> {
+        query.validate()?;
+
         let conn = state.db();
 
         let dao = UserDao::new(&conn);
@@ -136,12 +142,19 @@ impl PublicApi {
                 register_time: util::now(),
             },
             Some(NewUserConnect {
+                user_id: 0,
                 device_id: &query.device_id,
                 provider_name: &query.platform,
                 app_id: &query.fcm_token,
-                latest_location: &query.location_name
+                latest_loc: &query.loc_name,
+                latest_loc_full: &query.loc_name_full,
+                latest_loc_long: query.loc_long,
+                latest_loc_lat: query.loc_lat,
             }),
         )?;
+
+        // set default settings
+        let _ = user.set_setting("enable_push_notif", "true", &conn);
 
         let dao = AuthDao::new(&conn);
 

@@ -15,7 +15,6 @@ class Record extends Equatable {
   final int totalRecovered;
   final int activeCases;
   final int criticalCases;
-  final double casesToPop;
   final List<String> meta;
   final String lastUpdated;
 
@@ -28,7 +27,6 @@ class Record extends Equatable {
       this.totalRecovered,
       this.activeCases,
       this.criticalCases,
-      this.casesToPop,
       this.meta,
       this.lastUpdated)
       : super([
@@ -40,7 +38,6 @@ class Record extends Equatable {
           totalRecovered,
           activeCases,
           criticalCases,
-          casesToPop,
           meta,
           lastUpdated
         ]);
@@ -55,7 +52,6 @@ class Record extends Equatable {
     data["total_recovered"] = this.totalRecovered;
     data["active_cases"] = this.activeCases;
     data["critical_cases"] = this.criticalCases;
-    data["cases_to_pop"] = this.casesToPop;
     data["meta"] = this.meta;
     data["last_updated"] = this.lastUpdated;
     return data;
@@ -69,7 +65,6 @@ class Record extends Equatable {
     assert(data['total_recovered'] != null, "Record.total_recovered is null");
     assert(data['active_cases'] != null, "Record.active_cases is null");
     assert(data['critical_cases'] != null, "Record.critical_cases is null");
-    assert(data['cases_to_pop'] != null, "Record.cases_to_pop is null");
     assert(data['last_updated'] != null, "Record.last_updated is null");
     return Record(
         data['id'] as int,
@@ -80,7 +75,6 @@ class Record extends Equatable {
         data['total_recovered'] as int,
         data['active_cases'] as int,
         data['critical_cases'] as int,
-        data['cases_to_pop'] as double,
         data['meta'] != null ? List.from(data['meta']) : [],
         data['last_updated'] as String);
   }
@@ -93,7 +87,6 @@ class Record extends Equatable {
       int totalRecovered,
       int activeCases,
       int criticalCases,
-      double casesToPop,
       List<String> meta,
       String lastUpdated}) {
     return Record(
@@ -105,7 +98,6 @@ class Record extends Equatable {
         totalRecovered ?? this.totalRecovered,
         activeCases ?? this.activeCases,
         criticalCases ?? this.criticalCases,
-        casesToPop ?? this.casesToPop,
         meta ?? this.meta,
         lastUpdated ?? this.lastUpdated);
   }
