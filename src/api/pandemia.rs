@@ -55,13 +55,21 @@ pub struct InfoLocation {
 
 #[derive(Deserialize, Validate)]
 pub struct AddRecord {
+    #[validate(length(min = 2, max = 1000))]
     pub loc: String,
+    #[validate(range(min = 0, max = 20))]
     pub loc_kind: i16,
+    #[validate(length(min = 2, max = 1000))]
     pub loc_scope: String,
+    #[validate(range(min = 0))]
     pub total_cases: i32,
+    #[validate(range(min = 0))]
     pub total_deaths: i32,
+    #[validate(range(min = 0))]
     pub total_recovered: i32,
+    #[validate(range(min = 0))]
     pub active_cases: i32,
+    #[validate(range(min = 0))]
     pub critical_cases: i32,
 }
 

@@ -70,6 +70,12 @@ pub struct AccessTokenQuery {
     pub token: String,
 }
 
+#[derive(Serialize, Validate)]
+pub struct AuthorizeResult<T> {
+    pub access_token: models::AccessToken,
+    pub user: Option<T>,
+}
+
 struct PrivateApi;
 
 #[api_group("Authorization", "private", base = "/auth/v1")]
@@ -175,7 +181,10 @@ impl PublicApi {
     /// Meng-otorisasi akun admin
     /// Admin bisa melakukan otorisasi menggunakan email / nomor telp.
     #[api_endpoint(path = "/admin/authorize", auth = "none", mutable)]
-    pub fn admin_authorize(state: &mut AppState, query: Authorize) -> ApiResult<AccessToken> {
+    pub fn admin_authorize(
+        state: &mut AppState,
+        query: Authorize,
+    ) -> ApiResult<AuthorizeResult<models::Admin>> {
         let conn = state.db();
         let user = {
             let dao = AdminDao::new(&conn);
@@ -204,9 +213,12 @@ impl PublicApi {
             Err(ApiError::Unauthorized)?
         }
 
-        dao.generate_admin_access_token(user.id)
-            .map_err(From::from)
-            .map(ApiResult::success)
+        let access_token = dao.generate_admin_access_token(user.id)?;
+
+        Ok(ApiResult::success(AuthorizeResult {
+            access_token,
+            user: Some(user),
+        }))
     }
 
     /// Unauthorize current user session, this will invalidate all valid access tokens.

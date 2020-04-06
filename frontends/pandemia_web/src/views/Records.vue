@@ -17,7 +17,7 @@
       :searchable="true"
       :withActionButton="false"
       :showDetailFunc="showDetail"
-      limit="10"
+      :limit="10"
     >
       <template v-slot:tdmap="self">
         <td>{{self.item['id']}}</td>
@@ -267,7 +267,11 @@ export default {
             this.showSuccess("Rekod berhasil ditambahkan");
             this.refreshTable();
           }else{
-            this.showError("Gagal menambahkan rekod");
+            var suggest = "";
+            if (resp.data.description.indexOf("Invalid") > -1){
+              suggest = "Mohon periksa kembali data masukan Anda";
+            }
+            this.showError("Gagal menambahkan rekod. " + suggest);
           }
         });
     },
