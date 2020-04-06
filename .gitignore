@@ -13,3 +13,7 @@ pandemia_server
 
 testkit/target/
 macros/pandemia_proc_macro/target/
+etc/ansible/GIT_REV
+etc/ansible/host_vars/*.yml
+etc/ansible/hosts
+

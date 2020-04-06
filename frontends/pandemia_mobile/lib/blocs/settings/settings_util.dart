@@ -12,8 +12,8 @@ UserSettings toUserSettings(List<dynamic> data) {
       settings = settings.copy(hasCough: s["s_value"] == "true");
     } else if (s["s_key"] == "has_fever") {
       settings = settings.copy(hasFever: s["s_value"] == "true");
-    } else if (s["s_key"] == "has_flu") {
-      settings = settings.copy(hasFlu: s["s_value"] == "true");
+    } else if (s["s_key"] == "has_cold") {
+      settings = settings.copy(hasCold: s["s_value"] == "true");
     } else if (s["s_key"] == "has_headache") {
       settings = settings.copy(hasHeadache: s["s_value"] == "true");
     }

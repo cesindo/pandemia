@@ -1,0 +1,8 @@
+---
+project_dir: "{{lookup('env', 'PROJDIR')}}"
+dest_server_path: "{{lookup('env', 'PANDEMIA_DEST_SERVER_PATH')}}"
+remote_user: "{{lookup('env', 'PANDEMIA_REMOTE_SERVER_USER')}}"
+
+DATABASE_URL: "{{lookup('env', 'DATABASE_URL')}}"
+FCM_SERVER_KEY: "{{lookup('env', 'FCM_SERVER_KEY')}}"
+GEOLOCATOR_API_KEY: "{{lookup('env', 'GEOLOCATOR_API_KEY')}}"

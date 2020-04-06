@@ -8,7 +8,6 @@ import 'package:pandemia_mobile/blocs/fcm/fcm_bloc.dart';
 import 'package:pandemia_mobile/blocs/feed/feed.dart';
 import 'package:pandemia_mobile/blocs/issue/issue_bloc.dart';
 import 'package:pandemia_mobile/blocs/map/map_bloc.dart';
-import 'package:pandemia_mobile/blocs/map/map_event.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_bloc.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_event.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_state.dart';

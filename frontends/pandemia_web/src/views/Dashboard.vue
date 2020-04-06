@@ -13,14 +13,13 @@
     <div class="dashboard-inner" v-bind:style="customMargin">
       <h1>{{ pageTitle }}</h1>
 
-      <AnsTable
-        v-if="currentPage['/dashboard']"
-        data-source-url="/user/v1/users"
-        :columns="['ID', 'Name', 'Email']"
-        :searchable="true"
-        :withActionButton="true"
-        :mapItemFunc="userListAllMapper2"
-      ></AnsTable>
+      <div v-if="currentPage['/dashboard']">
+        <div class="ui placeholder segment center aligned">
+          <div class="ui header">
+            Selamat datang di pusat kontrol Pandemia
+          </div>
+        </div>
+      </div>
 
       <AnsTable
         v-if="currentPage['/dashboard/users']"
@@ -68,7 +67,7 @@ export default {
         {
           href: "/dashboard",
           title: "Dashboard",
-          icon: "fa fa-user"
+          icon: "fa fa-list"
         },
         {
           title: "Users",
@@ -103,7 +102,6 @@ export default {
     clearInterval(this.loginCheckerIval);
   },
   methods: {
-    
     publicApiScope(self) {
       return self.$pandemia.api().publicApi;
     },

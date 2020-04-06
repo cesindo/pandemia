@@ -62,9 +62,23 @@ Build
 
 Sebelum melakukan build pastikan dulu Libpq (Library-nya PostgreSQL) telah tersedia, di Ubuntu bisa menggunakan perintah `apt install libpq-dev` atau di Debian `apt install libpq-devel`, di OSX bisa menggunakan perintah: `brew install libpq`.
 
-Setelah semua dependensi tersedia, ketikkan:
+Buat konfigurasi environment variable melalui file `.env` (dot env):
+
+
+```
+export DATABASE_URL=postgresql://localhost/pandemia?sslmode=disable
+export DATABASE_TEST_URL=postgresql://localhost/pandemia_test?sslmode=disable
+
+export FCM_SERVER_KEY=xxxxxxxx
+export GEOLOCATOR_API_KEY=xxxxxxxx
+```
+
+Untuk contoh bisa lihat file `.env.example`.
+
+Setelah semua siap, ketikkan:
 
     $ cargo build
+
 
 Build menggunakan Docker
 ----------------------------

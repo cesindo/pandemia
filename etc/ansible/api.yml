@@ -1,0 +1,47 @@
+- hosts: "{{server}}"
+  remote_user: "{{remote_user}}"
+  gather_facts: no
+  tasks:
+    - name: Upload sources
+      synchronize:
+        src: "{{project_dir}}"
+        dest: "{{dest_server_path}}"
+        checksum: yes
+        recursive: yes
+        delete: yes
+    - name: Upload Git info
+      copy:
+        src: "GIT_REV"
+        dest: "{{dest_server_path}}/pandemia/GIT_REV"
+    - name: Patch db if any
+      command: diesel migration run
+      environment:
+        DATABASE_URL: "{{DATABASE_URL}}"
+        FCM_SERVER_KEY: "{{FCM_SERVER_KEY}}"
+        GEOLOCATOR_API_KEY: "{{GEOLOCATOR_API_KEY}}"
+      args:
+        chdir: "{{dest_server_path}}/pandemia"
+    - name: Build binary
+      command: make release
+      environment:
+        DATABASE_URL: "{{DATABASE_URL}}"
+        FCM_SERVER_KEY: "{{FCM_SERVER_KEY}}"
+        GEOLOCATOR_API_KEY: "{{GEOLOCATOR_API_KEY}}"
+      args:
+        chdir: "{{dest_server_path}}/pandemia"
+    - name: Install binary
+      copy:
+        src: "{{dest_server_path}}/pandemia/target/release/pandemia_server"
+        remote_src: true
+        dest: "/usr/local/bin/pandemia_server"
+        mode: "0755"
+    - name: Create service
+      template:
+        src: pandemia.service.j2
+        dest: "/etc/systemd/system/pandemia.service"
+    - name: Make sure service running
+      systemd:
+        state: restarted
+        name: pandemia
+        daemon_reload: yes
+
