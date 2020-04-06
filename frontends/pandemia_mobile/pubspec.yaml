@@ -47,7 +47,7 @@ dependencies:
   cached_network_image: ^2.0.0-rc.1
   google_maps_flutter: ^0.5.25+2
   location: ^3.0.0
-  multiselect_formfield: 0.1.2
+  multiselect_formfield: ^0.1.2
 
 dev_dependencies:
   flutter_test:
