@@ -46,13 +46,13 @@
             <div class="ui form">
               <div class="field">
                 <label>Kata kunci baru:</label>
-                <input ref="passInput" type="text" name="NewPassInput" id="NewPassInput" />
+                <input ref="passInput" type="password" name="NewPassInput" id="NewPassInput" />
               </div>
               <div class="field">
                 <label>Konfirmasi kata kunci:</label>
                 <input
                   ref="confPassInput"
-                  type="text"
+                  type="password"
                   name="ConfNewPassInput"
                   id="ConfNewPassInput"
                 />
