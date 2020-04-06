@@ -9,6 +9,8 @@ class AboutPage extends StatefulWidget {
   _AboutPageState createState() => _AboutPageState();
 }
 
+const PandemiaRepoLink = "https://github.com/cesindo/pandemia";
+
 const List<String> Programmers = [
   "Robin (@anvie)",
   "Fatkhur",
@@ -178,8 +180,8 @@ class _AboutPageState extends State<AboutPage> {
                 _textDefault(": "),
                 Expanded(
                   flex: 3,
-                  child: GestureDetector(child: Text("https://github.com/cesindo/pandemia", style: TextStyle(color: Colors.blue,fontSize: 15),), onTap: (){
-                    launch("https://github.com/cesindo/pandemia");
+                  child: GestureDetector(child: Text(PandemiaRepoLink, style: TextStyle(color: Colors.blue,fontSize: 15),), onTap: (){
+                    launch(PandemiaRepoLink);
                   },)
                 ),
               ],

@@ -78,7 +78,7 @@ class _MapPageState extends State<MapPage> {
   LatLng movedPos;
   MapMarker curSel;
   TextStyle curSelTextStyle =
-      TextStyle(fontWeight: FontWeight.bold, fontSize: 25);
+      TextStyle(fontWeight: FontWeight.bold, fontSize: 20);
   PinIcons pinIcons;
 
   _MapPageState(this.mapBloc) {
@@ -202,7 +202,7 @@ class _MapPageState extends State<MapPage> {
                               style: curSelTextStyle,
                               textAlign: TextAlign.left,
                             ),
-                            Text(curSel.desc),
+                            Text(curSel.desc, style: TextStyle(fontSize: 18)),
                             curSel.detail != null
                                 ? Padding(
                                     padding: EdgeInsets.only(top: 30),
