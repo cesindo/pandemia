@@ -4,18 +4,32 @@ Pandemia
 [![Build Status](https://travis-ci.org/cesindo/pandemia.svg?branch=master)](https://travis-ci.org/cesindo/pandemia)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 ![Platform](https://img.shields.io/badge/platform-ios%20%7C%20android-%23989898)
+[![Gitter](https://badges.gitter.im/pandemia_/community.svg)](https://gitter.im/pandemia_/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-Aplikasi mobile iOS dan Android untuk memonitor pandemi dengan push notification dan deteksi lokasi, sudah termasuk juga dengan server dan web panel-nya.
 
-**Goals:**
+Pandemia adalah program sumber terbuka (_open source_) yang dikembangkan oleh komunitas
+untuk memudahkan dalam memantau persebaran wabah, sehingga dapat mengambil keputusan yang 
+lebih bijak dan terukur dalam melakukan kegiatan kesehariannya.
+
+**Motivasi**
+
+Melihat situasi pandemi covid-19 terutama di Indonesia yang semakin hari semakin luas, serta masih sangat terbatasnya peran teknologi dalam pemanfaatannya untuk mitigasi,
+ditambah sumber data dari pemerintah yang masih tersebar di sana-sini, maka kami bermaksud untuk membuat satu fondasi aplikasi lengkap yang mana bisa dimanfaatkan
+oleh penerbit data yang bisa merupakan pemerintah maupun organisasi independen serta pengkonsumsi data dalam hal ini masyarakat luas. Penerbit data memasukkan data melalui
+_control center_ berbasis web, sementara masyarakat memonitor secara _real-time_ melalui _App_ pada _smartphone_ mereka, Mengapa App? Karena beberapa fungsi tidak maksimal atau bahkan tidak jalan apabila dalam bentuk web seperti yang sudah ada sekarang, kedua App tidak hanya berfungsi sebagai alat monitor, tetapi juga bisa digunakan sebagai alat bantu pelengkap data secara _crowd sourcing_.
+
+**Target:**
 
 1. [x] Realtime feed berupa data update kasus terbaru pada suatu daerah.
 2. [x] Push notif untuk setiap update kasus terbaru di daerah kita.
 3. [x] Data statistik daerah.
 4. [x] Data Fakta dan Hoax berkaitan dengan pandemi.
-5. [ ] Push notif berupa peringatan ketika memasuki daerah dengan riwayat korban positif.
-6. [ ] Peta Pandemi.
+5. [x] Peta Pandemi.
+6. [ ] Push notif berupa peringatan ketika memasuki daerah dengan riwayat korban positif.
 7. [ ] Peta Keluhan, menandai diri kita sedang mengalami keluhan kesehatan secara anonim, sehingga membantu proses tracing.
+
+Tangkapan Layar
+-----------------
 
 ![Pandemia Feed](/img/pandemia-feed.jpg)
 ![Pandemia Push Notif](/img/pandemia-push-notif.jpg)
@@ -23,15 +37,27 @@ Aplikasi mobile iOS dan Android untuk memonitor pandemi dengan push notification
 ![Pandemia Stats](/img/pandemia-stats.png)
 ![Pandemia Hoax/Fact](/img/pandemia-hoaxfact.png)
 ![Pandemia Map](/img/pandemia-map.png)
+![Pandemia Settings](/img/pandemia-settings.png)
 
 **Tersedia juga control center (dashboard) dalam bentuk web untuk mempermudah komunitas dalam memperbaharui data.**
 
 ![Pandemia Control Center](/img/pandemia-control-center.png)
 
-Kebutuhan
-----------------
+## Info Pengembang
 
-Daftar kebutuhan berikut dibutuhkan apabila kita ingin melakukan build di mesin environment lokal, kamu bisa juga melakukan build menggunakan Docker sehingga tidak perlu menginstall satu-per-satu kebutuhan ini. Untuk build menggunakan Docker lihat bagian *Build menngunakan Docker*.
+Pandemia adalah proyek sumber terbuka (_open source_), bagi para pengembang (_programmer_) yang ingin ikut membantu silahkan _fork_ kode sumber Pandemia di [https://github.com/cesindo/pandemia](https://github.com/cesindo/pandemia).
+
+Pertanyaan dan diskusi teknis bisa langsung di [Gitter Pandemia](https://gitter.im/pandemia_/community), kami akan sangat senang melayani.
+
+Untuk yang ingin langsung mengkonsumsi API bisa baca dokumentasi API di [Pandemia REST API](https://pandemia.cesindo.top/dev/).
+
+Basis API endpoint ada di [https://pandemia.cesindo.top/api](https://pandemia.cesindo.top/api)
+
+Contoh untuk mendapatkan informasi build [https://pandemia.cesindo.top/api/system/v1/info](https://pandemia.cesindo.top/api/system/v1/info).
+
+### Kebutuhan
+
+Daftar kebutuhan berikut dibutuhkan apabila kita ingin melakukan build di mesin _environment_ lokal, kamu bisa juga melakukan build menggunakan Docker sehingga tidak perlu menginstall satu-per-satu kebutuhan ini. Untuk build menggunakan Docker lihat bagian *Build menngunakan Docker*.
 Berikut kebutuhan pokok untuk bisa melakukan build di mesin lokal:
 
 **Backend Server:**
@@ -242,6 +268,21 @@ Atau reset database untuk test-nya agar di-rebuild schema-nya dari pertama:
 
     $ make test-env
 
+
+Kontributor
+-------------
+
+Terimakasih kepada para kontributor yang telah membantu proyek ini:
+
+* Delameta (donasi server)
+* Robin - @anvie
+* Cak Nasrul - @luffynas
+* Fatkhurohman
+* Samsul
+* Rifai
+* Muiz
+* Yudi
+* Cahyo
 
 
 

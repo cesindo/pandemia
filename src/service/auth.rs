@@ -231,16 +231,4 @@ impl PublicApi {
             None => Ok(ApiResult::success(())),
         }
     }
-
-    /// Mendapatkan keypair dari user.
-    #[api_endpoint(path = "/get_key", auth = "required")]
-    fn user_get_key(query: ()) -> ApiResult<JsonValue> {
-        let conn = state.db();
-        let dao = UserDao::new(&conn);
-        let user_key = dao.get_user_key(current_user.id)?;
-
-        Ok(ApiResult::success(
-            json!({"pub_key": user_key.pub_key, "secret_key": user_key.secret_key}),
-        ))
-    }
 }

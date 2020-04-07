@@ -46,7 +46,7 @@ pub struct PublicApi;
 
 #[api_group("MapArea", "public", base = "/map_area/v1")]
 impl PublicApi {
-    /// Search for map_markers
+    /// Mencari data pada radius 5km pada suatu wilayah menggunakan titik longlat.
     #[api_endpoint(path = "/search", auth = "required")]
     pub fn search_map_markers(query: SearchArea) -> ApiResult<Vec<MapMarker>> {
         use crate::schema::user_settings::{self, dsl};

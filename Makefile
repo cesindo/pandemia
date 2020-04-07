@@ -27,6 +27,9 @@ api-docs: prepare api-docs/public-api.md
 	@@echo generated: $(PUBLIC_API_DOC_OUTPUT)
 	@@echo generated: $(PRIVATE_API_DOC_OUTPUT)
 
+clean-api-docs:
+	rm -f api-docs/*.txt
+
 fmt:
 	cd testkit && cargo fmt
 	cd macros/pandemia_proc_macro && cargo fmt
@@ -94,6 +97,7 @@ reset-db:
 		release test-env test-env-redo release-linux \
 		build-web-frontend \
 		reset-db \
-		version
+		version \
+		clean-api-docs
 
 
