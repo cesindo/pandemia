@@ -257,8 +257,12 @@ def gen_doc(scope, in_path, out_path):
         endpoints = sorted(filter(lambda a: a["elem"] == "ApiEndpoint", updated_docs), key=cmp_to_key(lambda a,b: cmp(a['method_name'], b['method_name'])) )
 
         for group in groups:
+            if group['title'] in EXCLUDED['groups']:
+                continue
             process_line(group, fout)
             for endpoint in endpoints:
+                if endpoint['group'] in EXCLUDED['groups']:
+                    continue
                 if endpoint['group'] == group['group']:
                     process_line(endpoint, fout)
     
@@ -368,13 +372,17 @@ def gen_postman(api_scope, input_path, out_path):
 
 
 def process_line(j, fout):
+    global EXCLUDED
     if j["elem"] == "Group":
-        fout.write("## Group %s\n" % j["title"].strip())
+        title = j["title"].strip()
+        fout.write("## Group %s\n" % title)
         if j["desc"] and j["desc"] != "":
             fout.write("\n%s\n\n" % j["desc"].strip())
         else:
             fout.write("\n")
     elif j["elem"] == "ApiEndpoint":
+        if j['path'] in EXCLUDED['endpoints']:
+            return
         title = j['title']
         if not title or title == "":
             title = j['method_name'].replace('_', ' ').title()
@@ -411,7 +419,17 @@ def process_line(j, fout):
         else:
             fout.write("%s\n\n" % ident_4("{}"))
 
+import yaml
+
+EXCLUDED = {}
+
 def main():
+    global EXCLUDED
+
+    with open('api-docs/excludes.yaml') as f:
+        EXCLUDED = yaml.load(f, Loader=yaml.FullLoader)
+        # print(EXCLUDED)
+
     public_input_path = get_path("api-docs/public-endpoints.raw.txt")
     private_input_path = get_path("api-docs/private-endpoints.raw.txt")
     
