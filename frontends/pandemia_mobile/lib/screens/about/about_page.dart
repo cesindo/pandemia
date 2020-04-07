@@ -90,7 +90,7 @@ class _AboutPageState extends State<AboutPage> {
       _textDefault(
           "Adalah program sumber terbuka (open source) yang dikembangkan oleh komunitas " +
               "untuk memudahkan " +
-              "kita dalam memantau persebaran wabah, sehingga kita dapat mengambil keputusan yang " +
+              "dalam memantau persebaran wabah, sehingga dapat mengambil keputusan yang " +
               "lebih bijak dan terukur dalam melakukan kegiatan kesehariannya.",
           maxLines: 10,
           textAlign: TextAlign.center),
