@@ -77,6 +77,21 @@ export default {
           href: "/dashboard/records"
         },
         {
+          title: "Hospital",
+          icon: "fa fa-hotel",
+          href: "/dashboard/hospital"
+        },
+        {
+          title: "Map",
+          icon: "fa fa-globe-asia",
+          href: "/dashboard/map"
+        },
+        {
+          title: "Log/Journal",
+          icon: "fa fa-book",
+          href: "/dashboard/log"
+        },
+        {
           title: "Logout",
           icon: "fa fa-sign-out-alt"
         }
