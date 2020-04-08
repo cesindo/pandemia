@@ -41,7 +41,8 @@ Tangkapan Layar
 
 **Tersedia juga control center (dashboard) dalam bentuk web untuk mempermudah komunitas dalam memperbaharui data.**
 
-![Pandemia Control Center](/img/pandemia-control-center.png)
+![Pandemia Control Center Login](/img/pandemia-cc.png)
+![Pandemia Control Center](/img/pandemia-cc-records.png)
 
 ## Info Pengembang
 
@@ -54,6 +55,8 @@ Untuk yang ingin langsung mengkonsumsi API bisa baca dokumentasi API di [Pandemi
 Basis API endpoint ada di [https://pandemia.cesindo.top/api](https://pandemia.cesindo.top/api)
 
 Contoh untuk mendapatkan informasi build [https://pandemia.cesindo.top/api/system/v1/info](https://pandemia.cesindo.top/api/system/v1/info).
+
+Bagi pengguna Postman bisa download postman file definisi-nya: [pandemia-api.postman](https://pandemia.cesindo.top/downloads/pandemia-api.postman).
 
 ### Kebutuhan
 
@@ -281,8 +284,7 @@ Terimakasih kepada para kontributor yang telah membantu proyek ini:
 * Samsul
 * Rifai
 * Muiz
-* Yudi
-* Cahyo
 
+Kami masih menerima donasi berupa server dan tenaga data, apabila ada yang bersedia menjadi kontributor/relawan kirim email ke proyekpandemia@gmail.com
 
 

@@ -119,6 +119,7 @@ pub fn loc_to_ll(query: &str, conn: &PgConnection) -> Result<LatLong> {
     }
 
     // tidak ada di cache, ambil dari source luar
+    let query = normalize_query(query.to_lowercase());
 
     let mut resp = reqwest::get(&format!(
         "https://geocoder.ls.hereapi.com/6.2/geocode.json?apiKey={}&searchtext={}",
@@ -133,7 +134,7 @@ pub fn loc_to_ll(query: &str, conn: &PgConnection) -> Result<LatLong> {
     {
         if let Err(e) = diesel::insert_into(geoloc_cache::table)
             .values(&NewGeolocCache {
-                name: query,
+                name: &query,
                 latitude: latlong.latitude,
                 longitude: latlong.longitude,
             })
@@ -144,4 +145,24 @@ pub fn loc_to_ll(query: &str, conn: &PgConnection) -> Result<LatLong> {
     }
 
     Ok(latlong)
+}
+
+fn normalize_query<T: AsRef<str>>(query: T) -> String {
+    query
+        .as_ref()
+        .replace("kabupaten", "")
+        .replace("provinsi", "")
+        .trim()
+        .to_string()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_normalize_query() {
+        assert_eq!(normalize_query("kabupaten wonosobo"), "wonosobo");
+        assert_eq!(normalize_query("provinsi kalimantan utara"), "kalimantan utara");
+    }
 }
