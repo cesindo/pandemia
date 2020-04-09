@@ -103,19 +103,69 @@ Delete record by id
 
 ### Get Info Location [GET /pandemia/v1/info_location]
 
-Get location info (single mode)
+Get location stats data (single mode).
+
++ Parameters
+
+    + loc: "Yogyakarta"
+    + with_history: false (boolean, optional) - whether to return historical data or not.
 
 + Response 200 (application/json)
 
-        {}
+        {
+            "code": 0,
+            "status": "success",
+            "description": "",
+            "result": {
+                "id": 1,
+                "loc": "Yogyakarta",
+                "loc_kind": 4,
+                "total_cases": 10,
+                "total_deaths": 1,
+                "total_recovered": 5,
+                "active_cases": 10,
+                "critical_cases": 0,
+                "latest": true,
+                "meta": [],
+                "last_updated": "2020-04-07T18:47:30.376384625Z"
+            }
+        }
 
 ### Get Info Locations [GET /pandemia/v1/info_locations]
 
-Get location info (multiple mode)
+Get per location stats data, use comma for multiple locations.
+
++ Parameters
+
+    + loc: "Yogyakarta"
+    + with_history: false (boolean, optional) - whether to return historical data or not.
 
 + Response 200 (application/json)
 
-        {}
+        {
+            "code": 0,
+            "status": "success",
+            "description": "",
+            "result": [
+                {
+                    "name": "Yogyakarta",
+                    "latest_record": {
+                        "id": 1,
+                        "loc": "Yogyakarta",
+                        "loc_kind": 4,
+                        "total_cases": 10,
+                        "total_deaths": 1,
+                        "total_recovered": 5,
+                        "active_cases": 10,
+                        "critical_cases": 0,
+                        "latest": true,
+                        "meta": [],
+                        "last_updated": "2020-04-07T18:47:30.376384625Z"
+                    },
+                    "history": []
+                }
+            ]
+        }
 
 ### Latest Records [GET /pandemia/v1/latest_records]
 
@@ -127,7 +177,13 @@ Search for records
 
 ### Search Records [GET /pandemia/v1/search_records]
 
-Search for records
+Get latest data record search/query by location.
+
++ Parameters
+
+    + query: "Yogyakarta"
+    + offset: 0 (number)
+    + limit: 10 (number)
 
 + Response 200 (application/json)
 

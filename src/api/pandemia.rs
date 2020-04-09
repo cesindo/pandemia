@@ -102,7 +102,7 @@ impl PublicApi {
         Ok(ApiResult::success(record))
     }
 
-    /// Get location info (single mode)
+    /// Get location stats data (single mode).
     #[api_endpoint(path = "/info_location", auth = "none")]
     pub fn get_info_location(query: LocationQuery) -> ApiResult<Option<models::Record>> {
         let conn = state.db();
@@ -117,7 +117,7 @@ impl PublicApi {
         }
     }
 
-    /// Get location info (multiple mode)
+    /// Get per location stats data, use comma for multiple locations.
     #[api_endpoint(path = "/info_locations", auth = "none")]
     pub fn get_info_locations(query: LocationQuery) -> ApiResult<Vec<InfoLocation>> {
         let conn = state.db();
@@ -146,7 +146,7 @@ impl PublicApi {
         Ok(ApiResult::success(result))
     }
 
-    /// Search for records
+    /// Get latest data record search/query by location.
     #[api_endpoint(path = "/search_records", auth = "required", accessor = "admin")]
     pub fn search_records(query: QueryEntries) -> ApiResult<EntriesResult<Record>> {
         let conn = state.db();
