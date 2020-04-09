@@ -44,6 +44,10 @@ Tangkapan Layar
 ![Pandemia Control Center Login](/img/pandemia-cc.png)
 ![Pandemia Control Center](/img/pandemia-cc-records.png)
 
+## Info Pengguna
+
+Anda bisa mengunduh aplikasi Pandemia terbaru dari halaman [rilis](https://github.com/cesindo/pandemia/releases), halaman tersebut akan selalu diperbaharui apabila ada rilis terbaru.
+
 ## Info Pengembang
 
 Pandemia adalah proyek sumber terbuka (_open source_), bagi para pengembang (_programmer_) yang ingin ikut membantu silahkan _fork_ kode sumber Pandemia di [https://github.com/cesindo/pandemia](https://github.com/cesindo/pandemia).
