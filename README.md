@@ -26,7 +26,8 @@ _control center_ berbasis web, sementara masyarakat memonitor secara _real-time_
 4. [x] Data Fakta dan Hoax berkaitan dengan pandemi.
 5. [x] Peta Pandemi.
 6. [ ] Push notif berupa peringatan ketika memasuki daerah dengan riwayat korban positif.
-7. [ ] Peta Keluhan, menandai diri kita sedang mengalami keluhan kesehatan secara anonim, sehingga membantu proses tracing.
+7. [x] Peta Keluhan, menandai diri kita sedang mengalami keluhan kesehatan secara anonim.
+8. [ ] Peta data fasilitas kesehatan.
 
 Tangkapan Layar
 -----------------
@@ -282,6 +283,7 @@ Kontributor
 Terimakasih kepada para kontributor yang telah membantu proyek ini:
 
 * Delameta (donasi server)
+* Detax.org (data hoax/fakta)
 * Robin - @anvie
 * Cak Nasrul - @luffynas
 * Fatkhurohman
