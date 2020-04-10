@@ -27,19 +27,8 @@ pub struct SearchArea {
     pub longitude: f64,
     pub latitude: f64,
     pub query: Option<String>,
-    // #[validate(range(min = 0, max = 1_000_000))]
-    // pub offset: Option<i64>,
-    // #[validate(range(min = 1, max = 100))]
-    // pub limit: Option<i64>,
+    pub with_major_data: Option<bool>,
 }
-
-// #[derive(Queryable, Serialize, Deserialize, Clone)]
-// struct UData {
-//     pub id: i64,
-//     pub full_name: String,
-//     pub s_key: String,
-//     pub s_value: String,
-// }
 
 /// Holder untuk implementasi API endpoint publik untuk MapArea.
 pub struct PublicApi;
@@ -106,17 +95,12 @@ impl PublicApi {
         }
 
         // get from map-markers
-        {
+        if query.with_major_data.unwrap_or(true) {
             let dao = MapMarkerDao::new(&conn);
             // @TODO(Robin): buat hanya scoped query saja, tidak semuanya
             match dao.get_map_markers(0, 1000) {
                 Ok(mms) => {
                     for mm in mms {
-                        // let detail = PandemicInfoDetail {
-                        //     total_cases: mm.meta.iter(),
-                        //     total_deaths: mm.total_deaths,
-                        //     total_cases: mm.total_cases,
-                        // };
                         let total_cases: i32 = mm.get_meta_value_i32("pandemic.total_cases");
                         let total_deaths: i32 = mm.get_meta_value_i32("pandemic.total_deaths");
                         let total_recovered: i32 = mm.get_meta_value_i32("pandemic.total_recovered");
