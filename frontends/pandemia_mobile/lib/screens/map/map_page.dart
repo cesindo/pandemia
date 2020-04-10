@@ -229,14 +229,14 @@ class _MapPageState extends State<MapPage> {
 
   Widget _buildDetailInfo(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    final double itemHeight = (size.height - kToolbarHeight - 24) / 3.5;
-    final double itemWidth = size.width / 1;
+    // final double itemHeight = (size.height - kToolbarHeight - 24) / 3.5;
+    // final double itemWidth = size.width / 1;
 
     return GridView.count(
       shrinkWrap: true,
       primary: false,
       crossAxisCount: 3,
-      childAspectRatio: (itemWidth / itemHeight),
+      childAspectRatio: size.height / 400,
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 1.0),
