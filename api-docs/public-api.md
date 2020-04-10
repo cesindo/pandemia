@@ -51,15 +51,13 @@ Mendapatkan daftar feed terbaru.
 
 ### Search Map Markers [GET /map_area/v1/search]
 
-Mencari data pada radius 5km pada suatu wilayah menggunakan titik longlat.
+Mencari data pada radius 10km pada suatu wilayah menggunakan titik longlat.
 
 + Parameters
 
     + longitude: 110.408333 (number)
     + latitude: -7.840243 (number)
     + query: "Banguntapan"
-    + offset: 0 (number)
-    + limit: 10 (number)
 
 + Response 200 (application/json)
 
@@ -200,14 +198,6 @@ Update complaint.
 ### Update Records [POST /pandemia/v1/update_records]
 
 Update multiple records at once.
-
-+ Response 200 (application/json)
-
-        {}
-
-### Update Settings [POST /pandemia/v1/update_settings]
-
-Update user settings.
 
 + Response 200 (application/json)
 

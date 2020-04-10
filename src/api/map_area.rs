@@ -27,7 +27,6 @@ pub struct SearchArea {
     pub longitude: f64,
     pub latitude: f64,
     pub query: Option<String>,
-    pub with_major_data: Option<bool>,
 }
 
 /// Holder untuk implementasi API endpoint publik untuk MapArea.
@@ -47,7 +46,8 @@ impl PublicApi {
         let sql_text = format!(
             r#"u.id, u.full_name, s.s_key, s.s_value, uc.latest_loc_long, uc.latest_loc_lat FROM users as u INNER JOIN user_connect AS uc ON u.id=uc.user_id 
             INNER JOIN user_settings AS s ON s.user_id=uc.user_id
-            WHERE s.s_key='complaint_map' AND s.s_value='true' AND earth_box( ll_to_earth({}, {}), 1000 ) @> ll_to_earth(uc.latest_loc_lat, uc.latest_loc_long);"#,
+            WHERE s.s_key='complaint_map' AND s.s_value='true' AND 
+            earth_box( ll_to_earth({}, {}), 10000/1.609 ) @> ll_to_earth(uc.latest_loc_lat, uc.latest_loc_long);"#,
             query.latitude, query.longitude
         );
 
@@ -95,10 +95,17 @@ impl PublicApi {
         }
 
         // get from map-markers
-        if query.with_major_data.unwrap_or(true) {
-            let dao = MapMarkerDao::new(&conn);
-            // @TODO(Robin): buat hanya scoped query saja, tidak semuanya
-            match dao.get_map_markers(0, 1000) {
+        {
+            use crate::schema::map_markers::{self, dsl};
+            let pandemic_data: Result<Vec<models::MapMarker>> = map_markers::table
+                .filter(sql(&format!(
+                    "earth_box(ll_to_earth({}, {}), 10000/1.609) @> ll_to_earth(latitude, longitude);",
+                    query.latitude, query.longitude
+                )))
+                .load(&conn)
+                .map_err(Error::from);
+
+            match pandemic_data {
                 Ok(mms) => {
                     for mm in mms {
                         let total_cases: i32 = mm.get_meta_value_i32("pandemic.total_cases");
