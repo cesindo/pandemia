@@ -51,13 +51,13 @@ Mendapatkan daftar feed terbaru.
 
 ### Search Map Markers [GET /map_area/v1/search]
 
-Mencari data pada radius 10km pada suatu wilayah menggunakan titik longlat.
+Mencari data pada radius 5km pada suatu wilayah menggunakan titik longlat.
 
 + Parameters
 
     + longitude: 110.408333 (number)
     + latitude: -7.840243 (number)
-    + query: "Banguntapan"
+    + query: (optional) "Banguntapan"
 
 + Response 200 (application/json)
 
