@@ -12,3 +12,4 @@ endpoints:
   - /user/v1/update_password
   - /user/v1/update_setting
   - /user/v1/update
+  - /pandemia/v1/update_settings
