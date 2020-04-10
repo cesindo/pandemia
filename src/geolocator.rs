@@ -150,6 +150,8 @@ pub fn loc_to_ll(query: &str, conn: &PgConnection) -> Result<LatLong> {
 fn normalize_query<T: AsRef<str>>(query: T) -> String {
     query
         .as_ref()
+        .replace("kab.", "")
+        .replace("kota", "")
         .replace("kabupaten", "")
         .replace("provinsi", "")
         .trim()
