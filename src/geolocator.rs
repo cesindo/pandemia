@@ -60,13 +60,6 @@ struct View {
     pub result: Vec<MapResult>,
 }
 
-// #[derive(Deserialize)]
-// struct ViewInner(ViewInnerResult);
-
-// #[doc(hidden)]
-// #[derive(Deserialize)]
-// struct View(ViewInnerResult);
-
 #[doc(hidden)]
 #[derive(Deserialize)]
 struct GeocoderResponse {
