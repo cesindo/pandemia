@@ -81,8 +81,7 @@ class _MapPageState extends State<MapPage> {
       TextStyle(fontWeight: FontWeight.bold, fontSize: 20);
   PinIcons pinIcons;
 
-  _MapPageState(this.mapBloc) {
-  }
+  _MapPageState(this.mapBloc) {}
 
   @override
   void initState() {
@@ -229,14 +228,14 @@ class _MapPageState extends State<MapPage> {
 
   Widget _buildDetailInfo(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    final double itemHeight = (size.height - kToolbarHeight - 24) / 3.5;
-    final double itemWidth = size.width / 1;
+    // final double itemHeight = (size.height - kToolbarHeight - 24) / 3.5;
+    // final double itemWidth = size.width / 1;
 
     return GridView.count(
       shrinkWrap: true,
       primary: false,
       crossAxisCount: 3,
-      childAspectRatio: (itemWidth / itemHeight),
+      childAspectRatio: size.height / 400,
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 1.0),
@@ -244,12 +243,14 @@ class _MapPageState extends State<MapPage> {
             Text(numfa.format(curSel.detail.totalCases),
                 style: TextStyle(fontSize: 26, color: Colors.red)),
             SizedBox(height: 5),
-            Text(
-              "Positif",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w300,
+            Expanded(
+              child: Text(
+                "Positif",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w300,
+                ),
               ),
             ),
           ]),
@@ -260,12 +261,14 @@ class _MapPageState extends State<MapPage> {
             Text(numfa.format(curSel.detail.totalRecovered),
                 style: TextStyle(fontSize: 26, color: Colors.green)),
             SizedBox(height: 5),
-            Text(
-              "Sembuh",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w300,
+            Expanded(
+              child: Text(
+                "Sembuh",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w300,
+                ),
               ),
             ),
           ]),
@@ -276,12 +279,14 @@ class _MapPageState extends State<MapPage> {
             Text(numfa.format(curSel.detail.totalDeaths),
                 style: TextStyle(fontSize: 26, color: Colors.grey)),
             SizedBox(height: 5),
-            Text(
-              "Meninggal",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w300,
+            Expanded(
+              child: Text(
+                "Meninggal",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w300,
+                ),
               ),
             ),
           ]),
