@@ -10,4 +10,7 @@ class MapMarkerKind {
   // Sick
   static const int sick = 2;
 
+  // Fasilitas kesehatan (Faskes) bertipe Rumah Sakit
+  static const int hospital = 3;
+
 }

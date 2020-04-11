@@ -49,10 +49,6 @@ struct MapResult {
     pub location: Location,
 }
 
-// #[doc(hidden)]
-// #[derive(Deserialize)]
-// struct ViewInnerResult2(MapResult);
-
 #[doc(hidden)]
 #[derive(Deserialize)]
 struct View {

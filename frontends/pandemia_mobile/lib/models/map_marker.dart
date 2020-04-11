@@ -3,6 +3,7 @@
 // use 'ansvia-vscode extension > Edit Model fields' instead.
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
+import 'package:pandemia_mobile/models/occupation_info_detail.dart';
 import 'package:pandemia_mobile/models/pandemic_info_detail.dart';
 
 /// Model for MapMarker
@@ -14,11 +15,21 @@ class MapMarker extends Equatable {
   final int kind;
   final String caption;
   final String desc;
-  final PandemicInfoDetail detail; // Nullable
+  final PandemicInfoDetail pandemicDetail; // Nullable
+  final OccupationInfoDetail occupationDetail; // Nullable
 
   MapMarker(this.id, this.longitude, this.latitude, this.kind, this.caption,
-      this.desc, this.detail)
-      : super([id, longitude, latitude, kind, caption, desc, detail]);
+      this.desc, this.pandemicDetail, this.occupationDetail)
+      : super([
+          id,
+          longitude,
+          latitude,
+          kind,
+          caption,
+          desc,
+          pandemicDetail,
+          occupationDetail
+        ]);
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> data = Map();
@@ -28,7 +39,10 @@ class MapMarker extends Equatable {
     data["kind"] = this.kind;
     data["caption"] = this.caption;
     data["desc"] = this.desc;
-    data["detail"] = this.detail != null ? this.detail.toMap() : null;
+    data["pandemic_detail"] =
+        this.pandemicDetail != null ? this.pandemicDetail.toMap() : null;
+    data["occupation_detail"] =
+        this.occupationDetail != null ? this.occupationDetail.toMap() : null;
     return data;
   }
 
@@ -45,8 +59,11 @@ class MapMarker extends Equatable {
         data['kind'] as int,
         data['caption'] as String,
         data['desc'] as String,
-        data['detail'] != null
-            ? PandemicInfoDetail.fromMap(data['detail'])
+        data['pandemic_detail'] != null
+            ? PandemicInfoDetail.fromMap(data['pandemic_detail'])
+            : null,
+        data['occupation_detail'] != null
+            ? OccupationInfoDetail.fromMap(data['occupation_detail'])
             : null);
   }
 
@@ -56,7 +73,8 @@ class MapMarker extends Equatable {
       int kind,
       String caption,
       String desc,
-      PandemicInfoDetail detail}) {
+      PandemicInfoDetail pandemicDetail,
+      OccupationInfoDetail occupationDetail}) {
     return MapMarker(
         this.id,
         longitude ?? this.longitude,
@@ -64,6 +82,7 @@ class MapMarker extends Equatable {
         kind ?? this.kind,
         caption ?? this.caption,
         desc ?? this.desc,
-        detail ?? this.detail);
+        pandemicDetail ?? this.pandemicDetail,
+        occupationDetail ?? this.occupationDetail);
   }
 }

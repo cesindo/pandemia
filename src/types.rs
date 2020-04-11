@@ -137,6 +137,9 @@ pub enum MapMarkerKind {
 
     /// Sick
     Sick = 2,
+
+    /// Fasilitas kesehatan (Faskes) bertipe Rumah Sakit
+    Hospital = 3,
 }
 
 impl From<i16> for MapMarkerKind {
@@ -145,6 +148,7 @@ impl From<i16> for MapMarkerKind {
         match i {
             1 => PandemicInfo,
             2 => Sick,
+            3 => Hospital,
             _ => Unknown,
         }
     }

@@ -319,7 +319,7 @@ pub struct MapMarker {
 }
 
 impl MapMarker {
-    /// Get meta value
+    /// Get i32 type meta value.
     pub fn get_meta_value_i32(&self, key: &str) -> i32 {
         self.meta
             .iter()
@@ -327,5 +327,14 @@ impl MapMarker {
             .and_then(|a| a.splitn(2, ':').last())
             .and_then(|a| a.parse::<i32>().ok())
             .unwrap_or(0)
+    }
+
+    /// Get string type meta value.
+    pub fn get_meta_value_str(&self, key: &str) -> &str {
+        self.meta
+            .iter()
+            .find(|a| a.starts_with(&format!("{}:", key)))
+            .and_then(|a| a.splitn(2, ':').last())
+            .unwrap_or("")
     }
 }

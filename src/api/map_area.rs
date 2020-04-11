@@ -90,16 +90,19 @@ impl PublicApi {
                 kind: MapMarkerKind::Sick.into(),
                 caption: "Keluhan".to_string(),
                 desc: complaints.join(", "),
-                detail: None,
+                pandemic_detail: None,
+                occupation_detail: None,
             });
         }
 
         // get from map-markers
         {
             use crate::schema::map_markers::{self, dsl};
+            // cari data daerah terdekat kecuali fasilitas kesehatan
             let pandemic_data: Result<Vec<models::MapMarker>> = map_markers::table
                 .filter(sql(&format!(
-                    "earth_box(ll_to_earth({}, {}), 10000/1.609) @> ll_to_earth(latitude, longitude);",
+                    "earth_box(ll_to_earth({}, {}), 10000/1.609) @> ll_to_earth(latitude, longitude) OR (kind=3 AND earth_box(ll_to_earth({}, {}), 100000/1.609) @> ll_to_earth(latitude, longitude))",
+                    query.latitude, query.longitude,
                     query.latitude, query.longitude
                 )))
                 .load(&conn)
@@ -108,9 +111,36 @@ impl PublicApi {
             match pandemic_data {
                 Ok(mms) => {
                     for mm in mms {
-                        let total_cases: i32 = mm.get_meta_value_i32("pandemic.total_cases");
-                        let total_deaths: i32 = mm.get_meta_value_i32("pandemic.total_deaths");
-                        let total_recovered: i32 = mm.get_meta_value_i32("pandemic.total_recovered");
+                        let kind: MapMarkerKind = mm.kind.into();
+                        let mut pandemic_detail = None;
+                        let mut occupation_detail = None;
+                        match kind {
+                            MapMarkerKind::PandemicInfo => {
+                                let total_cases: i32 = mm.get_meta_value_i32("pandemic.total_cases");
+                                let total_deaths: i32 = mm.get_meta_value_i32("pandemic.total_deaths");
+                                let total_recovered: i32 = mm.get_meta_value_i32("pandemic.total_recovered");
+
+                                pandemic_detail = Some(PandemicInfoDetail {
+                                    total_cases,
+                                    total_deaths,
+                                    total_recovered,
+                                });
+                            }
+                            MapMarkerKind::Hospital => {
+                                let used_total = mm.get_meta_value_i32("cekdiri.used_ttl");
+                                let vac_total = mm.get_meta_value_i32("cekdiri.vac_ttl");
+                                let waiting = mm.get_meta_value_i32("cekdiri.waiting");
+                                let last_updated = mm.get_meta_value_str("cekdiri.last_updated");
+                                occupation_detail = Some(OccupationInfoDetail {
+                                    used_total,
+                                    vac_total,
+                                    waiting,
+                                    last_updated: last_updated.to_owned(),
+                                });
+                            }
+                            MapMarkerKind::Sick => {}
+                            MapMarkerKind::Unknown => {}
+                        }
 
                         map_markers.push(MapMarker {
                             longitude: mm.longitude,
@@ -118,11 +148,8 @@ impl PublicApi {
                             kind: mm.kind.into(),
                             caption: mm.name.to_owned(),
                             desc: mm.info.to_owned(),
-                            detail: Some(PandemicInfoDetail {
-                                total_cases,
-                                total_deaths,
-                                total_recovered,
-                            }),
+                            pandemic_detail,
+                            occupation_detail,
                         });
                     }
                 }
