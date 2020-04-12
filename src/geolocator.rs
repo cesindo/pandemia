@@ -7,6 +7,8 @@ use serde_json;
 
 use crate::{result::Result, schema::geoloc_cache, sqlutil::lower, ID};
 
+use std::env;
+
 /// Latitude longitude representation struct
 #[derive(Deserialize, Copy, Clone)]
 pub struct LatLong {
@@ -112,7 +114,7 @@ pub fn loc_to_ll(query: &str, conn: &PgConnection) -> Result<LatLong> {
 
     let mut resp = reqwest::get(&format!(
         "https://geocoder.ls.hereapi.com/6.2/geocode.json?apiKey={}&searchtext={}",
-        env!("GEOLOCATOR_API_KEY"),
+        env::var("GEOLOCATOR_API_KEY").expect("GEOLOCATOR_API_KEY env not set"),
         query
     ))?;
     let resp_text = resp.text()?;

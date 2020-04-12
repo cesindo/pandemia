@@ -9,7 +9,7 @@
         :disableHover="true"
         style="z-index: 1000;"
       >
-      <div slot="header"></div>
+        <div slot="header"></div>
       </sidebar-menu>
     </div>
 
@@ -27,6 +27,8 @@
       <Records v-if="currentPage['/dashboard/records']" />
 
       <UserDetail v-if="$route.path.startsWith('/dashboard/users/')" :userId="$route.params.id" />
+
+      <Logs v-if="currentPage['/dashboard/journal']" />
     </div>
 
     <notifications group="default" position="top center" classes="vue-notification" />
@@ -39,6 +41,7 @@
 import UserDetail from "@/components/UserDetail.vue";
 import Records from "@/views/Records.vue";
 import Users from "@/views/Users.vue";
+import Logs from "@/views/Logs.vue";
 
 export default {
   name: "Dashboard",
@@ -46,7 +49,8 @@ export default {
     // AnsTable,
     UserDetail,
     Records,
-    Users
+    Users,
+    Logs
   },
   data() {
     return {
@@ -89,7 +93,7 @@ export default {
         {
           title: "Log/Journal",
           icon: "fa fa-book",
-          href: "/dashboard/log"
+          href: "/dashboard/journal"
         },
         {
           title: "Logout",
@@ -99,10 +103,10 @@ export default {
     };
   },
   computed: {
-    menu: function(){
-      if (this.currentUserId != 1){
+    menu: function() {
+      if (this.currentUserId != 1) {
         return this.menu_items.filter(a => !a.adminOnly);
-      }else{
+      } else {
         return this.menu_items;
       }
     }
@@ -191,10 +195,12 @@ export default {
         icon: "fa fa-sign-out-alt"
       });
 
-      this.menu = [        {
-        title: "Logout",
-        icon: "fa fa-sign-out-alt"
-      }];
+      this.menu = [
+        {
+          title: "Logout",
+          icon: "fa fa-sign-out-alt"
+        }
+      ];
     }
   }
 };

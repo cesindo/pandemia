@@ -338,3 +338,13 @@ impl MapMarker {
             .unwrap_or("")
     }
 }
+
+#[doc(hidden)]
+#[derive(Queryable, Serialize)]
+pub struct Log {
+    pub id: ID,
+    pub activity: String,
+    pub initiator_id: ID,
+    pub meta: Vec<String>,
+    pub ts: NaiveDateTime,
+}

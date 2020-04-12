@@ -16,7 +16,7 @@ use crate::{
         ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest,
     },
     auth,
-    dao::RecordDao,
+    dao::{Logs, RecordDao},
     error::{self, ErrorCode},
     eventstream::{self, Event::NewRecordUpdate},
     models,
@@ -99,6 +99,14 @@ impl PublicApi {
 
         eventstream::emit(NewRecordUpdate(None, record.clone()));
 
+        Logs::new(&conn).write(
+            &format!(
+                "{} add new record for {}. total_cases: {}, total_deaths: {}, total_recovered: {}",
+                current_admin.name, query.loc, query.total_cases, query.total_deaths, query.total_recovered
+            ),
+            current_admin.id,
+        );
+
         Ok(ApiResult::success(record))
     }
 
@@ -168,6 +176,12 @@ impl PublicApi {
 
         let conn = state.db();
 
+        let locs = query
+            .records
+            .iter()
+            .map(|a| a.loc.to_owned())
+            .collect::<Vec<String>>();
+
         conn.build_transaction()
             .read_write()
             .run::<_, error::Error, _>(|| {
@@ -206,6 +220,16 @@ impl PublicApi {
                 Ok(())
             })?;
 
+        Logs::new(&conn).write(
+            &format!(
+                "{} update record for {} records: {}",
+                current_admin.name,
+                locs.len(),
+                locs.join(", ")
+            ),
+            current_admin.id,
+        );
+
         Ok(ApiResult::success(()))
     }
 
@@ -216,7 +240,27 @@ impl PublicApi {
         let dao = RecordDao::new(&conn);
         let rec = dao.get_by_id(query.id)?;
         dao.delete_by_id(rec.id)?;
+
+        Logs::new(&conn).write(
+            &format!("{} delete record for {}", current_admin.name, rec.loc),
+            current_admin.id,
+        );
+
         Ok(ApiResult::success(()))
+    }
+
+    /// Search for journal_logs
+    #[api_endpoint(path = "/journal/search", auth = "required", accessor = "admin")]
+    pub fn search_journal_logs(query: QueryEntries) -> ApiResult<EntriesResult<models::Log>> {
+        let conn = state.db();
+        let dao = Logs::new(&conn);
+
+        let rv = dao.search(&query.query.unwrap_or("".to_string()), query.offset, query.limit)?;
+
+        Ok(ApiResult::success(EntriesResult {
+            count: rv.count,
+            entries: rv.entries,
+        }))
     }
 }
 

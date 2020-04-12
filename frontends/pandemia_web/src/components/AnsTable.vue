@@ -21,7 +21,7 @@
                   <div v-if="b_idx.endsWith('_func')" v-html="td(td)"></div>
                   <div v-if="!b_idx.endsWith('_raw') && !b_idx.endsWith('_func')">{{td}}</div>
                 </td>
-                <td>
+                <td v-if="withActionButton">
                   <button v-on:click="showDetail(item)">detail</button>
                 </td>
               </slot>
