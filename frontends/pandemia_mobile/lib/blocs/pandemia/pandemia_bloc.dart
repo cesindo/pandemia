@@ -10,7 +10,6 @@ import 'package:pandemia_mobile/blocs/pandemia/pandemia_event.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_state.dart';
 import 'package:pandemia_mobile/blocs/settings/settings_util.dart';
 import 'package:pandemia_mobile/core/smart_repo.dart';
-import 'package:pandemia_mobile/models/user_settings.dart';
 import 'package:pandemia_mobile/notification_util.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
 import 'package:pandemia_mobile/util/address_util.dart';
@@ -72,7 +71,7 @@ class PandemiaBloc extends Bloc<PandemiaEvent, PandemiaState> {
         print("[LOC] Changing location...");
         PublicApi.post("/user/v1/me/update_loc", {
           'device_id': deviceId,
-          'loc_name': geoLocName.city,
+          'loc_name': geoLocName,
           'loc_name_full': geoLocName.toString()
         }).whenComplete(() {
           print("[LOC] Location changed");

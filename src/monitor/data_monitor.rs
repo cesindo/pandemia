@@ -57,7 +57,7 @@ struct ResultItem {
     pub total_recovered: i32,
 }
 
-/// Untuk serialize json object dari server
+/// Untuk serialize json object dari server kawalcorona.com
 #[derive(Debug, Serialize, Deserialize)]
 struct ResultObject {
     /// Field attributes
@@ -134,7 +134,7 @@ impl DataMonitor {
                         item.total_recovered,
                         item.active_cases,
                         0,
-                        &vec![],
+                        &vec!["loc_scope:indonesia"],
                         false,
                     )?;
 
@@ -159,7 +159,7 @@ impl DataMonitor {
                     item.total_recovered,
                     item.active_cases,
                     0,
-                    &vec![],
+                    &vec!["loc_scope:indonesia"],
                     false,
                 )?;
             }
@@ -216,7 +216,7 @@ impl DataMonitor {
                             recovered,
                             active_cases,
                             0,
-                            &vec![],
+                            &vec!["loc_scope:indonesia"],
                             false,
                         )?;
                         debug!("new record from Prov. {} saved.", name);
@@ -243,7 +243,7 @@ impl DataMonitor {
                         recovered,
                         active_cases,
                         0,
-                        &vec![],
+                        &vec!["loc_scope:indonesia"],
                         false,
                     )?;
                 }
@@ -341,7 +341,7 @@ impl DataMonitor {
                             recovered,
                             0,
                             0,
-                            &vec![],
+                            &vec!["loc_scope:indonesia"],
                             false,
                         )?;
 
@@ -369,7 +369,7 @@ impl DataMonitor {
                         recovered,
                         0,
                         0,
-                        &vec![],
+                        &vec!["loc_scope:indonesia"],
                         false,
                     )?;
                 }

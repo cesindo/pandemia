@@ -14,7 +14,7 @@
           <form class="ui form" method="POST" @submit="doLogin($event)">
             <div class="field">
               <label>Email:</label>
-              <input type="text" name="email" placeholder="User Name" ref="inputEmail" />
+              <input type="text" name="email" placeholder="Email" ref="inputEmail" />
             </div>
             <div class="field">
               <label>Password:</label>

@@ -27,6 +27,9 @@ api-docs: prepare api-docs/public-api.md
 	@@echo generated: $(PUBLIC_API_DOC_OUTPUT)
 	@@echo generated: $(PRIVATE_API_DOC_OUTPUT)
 
+clean-api-docs:
+	rm -f api-docs/*.txt
+
 fmt:
 	cd testkit && cargo fmt
 	cd macros/pandemia_proc_macro && cargo fmt
@@ -73,6 +76,11 @@ release-linux:
 					anvie/rust-musl-build:latest \
 					cargo build --release --target=x86_64-unknown-linux-musl
 
+build-web-frontend:
+	@@echo Building web frontend...
+	cd frontends/pandemia_web && yarn run build
+	@@echo Web frontend built.
+
 test-env:
 	diesel database reset --database-url $(DATABASE_TEST_URL)
 	diesel migration run --database-url $(DATABASE_TEST_URL)
@@ -87,7 +95,9 @@ reset-db:
 .PHONY: prepare docs lib-docs api-docs fmt \
 		test test-dev lint audit commit \
 		release test-env test-env-redo release-linux \
+		build-web-frontend \
 		reset-db \
-		version
+		version \
+		clean-api-docs
 
 

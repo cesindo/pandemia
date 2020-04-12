@@ -1,0 +1,28 @@
+- hosts: "{{server}}"
+  remote_user: "{{remote_user}}"
+  gather_facts: no
+  tasks:
+    - name: Upload dist package
+      synchronize:
+        src: "{{project_dir}}/frontends/pandemia_web/dist/"
+        dest: "{{dest_server_path}}/pandemia_cc"
+        checksum: yes
+        recursive: yes
+        delete: yes
+    - name: set owner
+      file:
+        path: "{{dest_server_path}}/pandemia_cc"
+        state: directory
+        recurse: yes
+        owner: www-data
+        group: www-data
+    - name: Create service
+      template:
+        src: pandemia_cc.service.j2
+        dest: "/etc/systemd/system/pandemia_cc.service"
+    - name: Make sure service running
+      systemd:
+        state: restarted
+        name: pandemia_cc
+        daemon_reload: yes
+

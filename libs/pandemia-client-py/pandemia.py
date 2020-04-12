@@ -21,7 +21,7 @@ def api_url(path, scope=Scope.PUBLIC):
     elif scope == Scope.PRIVATE:
       return "%s/%s" % (PUBLIC_API_BASE_URL, path)
     else:
-      raise "Unknown scope:", scope
+      raise Exception("Unknown scope:", scope)
 
 def api_post(path, data, scope=Scope.PUBLIC):
     global HEADERS

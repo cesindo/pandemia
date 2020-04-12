@@ -159,3 +159,24 @@ macro_rules! impl_daos {
         );
     };
 }
+
+macro_rules! meta_value_i32 {
+    ($s:ident, $key:literal) => {
+        $s.meta
+            .iter()
+            .find(|a| a.starts_with(concat!($key, ":")))
+            .and_then(|a| a.splitn(2, ':').last())
+            .and_then(|a| a.parse::<i32>().ok())
+            .unwrap_or(0)
+    };
+}
+
+macro_rules! meta_value_str {
+    ($s:ident, $key:literal) => {
+        $s.meta
+            .iter()
+            .find(|a| a.starts_with(concat!($key, ":")))
+            .and_then(|a| a.splitn(2, ':').last())
+            .unwrap_or("")
+    };
+}

@@ -27,16 +27,3 @@ fn test_get_info() {
                 "build": env!("BUILD_INFO"), "git": env!("GIT_REV") })
     );
 }
-
-#[test]
-fn test_register_user() {
-    let testkit = create_testkit();
-    let h = testkit.helper();
-    let ah = testkit.api_helper();
-
-    let rv = ah.register_user("Akmal", "akmal@gmail.com", "+62857898122");
-    assert!(rv.code == ErrorCode::NoError as i32);
-    let token = rv.result.unwrap();
-    h.cleanup_registered_user(&token);
-    assert!(token.len() > 0);
-}

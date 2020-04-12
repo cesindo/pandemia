@@ -1,0 +1,15 @@
+groups:
+  - Admin
+  - Authorization
+  - User
+
+endpoints:
+  - /feed/v1/count
+  - /feed/v1/list
+  - /feed/v1/detail
+  - /feed/v1/search
+  - /user/v1/push_notif_settings
+  - /user/v1/update_password
+  - /user/v1/update_setting
+  - /user/v1/update
+  - /pandemia/v1/update_settings

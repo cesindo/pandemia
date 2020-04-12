@@ -54,17 +54,32 @@ impl<'a> AdminDao<'a> {
         name: &'a str,
         email: &'a str,
         phone_num: &'a str,
+        password: &'a str,
         labels: &'a Vec<String>,
     ) -> Result<Admin> {
-        diesel::insert_into(admins::table)
-            .values(&NewAdmin {
-                name,
-                email,
-                phone_num,
-                labels,
-            })
-            .get_result(self.db)
-            .map_err(From::from)
+        self.db.build_transaction().read_write().run::<_, _, _>(|| {
+            let admin: Admin = diesel::insert_into(admins::table)
+                .values(&NewAdmin {
+                    name,
+                    email,
+                    phone_num,
+                    labels,
+                })
+                .get_result(self.db)?;
+
+            // tambahkan password baru
+            let passhash = &crate::crypto::get_passhash(password);
+            diesel::insert_into(admin_passhash::table)
+                .values(&NewAdminPasshash {
+                    admin_id: admin.id,
+                    passhash,
+                    deprecated: false,
+                    ver: 1,
+                })
+                .execute(self.db)?;
+
+            Ok(admin)
+        })
     }
 
     /// Mendapatkan admin berdasarkan emailnya.

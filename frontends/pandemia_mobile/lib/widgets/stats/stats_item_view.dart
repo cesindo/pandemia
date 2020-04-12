@@ -65,7 +65,7 @@ class StatsItemView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 5.0),
           child: Column(children: [
             Text(numfa.format(item.latestRecord.totalCases),
-                style: TextStyle(fontSize: 26, color: Colors.red)),
+                style: TextStyle(fontSize: 20, color: Colors.red)),
             SizedBox(height: 5),
             Text(
               "Positif",
@@ -81,7 +81,7 @@ class StatsItemView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 5.0),
           child: Column(children: [
             Text(numfa.format(item.latestRecord.totalRecovered),
-                style: TextStyle(fontSize: 26, color: Colors.green)),
+                style: TextStyle(fontSize: 20, color: Colors.green)),
             SizedBox(height: 5),
             Text(
               "Sembuh",
@@ -97,7 +97,7 @@ class StatsItemView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 5.0),
           child: Column(children: [
             Text(numfa.format(item.latestRecord.totalDeaths),
-                style: TextStyle(fontSize: 26, color: Colors.grey)),
+                style: TextStyle(fontSize: 20, color: Colors.grey)),
             SizedBox(height: 5),
             Text(
               "Meninggal",

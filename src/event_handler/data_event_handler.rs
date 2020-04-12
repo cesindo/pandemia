@@ -4,21 +4,80 @@ use diesel::prelude::*;
 
 use crate::{
     api::types,
-    dao::{FeedDao, NotifDao},
+    dao::{FeedDao, MapMarkerDao, NotifDao},
     event_handler::FCM,
     eventstream::{self, Event::*},
+    geolocator,
     models::{Record, User},
     // notif_sender::send_notif,
     push_notif_handler::{FCMHandler, FCMPayloadData},
     result::Result,
     token,
-    types::{FeedKind, NotifKind},
+    types::{FeedKind, MapMarkerKind, NotifKind},
     util,
     ID,
 };
 
 /// Event handler when new record updates found
 pub fn new_record_update(
+    old_record: &Option<Record>,
+    new_record: &Record,
+    conn: &PgConnection,
+) -> Result<()> {
+    if let Err(e) = update_feed_and_push_notif(old_record, new_record, conn) {
+        error!("Cannot update feed or process push notif. {}", e);
+    }
+
+    // update map marker
+    if let Err(e) = update_map_marker(old_record, new_record, conn) {
+        error!("Cannot update map marker. {}", e);
+    }
+
+    Ok(())
+}
+
+fn update_map_marker(old_record: &Option<Record>, new_record: &Record, conn: &PgConnection) -> Result<()> {
+    let dao = MapMarkerDao::new(conn);
+
+    let scope_meta = new_record
+        .meta
+        .iter()
+        .filter(|a| a.starts_with("loc_scope:"))
+        .map(|a| a.as_str())
+        .collect();
+
+    if let Ok(Some(marker)) = dao.get_by_name(&new_record.loc, scope_meta) {
+        // update
+        let mut meta = marker.meta.clone();
+        meta = meta
+            .into_iter()
+            .filter(|a| !a.starts_with("pandemic.total_"))
+            .collect();
+        meta.push(format!("pandemic.total_cases:{}", new_record.total_cases));
+        meta.push(format!("pandemic.total_deaths:{}", new_record.total_deaths));
+        meta.push(format!("pandemic.total_recovered:{}", new_record.total_recovered));
+        dao.update_meta(marker.id, meta)?;
+    } else {
+        let loc_scope = meta_value_str!(new_record, "loc_scope");
+        let latlong = geolocator::loc_to_ll(&format!("{} {}", new_record.loc, loc_scope), conn)?;
+        let mut meta = new_record.meta.clone();
+        meta.push(format!("pandemic.total_cases:{}", new_record.total_cases));
+        meta.push(format!("pandemic.total_deaths:{}", new_record.total_deaths));
+        meta.push(format!("pandemic.total_recovered:{}", new_record.total_recovered));
+        dao.create(
+            &new_record.loc,
+            &format!("Info pandemi untuk area {}", new_record.loc),
+            latlong.latitude,
+            latlong.longitude,
+            MapMarkerKind::PandemicInfo,
+            &meta.iter().map(|a| a.as_str()).collect(),
+        )?;
+    }
+
+    Ok(())
+}
+
+fn update_feed_and_push_notif(
     old_record: &Option<Record>,
     new_record: &Record,
     conn: &PgConnection,

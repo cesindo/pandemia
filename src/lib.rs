@@ -60,6 +60,8 @@ pub mod error;
 pub mod event_handler;
 pub mod eventstream;
 pub mod feed_dao;
+pub mod geolocator;
+pub mod map_marker_dao;
 pub mod models;
 pub mod monitor;
 pub mod notif_dao;

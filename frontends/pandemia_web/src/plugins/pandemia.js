@@ -74,7 +74,12 @@ export default class Pandemia {
         return api.publicApi.post("/auth/v1/admin/authorize", data)
           .then((resp) => {
             if (resp.data.code == 0) {
-              session().set("token", resp.data.result.token);
+              var access_token = resp.data.result.access_token,
+                user = resp.data.result.user;
+              session().set("token", access_token.token);
+              session().set("user_id", user.id);
+              session().set("user_name", user.name);
+              session().set("user_email", user.email);
               updateSession(resp.data.result.token);
               this.loadUserKey();
             }

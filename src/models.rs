@@ -294,3 +294,38 @@ impl User {
             .map_err(From::from)
     }
 }
+
+#[doc(hidden)]
+#[derive(Queryable, Serialize)]
+pub struct GeolocCache {
+    pub id: ID,
+    pub name: String,
+    pub latitude: f64,
+    pub longitude: f64,
+    pub ts: NaiveDateTime,
+}
+
+#[doc(hidden)]
+#[derive(Queryable, Serialize)]
+pub struct MapMarker {
+    pub id: ID,
+    pub name: String,
+    pub info: String,
+    pub latitude: f64,
+    pub longitude: f64,
+    pub kind: i16,
+    pub meta: Vec<String>,
+    pub ts: NaiveDateTime,
+}
+
+impl MapMarker {
+    /// Get meta value
+    pub fn get_meta_value_i32(&self, key: &str) -> i32 {
+        self.meta
+            .iter()
+            .find(|a| a.starts_with(&format!("{}:", key)))
+            .and_then(|a| a.splitn(2, ':').last())
+            .and_then(|a| a.parse::<i32>().ok())
+            .unwrap_or(0)
+    }
+}

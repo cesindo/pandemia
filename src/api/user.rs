@@ -91,7 +91,7 @@ pub mod types {
 //     pub enable_push_notif: Option<bool>,
 //     pub cough: Option<bool>,
 //     pub fever: Option<bool>,
-//     pub flu: Option<bool>,
+//     pub cold: Option<bool>,
 //     pub headache: Option<bool>,
 // }
 
@@ -247,6 +247,18 @@ impl PublicApi {
         let user_settings = current_user.get_settings(&conn)?;
 
         Ok(ApiResult::success(user_settings))
+    }
+
+    /// Listing user
+    #[api_endpoint(path = "/users", auth = "required", accessor = "admin")]
+    pub fn list_user(query: QueryEntries) -> ApiResult<EntriesResult<db::User>> {
+        let conn = state.db();
+        let dao = UserDao::new(&conn);
+
+        let entries = dao.get_users(query.offset, query.limit)?;
+
+        let count = dao.count()?;
+        Ok(ApiResult::success(EntriesResult { count, entries }))
     }
 }
 

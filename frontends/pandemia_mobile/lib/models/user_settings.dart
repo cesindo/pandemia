@@ -12,18 +12,18 @@ class UserSettings extends Equatable {
   final bool complaintMap;
   final bool hasCough;
   final bool hasFever;
-  final bool hasFlu;
+  final bool hasCold;
   final bool hasHeadache;
 
   UserSettings(this.id, this.enablePushNotif, this.complaintMap, this.hasCough,
-      this.hasFever, this.hasFlu, this.hasHeadache)
+      this.hasFever, this.hasCold, this.hasHeadache)
       : super([
           id,
           enablePushNotif,
           complaintMap,
           hasCough,
           hasFever,
-          hasFlu,
+          hasCold,
           hasHeadache
         ]);
 
@@ -34,7 +34,7 @@ class UserSettings extends Equatable {
     data["complaint_map"] = this.complaintMap;
     data["has_cough"] = this.hasCough;
     data["has_fever"] = this.hasFever;
-    data["has_flu"] = this.hasFlu;
+    data["has_cold"] = this.hasCold;
     data["has_headache"] = this.hasHeadache;
     return data;
   }
@@ -45,7 +45,7 @@ class UserSettings extends Equatable {
     assert(data['complaint_map'] != null, "UserSettings.complaint_map is null");
     assert(data['has_cough'] != null, "UserSettings.has_cough is null");
     assert(data['has_fever'] != null, "UserSettings.has_fever is null");
-    assert(data['has_flu'] != null, "UserSettings.has_flu is null");
+    assert(data['has_cold'] != null, "UserSettings.has_cold is null");
     assert(data['has_headache'] != null, "UserSettings.has_headache is null");
     return UserSettings(
         data['id'] as int,
@@ -53,7 +53,7 @@ class UserSettings extends Equatable {
         data['complaint_map'] as bool,
         data['has_cough'] as bool,
         data['has_fever'] as bool,
-        data['has_flu'] as bool,
+        data['has_cold'] as bool,
         data['has_headache'] as bool);
   }
 
@@ -62,7 +62,7 @@ class UserSettings extends Equatable {
       bool complaintMap,
       bool hasCough,
       bool hasFever,
-      bool hasFlu,
+      bool hasCold,
       bool hasHeadache}) {
     return UserSettings(
         this.id,
@@ -70,7 +70,7 @@ class UserSettings extends Equatable {
         complaintMap ?? this.complaintMap,
         hasCough ?? this.hasCough,
         hasFever ?? this.hasFever,
-        hasFlu ?? this.hasFlu,
+        hasCold ?? this.hasCold,
         hasHeadache ?? this.hasHeadache);
   }
 }

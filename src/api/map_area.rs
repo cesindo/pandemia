@@ -14,9 +14,11 @@ use crate::{
     api::types::*,
     api::{error::param_error, ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest},
     auth,
+    dao::MapMarkerDao,
     error::{Error, ErrorCode},
     models,
     prelude::*,
+    types::MapMarkerKind,
     ID,
 };
 
@@ -25,27 +27,15 @@ pub struct SearchArea {
     pub longitude: f64,
     pub latitude: f64,
     pub query: Option<String>,
-    #[validate(range(min = 0, max = 1_000_000))]
-    pub offset: i64,
-    #[validate(range(min = 1, max = 100))]
-    pub limit: i64,
 }
-
-// #[derive(Queryable, Serialize, Deserialize, Clone)]
-// struct UData {
-//     pub id: i64,
-//     pub full_name: String,
-//     pub s_key: String,
-//     pub s_value: String,
-// }
 
 /// Holder untuk implementasi API endpoint publik untuk MapArea.
 pub struct PublicApi;
 
 #[api_group("MapArea", "public", base = "/map_area/v1")]
 impl PublicApi {
-    /// Search for map_markers
-    #[api_endpoint(path = "/search", auth = "required")]
+    /// Mencari data pada radius 5km pada suatu wilayah menggunakan titik longlat.
+    #[api_endpoint(path = "/search", auth = "none")]
     pub fn search_map_markers(query: SearchArea) -> ApiResult<Vec<MapMarker>> {
         use crate::schema::user_settings::{self, dsl};
 
@@ -56,7 +46,8 @@ impl PublicApi {
         let sql_text = format!(
             r#"u.id, u.full_name, s.s_key, s.s_value, uc.latest_loc_long, uc.latest_loc_lat FROM users as u INNER JOIN user_connect AS uc ON u.id=uc.user_id 
             INNER JOIN user_settings AS s ON s.user_id=uc.user_id
-            WHERE s.s_key='complaint_map' AND s.s_value='true' AND earth_box( ll_to_earth({}, {}), 1000 ) @> ll_to_earth(uc.latest_loc_lat, uc.latest_loc_long);"#,
+            WHERE s.s_key='complaint_map' AND s.s_value='true' AND 
+            earth_box( ll_to_earth({}, {}), 10000/1.609 ) @> ll_to_earth(uc.latest_loc_lat, uc.latest_loc_long);"#,
             query.latitude, query.longitude
         );
 
@@ -68,13 +59,8 @@ impl PublicApi {
             sql_types::Double,
             sql_types::Double,
         )>(&sql_text))
-        // .bind::<sql_types::Double, _>(query.latitude)
-        // .bind::<sql_types::Double, _>(query.longitude)
         .load(&conn)
         .map_err(Error::from)?;
-
-        // let mut filterer: Box<dyn BoxableExpression<user_settings::table, _, SqlType = sql_types::Bool>> =
-        //     Box::new(dsl::id.ne(0));
 
         let mut map_markers = vec![];
 
@@ -91,7 +77,7 @@ impl PublicApi {
                     complaints.push("batuk");
                 } else if copl.s_key == "has_fever" && copl.s_value == "true" {
                     complaints.push("demam");
-                } else if copl.s_key == "has_flu" && copl.s_value == "true" {
+                } else if copl.s_key == "has_cold" && copl.s_value == "true" {
                     complaints.push("flu");
                 } else if copl.s_key == "has_headache" && copl.s_value == "true" {
                     complaints.push("pusing");
@@ -101,9 +87,47 @@ impl PublicApi {
             map_markers.push(MapMarker {
                 longitude: loc_long,
                 latitude: loc_lat,
-                kind: 1,
-                caption: complaints.join(", "),
+                kind: MapMarkerKind::Sick.into(),
+                caption: "Keluhan".to_string(),
+                desc: complaints.join(", "),
+                detail: None,
             });
+        }
+
+        // get from map-markers
+        {
+            use crate::schema::map_markers::{self, dsl};
+            let pandemic_data: Result<Vec<models::MapMarker>> = map_markers::table
+                .filter(sql(&format!(
+                    "earth_box(ll_to_earth({}, {}), 10000/1.609) @> ll_to_earth(latitude, longitude);",
+                    query.latitude, query.longitude
+                )))
+                .load(&conn)
+                .map_err(Error::from);
+
+            match pandemic_data {
+                Ok(mms) => {
+                    for mm in mms {
+                        let total_cases: i32 = mm.get_meta_value_i32("pandemic.total_cases");
+                        let total_deaths: i32 = mm.get_meta_value_i32("pandemic.total_deaths");
+                        let total_recovered: i32 = mm.get_meta_value_i32("pandemic.total_recovered");
+
+                        map_markers.push(MapMarker {
+                            longitude: mm.longitude,
+                            latitude: mm.latitude,
+                            kind: mm.kind.into(),
+                            caption: mm.name.to_owned(),
+                            desc: mm.info.to_owned(),
+                            detail: Some(PandemicInfoDetail {
+                                total_cases,
+                                total_deaths,
+                                total_recovered,
+                            }),
+                        });
+                    }
+                }
+                Err(e) => error!("Cannot get map markers. {}", e),
+            }
         }
 
         Ok(ApiResult::success(map_markers))

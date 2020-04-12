@@ -4,33 +4,25 @@
       <sidebar-menu
         :menu="menu"
         @collapse="onCollapse"
-        @itemClick="onItemClick"
+        @item-click="onItemClick"
         :collapsed="true"
+        :disableHover="true"
         style="z-index: 1000;"
-      />
+      >
+      <div slot="header"></div>
+      </sidebar-menu>
     </div>
 
     <div class="dashboard-inner" v-bind:style="customMargin">
       <h1>{{ pageTitle }}</h1>
 
-      <AnsTable
-        v-if="currentPage['/dashboard']"
-        data-source-url="/user/v1/users"
-        :columns="['ID', 'Name', 'Email']"
-        :searchable="true"
-        :withActionButton="true"
-        :mapItemFunc="userListAllMapper2"
-      ></AnsTable>
+      <div v-if="currentPage['/dashboard']">
+        <div class="ui placeholder segment center aligned">
+          <div class="ui header">Selamat datang di pusat kontrol Pandemia</div>
+        </div>
+      </div>
 
-      <AnsTable
-        v-if="currentPage['/dashboard/users']"
-        data-source-url="/user/v1/users"
-        :columns="['ID', 'Name', 'Email', 'Phone', 'Active', 'Register']"
-        :searchable="true"
-        :withActionButton="true"
-        :mapItemFunc="userListAllMapper"
-        :showDetailFunc="showDetail"
-      />
+      <Users v-if="currentPage['/dashboard/users'] && currentUserId == 1" />
 
       <Records v-if="currentPage['/dashboard/records']" />
 
@@ -43,16 +35,18 @@
 
 <script>
 // @ is an alias to /src
-import AnsTable from "@/components/AnsTable.vue";
+// import AnsTable from "@/components/AnsTable.vue";
 import UserDetail from "@/components/UserDetail.vue";
 import Records from "@/views/Records.vue";
+import Users from "@/views/Users.vue";
 
 export default {
   name: "Dashboard",
   components: {
-    AnsTable,
+    // AnsTable,
     UserDetail,
-    Records
+    Records,
+    Users
   },
   data() {
     return {
@@ -60,7 +54,8 @@ export default {
       customMargin: {},
       currentPage: {},
       pageTitle: this.pageTitle,
-      menu: [
+      currentUserId: this.$session.get("user_id"),
+      menu_items: [
         {
           header: true,
           title: "Main Navigation"
@@ -68,17 +63,33 @@ export default {
         {
           href: "/dashboard",
           title: "Dashboard",
-          icon: "fa fa-user"
+          icon: "fa fa-list"
         },
         {
           title: "Users",
           icon: "fa fa-users",
-          href: "/dashboard/users"
+          href: "/dashboard/users",
+          adminOnly: true
         },
         {
           title: "Records",
           icon: "fa fa-address-card",
           href: "/dashboard/records"
+        },
+        {
+          title: "Hospital",
+          icon: "fa fa-hotel",
+          href: "/dashboard/hospital"
+        },
+        {
+          title: "Map",
+          icon: "fa fa-globe-asia",
+          href: "/dashboard/map"
+        },
+        {
+          title: "Log/Journal",
+          icon: "fa fa-book",
+          href: "/dashboard/log"
         },
         {
           title: "Logout",
@@ -87,12 +98,20 @@ export default {
       ]
     };
   },
+  computed: {
+    menu: function(){
+      if (this.currentUserId != 1){
+        return this.menu_items.filter(a => !a.adminOnly);
+      }else{
+        return this.menu_items;
+      }
+    }
+  },
   created() {
     this.customMargin = {
       left: "70px",
       position: "absolute"
     };
-
     this.currentPage = {};
     this.$set(this.currentPage, this.$route.path, true);
     this.pageTitle = this.$router.history.current.name;
@@ -103,28 +122,11 @@ export default {
     clearInterval(this.loginCheckerIval);
   },
   methods: {
-    
     publicApiScope(self) {
       return self.$pandemia.api().publicApi;
     },
     privateApiScope(self) {
       return self.$pandemia.api().privateApi;
-    },
-    showDetail(item) {
-      this.$router.push("/dashboard/users/" + item.id);
-    },
-    txItemMap(item) {
-      return item;
-    },
-    userListAllMapper(item) {
-      return item;
-    },
-    userListAllMapper2(item) {
-      return {
-        id: item["id"],
-        name: item["full_name"],
-        email: item["email"]
-      };
     },
     isCurrentPage(title) {
       return this.currentPage == title;
@@ -147,27 +149,68 @@ export default {
       };
     },
     onItemClick(_event, item) {
+      console.log(_event);
       if (item.title == "Logout") {
         this.$dialog
           .confirm("Are you sure to logout?")
           .then(_dialog => {
             this.$pandemia.unauthorize();
+            this.$router.replace("/");
           })
           .catch(() => {});
       }
+    },
+    mounted() {
+      var menu = [
+        {
+          header: true,
+          title: "Main Navigation"
+        },
+        {
+          href: "/dashboard",
+          title: "Dashboard",
+          icon: "fa fa-list"
+        }
+      ];
+
+      if (this.$session.get("user_id") == 1) {
+        menu.push({
+          title: "Users",
+          icon: "fa fa-users",
+          href: "/dashboard/users"
+        });
+      }
+
+      menu.push({
+        title: "Records",
+        icon: "fa fa-address-card",
+        href: "/dashboard/records"
+      });
+      menu.push({
+        title: "Logout",
+        icon: "fa fa-sign-out-alt"
+      });
+
+      this.menu = [        {
+        title: "Logout",
+        icon: "fa fa-sign-out-alt"
+      }];
     }
   }
 };
 </script>
 
 
-<style lang="less" scoped>
+<style lang="less">
 .dashboard-inner {
   width: 100%;
   transition: all 0.1s ease-in-out;
   -webkit-transition: all 0.1s ease-in-out; /** Chrome & Safari **/
   -moz-transition: all 0.1s ease-in-out; /** Firefox **/
   -o-transition: all 0.1s ease-in-out; /** Opera **/
+}
+.v-sidebar-menu .vsm--header {
+  display: none;
 }
 </style>
 

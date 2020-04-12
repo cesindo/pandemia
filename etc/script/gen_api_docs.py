@@ -4,6 +4,7 @@ import sys
 import os
 import json
 import re
+from functools import cmp_to_key
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "libs", "pandemia-client-py"))
 
@@ -31,7 +32,7 @@ def pretty_json_str(text):
     try:
         parsed = json.loads(text)
         json_text = json.dumps(parsed, indent=4, sort_keys=False)
-    except Exception as e:
+    except Exception as _e:
         print("Cannot encode json: `%s`" % text)
     return json_text
 
@@ -164,20 +165,20 @@ def load_doc(scope, in_path):
                                 docs[-1]['desc'] = (docs[-1]['desc'] + line)
 
     for doc in docs:
-        if doc.has_key('desc'):
+        if 'desc' in doc:
             doc['desc'] = doc['desc'].strip()
                                 
     return docs
 
 
 def get_main_title(docs):
-    a = filter(lambda a: a['elem'] == "MainTitle", docs)
+    a = list(filter(lambda a: a['elem'] == "MainTitle", docs))
     if a:
         return a[0]['value']
     return 'Untitled'
 
 def get_main_desc(docs):
-    a = filter(lambda a: a['elem'] == "MainDesc", docs)
+    a = list(filter(lambda a: a['elem'] == "MainDesc", docs))
     if a:
         return a[0]['value']
     return 'Rest API documentation'
@@ -200,6 +201,9 @@ def contain(item, docs):
         if found:
             return True
     return False
+
+def cmp(a, b):
+    return (a > b) - (a < b)
 
 def merge_doc(orig_docs, other_docs):
 
@@ -244,17 +248,21 @@ def gen_doc(scope, in_path, out_path):
         merge_doc(parsed_docs, new_docs)
 
         def sorter(a, b):
-            if a.has_key('group') and b.has_key('group'):
+            if 'group' in a and 'group' in b:
                 return cmp(a['group'], b['group'])
             return 0
 
-        updated_docs = sorted(parsed_docs, cmp=sorter)
+        updated_docs = sorted(parsed_docs, key=cmp_to_key(sorter))
         groups = filter(lambda a: a["elem"] == "Group", updated_docs)
-        endpoints = sorted(filter(lambda a: a["elem"] == "ApiEndpoint", updated_docs), lambda a,b: cmp(a['method_name'], b['method_name']))
+        endpoints = sorted(filter(lambda a: a["elem"] == "ApiEndpoint", updated_docs), key=cmp_to_key(lambda a,b: cmp(a['method_name'], b['method_name'])) )
 
         for group in groups:
+            if group['title'] in EXCLUDED['groups']:
+                continue
             process_line(group, fout)
             for endpoint in endpoints:
+                if endpoint['group'] in EXCLUDED['groups']:
+                    continue
                 if endpoint['group'] == group['group']:
                     process_line(endpoint, fout)
     
@@ -364,13 +372,17 @@ def gen_postman(api_scope, input_path, out_path):
 
 
 def process_line(j, fout):
+    global EXCLUDED
     if j["elem"] == "Group":
-        fout.write("## Group %s\n" % j["title"].strip())
+        title = j["title"].strip()
+        fout.write("## Group %s\n" % title)
         if j["desc"] and j["desc"] != "":
             fout.write("\n%s\n\n" % j["desc"].strip())
         else:
             fout.write("\n")
     elif j["elem"] == "ApiEndpoint":
+        if j['path'] in EXCLUDED['endpoints']:
+            return
         title = j['title']
         if not title or title == "":
             title = j['method_name'].replace('_', ' ').title()
@@ -407,7 +419,17 @@ def process_line(j, fout):
         else:
             fout.write("%s\n\n" % ident_4("{}"))
 
+import yaml
+
+EXCLUDED = {}
+
 def main():
+    global EXCLUDED
+
+    with open('api-docs/excludes.yaml') as f:
+        EXCLUDED = yaml.load(f, Loader=yaml.FullLoader)
+        # print(EXCLUDED)
+
     public_input_path = get_path("api-docs/public-endpoints.raw.txt")
     private_input_path = get_path("api-docs/private-endpoints.raw.txt")
     
