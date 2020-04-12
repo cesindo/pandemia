@@ -21,6 +21,7 @@ import 'package:pandemia_mobile/screens/splash/splash_page.dart';
 import 'package:pandemia_mobile/time_helper.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
 import 'blocs/notif/notif.dart';
+import 'blocs/profile/profile.dart';
 import 'core/core.dart';
 
 void main() async {
@@ -96,6 +97,9 @@ class PandemiaApp extends StatelessWidget {
             BlocProvider<NotifBloc>(
               builder: (context) => NotifBloc(pandemiaBloc: pandemiaBloc),
             ),
+            BlocProvider<ProfileBloc>(
+              builder: (context) => ProfileBloc(),
+            ),
           ],
           child: HomeScreen(title: "PANDEMIA", pandemiaBloc: pandemiaBloc),
         );
@@ -125,7 +129,7 @@ class PandemiaTheme {
     return ThemeData.light().copyWith(
         primaryColor: Color(0xFF7A58FF),
         accentColor: Colors.cyan[300],
-        buttonColor: Colors.grey[800],
+        buttonColor: Color(0xFF7A58FF),
         textSelectionColor: Colors.cyan[100],
         backgroundColor: Colors.grey[900],
         toggleableActiveColor: Colors.cyan[300],
