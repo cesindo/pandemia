@@ -18,6 +18,7 @@ import 'package:pandemia_mobile/notification_util.dart';
 import 'package:pandemia_mobile/screens/feed/feed_tab_screen.dart';
 import 'package:pandemia_mobile/screens/issue/issue_page.dart';
 import 'package:pandemia_mobile/screens/map/map_page.dart';
+import 'package:pandemia_mobile/screens/odp_pdp/odp_pdp_page.dart';
 import 'package:pandemia_mobile/screens/setting/setting_page.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
 import 'package:pandemia_mobile/widgets/widgets.dart';
@@ -65,7 +66,8 @@ class HomeScreen extends StatelessWidget {
           statsBloc.dispatch(LoadStats(withLoading: false));
           body = stats;
         } else if (activeTab == AppTab.map) {
-          mapBloc.dispatch(LoadMap(UserRepository().currentUser.loc, withLoading: false));
+          mapBloc.dispatch(
+              LoadMap(UserRepository().currentUser.loc, withLoading: false));
           body = map;
         } else if (activeTab == AppTab.hoax) {
           body = issue;
@@ -80,15 +82,65 @@ class HomeScreen extends StatelessWidget {
             title: Text(title, style: TextStyle()),
             titleSpacing: 0.0,
             actions: [
-              FlatButton(
-                child: Icon(
-                  Icons.info,
-                  color: Colors.white,
-                ),
-                onPressed: () {
-                  Navigator.of(context).pushNamed(PandemiaRoutes.about);
-                },
+              // FlatButton(
+              //   child: Icon(
+              //     Icons.info,
+              //     color: Colors.white,
+              //   ),
+              //   onPressed: () {
+              //     Navigator.of(context).pushNamed(PandemiaRoutes.about);
+              //   },
+              // )
+
+              PopupMenuButton<int>(
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    child: FlatButton(
+                      onPressed: () {
+                        Navigator.of(context).pushNamed(PandemiaRoutes.odp);
+                      },
+                      child: Row(
+                        children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.only(right: 10),
+                            child: Icon(
+                              Icons.list,
+                              color: Colors.purple[300],
+                            ),
+                          ),
+                          Text(
+                            "Data ODP/PDP",
+                            style: TextStyle(fontSize: 13),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                  PopupMenuItem(
+                    child: FlatButton(
+                      onPressed: () {
+                        Navigator.of(context).pushNamed(PandemiaRoutes.about);
+                      },
+                      child: Row(
+                        children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.only(right: 10),
+                            child: Icon(
+                              Icons.info,
+                              color: Colors.purple[300],
+                            ),
+                          ),
+                          Text(
+                            "Tentang",
+                            style: TextStyle(fontSize: 13),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               )
+              
             ],
           ),
           body: body,
