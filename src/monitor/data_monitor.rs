@@ -2,6 +2,7 @@
 //!
 
 use diesel::prelude::*;
+use regex::Regex;
 use reqwest;
 use select::document::Document;
 use select::node::Data::*;
@@ -172,6 +173,11 @@ impl DataMonitor {
         Ok(())
     }
 
+    fn num_only<'a>(s: &'a str) -> std::borrow::Cow<'a, str> {
+        let re = Regex::new("[^0-9]").unwrap();
+        re.replace_all(s, "")
+    }
+
     /// Get data from official Jateng Province site https://corona.jatengprov.go.id/
     pub fn get_jatengprov(conn: &PgConnection) -> Result<()> {
         let resp = reqwest::get("https://corona.jatengprov.go.id/")?;
@@ -182,7 +188,8 @@ impl DataMonitor {
             .find(Class("font-counter"))
             .map(|a| a.text().trim().to_string())
             .flat_map(|a| {
-                a.split(' ')
+                Self::num_only(&a)
+                    .split(' ')
                     .flat_map(|a| a.parse::<i32>().ok())
                     .collect::<Vec<i32>>()
                     .first()
@@ -192,7 +199,7 @@ impl DataMonitor {
 
         dbg!(&counter_numbers);
 
-        if counter_numbers.len() != 5 {
+        if counter_numbers.len() != 6 {
             return Err(Error::InvalidParameter(
                 "Bad data from server, html structure changed".to_string(),
             ));
@@ -205,17 +212,17 @@ impl DataMonitor {
         let prev_record = dao.get_latest_records(vec![&name], 0, 1)?.pop();
 
         if let Some(prev_record) = prev_record {
-            match &counter_numbers[0..4] {
-                &[active_cases, positive, recovered, deaths] => {
-                    if prev_record.total_cases != positive {
+            match &counter_numbers[0..6] {
+                &[active_cases, positive, recovered, deaths, odp, pdp] => {
+                    if prev_record.total_cases != active_cases {
                         let new_record = dao.create(
                             name,
                             LocKind::Province,
-                            positive,
+                            active_cases,
                             deaths,
                             recovered,
-                            active_cases,
-                            0,
+                            odp,
+                            pdp,
                             &vec!["loc_scope:indonesia"],
                             false,
                         )?;
@@ -233,16 +240,16 @@ impl DataMonitor {
                 _ => (),
             }
         } else {
-            match &counter_numbers[0..4] {
-                &[active_cases, positive, recovered, deaths] => {
+            match &counter_numbers[0..6] {
+                &[active_cases, positive, recovered, deaths, odp, pdp] => {
                     dao.create(
                         name,
                         LocKind::Province,
-                        positive,
+                        active_cases,
                         deaths,
                         recovered,
-                        active_cases,
-                        0,
+                        odp,
+                        pdp,
                         &vec!["loc_scope:indonesia"],
                         false,
                     )?;

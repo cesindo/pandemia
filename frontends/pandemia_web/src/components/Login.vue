@@ -58,7 +58,7 @@ export default {
         )
         .then(resp => {
           if (resp.data.code == 0) {
-            this.$pandemia.getMeInfo().then(self._handleGetMeInfo);
+            this.$pandemia.getAdminMeInfo().then(self._handleGetMeInfo);
           } else if (resp.data.code == 3000) {
             showLoginError();
           } else {

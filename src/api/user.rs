@@ -78,7 +78,7 @@ pub mod types {
                 email: a.email.to_owned(),
                 phone_num: a.phone_num.to_owned(),
                 register_time: a.register_time,
-                is_satgas: a.is_satgas()
+                is_satgas: a.is_satgas(),
             }
         }
     }

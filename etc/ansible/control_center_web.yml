@@ -9,6 +9,8 @@
         checksum: yes
         recursive: yes
         delete: yes
+        # rsync_opts:
+        #   - "--exclude=.env"
     - name: set owner
       file:
         path: "{{dest_server_path}}/pandemia_cc"

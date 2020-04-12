@@ -1,7 +1,7 @@
 //! Definisi struct untuk model-model yang ada di dalam database.
 
 use crate::{result::Result, schema::user_settings, types::RecordDiff};
-use chrono::{NaiveDateTime, NaiveDate};
+use chrono::{NaiveDate, NaiveDateTime};
 use diesel::prelude::*;
 use serde::Serialize;
 

@@ -19,7 +19,7 @@
 
     <DialogModal
       modalName="AddUserModal"
-      caption="Tambah Pengguna"
+      caption="Tambah Admin"
       :withCloseButton="true"
       @onApprove="onApprove"
       @opened="onOpened"
@@ -42,6 +42,12 @@
               <label>Phone:</label>
               <input ref="phoneInput" type="text" name="PhoneInput" id="PhoneInput" />
             </div>
+
+            <div class="field">
+              <label>Accesses:</label>
+              <input ref="accessesInput" type="text" name="AccessesInput" id="AccessesInput" />
+              <small>supported: users, records </small>
+            </div>
             <div class="field">
               <label>Password:</label>
               <input ref="passInput" type="password" name="PassInput" id="PassInput" />
@@ -50,7 +56,6 @@
               <label>Konfirmasi Password:</label>
               <input ref="confPassInput" type="password" name="ConfPassInput" id="ConfPassInput" />
             </div>
-
           </div>
         </div>
       </template>
@@ -67,7 +72,7 @@ export default {
   name: "Users",
   components: {
     AnsTable,
-    DialogModal,
+    DialogModal
     // ConfirmDialog
   },
   data() {
@@ -80,11 +85,12 @@ export default {
       this.$modal.show("AddUserModal");
     },
     onApprove() {
-      var name = this.$refs['nameInput'].value,
-        email = this.$refs['emailInput'].value,
-        phone = this.$refs['phoneInput'].value,
-        password =this.$refs['passInput'].value,
-        confPassword = this.$refs['confPassInput'].value;
+      var name = this.$refs["nameInput"].value,
+        email = this.$refs["emailInput"].value,
+        phone = this.$refs["phoneInput"].value,
+        password = this.$refs["passInput"].value,
+        confPassword = this.$refs["confPassInput"].value,
+        accessesInput = this.$refs["accessesInput"].value;
 
       this.$pandemia
         .api()
@@ -93,7 +99,8 @@ export default {
           email: email,
           phone_num: phone,
           password: password,
-          confirm_password: confPassword
+          confirm_password: confPassword,
+          accessesInput: accessesInput
         })
         .then(resp => {
           if (resp.data.code == 0) {
@@ -107,7 +114,7 @@ export default {
         });
     },
     onOpened() {},
-        showDetail(item) {
+    showDetail(item) {
       this.$router.push("/dashboard/users/" + item.id);
     },
     txItemMap(item) {
@@ -115,12 +122,12 @@ export default {
     },
     userListAllMapper(item) {
       return {
-        "id": item["id"],
-        "name": item["name"],
-        "email": item["email"],
-        "phone": item["phone_num"],
-        "active": item["active"],
-        "register_time": item["register_time"],
+        id: item["id"],
+        name: item["name"],
+        email: item["email"],
+        phone: item["phone_num"],
+        active: item["active"],
+        register_time: item["register_time"]
       };
     },
     userListAllMapper2(item) {

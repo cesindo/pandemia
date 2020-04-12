@@ -81,6 +81,11 @@ export default {
           href: "/dashboard/records"
         },
         {
+          title: "Satgas",
+          icon: "fa fa-hiking",
+          href: "/dashboard/satgas"
+        },
+        {
           title: "Hospital",
           icon: "fa fa-hotel",
           href: "/dashboard/hospital"

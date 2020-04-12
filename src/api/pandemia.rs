@@ -16,12 +16,12 @@ use crate::{
         ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest,
     },
     auth,
-    dao::{RecordDao, SubReportDao, Logs},
+    dao::{Logs, RecordDao, SubReportDao},
     error::{self, ErrorCode},
     eventstream::{self, Event::NewRecordUpdate},
     models,
     prelude::*,
-    types::{LocKind, SubReportStatus, HealthyKind},
+    types::{HealthyKind, LocKind, SubReportStatus},
     ID,
 };
 

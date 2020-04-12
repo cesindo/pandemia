@@ -78,7 +78,10 @@ release-linux:
 
 build-web-frontend:
 	@@echo Building web frontend...
-	cd frontends/pandemia_web && yarn run build
+	cd frontends/pandemia_web && \
+		sed -i .bak s/'dev'/'prod'/ .env && \
+		yarn run build && \
+		sed -i .bak s/'prod'/'dev'/ .env
 	@@echo Web frontend built.
 
 test-env:
