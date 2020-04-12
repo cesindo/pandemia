@@ -12,17 +12,22 @@ class User extends Equatable {
   final int id;
   final String fullName;
   final String email;
+  final String phoneNum;
+  final bool isSatgas;
   final UserSettings settings; // Nullable
   final LatLng loc; // Nullable
 
-  User(this.id, this.fullName, this.email, this.settings, this.loc)
-      : super([id, fullName, email, settings, loc]);
+  User(this.id, this.fullName, this.email, this.phoneNum, this.isSatgas,
+      this.settings, this.loc)
+      : super([id, fullName, email, phoneNum, isSatgas, settings, loc]);
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> data = Map();
     data["id"] = this.id;
     data["full_name"] = this.fullName;
     data["email"] = this.email;
+    data["phone_num"] = this.phoneNum;
+    data["is_satgas"] = this.isSatgas;
     data["settings"] = this.settings != null ? this.settings.toMap() : null;
     data["loc"] = this.loc != null ? this.loc : null;
     return data;
@@ -35,15 +40,30 @@ class User extends Equatable {
         data['id'] as int,
         data['full_name'] as String,
         data['email'] as String,
+        data['phone_num'] as String,
+        data['is_satgas'] as bool,
         data['settings'] != null
             ? UserSettings.fromMap(data['settings'])
             : null,
-        data['loc'] != null ? LatLng(data['loc']['lat'], data['loc']['long']) : null);
+        data['loc'] != null
+            ? LatLng(data['loc']['lat'], data['loc']['long'])
+            : null);
   }
 
   User copy(
-      {String fullName, String email, UserSettings settings, LatLng loc}) {
-    return User(this.id, fullName ?? this.fullName, email ?? this.email,
-        settings ?? this.settings, loc ?? this.loc);
+      {String fullName,
+      String email,
+      String phoneNum,
+      bool isSatgas,
+      UserSettings settings,
+      LatLng loc}) {
+    return User(
+        this.id,
+        fullName ?? this.fullName,
+        email ?? this.email,
+        phoneNum ?? this.phoneNum,
+        isSatgas ?? this.isSatgas,
+        settings ?? this.settings,
+        loc ?? this.loc);
   }
 }

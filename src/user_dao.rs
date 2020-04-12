@@ -432,6 +432,31 @@ impl<'a> UserDao<'a> {
 
         Ok(())
     }
+
+    /// Update user_info
+    pub fn update_user_info(
+        &self,
+        user_id: ID,
+        full_name: &str,
+        email: &str,
+        phone_num: &str,
+        latitude: f64,
+        longitude: f64,
+        meta: Vec<&str>,
+    ) -> Result<()> {
+        use crate::schema::users::{self, dsl};
+        diesel::update(dsl::users.filter(dsl::id.eq(user_id)))
+            .set((
+                dsl::full_name.eq(full_name),
+                dsl::email.eq(email),
+                dsl::phone_num.eq(phone_num),
+                dsl::latitude.eq(latitude),
+                dsl::longitude.eq(longitude),
+                dsl::meta.eq(&meta),
+            ))
+            .execute(self.db)?;
+        Ok(())
+    }
 }
 
 /// UserDao untuk memudahkan integration testing

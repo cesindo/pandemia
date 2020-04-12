@@ -9,6 +9,7 @@ pub use crate::map_marker_dao::MapMarkerDao;
 pub use crate::notif_dao::NotifDao;
 pub use crate::record_dao::RecordDao;
 pub use crate::user_dao::UserDao;
+pub use crate::sub_report_dao::SubReportDao;
 
 /// Search result type from DAO (not rest API)
 pub struct EntriesResult<T> {

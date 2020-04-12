@@ -48,6 +48,7 @@ dependencies:
   google_maps_flutter: ^0.5.25+2
   location: ^3.0.0
   multiselect_formfield: ^0.1.2
+  flutter_typeahead: ^1.8.0
 
 dev_dependencies:
   flutter_test:

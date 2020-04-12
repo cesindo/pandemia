@@ -152,6 +152,25 @@ table! {
 }
 
 table! {
+    sub_reports (id) {
+        id -> Int8,
+        creator_id -> Int8,
+        creator_name -> Varchar,
+        full_name -> Varchar,
+        age -> Int4,
+        residence_address -> Varchar,
+        gender -> Varchar,
+        arrival_address -> Varchar,
+        arrival_date -> Date,
+        healthy -> Int4,
+        desc -> Varchar,
+        status -> Int4,
+        meta -> Array<Text>,
+        ts -> Timestamp,
+    }
+}
+
+table! {
     user_connect (device_id) {
         device_id -> Text,
         user_id -> Int8,
@@ -203,6 +222,9 @@ table! {
         phone_num -> Varchar,
         active -> Bool,
         register_time -> Timestamp,
+        latitude -> Float8,
+        longitude -> Float8,
+        meta -> Array<Text>,
     }
 }
 
@@ -214,6 +236,7 @@ joinable!(feeds -> users (creator_id));
 joinable!(logs -> users (initiator_id));
 joinable!(notifs -> users (receiver_id));
 joinable!(reset_password_admins -> admins (admin_id));
+joinable!(sub_reports -> users (creator_id));
 joinable!(user_connect -> users (user_id));
 joinable!(user_keys -> users (user_id));
 joinable!(user_passhash -> users (user_id));
@@ -233,6 +256,7 @@ allow_tables_to_appear_in_same_query!(
     records,
     register_users,
     reset_password_admins,
+    sub_reports,
     user_connect,
     user_keys,
     user_passhash,

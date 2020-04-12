@@ -17,9 +17,9 @@ class ProfileLoading extends ProfileState {
   String toString() => "ProfileLoading";
 }
 
-class ProfileListLoading extends ProfileState {
+class ProfileUpdateLoading extends ProfileState {
   @override
-  String toString() => "ProfileListLoading";
+  String toString() => "ProfileUpdateLoading";
 }
 
 class ProfileListLoaded extends ProfileState {
@@ -37,11 +37,11 @@ class ProfileFailure extends ProfileState {
   String toString() => "ProfileFailure";
 }
 
-class ProfileCreated extends ProfileState {
-  final User item;
-  ProfileCreated(this.item);
+class ProfileLoaded extends ProfileState {
+  final User user;
+  ProfileLoaded(this.user);
   @override
-  String toString() => "ProfileCreated";
+  String toString() => "ProfileLoaded";
 }
 
 /// State when Profile already deleted
@@ -53,7 +53,7 @@ class ProfileDeleted extends ProfileState {
 }
 
 class ProfileUpdated extends ProfileState {
-  final String profile;
+  final User profile;
   ProfileUpdated(this.profile);
   @override
   String toString() => "ProfileUpdated";

@@ -14,6 +14,7 @@ import 'package:pandemia_mobile/blocs/pandemia/pandemia_state.dart';
 import 'package:pandemia_mobile/blocs/settings/settings_bloc.dart';
 import 'package:pandemia_mobile/blocs/simple_bloc_delegate.dart';
 import 'package:pandemia_mobile/blocs/stats/stats.dart';
+import 'package:pandemia_mobile/blocs/sub_report/sub_report.dart';
 import 'package:pandemia_mobile/blocs/tab/tab_bloc.dart';
 import 'package:pandemia_mobile/screens/about/about_page.dart';
 import 'package:pandemia_mobile/screens/home.dart';
@@ -100,8 +101,13 @@ class PandemiaApp extends StatelessWidget {
             BlocProvider<ProfileBloc>(
               builder: (context) => ProfileBloc(),
             ),
+            BlocProvider<SubReportBloc>(
+              builder: (context) => SubReportBloc(),
+            ),
           ],
-          child: HomeScreen(title: "PANDEMIA", pandemiaBloc: pandemiaBloc),
+          child: HomeScreen(
+              title: "PANDEMIA",
+              pandemiaBloc: pandemiaBloc),
         );
       },
       PandemiaRoutes.about: (context) => AboutPage(),
