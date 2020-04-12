@@ -201,19 +201,21 @@ fn update_feed_and_push_notif(
             }
         }
     } else {
-        if let Err(e) = feed_dao.create(
-            0,
-            "",
-            &new_record.loc,
-            FeedKind::Info,
-            &format!(
-                "{} positif, {} meninggal, {} sembuh",
-                new_record.total_cases, new_record.total_deaths, new_record.total_recovered
-            ),
-            &vec![],
-            &vec![],
-        ) {
-            error!("cannot create feed. {}", e);
+        if new_record.total_cases != 0 && new_record.total_deaths != 0 && new_record.total_recovered != 0 {
+            if let Err(e) = feed_dao.create(
+                0,
+                "",
+                &new_record.loc,
+                FeedKind::Info,
+                &format!(
+                    "{} positif, {} meninggal, {} sembuh",
+                    new_record.total_cases, new_record.total_deaths, new_record.total_recovered
+                ),
+                &vec![],
+                &vec![],
+            ) {
+                error!("cannot create feed. {}", e);
+            }
         }
     }
 

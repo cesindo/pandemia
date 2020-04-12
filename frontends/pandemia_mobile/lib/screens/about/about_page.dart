@@ -110,17 +110,27 @@ class _AboutPageState extends State<AboutPage> {
       _row(
         label: "Data dari",
         midText: ":",
-        value: "www.kawalcorona.com",
-      ),
-      _row(
-        label: " ",
-        midText: " ",
         value: "www.worldmeters.info",
       ),
       _row(
         label: " ",
         midText: " ",
         value: "corona.jatengprov.go.id",
+      ),
+      _row(
+        label: " ",
+        midText: " ",
+        value: "corona.jogjaprov.go.id",
+      ),
+      _row(
+        label: "",
+        midText: " ",
+        value: "www.cekdiri.id",
+      ),
+      _row(
+        label: "",
+        midText: " ",
+        value: "www.detax.org",
       ),
       SizedBox(
         height: MediaQuery.of(context).padding.top / 2,
@@ -140,7 +150,12 @@ class _AboutPageState extends State<AboutPage> {
       _row(
         label: "Icon oleh",
         midText: ":",
-        value: "photo3idea-studio",
+        value: "photo3idea_studio",
+      ),
+      _row(
+        label: "",
+        midText: "",
+        value: " (www.flaticon.com)",
       ),
       _row(
         label: "",

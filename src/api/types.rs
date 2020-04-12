@@ -105,13 +105,22 @@ pub struct PandemicInfoDetail {
 }
 
 #[derive(Serialize)]
+pub struct OccupationInfoDetail {
+    pub vac_total: i32,
+    pub used_total: i32,
+    pub waiting: i32,
+    pub last_updated: String,
+}
+
+#[derive(Serialize)]
 pub struct MapMarker {
     pub longitude: f64,
     pub latitude: f64,
     pub kind: i16,
     pub caption: String,
     pub desc: String,
-    pub detail: Option<PandemicInfoDetail>,
+    pub pandemic_detail: Option<PandemicInfoDetail>,
+    pub occupation_detail: Option<OccupationInfoDetail>,
 }
 
 #[derive(Serialize)]

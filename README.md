@@ -27,7 +27,7 @@ _control center_ berbasis web, sementara masyarakat memonitor secara _real-time_
 5. [x] Peta Pandemi.
 6. [ ] Push notif berupa peringatan ketika memasuki daerah dengan riwayat korban positif.
 7. [x] Peta Keluhan, menandai diri kita sedang mengalami keluhan kesehatan secara anonim.
-8. [ ] Peta data fasilitas kesehatan.
+8. [x] Peta data fasilitas kesehatan seperti ketersediaan tempat tidur pasien pada rumah sakit.
 
 Tangkapan Layar
 -----------------

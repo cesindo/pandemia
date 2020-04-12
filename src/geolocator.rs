@@ -49,23 +49,12 @@ struct MapResult {
     pub location: Location,
 }
 
-// #[doc(hidden)]
-// #[derive(Deserialize)]
-// struct ViewInnerResult2(MapResult);
-
 #[doc(hidden)]
 #[derive(Deserialize)]
 struct View {
     #[serde(rename = "Result")]
     pub result: Vec<MapResult>,
 }
-
-// #[derive(Deserialize)]
-// struct ViewInner(ViewInnerResult);
-
-// #[doc(hidden)]
-// #[derive(Deserialize)]
-// struct View(ViewInnerResult);
 
 #[doc(hidden)]
 #[derive(Deserialize)]
