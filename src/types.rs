@@ -29,6 +29,22 @@ pub enum NotifKind {
     Info = 6,
 }
 
+/// Status sub reports
+#[derive(Serialize, Copy, Clone)]
+pub enum SubReportStatus {
+    /// Orang Dalam Pemantauan
+    ODP = 0,
+
+    /// Pasien Dalam Pemantauan
+    PDP = 1,
+
+    /// Positif covid-19
+    Positive = 2,
+
+    /// Sembuh
+    Recovered = 3,
+}
+
 /// Location kind
 #[derive(Copy, Clone)]
 pub enum LocKind {

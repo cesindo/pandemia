@@ -65,16 +65,20 @@ pub mod types {
 
         /// Waktu kapan akun ini didaftarkan.
         pub register_time: NaiveDateTime,
+
+        /// Satgas
+        pub is_satgas: bool,
     }
 
     impl From<models::User> for User {
         fn from(a: models::User) -> Self {
             User {
                 id: a.id,
-                full_name: a.full_name,
-                email: a.email,
-                phone_num: a.phone_num,
+                full_name: a.full_name.to_owned(),
+                email: a.email.to_owned(),
+                phone_num: a.phone_num.to_owned(),
                 register_time: a.register_time,
+                is_satgas: a.is_satgas()
             }
         }
     }
@@ -106,6 +110,18 @@ pub struct UpdatePassword {
     pub old_password: String,
     pub new_password: String,
     pub verif_new_password: String,
+}
+
+#[derive(Deserialize, Validate)]
+pub struct UpdateUser {
+    #[validate(length(min = 2, max = 50))]
+    pub full_name: String,
+    #[validate(length(min = 2, max = 50))]
+    pub email: String,
+    #[validate(length(min = 2, max = 15))]
+    pub phone_num: String,
+    pub latitude: f64,
+    pub longitude: f64,
 }
 
 use crate::models::AccessToken;
@@ -144,6 +160,26 @@ impl PublicApi {
     #[api_endpoint(path = "/me/info", auth = "required")]
     pub fn me_info(state: &AppState, query: (), req: &ApiHttpRequest) -> ApiResult<types::User> {
         Ok(ApiResult::success(current_user.into()))
+    }
+
+    /// Update current user.
+    #[api_endpoint(path = "/me/update", auth = "required", mutable)]
+    pub fn update_current_user(query: UpdateUser) -> ApiResult<()> {
+        query.validate()?;
+        let conn = state.db();
+        let dao = UserDao::new(&conn);
+        let mut labels: Vec<&str> = Vec::new();
+        labels.push(":satgas:");
+        dao.update_user_info(
+            current_user.id,
+            &query.full_name,
+            &query.email,
+            &query.phone_num,
+            query.latitude,
+            query.longitude,
+            labels,
+        )?;
+        Ok(ApiResult::success(()))
     }
 
     /// Update password.
