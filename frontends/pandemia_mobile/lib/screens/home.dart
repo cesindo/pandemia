@@ -8,6 +8,7 @@ import 'package:pandemia_mobile/blocs/map/map_bloc.dart';
 import 'package:pandemia_mobile/blocs/map/map_event.dart';
 import 'package:pandemia_mobile/blocs/notif/notif_bloc.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia.dart';
+import 'package:pandemia_mobile/blocs/profile/profile.dart';
 import 'package:pandemia_mobile/blocs/settings/settings_bloc.dart';
 import 'package:pandemia_mobile/blocs/settings/settings_event.dart';
 import 'package:pandemia_mobile/blocs/stats/stats_bloc.dart';
@@ -18,7 +19,7 @@ import 'package:pandemia_mobile/notification_util.dart';
 import 'package:pandemia_mobile/screens/feed/feed_tab_screen.dart';
 import 'package:pandemia_mobile/screens/issue/issue_page.dart';
 import 'package:pandemia_mobile/screens/map/map_page.dart';
-import 'package:pandemia_mobile/screens/odp_pdp/odp_pdp_page.dart';
+import 'package:pandemia_mobile/screens/profile/profile_edit_page.dart';
 import 'package:pandemia_mobile/screens/setting/setting_page.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
 import 'package:pandemia_mobile/widgets/widgets.dart';
@@ -43,6 +44,7 @@ class HomeScreen extends StatelessWidget {
     final issueBloc = BlocProvider.of<IssueBloc>(context);
     final mapBloc = BlocProvider.of<MapBloc>(context);
     final settingsBloc = BlocProvider.of<SettingsBloc>(context);
+    final profileBloc = BlocProvider.of<ProfileBloc>(context);
 
     final feed = FeedTabScreen(feedBloc);
     final stats = StatsPage();
@@ -51,10 +53,22 @@ class HomeScreen extends StatelessWidget {
     final settings = SettingScreen(
       settingsBloc: settingsBloc,
     );
+    final editProfile = ProfileEditPage(profileBloc: profileBloc);
 
     new Future.delayed(Duration.zero, () {
       NotificationUtil().init(context, notifBloc, feedBloc);
     });
+
+    void _selectedChoice(String choice) {
+      if (choice == CustomPopupMenu.profile) {
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => editProfile));
+      } else if (choice == CustomPopupMenu.about) {
+        Navigator.of(context).pushNamed(PandemiaRoutes.about);
+      } else {
+        Navigator.of(context).pushNamed(PandemiaRoutes.odp);
+      }
+    }
 
     return BlocBuilder<TabBloc, AppTab>(
       builder: (context, activeTab) {
@@ -81,64 +95,22 @@ class HomeScreen extends StatelessWidget {
             leading: Image.asset("assets/img/pandemia-logo-32.png"),
             title: Text(title, style: TextStyle()),
             titleSpacing: 0.0,
-            actions: [
-              // FlatButton(
-              //   child: Icon(
-              //     Icons.info,
-              //     color: Colors.white,
-              //   ),
-              //   onPressed: () {
-              //     Navigator.of(context).pushNamed(PandemiaRoutes.about);
-              //   },
-              // )
-
-              PopupMenuButton<int>(
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    child: FlatButton(
-                      onPressed: () {
-                        Navigator.of(context).pushNamed(PandemiaRoutes.odp);
-                      },
-                      child: Row(
-                        children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.only(right: 10),
-                            child: Icon(
-                              Icons.list,
-                              color: Colors.purple[300],
-                            ),
-                          ),
-                          Text(
-                            "Data ODP/PDP",
-                            style: TextStyle(fontSize: 13),
-                          )
-                        ],
+            actions: <Widget>[
+              PopupMenuButton(
+                onSelected: _selectedChoice,
+                itemBuilder: (BuildContext context) {
+                  return CustomPopupMenu.choices.map((String choice) {
+                    return PopupMenuItem(
+                      value: choice,
+                      child: ListTile(
+                        leading: choice == CustomPopupMenu.profile
+                            ? Icon(Icons.edit)
+                            : Icon(Icons.info),
+                        title: Text(choice),
                       ),
-                    ),
-                  ),
-                  PopupMenuItem(
-                    child: FlatButton(
-                      onPressed: () {
-                        Navigator.of(context).pushNamed(PandemiaRoutes.about);
-                      },
-                      child: Row(
-                        children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.only(right: 10),
-                            child: Icon(
-                              Icons.info,
-                              color: Colors.purple[300],
-                            ),
-                          ),
-                          Text(
-                            "Tentang",
-                            style: TextStyle(fontSize: 13),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+                    );
+                  }).toList();
+                },
               )
               
             ],
@@ -152,4 +124,12 @@ class HomeScreen extends StatelessWidget {
       },
     );
   }
+}
+
+class CustomPopupMenu {
+  static const String odp = 'Data ODP/PDP';
+  static const String profile = 'Edit Profil Satgas';
+  static const String about = 'Tentang';
+
+  static const List<String> choices = <String>[odp, profile, about];
 }

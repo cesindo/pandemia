@@ -11,7 +11,7 @@ use crate::crypto::{self, SecretKey};
 use crate::{
     api::{types::IdQuery, ApiResult, Error as ApiError, ErrorCode},
     auth::AuthDao,
-    dao::AdminDao,
+    dao::{AdminDao, Logs},
     models,
     prelude::*,
     types::AccountKind,
@@ -215,6 +215,8 @@ impl PublicApi {
 
         let access_token = dao.generate_admin_access_token(user.id)?;
 
+        Logs::new(&conn).write(&format!("{} logged in", user.name), user.id);
+
         Ok(ApiResult::success(AuthorizeResult {
             access_token,
             user: Some(user),
@@ -226,7 +228,13 @@ impl PublicApi {
     pub fn admin_unauthorize(query: ()) -> ApiResult<()> {
         match current_admin {
             Some(current_admin) => {
-                PrivateApi::admin_unauthorize(state, IdQuery { id: current_admin.id }, req)
+                let conn = state.db();
+
+                let rv = PrivateApi::admin_unauthorize(state, IdQuery { id: current_admin.id }, req);
+
+                Logs::new(&conn).write(&format!("{} logged out", current_admin.name), current_admin.id);
+
+                rv
             }
             None => Ok(ApiResult::success(())),
         }

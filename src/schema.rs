@@ -79,6 +79,16 @@ table! {
 }
 
 table! {
+    logs (id) {
+        id -> Int8,
+        activity -> Text,
+        initiator_id -> Int8,
+        meta -> Array<Text>,
+        ts -> Timestamp,
+    }
+}
+
+table! {
     map_markers (id) {
         id -> Int8,
         name -> Text,
@@ -201,6 +211,7 @@ joinable!(addresses -> users (user_id));
 joinable!(admin_access_tokens -> admins (admin_id));
 joinable!(admin_passhash -> admins (admin_id));
 joinable!(feeds -> users (creator_id));
+joinable!(logs -> users (initiator_id));
 joinable!(notifs -> users (receiver_id));
 joinable!(reset_password_admins -> admins (admin_id));
 joinable!(user_connect -> users (user_id));
@@ -216,6 +227,7 @@ allow_tables_to_appear_in_same_query!(
     admins,
     feeds,
     geoloc_cache,
+    logs,
     map_markers,
     notifs,
     records,

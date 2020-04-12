@@ -54,6 +54,14 @@ let router = new Router({
       },
     },
     {
+      path: '/dashboard/journal',
+      name: 'Journal',
+      component: Dashboard,
+      meta: {
+        title: 'Dashboard' + titleDesc,
+      },
+    },
+    {
       path: '*',
       name: '404',
       component: NotFound,
