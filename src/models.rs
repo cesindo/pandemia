@@ -44,8 +44,8 @@ pub struct User {
     /// Location latitude
     pub longitude: f64,
 
-    /// labels
-    pub labels: Vec<String>,
+    /// meta
+    pub meta: Vec<String>,
 }
 
 /// Bentuk model dari alamat untuk akun.
@@ -143,7 +143,7 @@ pub struct Admin {
     pub name: String,
     pub email: String,
     pub phone_num: String,
-    pub labels: Vec<String>,
+    pub meta: Vec<String>,
     pub active: bool,
     pub register_time: NaiveDateTime,
 }
@@ -305,7 +305,7 @@ impl User {
 
     /// Define is current user is satgas
     pub fn is_satgas(&self) -> bool {
-        self.labels.contains(&":satgas:".to_string())
+        self.meta.contains(&":satgas:".to_string())
     }
 }
 
@@ -375,7 +375,7 @@ pub struct SubReport {
     pub gender: String,
     pub arrival_address: String,
     pub arrival_date: NaiveDate,
-    pub healty: bool,
+    pub healty: i32,
     pub desc: String,
     pub status: i32,
     pub meta: Vec<String>,

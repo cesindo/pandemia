@@ -442,7 +442,7 @@ impl<'a> UserDao<'a> {
         phone_num: &str,
         latitude: f64,
         longitude: f64,
-        labels: Vec<&str>,
+        meta: Vec<&str>,
     ) -> Result<()> {
         use crate::schema::users::{self, dsl};
         diesel::update(dsl::users.filter(dsl::id.eq(user_id)))
@@ -452,7 +452,7 @@ impl<'a> UserDao<'a> {
                 dsl::phone_num.eq(phone_num),
                 dsl::latitude.eq(latitude),
                 dsl::longitude.eq(longitude),
-                dsl::labels.eq(&labels),
+                dsl::meta.eq(&meta),
             ))
             .execute(self.db)?;
         Ok(())

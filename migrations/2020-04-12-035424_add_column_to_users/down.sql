@@ -1,3 +1,3 @@
 ALTER TABLE users DROP COLUMN latitude;
 ALTER TABLE users DROP COLUMN longitude;
-ALTER TABLE users DROP COLUMN labels;
+ALTER TABLE users DROP COLUMN meta;

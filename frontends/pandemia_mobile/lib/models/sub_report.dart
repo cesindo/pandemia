@@ -16,7 +16,7 @@ class SubReport extends Equatable {
   final String gender;
   final String arrivalAddress;
   final String arrivalDate;
-  final bool healty;
+  final int healty;
   final String desc;
   final int status;
   final List<String> meta;
@@ -84,10 +84,10 @@ class SubReport extends Equatable {
     assert(
         data['arrival_address'] != null, "SubReport.arrival_address is null");
     assert(data['arrival_date'] != null, "SubReport.arrival_date is null");
-    // assert(data['healty'] != null, "SubReport.healty is null");
+    assert(data['healty'] != null, "SubReport.healty is null");
     assert(data['desc'] != null, "SubReport.desc is null");
     assert(data['status'] != null, "SubReport.status is null");
-    // assert(data['ts'] != null, "SubReport.ts is null");
+    assert(data['ts'] != null, "SubReport.ts is null");
     return SubReport(
         data['id'] as int,
         data['creator_id'] as int,
@@ -98,7 +98,7 @@ class SubReport extends Equatable {
         data['gender'] as String,
         data['arrival_address'] as String,
         data['arrival_date'] as String,
-        data['healty'] as bool,
+        data['healty'] as int,
         data['desc'] as String,
         data['status'] as int,
         data['meta'] != null ? List.from(data['meta']) : [],
@@ -114,7 +114,7 @@ class SubReport extends Equatable {
       String gender,
       String arrivalAddress,
       String arrivalDate,
-      bool healty,
+      int healty,
       String desc,
       int status,
       List<String> meta,

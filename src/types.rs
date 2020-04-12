@@ -9,6 +9,15 @@ pub enum AccountKind {
     User = 1,
 }
 
+/// Healthy kind
+pub enum HealthyKind {
+    /// Health/sehat
+    Health = 1,
+
+    /// Sick/ada gejala
+    Sick = 2,
+}
+
 /// Notification kind or types
 #[derive(Serialize, Copy, Clone)]
 pub enum NotifKind {

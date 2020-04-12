@@ -162,7 +162,7 @@ table! {
         gender -> Varchar,
         arrival_address -> Varchar,
         arrival_date -> Date,
-        healthy -> Bool,
+        healthy -> Int4,
         desc -> Varchar,
         status -> Int4,
         meta -> Array<Text>,
@@ -224,7 +224,7 @@ table! {
         register_time -> Timestamp,
         latitude -> Float8,
         longitude -> Float8,
-        labels -> Array<Text>,
+        meta -> Array<Text>,
     }
 }
 

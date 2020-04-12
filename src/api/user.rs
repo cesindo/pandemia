@@ -168,8 +168,8 @@ impl PublicApi {
         query.validate()?;
         let conn = state.db();
         let dao = UserDao::new(&conn);
-        let mut labels: Vec<&str> = Vec::new();
-        labels.push(":satgas:");
+        let mut meta: Vec<&str> = Vec::new();
+        meta.push(":satgas:");
         dao.update_user_info(
             current_user.id,
             &query.full_name,
@@ -177,7 +177,7 @@ impl PublicApi {
             &query.phone_num,
             query.latitude,
             query.longitude,
-            labels,
+            meta,
         )?;
         Ok(ApiResult::success(()))
     }
