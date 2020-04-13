@@ -121,7 +121,7 @@ pub struct UpdateUser {
     #[validate(length(min = 2, max = 50))]
     pub full_name: String,
     #[validate(length(min = 2, max = 50))]
-    pub email: String,
+    pub email: Option<String>,
     #[validate(length(min = 2, max = 15))]
     pub phone_num: String,
     #[validate(length(min = 2, max = 30))]

@@ -2,28 +2,35 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pandemia_mobile/blocs/profile/profile_bloc.dart';
 import 'package:pandemia_mobile/blocs/sub_report/sub_report.dart';
 import 'package:pandemia_mobile/blocs/sub_report/sub_report_bloc.dart';
 import 'package:pandemia_mobile/core/core.dart';
 import 'package:pandemia_mobile/models/sub_report.dart';
+import 'package:pandemia_mobile/screens/profile/profile_edit_page.dart';
+import 'package:pandemia_mobile/screens/sub_report/add_sub_report.dart';
 import 'package:pandemia_mobile/widgets/widgets.dart';
 
 class SubReportPage extends StatefulWidget {
+  final ProfileBloc profileBloc;
   final SubReportBloc subReportBloc;
-  SubReportPage({Key key, this.subReportBloc}) : super(key: key);
+  SubReportPage({Key key, this.subReportBloc, this.profileBloc})
+      : super(key: key);
 
   @override
-  _SubReportPageState createState() => _SubReportPageState(this.subReportBloc);
+  _SubReportPageState createState() =>
+      _SubReportPageState(this.subReportBloc, this.profileBloc);
 }
 
 class _SubReportPageState extends State<SubReportPage>
     with TickerProviderStateMixin {
   final SubReportBloc subReportBloc;
+  final ProfileBloc profileBloc;
   TabController _tabController;
   TextEditingController _odpSearchController = TextEditingController();
   TextEditingController _pdpSearchController = TextEditingController();
 
-  _SubReportPageState(this.subReportBloc);
+  _SubReportPageState(this.subReportBloc, this.profileBloc);
 
   @override
   void initState() {
@@ -66,10 +73,12 @@ class _SubReportPageState extends State<SubReportPage>
         children: <Widget>[
           ViewODPScreen(
             subReportBloc: subReportBloc,
+            profileBloc: profileBloc,
             searchController: _odpSearchController,
           ),
           ViewPDPScreen(
             subReportBloc: subReportBloc,
+            profileBloc: profileBloc,
             searchController: _pdpSearchController,
           ),
         ],
@@ -80,9 +89,11 @@ class _SubReportPageState extends State<SubReportPage>
 
 class ViewODPScreen extends StatefulWidget {
   final SubReportBloc subReportBloc;
+  final ProfileBloc profileBloc;
   final TextEditingController searchController;
 
-  ViewODPScreen({Key key, this.subReportBloc, this.searchController})
+  ViewODPScreen(
+      {Key key, this.subReportBloc, this.profileBloc, this.searchController})
       : super(key: key);
 
   // ViewODPScreen({Key key}) : super(key: key);
@@ -173,6 +184,14 @@ class _ViewODPScreenState extends State<ViewODPScreen> {
                               ),
                               title: Text("${item.fullName}"),
                               subtitle: Text("${item.residenceAddress}"),
+                              onTap: () {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => AddSubReportPage(
+                                        subReportBloc: widget.subReportBloc,
+                                        key: Key(
+                                            "sub-report-" + item.id.toString()),
+                                        item: item)));
+                              },
                             ),
                           );
                         })
@@ -186,9 +205,11 @@ class _ViewODPScreenState extends State<ViewODPScreen> {
 
 class ViewPDPScreen extends StatefulWidget {
   final SubReportBloc subReportBloc;
+  final ProfileBloc profileBloc;
   final TextEditingController searchController;
 
-  ViewPDPScreen({Key key, this.subReportBloc, this.searchController})
+  ViewPDPScreen(
+      {Key key, this.subReportBloc, this.profileBloc, this.searchController})
       : super(key: key);
 
   @override
@@ -279,6 +300,14 @@ class _ViewPDPScreenState extends State<ViewPDPScreen> {
                                 ),
                                 title: Text("${item.fullName}"),
                                 subtitle: Text("${item.residenceAddress}"),
+                                onTap: () {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) => AddSubReportPage(
+                                          subReportBloc: widget.subReportBloc,
+                                          key: Key("sub-report-" +
+                                              item.id.toString()),
+                                          item: item)));
+                                },
                               ),
                             );
                           })

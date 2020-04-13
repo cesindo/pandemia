@@ -92,15 +92,13 @@ class HomeScreen extends StatelessWidget {
                 isSatgas: true);
             _scaffoldKey.currentState.showSnackBar(SnackBar(
                 content: Text(
-                    "Anda terdaftar sebagai Satgas. Anda bisa melakukan input data ODP/PDP."),
+                    "Anda telah terdaftar sebagai Satgas. Kind Anda bisa melakukan input data ODP/PDP."),
                 backgroundColor: Colors.green));
           }
         });
       } else if (choice.index == 1) {
         Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => BlocProvider<SubReportBloc>(
-                builder: (ctx) => SubReportBloc(),
-                child: SubReportPage(subReportBloc: subReportBloc))));
+            builder: (context) => SubReportPage(subReportBloc: subReportBloc, profileBloc: profileBloc)));
       } else if (choice.index == 2) {
         Navigator.of(context).pushNamed(PandemiaRoutes.about);
       }

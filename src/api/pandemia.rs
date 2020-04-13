@@ -21,6 +21,7 @@ use crate::{
     eventstream::{self, Event::NewRecordUpdate},
     models,
     prelude::*,
+    sub_report_dao,
     types::{HealthyKind, LocKind, SubReportStatus},
     ID,
 };
@@ -83,6 +84,25 @@ pub struct AddRecord {
 
 #[derive(Deserialize, Validate)]
 pub struct AddSubReport {
+    #[validate(length(min = 1, max = 50))]
+    pub full_name: String,
+    pub age: i32,
+    #[validate(length(min = 1, max = 80))]
+    pub residence_address: String,
+    #[validate(length(min = 1, max = 50))]
+    pub gender: String,
+    #[validate(length(min = 1, max = 70))]
+    pub arrival_address: String,
+    pub arrival_date: NaiveDate,
+    #[validate(length(min = 1, max = 50))]
+    pub desc: String,
+    pub status: i32,
+    pub complaint: Option<Vec<String>>,
+}
+
+#[derive(Deserialize, Validate)]
+pub struct UpdateSubReport {
+    pub id: ID,
     #[validate(length(min = 1, max = 50))]
     pub full_name: String,
     pub age: i32,
@@ -177,6 +197,50 @@ impl PublicApi {
             &meta.iter().map(|a| a.as_ref()).collect::<Vec<&str>>(),
         )?;
         Ok(ApiResult::success(sub_report))
+    }
+
+    /// Update Sub Report.
+    #[api_endpoint(path = "/sub_report/update", auth = "required", accessor = "user", mutable)]
+    pub fn update_sub_report(query: UpdateSubReport) -> ApiResult<()> {
+        query.validate()?;
+        let conn = state.db();
+        let dao = SubReportDao::new(&conn);
+
+        if !current_user.is_satgas() {
+            param_error("Anda tidak dapat menambahkan data")?;
+        }
+
+        let mut healthy: HealthyKind = HealthyKind::Health;
+        let mut meta: Vec<String> = Vec::new();
+        if let Some(complaint) = &query.complaint.as_ref() {
+            if complaint.len() > 0 {
+                healthy = HealthyKind::Sick;
+                meta.push(format!("gejala={}", complaint.join(",")))
+            }
+        }
+        let status = match query.status {
+            0 => SubReportStatus::ODP,
+            1 => SubReportStatus::PDP,
+            2 => SubReportStatus::Positive,
+            3 => SubReportStatus::Recovered,
+            _ => param_error("Status tidak valid")?,
+        };
+        let sub_report = dao.update(
+            query.id,
+            sub_report_dao::UpdateSubReport {
+                full_name: &query.full_name,
+                age: query.age,
+                residence_address: &query.residence_address,
+                gender: &query.gender,
+                arrival_address: &query.arrival_address,
+                arrival_date: query.arrival_date,
+                healthy: healthy as i32,
+                desc: &query.desc,
+                status: status as i32,
+                meta: &meta.iter().map(|a| a.as_ref()).collect::<Vec<&str>>(),
+            },
+        )?;
+        Ok(ApiResult::success(()))
     }
 
     /// Search for sub_report

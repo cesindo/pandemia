@@ -32,6 +32,20 @@ struct NewSubReport<'a> {
     pub ts: NaiveDateTime,
 }
 
+#[doc(hidden)]
+pub struct UpdateSubReport<'a> {
+    pub full_name: &'a str,
+    pub age: i32,
+    pub residence_address: &'a str,
+    pub gender: &'a str,
+    pub arrival_address: &'a str,
+    pub arrival_date: NaiveDate,
+    pub healthy: i32,
+    pub desc: &'a str,
+    pub status: i32,
+    pub meta: &'a Vec<&'a str>,
+}
+
 /// Data Access Object for SubReport
 #[derive(Dao)]
 #[table_name = "sub_reports"]
@@ -76,6 +90,27 @@ impl<'a> SubReportDao<'a> {
             })
             .get_result(self.db)
             .map_err(From::from)
+    }
+
+    /// Update
+    pub fn update(&self, id: ID, data: UpdateSubReport) -> Result<()> {
+        use crate::schema::sub_reports::{self, dsl};
+        diesel::update(dsl::sub_reports.filter(dsl::id.eq(id)))
+            .set((
+                dsl::full_name.eq(data.full_name),
+                dsl::age.eq(data.age),
+                dsl::residence_address.eq(data.residence_address),
+                dsl::gender.eq(data.gender),
+                dsl::arrival_address.eq(data.arrival_address),
+                dsl::arrival_date.eq(data.arrival_date),
+                dsl::healthy.eq(data.healthy),
+                dsl::desc.eq(data.desc),
+                dsl::status.eq(data.status),
+                dsl::meta.eq(data.meta),
+            ))
+            .execute(self.db)?;
+
+        Ok(())
     }
 
     /// Search for specific sub_reports

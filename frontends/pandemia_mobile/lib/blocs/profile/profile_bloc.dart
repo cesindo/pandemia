@@ -43,14 +43,19 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     final userRepository = UserRepository();
     final oldData = await userRepository.getLocalUserInfo();
 
-    yield* PublicApi.post("/user/v1/me/update", {
+    Map<String, dynamic> payload = {
       "full_name": event.user.fullName,
-      "email": event.user.email,
       "phone_num": event.user.phoneNum,
       "village": event.user.village,
       "latitude": event.location.latitude,
       "longitude": event.location.longitude,
-    })
+    };
+
+    if (event.user.email != "") {
+      payload["email"] = event.user.email;
+    }
+
+    yield* PublicApi.post("/user/v1/me/update", payload)
         .then((data) {
           if (data != null) {
             User updated = event.user.copy(

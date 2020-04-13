@@ -21,10 +21,40 @@ class SubReportBloc extends Bloc<SubReportEvent, SubReportState> {
       yield* _mapLoadSubReportToState(event);
     } else if (event is CreateSubReport) {
       yield* _mapCreateSubReportToState(event);
+    } else if (event is UpdateSubReport) {
+      yield* _mapUpdateSubReportToState(event);
     } else if (event is DeleteSubReport) {
       yield* _mapDeleteToState(event);
     } else if (event is SubReportSearch) {
       yield* _mapSearchOdpToState(event);
+    }
+  }
+
+  Stream<SubReportState> _mapUpdateSubReportToState(
+      UpdateSubReport event) async* {
+    yield SubReportLoading();
+
+    final payload = {
+      "id": event.id,
+      "full_name": event.fullName,
+      "age": event.age,
+      "residence_address": event.residenceAddress,
+      "gender": event.gender,
+      "coming_from": event.arrivalAddress,
+      "arrival_date": event.arrivalDate,
+      "desc": event.desc,
+      "status": event.status,
+      "complaint": event.complaint,
+    };
+
+    final data =
+        await PublicApi.post("/pandemia/v1/sub_report/update", payload);
+    if (data != null) {
+      print("data: $data");
+
+      yield SubReportUpdated(SubReport.fromMap(data["result"]));
+    } else {
+      yield SubReportFailure(error: "Cannot update SubReport");
     }
   }
 
