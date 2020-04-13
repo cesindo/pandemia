@@ -7,7 +7,6 @@ import 'package:pandemia_mobile/blocs/sub_report/sub_report.dart';
 import 'package:pandemia_mobile/blocs/sub_report/sub_report_bloc.dart';
 import 'package:pandemia_mobile/core/core.dart';
 import 'package:pandemia_mobile/models/sub_report.dart';
-import 'package:pandemia_mobile/screens/profile/profile_edit_page.dart';
 import 'package:pandemia_mobile/screens/sub_report/add_sub_report.dart';
 import 'package:pandemia_mobile/widgets/widgets.dart';
 

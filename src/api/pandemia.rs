@@ -92,7 +92,7 @@ pub struct AddSubReport {
     #[validate(length(min = 1, max = 50))]
     pub gender: String,
     #[validate(length(min = 1, max = 70))]
-    pub arrival_address: String,
+    pub coming_from: String,
     pub arrival_date: NaiveDate,
     #[validate(length(min = 1, max = 50))]
     pub desc: String,
@@ -111,7 +111,7 @@ pub struct UpdateSubReport {
     #[validate(length(min = 1, max = 50))]
     pub gender: String,
     #[validate(length(min = 1, max = 70))]
-    pub arrival_address: String,
+    pub coming_from: String,
     pub arrival_date: NaiveDate,
     #[validate(length(min = 1, max = 50))]
     pub desc: String,
@@ -189,7 +189,7 @@ impl PublicApi {
             query.age,
             &query.residence_address,
             &query.gender,
-            &query.arrival_address,
+            &query.coming_from,
             query.arrival_date,
             healthy as i32,
             &query.desc,
@@ -201,7 +201,7 @@ impl PublicApi {
 
     /// Update Sub Report.
     #[api_endpoint(path = "/sub_report/update", auth = "required", accessor = "user", mutable)]
-    pub fn update_sub_report(query: UpdateSubReport) -> ApiResult<()> {
+    pub fn update_sub_report(query: UpdateSubReport) -> ApiResult<models::SubReport> {
         query.validate()?;
         let conn = state.db();
         let dao = SubReportDao::new(&conn);
@@ -232,7 +232,7 @@ impl PublicApi {
                 age: query.age,
                 residence_address: &query.residence_address,
                 gender: &query.gender,
-                arrival_address: &query.arrival_address,
+                coming_from: &query.coming_from,
                 arrival_date: query.arrival_date,
                 healthy: healthy as i32,
                 desc: &query.desc,
@@ -240,7 +240,7 @@ impl PublicApi {
                 meta: &meta.iter().map(|a| a.as_ref()).collect::<Vec<&str>>(),
             },
         )?;
-        Ok(ApiResult::success(()))
+        Ok(ApiResult::success(sub_report))
     }
 
     /// Search for sub_report

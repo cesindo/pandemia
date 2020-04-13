@@ -23,7 +23,7 @@ struct NewSubReport<'a> {
     pub age: i32,
     pub residence_address: &'a str,
     pub gender: &'a str,
-    pub arrival_address: &'a str,
+    pub coming_from: &'a str,
     pub arrival_date: NaiveDate,
     pub healthy: i32,
     pub desc: &'a str,
@@ -38,7 +38,7 @@ pub struct UpdateSubReport<'a> {
     pub age: i32,
     pub residence_address: &'a str,
     pub gender: &'a str,
-    pub arrival_address: &'a str,
+    pub coming_from: &'a str,
     pub arrival_date: NaiveDate,
     pub healthy: i32,
     pub desc: &'a str,
@@ -63,7 +63,7 @@ impl<'a> SubReportDao<'a> {
         age: i32,
         residence_address: &'a str,
         gender: &'a str,
-        arrival_address: &'a str,
+        coming_from: &'a str,
         arrival_date: NaiveDate,
         healthy: i32,
         desc: &'a str,
@@ -80,7 +80,7 @@ impl<'a> SubReportDao<'a> {
                 age,
                 residence_address,
                 gender,
-                arrival_address,
+                coming_from,
                 arrival_date,
                 healthy,
                 desc,
@@ -93,24 +93,23 @@ impl<'a> SubReportDao<'a> {
     }
 
     /// Update
-    pub fn update(&self, id: ID, data: UpdateSubReport) -> Result<()> {
+    pub fn update(&self, id: ID, data: UpdateSubReport) -> Result<SubReport> {
         use crate::schema::sub_reports::{self, dsl};
-        diesel::update(dsl::sub_reports.filter(dsl::id.eq(id)))
+        let result = diesel::update(dsl::sub_reports.filter(dsl::id.eq(id)))
             .set((
                 dsl::full_name.eq(data.full_name),
                 dsl::age.eq(data.age),
                 dsl::residence_address.eq(data.residence_address),
                 dsl::gender.eq(data.gender),
-                dsl::arrival_address.eq(data.arrival_address),
+                dsl::coming_from.eq(data.coming_from),
                 dsl::arrival_date.eq(data.arrival_date),
                 dsl::healthy.eq(data.healthy),
                 dsl::desc.eq(data.desc),
                 dsl::status.eq(data.status),
                 dsl::meta.eq(data.meta),
             ))
-            .execute(self.db)?;
-
-        Ok(())
+            .get_result::<SubReport>(self.db)?;
+        Ok(result)
     }
 
     /// Search for specific sub_reports

@@ -391,7 +391,7 @@ pub struct SubReport {
     pub age: i32,
     pub residence_address: String,
     pub gender: String,
-    pub arrival_address: String,
+    pub coming_from: String,
     pub arrival_date: NaiveDate,
     pub healty: i32,
     pub desc: String,

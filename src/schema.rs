@@ -160,7 +160,7 @@ table! {
         age -> Int4,
         residence_address -> Varchar,
         gender -> Varchar,
-        arrival_address -> Varchar,
+        coming_from -> Varchar,
         arrival_date -> Date,
         healthy -> Int4,
         desc -> Varchar,
