@@ -41,6 +41,8 @@ pub struct NewAdmin {
         message = "Invalid password length, min 6 and max 500 characters"
     ))]
     pub confirm_password: String,
+
+    pub accesses: Vec<String>,
 }
 
 /// Activate Admin query
@@ -82,7 +84,13 @@ impl PublicApi {
             return unauthorized();
         }
 
-        let labels = vec![];
+        let mut labels = vec![];
+
+        for access in query.accesses {
+            labels.push(format!("access.{}", access));
+        }
+
+        labels.dedup();
 
         dao.create(
             &query.name,
@@ -97,7 +105,7 @@ impl PublicApi {
 
     /// Mendapatkan daftar admin
     #[api_endpoint(path = "/list", auth = "required", accessor = "admin")]
-    pub fn list_admin(query: QueryEntries) -> ApiResult<EntriesResult<models::Admin>> {
+    pub fn list_admin(query: QueryEntries) -> ApiResult<EntriesResult<Admin>> {
         query.validate()?;
 
         let conn = state.db();
@@ -110,10 +118,13 @@ impl PublicApi {
         let entries = dao.get_admins(query.offset, query.limit)?;
 
         // filter out admin and system user from listing
-        let entries = entries.into_iter().filter(|a| a.id > 1).collect();
+        let entries: Vec<models::Admin> = entries.into_iter().filter(|a| a.id > 1).collect();
 
         let count = dao.count()?;
-        Ok(ApiResult::success(EntriesResult { count, entries }))
+        Ok(ApiResult::success(EntriesResult {
+            count,
+            entries: entries.into_iter().map(|a| a.to_api_type(&conn)).collect(),
+        }))
     }
 
     /// Mendapatkan jumlah admin secara keseluruhan.

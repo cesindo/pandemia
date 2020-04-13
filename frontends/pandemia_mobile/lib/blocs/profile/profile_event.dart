@@ -1,5 +1,5 @@
-
 import 'package:equatable/equatable.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:meta/meta.dart';
 import 'package:pandemia_mobile/models/user.dart';
 
@@ -10,7 +10,7 @@ abstract class ProfileEvent extends Equatable {
 
 class LoadProfile extends ProfileEvent {
   final bool force;
-  LoadProfile({this.force=false});
+  LoadProfile({this.force = false});
 
   @override
   String toString() => "LoadProfile";
@@ -31,4 +31,12 @@ class DeleteProfile extends ProfileEvent {
   @override
   String toString() => "DeleteProfile";
 }
-  
+
+/// Event to Register as Satgas
+class RegisterAsSatgas extends ProfileEvent {
+  final User user;
+  final LatLng location;
+  RegisterAsSatgas(this.user, this.location);
+  @override
+  String toString() => "RegisterAsSatgas";
+}

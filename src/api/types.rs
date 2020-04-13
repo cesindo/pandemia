@@ -158,3 +158,35 @@ impl ToApiType<Record> for models::Record {
         }
     }
 }
+
+#[doc(hidden)]
+#[derive(Queryable, Serialize)]
+pub struct Admin {
+    pub id: ID,
+    pub name: String,
+    pub email: String,
+    pub phone_num: String,
+    pub accesses: Vec<String>,
+    pub active: bool,
+    pub register_time: NaiveDateTime,
+}
+
+impl ToApiType<Admin> for models::Admin {
+    fn to_api_type(&self, conn: &PgConnection) -> Admin {
+        let accesses = self
+            .meta
+            .iter()
+            .filter(|a| a.starts_with("access."))
+            .map(|a| (&a[7..]).to_string())
+            .collect();
+        Admin {
+            id: self.id,
+            name: self.name.to_owned(),
+            email: self.email.to_owned(),
+            phone_num: self.phone_num.to_owned(),
+            accesses,
+            active: self.active,
+            register_time: self.register_time,
+        }
+    }
+}

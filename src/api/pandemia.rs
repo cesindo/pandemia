@@ -2,7 +2,7 @@
 #![allow(missing_docs)]
 
 use actix_web::{HttpRequest, HttpResponse};
-use chrono::NaiveDateTime;
+use chrono::{NaiveDate, NaiveDateTime};
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
 use std::collections::HashMap;
@@ -16,12 +16,13 @@ use crate::{
         ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest,
     },
     auth,
-    dao::{Logs, RecordDao},
+    dao::{Logs, RecordDao, SubReportDao},
     error::{self, ErrorCode},
     eventstream::{self, Event::NewRecordUpdate},
     models,
     prelude::*,
-    types::LocKind,
+    sub_report_dao,
+    types::{HealthyKind, LocKind, SubReportStatus},
     ID,
 };
 
@@ -53,6 +54,14 @@ pub struct InfoLocation {
     pub history: Vec<models::Record>,
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct SubReportQuery {
+    pub offset: i64,
+    pub limit: i64,
+    pub query: Option<String>,
+    pub status: i32,
+}
+
 #[derive(Deserialize, Validate)]
 pub struct AddRecord {
     #[validate(length(min = 2, max = 1000))]
@@ -71,6 +80,43 @@ pub struct AddRecord {
     pub active_cases: i32,
     #[validate(range(min = 0))]
     pub critical_cases: i32,
+}
+
+#[derive(Deserialize, Validate)]
+pub struct AddSubReport {
+    #[validate(length(min = 1, max = 50))]
+    pub full_name: String,
+    pub age: i32,
+    #[validate(length(min = 1, max = 80))]
+    pub residence_address: String,
+    #[validate(length(min = 1, max = 50))]
+    pub gender: String,
+    #[validate(length(min = 1, max = 70))]
+    pub arrival_address: String,
+    pub arrival_date: NaiveDate,
+    #[validate(length(min = 1, max = 50))]
+    pub desc: String,
+    pub status: i32,
+    pub complaint: Option<Vec<String>>,
+}
+
+#[derive(Deserialize, Validate)]
+pub struct UpdateSubReport {
+    pub id: ID,
+    #[validate(length(min = 1, max = 50))]
+    pub full_name: String,
+    pub age: i32,
+    #[validate(length(min = 1, max = 80))]
+    pub residence_address: String,
+    #[validate(length(min = 1, max = 50))]
+    pub gender: String,
+    #[validate(length(min = 1, max = 70))]
+    pub arrival_address: String,
+    pub arrival_date: NaiveDate,
+    #[validate(length(min = 1, max = 50))]
+    pub desc: String,
+    pub status: i32,
+    pub complaint: Option<Vec<String>>,
 }
 
 /// Holder untuk implementasi API endpoint publik untuk Pandemia.
@@ -108,6 +154,121 @@ impl PublicApi {
         );
 
         Ok(ApiResult::success(record))
+    }
+
+    /// Add Sub Report.
+    #[api_endpoint(path = "/sub_report/add", auth = "required", accessor = "user", mutable)]
+    pub fn add_sub_report(query: AddSubReport) -> ApiResult<models::SubReport> {
+        query.validate()?;
+        let conn = state.db();
+        let dao = SubReportDao::new(&conn);
+
+        if !current_user.is_satgas() {
+            param_error("Anda tidak dapat menambahkan data")?;
+        }
+
+        let mut healthy: HealthyKind = HealthyKind::Health;
+        let mut meta: Vec<String> = Vec::new();
+        if let Some(complaint) = &query.complaint.as_ref() {
+            if complaint.len() > 0 {
+                healthy = HealthyKind::Sick;
+                meta.push(format!("gejala={}", complaint.join(",")))
+            }
+        }
+        let status = match query.status {
+            0 => SubReportStatus::ODP,
+            1 => SubReportStatus::PDP,
+            2 => SubReportStatus::Positive,
+            3 => SubReportStatus::Recovered,
+            _ => param_error("Status tidak valid")?,
+        };
+        let sub_report = dao.create(
+            current_user.id,
+            &current_user.full_name,
+            &query.full_name,
+            query.age,
+            &query.residence_address,
+            &query.gender,
+            &query.arrival_address,
+            query.arrival_date,
+            healthy as i32,
+            &query.desc,
+            status as i32,
+            &meta.iter().map(|a| a.as_ref()).collect::<Vec<&str>>(),
+        )?;
+        Ok(ApiResult::success(sub_report))
+    }
+
+    /// Update Sub Report.
+    #[api_endpoint(path = "/sub_report/update", auth = "required", accessor = "user", mutable)]
+    pub fn update_sub_report(query: UpdateSubReport) -> ApiResult<()> {
+        query.validate()?;
+        let conn = state.db();
+        let dao = SubReportDao::new(&conn);
+
+        if !current_user.is_satgas() {
+            param_error("Anda tidak dapat menambahkan data")?;
+        }
+
+        let mut healthy: HealthyKind = HealthyKind::Health;
+        let mut meta: Vec<String> = Vec::new();
+        if let Some(complaint) = &query.complaint.as_ref() {
+            if complaint.len() > 0 {
+                healthy = HealthyKind::Sick;
+                meta.push(format!("gejala={}", complaint.join(",")))
+            }
+        }
+        let status = match query.status {
+            0 => SubReportStatus::ODP,
+            1 => SubReportStatus::PDP,
+            2 => SubReportStatus::Positive,
+            3 => SubReportStatus::Recovered,
+            _ => param_error("Status tidak valid")?,
+        };
+        let sub_report = dao.update(
+            query.id,
+            sub_report_dao::UpdateSubReport {
+                full_name: &query.full_name,
+                age: query.age,
+                residence_address: &query.residence_address,
+                gender: &query.gender,
+                arrival_address: &query.arrival_address,
+                arrival_date: query.arrival_date,
+                healthy: healthy as i32,
+                desc: &query.desc,
+                status: status as i32,
+                meta: &meta.iter().map(|a| a.as_ref()).collect::<Vec<&str>>(),
+            },
+        )?;
+        Ok(ApiResult::success(()))
+    }
+
+    /// Search for sub_report
+    #[api_endpoint(path = "/sub_report/search", auth = "required", accessor = "user")]
+    pub fn search_sub_reports(query: SubReportQuery) -> ApiResult<EntriesResult<models::SubReport>> {
+        let conn = state.db();
+        let dao = SubReportDao::new(&conn);
+
+        let status = match query.status {
+            0 => SubReportStatus::ODP,
+            1 => SubReportStatus::PDP,
+            2 => SubReportStatus::Positive,
+            3 => SubReportStatus::Recovered,
+            _ => param_error("Status tidak valid")?,
+        };
+
+        let result = dao.search(
+            current_user.id,
+            status as i32,
+            &query.query.unwrap_or("".to_string()),
+            query.offset,
+            query.limit,
+        )?;
+
+        Ok(ApiResult::success(EntriesResult {
+            entries: result.entries,
+            count: result.count,
+        }))
     }
 
     /// Get location stats data (single mode).

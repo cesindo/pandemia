@@ -16,7 +16,7 @@ BASE_URI = "https://rest.cekdiri.id"
 
 def resp_err_check(resp):
   if resp.status_code != 200:
-    print("Error: %s", resp)
+    print("Error: %s" % resp)
     sys.exit(resp.status_code)
 
 

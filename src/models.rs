@@ -1,7 +1,7 @@
 //! Definisi struct untuk model-model yang ada di dalam database.
 
 use crate::{result::Result, schema::user_settings, types::RecordDiff};
-use chrono::NaiveDateTime;
+use chrono::{NaiveDate, NaiveDateTime};
 use diesel::prelude::*;
 use serde::Serialize;
 
@@ -37,6 +37,15 @@ pub struct User {
 
     /// Waktu kapan akun ini didaftarkan.
     pub register_time: NaiveDateTime,
+
+    /// Location latitude
+    pub latitude: f64,
+
+    /// Location latitude
+    pub longitude: f64,
+
+    /// meta
+    pub meta: Vec<String>,
 }
 
 /// Bentuk model dari alamat untuk akun.
@@ -134,7 +143,7 @@ pub struct Admin {
     pub name: String,
     pub email: String,
     pub phone_num: String,
-    pub labels: Vec<String>,
+    pub meta: Vec<String>,
     pub active: bool,
     pub register_time: NaiveDateTime,
 }
@@ -234,6 +243,16 @@ struct NewUserSetting<'a> {
     s_key: &'a str,
     s_value: &'a str,
 }
+
+#[doc(hidden)]
+#[derive(Clone, Serialize, Deserialize, PartialEq)]
+pub struct LatLong {
+    /// The latitude
+    pub lat: f64,
+    /// The longitude
+    pub long: f64,
+}
+
 impl User {
     /// Set user setting
     pub fn set_setting(&self, key: &str, value: &str, conn: &PgConnection) -> Result<()> {
@@ -293,6 +312,19 @@ impl User {
             .load(conn)
             .map_err(From::from)
     }
+
+    /// Define is current user is satgas
+    pub fn is_satgas(&self) -> bool {
+        self.meta.contains(&":satgas:".to_string())
+    }
+
+    /// Get latitude longitude
+    pub fn get_lat_long(&self) -> LatLong {
+        LatLong {
+            lat: self.latitude,
+            long: self.longitude,
+        }
+    }
 }
 
 #[doc(hidden)]
@@ -345,6 +377,25 @@ pub struct Log {
     pub id: ID,
     pub activity: String,
     pub initiator_id: ID,
+    pub meta: Vec<String>,
+    pub ts: NaiveDateTime,
+}
+
+#[doc(hidden)]
+#[derive(Queryable, Serialize)]
+pub struct SubReport {
+    pub id: ID,
+    pub creator_id: ID,
+    pub creator_name: String,
+    pub full_name: String,
+    pub age: i32,
+    pub residence_address: String,
+    pub gender: String,
+    pub arrival_address: String,
+    pub arrival_date: NaiveDate,
+    pub healty: i32,
+    pub desc: String,
+    pub status: i32,
     pub meta: Vec<String>,
     pub ts: NaiveDateTime,
 }

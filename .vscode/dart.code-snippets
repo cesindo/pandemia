@@ -179,5 +179,16 @@
             "  }",
             "}"
         ]
+    },
+    "Create TextField for search": {
+        "scope": "dart",
+        "prefix": "textsearch",
+        "body": [
+    "TextField(",
+    "   decoration: InputDecoration(",
+    "       border: InputBorder.none,",
+    "       hintText: '${1:Enter a search term}'),",
+    "),"
+        ]
     }
 }

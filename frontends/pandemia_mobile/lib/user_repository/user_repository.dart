@@ -60,11 +60,10 @@ class UserRepository {
     return repo
         .fetchGradually("currentUser", () => PublicApi.get("/user/v1/me/info"),
             force: true)
-        .map((a){
-          currentUser = User.fromMap(a.data);
-          return currentUser;
-        })
-        .first;
+        .map((a) {
+      currentUser = User.fromMap(a.data);
+      return currentUser;
+    }).first;
   }
 
   Future<User> getLocalUserInfo() async {

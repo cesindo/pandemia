@@ -13,6 +13,7 @@ import 'package:pandemia_mobile/blocs/settings/settings_bloc.dart';
 import 'package:pandemia_mobile/blocs/settings/settings_event.dart';
 import 'package:pandemia_mobile/blocs/stats/stats_bloc.dart';
 import 'package:pandemia_mobile/blocs/stats/stats_event.dart';
+import 'package:pandemia_mobile/blocs/sub_report/sub_report_bloc.dart';
 import 'package:pandemia_mobile/core/core.dart';
 import 'package:pandemia_mobile/models/models.dart';
 import 'package:pandemia_mobile/notification_util.dart';
@@ -21,6 +22,8 @@ import 'package:pandemia_mobile/screens/issue/issue_page.dart';
 import 'package:pandemia_mobile/screens/map/map_page.dart';
 import 'package:pandemia_mobile/screens/profile/profile_edit_page.dart';
 import 'package:pandemia_mobile/screens/setting/setting_page.dart';
+import 'package:pandemia_mobile/screens/sub_report/add_sub_report.dart';
+import 'package:pandemia_mobile/screens/sub_report/sub_report_page.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
 import 'package:pandemia_mobile/widgets/widgets.dart';
 
@@ -31,11 +34,14 @@ import 'package:pandemia_mobile/screens/stats/stats_page.dart';
 class HomeScreen extends StatelessWidget {
   final String title;
   final PandemiaBloc pandemiaBloc;
+  final UserRepository userRepository = UserRepository();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   HomeScreen({Key key, this.title, this.pandemiaBloc}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    var currentUser = userRepository.currentUser;
     // final pandemiaBloc = BlocProvider.of<PandemiaBloc>(context);
     final tabBloc = BlocProvider.of<TabBloc>(context);
     final notifBloc = BlocProvider.of<NotifBloc>(context);
@@ -45,6 +51,7 @@ class HomeScreen extends StatelessWidget {
     final mapBloc = BlocProvider.of<MapBloc>(context);
     final settingsBloc = BlocProvider.of<SettingsBloc>(context);
     final profileBloc = BlocProvider.of<ProfileBloc>(context);
+    final subReportBloc = BlocProvider.of<SubReportBloc>(context);
 
     final feed = FeedTabScreen(feedBloc);
     final stats = StatsPage();
@@ -59,11 +66,40 @@ class HomeScreen extends StatelessWidget {
       NotificationUtil().init(context, notifBloc, feedBloc);
     });
 
-    void _selectedChoice(String choice) {
-      if (choice == CustomPopupMenu.profile) {
+    List<CustomPopupMenuItem> choices = [];
+
+    if (currentUser?.isSatgas != true) {
+      choices.add(CustomPopupMenuItem(0, "Daftar Satgas", Icons.edit));
+    } else {
+      choices.add(CustomPopupMenuItem(1, "Data ODP/PDP", Icons.list));
+    }
+    choices.add(CustomPopupMenuItem(2, "Tentang", Icons.info));
+
+    void _selectedChoice(CustomPopupMenuItem choice) {
+      if (choice.index == 0) {
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => editProfile));
-      } else if (choice == CustomPopupMenu.about) {
+                context, MaterialPageRoute(builder: (context) => editProfile))
+            .then((result) {
+          if (result != null) {
+            choices.clear();
+            choices.add(CustomPopupMenuItem(1, "Data ODP/PDP", Icons.list));
+            choices.add(CustomPopupMenuItem(2, "Tentang", Icons.info));
+            User user = result;
+            currentUser = currentUser.copy(
+                fullName: user.fullName,
+                email: user.email,
+                phoneNum: user.phoneNum,
+                isSatgas: true);
+            _scaffoldKey.currentState.showSnackBar(SnackBar(
+                content: Text(
+                    "Anda telah terdaftar sebagai Satgas. Kind Anda bisa melakukan input data ODP/PDP."),
+                backgroundColor: Colors.green));
+          }
+        });
+      } else if (choice.index == 1) {
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => SubReportPage(subReportBloc: subReportBloc, profileBloc: profileBloc)));
+      } else if (choice.index == 2) {
         Navigator.of(context).pushNamed(PandemiaRoutes.about);
       } else {
         Navigator.of(context).pushNamed(PandemiaRoutes.odp);
@@ -90,32 +126,39 @@ class HomeScreen extends StatelessWidget {
           body = settings;
         }
         return Scaffold(
+          key: _scaffoldKey,
           appBar: AppBar(
             elevation: 2.0,
             leading: Image.asset("assets/img/pandemia-logo-32.png"),
             title: Text(title, style: TextStyle()),
             titleSpacing: 0.0,
             actions: <Widget>[
-              PopupMenuButton(
+              PopupMenuButton<CustomPopupMenuItem>(
                 onSelected: _selectedChoice,
-                itemBuilder: (BuildContext context) {
-                  return CustomPopupMenu.choices.map((String choice) {
-                    return PopupMenuItem(
-                      value: choice,
-                      child: ListTile(
-                        leading: choice == CustomPopupMenu.profile
-                            ? Icon(Icons.edit)
-                            : Icon(Icons.info),
-                        title: Text(choice),
-                      ),
-                    );
-                  }).toList();
-                },
+                itemBuilder: (context) => choices.map((choice) {
+                  return PopupMenuItem<CustomPopupMenuItem>(
+                    value: choice,
+                    child: ListTile(
+                      leading: Icon(choice.icon),
+                      title: Text(choice.title),
+                    ),
+                  );
+                }).toList(),
               )
               
             ],
           ),
           body: body,
+          floatingActionButton: (currentUser?.isSatgas == true &&
+                  activeTab != AppTab.settings &&
+                  activeTab != AppTab.map)
+              ? FloatingActionButton(
+                  tooltip: "Tambahkan data ODP/PDP",
+                  child: Icon(Icons.person_add),
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) =>
+                          AddSubReportPage(subReportBloc: subReportBloc))))
+              : null,
           bottomNavigationBar: TabSelector(
             activeTab: activeTab,
             onTabSelected: (tab) => tabBloc.dispatch(UpdateTab(tab)),
@@ -126,10 +169,10 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class CustomPopupMenu {
-  static const String odp = 'Data ODP/PDP';
-  static const String profile = 'Edit Profil Satgas';
-  static const String about = 'Tentang';
+class CustomPopupMenuItem {
+  final int index;
+  final String title;
+  final IconData icon;
 
-  static const List<String> choices = <String>[odp, profile, about];
+  CustomPopupMenuItem(this.index, this.title, this.icon);
 }

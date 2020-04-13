@@ -72,6 +72,7 @@ mod result;
 mod schema;
 pub mod service;
 mod sqlutil;
+pub mod sub_report_dao;
 pub mod token;
 pub mod types;
 pub mod user_dao;

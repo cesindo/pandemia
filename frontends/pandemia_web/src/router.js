@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Home from './views/Home.vue'
 import Dashboard from './views/Dashboard.vue'
+import SatgasLogin from './views/Satgas.vue'
 import NotFound from './views/NotFound.vue'
 
 Vue.use(Router)
@@ -54,11 +55,27 @@ let router = new Router({
       },
     },
     {
+      path: '/dashboard/satgas',
+      name: 'Satgas COVID-19',
+      component: Dashboard,
+      meta: {
+        title: 'Dashboard' + titleDesc,
+      },
+    },
+    {
       path: '/dashboard/journal',
       name: 'Journal',
       component: Dashboard,
       meta: {
         title: 'Dashboard' + titleDesc,
+      },
+    },
+    {
+      path: '/satgas',
+      name: 'Satgas',
+      component: SatgasLogin,
+      meta: {
+        title: 'Login Satgas COVID-19'
       },
     },
     {

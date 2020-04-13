@@ -7,6 +7,8 @@
           <i class="search icon"></i>
         </div>
 
+        <slot name="bar"></slot>
+
         <table class="ui celled table">
           <thead>
             <tr>

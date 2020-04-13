@@ -112,10 +112,20 @@ pub fn loc_to_ll(query: &str, conn: &PgConnection) -> Result<LatLong> {
     // tidak ada di cache, ambil dari source luar
     let query = normalize_query(query.to_lowercase());
 
+    let (country, city) = {
+        let s: Vec<&str> = query.split('/').collect();
+        match &s[0..] {
+            &[a, b] => (a, b),
+            &[a, b, c] => (a, c),
+            _ => ("", ""),
+        }
+    };
+
     let mut resp = reqwest::get(&format!(
-        "https://geocoder.ls.hereapi.com/6.2/geocode.json?apiKey={}&searchtext={}",
+        "https://geocoder.ls.hereapi.com/6.2/geocode.json?apiKey={}&country={}&city={}",
         env::var("GEOLOCATOR_API_KEY").expect("GEOLOCATOR_API_KEY env not set"),
-        query
+        country,
+        city
     ))?;
     let resp_text = resp.text()?;
     let item: GeocoderResponseWrapper = serde_json::from_str(&resp_text)?;

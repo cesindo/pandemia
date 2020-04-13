@@ -9,6 +9,15 @@ pub enum AccountKind {
     User = 1,
 }
 
+/// Healthy kind
+pub enum HealthyKind {
+    /// Health/sehat
+    Health = 1,
+
+    /// Sick/ada gejala
+    Sick = 2,
+}
+
 /// Notification kind or types
 #[derive(Serialize, Copy, Clone)]
 pub enum NotifKind {
@@ -27,6 +36,22 @@ pub enum NotifKind {
 
     /// Info
     Info = 6,
+}
+
+/// Status sub reports
+#[derive(Serialize, Copy, Clone)]
+pub enum SubReportStatus {
+    /// Orang Dalam Pemantauan
+    ODP = 0,
+
+    /// Pasien Dalam Pemantauan
+    PDP = 1,
+
+    /// Positif covid-19
+    Positive = 2,
+
+    /// Sembuh
+    Recovered = 3,
 }
 
 /// Location kind
