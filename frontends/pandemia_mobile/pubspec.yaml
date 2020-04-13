@@ -49,6 +49,7 @@ dependencies:
   location: ^3.0.0
   multiselect_formfield: ^0.1.2
   flutter_typeahead: ^1.8.0
+  autocomplete_textfield: 1.7.3
 
 dev_dependencies:
   flutter_test:
