@@ -34,4 +34,9 @@ List<String> kab = [
     "Kota Semarang",
     "Kota Pekalongan",
     "Kota Tegal"
+    "Kabupaten Bantul",
+    "Kabupaten Gunungkidul",
+    "Kabupaten Kulon Progo",
+    "Kabupaten Sleman",
+    "Kota Yogyakarta"
   ];
