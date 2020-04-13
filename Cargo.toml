@@ -1,6 +1,6 @@
 [package]
 name = "pandemia"
-version = "0.1.6" # auto generated do not edit by hand
+version = "0.1.8" # auto generated do not edit by hand
 authors = ["Robin <r@ansvia.com>"]
 edition = "2018"
 description = "Monitor pandemic disease via  mobile App with push notification"
