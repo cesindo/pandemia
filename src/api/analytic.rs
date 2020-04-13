@@ -12,6 +12,7 @@ use crate::{
     api::types::*,
     api::{error::param_error, ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest},
     auth,
+    dao::VillageDataDao,
     // dao::AnalyticDao,
     error::{Error, ErrorCode},
     models,
@@ -37,24 +38,19 @@ pub struct PublicApi;
 impl PublicApi {
     /// Search for area
     #[api_endpoint(path = "/area", auth = "required")]
-    pub fn search_area(query: AreaQuery) -> ApiResult<EntriesResult<()>> {
+    pub fn search_area(query: AreaQuery) -> ApiResult<EntriesResult<models::VillageData>> {
         query.validate()?;
-        // let conn = state.db();
-        // let dao = SubReportDao::new(&conn);
+        let conn = state.db();
 
-        // let sresult = dao.area_search(
-        //     &query.query.unwrap_or("".to_string()),
-        //     &query.province,
-        //     &query.city,
-        //     query.offset,
-        //     query.limit,
-        // )?;
+        // unimplemented!();
 
-        // let entries = sresult.entries.into_iter().map(|p| p.into()).collect();
+        // dummy data
 
-        // let count = sresult.count;
-        // Ok(ApiResult::success(EntriesResult { count, entries }))
-        unimplemented!();
+        let entries = VillageDataDao::new(&conn).get_village_datas(query.offset, query.limit)?;
+        Ok(ApiResult::success(EntriesResult {
+            count: entries.len() as i64,
+            entries: entries,
+        }))
     }
 }
 

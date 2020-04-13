@@ -104,8 +104,8 @@ let router = new Router({
       },
     },
     {
-      path: '/area/:province/:city/:name',
-      name: 'Analitik Daerah',
+      path: '/area/:province/:city',
+      name: 'Analitik Daerah Terdampak COVID-19',
       component: Analytic,
       meta: {
         title: 'Analitik Daerah'
