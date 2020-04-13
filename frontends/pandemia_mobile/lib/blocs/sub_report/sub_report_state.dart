@@ -57,3 +57,9 @@ class SubReportDeleted extends SubReportState {
   @override
   String toString() => "SubReportDeleted";
 }
+
+
+class SearchLoading extends SubReportState {
+  @override
+  String toString() => "SearchLoading";
+}

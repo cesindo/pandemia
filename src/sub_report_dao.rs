@@ -91,6 +91,8 @@ impl<'a> SubReportDao<'a> {
         let mut filterer: Box<dyn BoxableExpression<sub_reports::table, _, SqlType = sql_types::Bool>> =
             Box::new(dsl::id.ne(0));
 
+        let query = query.trim();
+
         if query != "" {
             let like_clause = format!("%{}%", query).to_lowercase();
             filterer = Box::new(

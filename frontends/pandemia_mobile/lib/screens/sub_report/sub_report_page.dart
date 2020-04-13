@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pandemia_mobile/blocs/sub_report/sub_report.dart';
@@ -18,6 +20,8 @@ class _SubReportPageState extends State<SubReportPage>
     with TickerProviderStateMixin {
   final SubReportBloc subReportBloc;
   TabController _tabController;
+  TextEditingController _odpSearchController = TextEditingController();
+  TextEditingController _pdpSearchController = TextEditingController();
 
   _SubReportPageState(this.subReportBloc);
 
@@ -60,23 +64,59 @@ class _SubReportPageState extends State<SubReportPage>
         physics: NeverScrollableScrollPhysics(),
         controller: _tabController,
         children: <Widget>[
-          ViewODPScreen(subReportBloc: subReportBloc),
-          ViewPDPScreen(subReportBloc: subReportBloc),
+          ViewODPScreen(
+            subReportBloc: subReportBloc,
+            searchController: _odpSearchController,
+          ),
+          ViewPDPScreen(
+            subReportBloc: subReportBloc,
+            searchController: _pdpSearchController,
+          ),
         ],
       ),
     );
   }
 }
 
-class ViewODPScreen extends StatelessWidget {
+class ViewODPScreen extends StatefulWidget {
   final SubReportBloc subReportBloc;
+  final TextEditingController searchController;
 
-  const ViewODPScreen({Key key, this.subReportBloc}) : super(key: key);
+  ViewODPScreen({Key key, this.subReportBloc, this.searchController})
+      : super(key: key);
+
+  // ViewODPScreen({Key key}) : super(key: key);
+
+  @override
+  _ViewODPScreenState createState() => _ViewODPScreenState();
+}
+
+class _ViewODPScreenState extends State<ViewODPScreen> {
+  FocusNode node = FocusNode();
+  StreamSubscription _subs;
+
+  @override
+  void initState() {
+    super.initState();
+    _subs = widget.subReportBloc.state.listen((SubReportState state) {
+      if (state is SubReportListUpdated || state is SubReportListLoaded) {
+        Future.delayed(Duration(milliseconds: 1000), () {
+          node.requestFocus();
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _subs.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SubReportBloc, SubReportState>(
-        bloc: subReportBloc,
+        bloc: this.widget.subReportBloc,
         builder: (context, state) {
           List<SubReport> items = [];
           if (state is SubReportListLoading) {
@@ -87,38 +127,102 @@ class ViewODPScreen extends StatelessWidget {
             items = state.items;
           }
 
-          if (items.isNotEmpty) {
-            return ListView.builder(
-                itemCount: items.length,
-                itemBuilder: (context, index) {
-                  final item = items[index];
-                  return Card(
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.person_pin,
-                        size: 30,
-                      ),
-                      title: Text("${item.fullName}"),
-                      subtitle: Text("${item.residenceAddress}"),
-                    ),
-                  );
-                });
-          } else {
-            return Center(child: Text("Belum ada data"));
-          }
+          return Column(
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.only(left: 10),
+                child: TextFormField(
+                  focusNode: node,
+                  autofocus: true,
+                  controller: this.widget.searchController,
+                  onFieldSubmitted: (text) {
+                    print("submit $text");
+                    widget.subReportBloc.dispatch(SubReportSearch(text, 0));
+                  },
+                  onChanged: (text) {
+                    setState(() {});
+                  },
+                  decoration: InputDecoration(
+                      //  border: InputBorder.none,
+                      suffixIcon: widget.searchController.text != ""
+                          ? IconButton(
+                              icon: Icon(Icons.cancel),
+                              onPressed: () {
+                                setState(() {
+                                  widget.searchController.clear();
+                                  widget.subReportBloc
+                                      .dispatch(LoadSubReport(status: 0));
+                                  node.requestFocus();
+                                });
+                              })
+                          : null,
+                      hintText: 'Pencarian'),
+                ),
+              ),
+              Expanded(
+                child: items.isNotEmpty
+                    ? ListView.builder(
+                        itemCount: items.length,
+                        itemBuilder: (context, index) {
+                          final item = items[index];
+                          return Card(
+                            child: ListTile(
+                              leading: Icon(
+                                Icons.person_pin,
+                                size: 30,
+                              ),
+                              title: Text("${item.fullName}"),
+                              subtitle: Text("${item.residenceAddress}"),
+                            ),
+                          );
+                        })
+                    : Center(child: Text("Belum ada data")),
+              )
+            ],
+          );
         });
   }
 }
 
-class ViewPDPScreen extends StatelessWidget {
+class ViewPDPScreen extends StatefulWidget {
   final SubReportBloc subReportBloc;
+  final TextEditingController searchController;
 
-  const ViewPDPScreen({Key key, this.subReportBloc}) : super(key: key);
+  ViewPDPScreen({Key key, this.subReportBloc, this.searchController})
+      : super(key: key);
+
+  @override
+  _ViewPDPScreenState createState() => _ViewPDPScreenState();
+}
+
+class _ViewPDPScreenState extends State<ViewPDPScreen> {
+  FocusNode node = FocusNode();
+  StreamSubscription _subs;
+
+  @override
+  void initState() {
+    super.initState();
+    _subs = widget.subReportBloc.state.listen((SubReportState state) {
+      if (state is SubReportListUpdated || state is SubReportListLoaded) {
+        Future.delayed(Duration(milliseconds: 1000), () {
+          node.requestFocus();
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _subs.cancel();
+    super.dispose();
+  }
+
+  // const ViewPDPScreen({Key key, this.subReportBloc}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SubReportBloc, SubReportState>(
-        bloc: subReportBloc,
+        bloc: widget.subReportBloc,
         builder: (context, state) {
           List<SubReport> items = [];
           if (state is SubReportListLoading) {
@@ -129,25 +233,78 @@ class ViewPDPScreen extends StatelessWidget {
             items = state.items;
           }
 
-          if (items.isNotEmpty) {
-            return ListView.builder(
-                itemCount: items.length,
-                itemBuilder: (context, index) {
-                  final item = items[index];
-                  return Card(
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.person_pin,
-                        size: 30,
-                      ),
-                      title: Text("${item.fullName}"),
-                      subtitle: Text("${item.residenceAddress}"),
-                    ),
-                  );
-                });
-          } else {
-            return Center(child: Text("Belum ada data"));
-          }
+          return Column(
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.only(left: 10),
+                child: TextFormField(
+                  focusNode: node,
+                  autofocus: true,
+                  controller: this.widget.searchController,
+                  onFieldSubmitted: (text) {
+                    print("submit $text");
+                    widget.subReportBloc.dispatch(SubReportSearch(text, 1));
+                  },
+                  onChanged: (text) {
+                    setState(() {});
+                  },
+                  decoration: InputDecoration(
+                      //  border: InputBorder.none,
+                      suffixIcon: widget.searchController.text != ""
+                          ? IconButton(
+                              icon: Icon(Icons.cancel),
+                              onPressed: () {
+                                setState(() {
+                                  widget.searchController.clear();
+                                  widget.subReportBloc
+                                      .dispatch(LoadSubReport(status: 1));
+                                  node.requestFocus();
+                                });
+                              })
+                          : null,
+                      hintText: 'Pencarian'),
+                ),
+              ),
+              Expanded(
+                  child: items.isNotEmpty
+                      ? ListView.builder(
+                          itemCount: items.length,
+                          itemBuilder: (context, index) {
+                            final item = items[index];
+                            return Card(
+                              child: ListTile(
+                                leading: Icon(
+                                  Icons.person_pin,
+                                  size: 30,
+                                ),
+                                title: Text("${item.fullName}"),
+                                subtitle: Text("${item.residenceAddress}"),
+                              ),
+                            );
+                          })
+                      : Center(child: Text("Belum ada data")))
+            ],
+          );
+
+          //   if (items.isNotEmpty) {
+          //     return ListView.builder(
+          //         itemCount: items.length,
+          //         itemBuilder: (context, index) {
+          //           final item = items[index];
+          //           return Card(
+          //             child: ListTile(
+          //               leading: Icon(
+          //                 Icons.person_pin,
+          //                 size: 30,
+          //               ),
+          //               title: Text("${item.fullName}"),
+          //               subtitle: Text("${item.residenceAddress}"),
+          //             ),
+          //           );
+          //         });
+          //   } else {
+          //     return Center(child: Text("Belum ada data"));
+          //   }
         });
   }
 }

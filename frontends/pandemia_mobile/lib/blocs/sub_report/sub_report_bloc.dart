@@ -23,6 +23,23 @@ class SubReportBloc extends Bloc<SubReportEvent, SubReportState> {
       yield* _mapCreateSubReportToState(event);
     } else if (event is DeleteSubReport) {
       yield* _mapDeleteToState(event);
+    } else if (event is SubReportSearch) {
+      yield* _mapSearchOdpToState(event);
+    }
+  }
+
+  Stream<SubReportState> _mapSearchOdpToState(SubReportSearch event) async* {
+    yield SearchLoading();
+
+    final data = await PublicApi.get(
+        "/pandemia/v1/sub_report/search?query=${event.query}&status=${event.status}&offset=0&limit=10");
+
+    if (data != null) {
+      yield SubReportListLoaded((data["result"]["entries"] as List<dynamic>)
+          .map((a) => SubReport.fromMap(a))
+          .toList());
+    } else {
+      yield SubReportFailure(error: "Cannot get SubReport data from server");
     }
   }
 

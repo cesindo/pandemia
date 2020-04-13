@@ -49,3 +49,11 @@ class DeleteSubReport extends SubReportEvent {
   @override
   String toString() => "DeleteSubReport";
 }
+
+class SubReportSearch extends SubReportEvent {
+  final String query;
+  final int status;
+  SubReportSearch(this.query, this.status);
+  @override
+  String toString() => "SubReportSearch";
+}
