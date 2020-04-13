@@ -65,40 +65,6 @@
 		],
 		"description": "Create api test function"
 	},
-	"Implement API endpoint": {
-		"scope": "rust",
-		"prefix": "apiendpoint",
-		"body": [
-			"/// ${5:docs}.",
-			"#[api_endpoint(path = \"/${1:path}\", auth = \"${2:required}\")]",
-			"pub fn ${3:method_name}(query: IdQuery) -> ApiResult<${4:Type}> {",
-			"    let conn = state.db();",
-			"    ${6://@TODO(*): code here}",
-			"    unimplemented!();",
-			"}"
-		]
-	},
-	"Implement API endpoint for search": {
-		"scope": "rust",
-		"prefix": "apiendpointsearch",
-		"body": [
-			"/// Search for ${1:name}",
-			"#[api_endpoint(path = \"/search\", auth = \"required\")]",
-			"pub fn search_${1:name}(query: QueryEntries) -> ApiResult<EntriesResult<${2:Model}>> {",
-			"    let conn = state.db();",
-			"    let dao = ${2:Model}Dao::new(&conn);",
-			"",
-			"    let entries = dao",
-			"        .search(&query.query.unwrap_or(\"\".to_string()), query.offset, query.limit)?",
-			"        .into_iter()",
-			"        .map(|p| p.into())",
-			"        .collect();",
-			"",
-			"    let count = dao.count()?;",
-			"    Ok(ApiResult::success(EntriesResult { count, entries }))",
-			"}"
-		]
-	},
 	"Implement custom Dao": {
 		"scope": "rust",
 		"prefix": "impldao",
@@ -170,32 +136,26 @@
 			"    ${3:.map_err(From::from)}?;"
 		]
 	},
-        "Create diesel transaction": {
-                "prefix": "dieseltx",
-                "body": [
-                        "conn.build_transaction()",
-                        "    .read_write()",
-                        "    .run::<_, ${1:error}, _>(|| {",
-                        "        ${2:}",
-                        "        Ok(())",
-                        "    })"
-                ]
-        },
-        "Create diesel delete": {
-                "prefix": "dieseldelete",
-                "body": [
-                        "diesel::delete(",
-                        "    dsl::${1:tables}.filter(",
-                        "        dsl::${2:field}.eq(${2:field})",
-                        "       ),",
-                        ")",
-                        ".execute(self.db)"
-                ]
-        },
-	"Create ApiResult::success": {
-		"prefix": "apiresultsucess",
+	"Create diesel transaction": {
+		"prefix": "dieseltx",
 		"body": [
-			"Ok(ApiResult::success(${1:()}))"
+			"conn.build_transaction()",
+			"    .read_write()",
+			"    .run::<_, ${1:error}, _>(|| {",
+			"        ${2:}",
+			"        Ok(())",
+			"    })"
+		]
+	},
+	"Create diesel delete": {
+		"prefix": "dieseldelete",
+		"body": [
+			"diesel::delete(",
+			"    dsl::${1:tables}.filter(",
+			"        dsl::${2:field}.eq(${2:field})",
+			"       ),",
+			")",
+			".execute(self.db)"
 		]
 	},
 	"Create DAO update method": {
@@ -224,7 +184,7 @@
 			"    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {",
 			"        write!(f, \"${2:text}\")",
 			"    }",
-		  "}"
+			"}"
 		]
 	},
 	"Create API query type": {
@@ -242,4 +202,3 @@
 		]
 	}
 }
-
