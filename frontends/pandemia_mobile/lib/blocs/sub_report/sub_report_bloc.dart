@@ -40,7 +40,7 @@ class SubReportBloc extends Bloc<SubReportEvent, SubReportState> {
       "age": event.age,
       "residence_address": event.residenceAddress,
       "gender": event.gender,
-      "coming_from": event.comingFrom,
+      "coming_from": event.arrivalAddress,
       "arrival_date": event.arrivalDate,
       "desc": event.desc,
       "status": event.status,
@@ -53,7 +53,6 @@ class SubReportBloc extends Bloc<SubReportEvent, SubReportState> {
       print("data: $data");
 
       yield SubReportUpdated(SubReport.fromMap(data["result"]));
-      dispatch(LoadSubReport(status: event.status, force: true));
     } else {
       yield SubReportFailure(error: "Cannot update SubReport");
     }
@@ -110,7 +109,7 @@ class SubReportBloc extends Bloc<SubReportEvent, SubReportState> {
       "age": event.age,
       "residence_address": event.residenceAddress,
       "gender": event.gender,
-      "coming_from": event.comingFrom,
+      "arrival_address": event.arrivalAddress,
       "arrival_date": event.arrivalDate,
       "desc": event.desc,
       "status": event.status,

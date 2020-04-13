@@ -14,7 +14,7 @@ class SubReport extends Equatable {
   final int age;
   final String residenceAddress;
   final String gender;
-  final String comingFrom;
+  final String arrivalAddress;
   final String arrivalDate;
   final int healty;
   final String desc;
@@ -30,7 +30,7 @@ class SubReport extends Equatable {
       this.age,
       this.residenceAddress,
       this.gender,
-      this.comingFrom,
+      this.arrivalAddress,
       this.arrivalDate,
       this.healty,
       this.desc,
@@ -45,7 +45,7 @@ class SubReport extends Equatable {
           age,
           residenceAddress,
           gender,
-          comingFrom,
+          arrivalAddress,
           arrivalDate,
           healty,
           desc,
@@ -63,7 +63,7 @@ class SubReport extends Equatable {
     data["age"] = this.age;
     data["residence_address"] = this.residenceAddress;
     data["gender"] = this.gender;
-    data["coming_from"] = this.comingFrom;
+    data["arrival_address"] = this.arrivalAddress;
     data["arrival_date"] = this.arrivalDate;
     data["healty"] = this.healty;
     data["desc"] = this.desc;
@@ -82,7 +82,7 @@ class SubReport extends Equatable {
         "SubReport.residence_address is null");
     assert(data['gender'] != null, "SubReport.gender is null");
     assert(
-        data['coming_from'] != null, "SubReport.coming_from is null");
+        data['arrival_address'] != null, "SubReport.arrival_address is null");
     assert(data['arrival_date'] != null, "SubReport.arrival_date is null");
     assert(data['healty'] != null, "SubReport.healty is null");
     assert(data['desc'] != null, "SubReport.desc is null");
@@ -96,7 +96,7 @@ class SubReport extends Equatable {
         data['age'] as int,
         data['residence_address'] as String,
         data['gender'] as String,
-        data['coming_from'] as String,
+        data['arrival_address'] as String,
         data['arrival_date'] as String,
         data['healty'] as int,
         data['desc'] as String,
@@ -112,7 +112,7 @@ class SubReport extends Equatable {
       int age,
       String residenceAddress,
       String gender,
-      String comingFrom,
+      String arrivalAddress,
       String arrivalDate,
       int healty,
       String desc,
@@ -127,7 +127,7 @@ class SubReport extends Equatable {
         age ?? this.age,
         residenceAddress ?? this.residenceAddress,
         gender ?? this.gender,
-        comingFrom ?? this.comingFrom,
+        arrivalAddress ?? this.arrivalAddress,
         arrivalDate ?? this.arrivalDate,
         healty ?? this.healty,
         desc ?? this.desc,

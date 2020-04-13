@@ -36,4 +36,5 @@ class PandemiaKeys {
 class PandemiaRoutes {
   static final login = "/login";  
   static final about = "/about";
+  static final odp = "/odp";
 }

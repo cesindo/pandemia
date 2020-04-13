@@ -84,11 +84,6 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
             builder: (context) => BlocProvider<SubReportBloc>(
                 builder: (ctx) => SubReportBloc(),
                 child: SubReportPage(subReportBloc: subReportBloc))));
-      } else if (state is SubReportUpdated) {
-        _scaffoldKey.currentState.showSnackBar(SnackBar(
-            content: Text("Data berhasil diperbarui"),
-            backgroundColor: Colors.green));
-        Navigator.pop(context);
       }
     });
 
@@ -98,7 +93,7 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
           _fullNameCtl.text = item.fullName;
           _addrCtl.text = item.residenceAddress;
           _ageCtl.text = item.age.toString();
-          _fromCtl.text = item.comingFrom;
+          _fromCtl.text = item.arrivalAddress;
           _comingDateCtl.text = item.arrivalDate;
           _necessityCtl.text = item.desc;
           if (item.gender == "L") {
@@ -158,6 +153,7 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
                 ),
                 TextFormField(
                   decoration: InputDecoration(labelText: "Alamat Lengkap"),
+                  maxLines: 5,
                   controller: _addrCtl,
                   textInputAction: TextInputAction.next,
                   keyboardType: TextInputType.text,

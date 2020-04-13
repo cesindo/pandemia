@@ -160,7 +160,11 @@ table! {
         age -> Int4,
         residence_address -> Varchar,
         gender -> Varchar,
+<<<<<<< HEAD
         coming_from -> Varchar,
+=======
+        arrival_address -> Varchar,
+>>>>>>> 4bf8d35... [PAND-23] Buat multiline input alamat pada screen tambah data
         arrival_date -> Date,
         healthy -> Int4,
         desc -> Varchar,
@@ -225,6 +229,7 @@ table! {
         latitude -> Float8,
         longitude -> Float8,
         meta -> Array<Text>,
+<<<<<<< HEAD
     }
 }
 
@@ -239,6 +244,8 @@ table! {
         longitude -> Float8,
         meta -> Array<Text>,
         ts -> Timestamp,
+=======
+>>>>>>> 4bf8d35... [PAND-23] Buat multiline input alamat pada screen tambah data
     }
 }
 

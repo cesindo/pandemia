@@ -391,7 +391,11 @@ pub struct SubReport {
     pub age: i32,
     pub residence_address: String,
     pub gender: String,
+<<<<<<< HEAD
     pub coming_from: String,
+=======
+    pub arrival_address: String,
+>>>>>>> 4bf8d35... [PAND-23] Buat multiline input alamat pada screen tambah data
     pub arrival_date: NaiveDate,
     pub healty: i32,
     pub desc: String,
@@ -399,6 +403,7 @@ pub struct SubReport {
     pub meta: Vec<String>,
     pub ts: NaiveDateTime,
 }
+<<<<<<< HEAD
 
 #[doc(hidden)]
 #[derive(Queryable, Serialize)]
@@ -413,3 +418,5 @@ pub struct Village {
     pub meta: Vec<String>,
     pub ts: NaiveDateTime,
 }
+=======
+>>>>>>> 4bf8d35... [PAND-23] Buat multiline input alamat pada screen tambah data

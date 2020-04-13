@@ -22,7 +22,7 @@ class CreateSubReport extends SubReportEvent {
   final int age;
   final String residenceAddress;
   final String gender;
-  final String comingFrom;
+  final String arrivalAddress;
   final String arrivalDate;
   final String desc;
   final int status;
@@ -33,7 +33,7 @@ class CreateSubReport extends SubReportEvent {
       this.age,
       this.residenceAddress,
       this.gender,
-      this.comingFrom,
+      this.arrivalAddress,
       this.arrivalDate,
       this.desc,
       this.status,
@@ -48,7 +48,7 @@ class UpdateSubReport extends SubReportEvent {
   final int age;
   final String residenceAddress;
   final String gender;
-  final String comingFrom;
+  final String arrivalAddress;
   final String arrivalDate;
   final String desc;
   final int status;
@@ -60,7 +60,7 @@ class UpdateSubReport extends SubReportEvent {
       this.age,
       this.residenceAddress,
       this.gender,
-      this.comingFrom,
+      this.arrivalAddress,
       this.arrivalDate,
       this.desc,
       this.status,

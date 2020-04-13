@@ -18,6 +18,7 @@ import 'package:pandemia_mobile/blocs/sub_report/sub_report.dart';
 import 'package:pandemia_mobile/blocs/tab/tab_bloc.dart';
 import 'package:pandemia_mobile/screens/about/about_page.dart';
 import 'package:pandemia_mobile/screens/home.dart';
+import 'package:pandemia_mobile/screens/odp_pdp/odp_pdp_page.dart';
 import 'package:pandemia_mobile/screens/splash/splash_page.dart';
 import 'package:pandemia_mobile/time_helper.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
@@ -111,6 +112,7 @@ class PandemiaApp extends StatelessWidget {
         );
       },
       PandemiaRoutes.about: (context) => AboutPage(),
+      PandemiaRoutes.odp: (context) => OdpPdpScreen()
     });
   }
 }

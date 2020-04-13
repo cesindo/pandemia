@@ -100,7 +100,11 @@ export default {
           phone_num: phone,
           password: password,
           confirm_password: confPassword,
+<<<<<<< HEAD
           accesses: accessesInput
+=======
+          accessesInput: accessesInput
+>>>>>>> 4bf8d35... [PAND-23] Buat multiline input alamat pada screen tambah data
         })
         .then(resp => {
           if (resp.data.code == 0) {
@@ -123,12 +127,19 @@ export default {
     userListAllMapper(item) {
       return {
         id: item["id"],
+<<<<<<< HEAD
         name: item["full_name"],
         email: item["email"],
         phone: item["phone_num"],
         active: item["active"],
         roles: item["roles"].join(", "),
         meta: item["meta"],
+=======
+        name: item["name"],
+        email: item["email"],
+        phone: item["phone_num"],
+        active: item["active"],
+>>>>>>> 4bf8d35... [PAND-23] Buat multiline input alamat pada screen tambah data
         register_time: item["register_time"]
       };
     },

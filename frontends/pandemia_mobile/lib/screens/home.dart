@@ -20,7 +20,11 @@ import 'package:pandemia_mobile/notification_util.dart';
 import 'package:pandemia_mobile/screens/feed/feed_tab_screen.dart';
 import 'package:pandemia_mobile/screens/issue/issue_page.dart';
 import 'package:pandemia_mobile/screens/map/map_page.dart';
+<<<<<<< HEAD
 import 'package:pandemia_mobile/screens/profile/profile_edit_page.dart';
+=======
+import 'package:pandemia_mobile/screens/odp_pdp/odp_pdp_page.dart';
+>>>>>>> bb78293... PAND-21 Implementasi halaman list data odp/pdp
 import 'package:pandemia_mobile/screens/setting/setting_page.dart';
 import 'package:pandemia_mobile/screens/sub_report/add_sub_report.dart';
 import 'package:pandemia_mobile/screens/sub_report/sub_report_page.dart';
@@ -130,6 +134,7 @@ class HomeScreen extends StatelessWidget {
             leading: Image.asset("assets/img/pandemia-logo-32.png"),
             title: Text(title, style: TextStyle()),
             titleSpacing: 0.0,
+<<<<<<< HEAD
             actions: <Widget>[
               PopupMenuButton<CustomPopupMenuItem>(
                 onSelected: _selectedChoice,
@@ -142,7 +147,68 @@ class HomeScreen extends StatelessWidget {
                     ),
                   );
                 }).toList(),
+=======
+            actions: [
+              // FlatButton(
+              //   child: Icon(
+              //     Icons.info,
+              //     color: Colors.white,
+              //   ),
+              //   onPressed: () {
+              //     Navigator.of(context).pushNamed(PandemiaRoutes.about);
+              //   },
+              // )
+
+              PopupMenuButton<int>(
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    child: FlatButton(
+                      onPressed: () {
+                        Navigator.of(context).pushNamed(PandemiaRoutes.odp);
+                      },
+                      child: Row(
+                        children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.only(right: 10),
+                            child: Icon(
+                              Icons.list,
+                              color: Colors.purple[300],
+                            ),
+                          ),
+                          Text(
+                            "Data ODP/PDP",
+                            style: TextStyle(fontSize: 13),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                  PopupMenuItem(
+                    child: FlatButton(
+                      onPressed: () {
+                        Navigator.of(context).pushNamed(PandemiaRoutes.about);
+                      },
+                      child: Row(
+                        children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.only(right: 10),
+                            child: Icon(
+                              Icons.info,
+                              color: Colors.purple[300],
+                            ),
+                          ),
+                          Text(
+                            "Tentang",
+                            style: TextStyle(fontSize: 13),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+>>>>>>> bb78293... PAND-21 Implementasi halaman list data odp/pdp
               )
+              
             ],
           ),
           body: body,

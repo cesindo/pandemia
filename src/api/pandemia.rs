@@ -16,7 +16,11 @@ use crate::{
         ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest,
     },
     auth,
+<<<<<<< HEAD
     dao::{Logs, RecordDao, SubReportDao, VillageDao},
+=======
+    dao::{Logs, RecordDao, SubReportDao},
+>>>>>>> 4bf8d35... [PAND-23] Buat multiline input alamat pada screen tambah data
     error::{self, ErrorCode},
     eventstream::{self, Event::NewRecordUpdate},
     models,
@@ -92,7 +96,11 @@ pub struct AddSubReport {
     #[validate(length(min = 1, max = 50))]
     pub gender: String,
     #[validate(length(min = 1, max = 70))]
+<<<<<<< HEAD
     pub coming_from: String,
+=======
+    pub arrival_address: String,
+>>>>>>> 4bf8d35... [PAND-23] Buat multiline input alamat pada screen tambah data
     pub arrival_date: NaiveDate,
     #[validate(length(min = 1, max = 50))]
     pub desc: String,
@@ -111,7 +119,11 @@ pub struct UpdateSubReport {
     #[validate(length(min = 1, max = 50))]
     pub gender: String,
     #[validate(length(min = 1, max = 70))]
+<<<<<<< HEAD
     pub coming_from: String,
+=======
+    pub arrival_address: String,
+>>>>>>> 4bf8d35... [PAND-23] Buat multiline input alamat pada screen tambah data
     pub arrival_date: NaiveDate,
     #[validate(length(min = 1, max = 50))]
     pub desc: String,
@@ -189,7 +201,11 @@ impl PublicApi {
             query.age,
             &query.residence_address,
             &query.gender,
+<<<<<<< HEAD
             &query.coming_from,
+=======
+            &query.arrival_address,
+>>>>>>> 4bf8d35... [PAND-23] Buat multiline input alamat pada screen tambah data
             query.arrival_date,
             healthy as i32,
             &query.desc,
@@ -201,7 +217,11 @@ impl PublicApi {
 
     /// Update Sub Report.
     #[api_endpoint(path = "/sub_report/update", auth = "required", accessor = "user", mutable)]
+<<<<<<< HEAD
     pub fn update_sub_report(query: UpdateSubReport) -> ApiResult<models::SubReport> {
+=======
+    pub fn update_sub_report(query: UpdateSubReport) -> ApiResult<()> {
+>>>>>>> 4bf8d35... [PAND-23] Buat multiline input alamat pada screen tambah data
         query.validate()?;
         let conn = state.db();
         let dao = SubReportDao::new(&conn);
@@ -232,7 +252,11 @@ impl PublicApi {
                 age: query.age,
                 residence_address: &query.residence_address,
                 gender: &query.gender,
+<<<<<<< HEAD
                 coming_from: &query.coming_from,
+=======
+                arrival_address: &query.arrival_address,
+>>>>>>> 4bf8d35... [PAND-23] Buat multiline input alamat pada screen tambah data
                 arrival_date: query.arrival_date,
                 healthy: healthy as i32,
                 desc: &query.desc,
@@ -240,7 +264,11 @@ impl PublicApi {
                 meta: &meta.iter().map(|a| a.as_ref()).collect::<Vec<&str>>(),
             },
         )?;
+<<<<<<< HEAD
         Ok(ApiResult::success(sub_report))
+=======
+        Ok(ApiResult::success(()))
+>>>>>>> 4bf8d35... [PAND-23] Buat multiline input alamat pada screen tambah data
     }
 
     /// Search for sub_report

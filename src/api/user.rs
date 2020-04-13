@@ -48,7 +48,55 @@ use crate::{
 
 //     use std::convert::From;
 
+<<<<<<< HEAD
 // }
+=======
+    /// Bentuk model akun di dalam database.
+    #[derive(Clone, Serialize, Deserialize, PartialEq)]
+    pub struct User {
+        /// ID dari akun.
+        pub id: i64,
+
+        /// Nama lengkap akun.
+        pub full_name: String,
+
+        /// Alamat email kun.
+        pub email: String,
+
+        /// Nomor telpon akun.
+        pub phone_num: String,
+
+        /// Waktu kapan akun ini didaftarkan.
+        pub register_time: NaiveDateTime,
+
+        /// Satgas
+        pub is_satgas: bool,
+
+        /// Location latitude, longitude
+        pub loc: models::LatLong,
+    }
+
+    impl From<models::User> for User {
+        fn from(a: models::User) -> Self {
+            User {
+                id: a.id,
+                full_name: a.full_name.to_owned(),
+                email: a.email.to_owned(),
+                phone_num: a.phone_num.to_owned(),
+                register_time: a.register_time,
+                is_satgas: a.is_satgas(),
+                loc: a.get_lat_long(),
+            }
+        }
+    }
+
+    impl From<models::User> for ApiResult<User> {
+        fn from(a: models::User) -> Self {
+            ApiResult::success(a.into())
+        }
+    }
+}
+>>>>>>> 4bf8d35... [PAND-23] Buat multiline input alamat pada screen tambah data
 
 // #[derive(Deserialize, Validate)]
 // pub struct SetUserSettings {

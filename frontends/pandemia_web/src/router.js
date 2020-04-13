@@ -3,7 +3,10 @@ import Router from 'vue-router'
 import Home from './views/Home.vue'
 import Dashboard from './views/Dashboard.vue'
 import SatgasLogin from './views/Satgas.vue'
+<<<<<<< HEAD
 import Analytic from './views/Analytic.vue'
+=======
+>>>>>>> 4bf8d35... [PAND-23] Buat multiline input alamat pada screen tambah data
 import NotFound from './views/NotFound.vue'
 
 Vue.use(Router)
@@ -96,6 +99,7 @@ let router = new Router({
       },
     },
     {
+<<<<<<< HEAD
       path: '/dashboard/villages',
       name: 'Data Desa',
       component: Dashboard,
@@ -112,6 +116,8 @@ let router = new Router({
       },
     },
     {
+=======
+>>>>>>> 4bf8d35... [PAND-23] Buat multiline input alamat pada screen tambah data
       path: '*',
       name: '404',
       component: NotFound,

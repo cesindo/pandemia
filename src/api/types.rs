@@ -190,6 +190,7 @@ impl ToApiType<Admin> for models::Admin {
         }
     }
 }
+<<<<<<< HEAD
 
 /// Bentuk model akun di dalam database.
 #[derive(Clone, Serialize, Deserialize, PartialEq)]
@@ -252,3 +253,5 @@ impl From<models::User> for ApiResult<User> {
         ApiResult::success(a.into())
     }
 }
+=======
+>>>>>>> 4bf8d35... [PAND-23] Buat multiline input alamat pada screen tambah data
