@@ -243,6 +243,16 @@ struct NewUserSetting<'a> {
     s_key: &'a str,
     s_value: &'a str,
 }
+
+#[doc(hidden)]
+#[derive(Clone, Serialize, Deserialize, PartialEq)]
+pub struct LatLong {
+    /// The latitude
+    pub lat: f64,
+    /// The longitude
+    pub long: f64,
+}
+
 impl User {
     /// Set user setting
     pub fn set_setting(&self, key: &str, value: &str, conn: &PgConnection) -> Result<()> {
@@ -306,6 +316,14 @@ impl User {
     /// Define is current user is satgas
     pub fn is_satgas(&self) -> bool {
         self.meta.contains(&":satgas:".to_string())
+    }
+
+    /// Get latitude longitude
+    pub fn get_lat_long(&self) -> LatLong {
+        LatLong {
+            lat: self.latitude,
+            long: self.longitude,
+        }
     }
 }
 

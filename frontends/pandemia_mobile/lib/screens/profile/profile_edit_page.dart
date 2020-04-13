@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:pandemia_mobile/blocs/profile/profile.dart';
@@ -10,6 +9,7 @@ import 'package:pandemia_mobile/screens/profile/location_picker.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
 import 'package:pandemia_mobile/util/address_util.dart';
 import 'package:pandemia_mobile/widgets/loading_indicator.dart';
+import 'package:pandemia_mobile/util/string_extension.dart';
 
 class ProfileEditPage extends StatefulWidget {
   final ProfileBloc profileBloc;
@@ -28,6 +28,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   final _emailCtl = TextEditingController();
   final _phoneCtl = TextEditingController();
   final _locCtl = TextEditingController();
+  final _villageCtl = TextEditingController();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   StreamSubscription subs;
   LatLng location;
@@ -82,7 +83,8 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                       textInputAction: TextInputAction.next,
                       decoration: InputDecoration(labelText: 'Nama Lengkap'),
                       controller: _fullNameCtl,
-                      onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
+                      onFieldSubmitted: (_) =>
+                          FocusScope.of(context).nextFocus(),
                       validator: (val) {
                         return val.isEmpty
                             ? "Nama lengkap tidak boleh kosong"
@@ -94,7 +96,8 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                       textInputAction: TextInputAction.next,
                       decoration: InputDecoration(labelText: 'Alamat Email'),
                       controller: _emailCtl,
-                      onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
+                      onFieldSubmitted: (_) =>
+                          FocusScope.of(context).nextFocus(),
                       validator: (val) {
                         return val.isEmpty
                             ? "Alamat email tidak boleh kosong"
@@ -106,7 +109,8 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                       textInputAction: TextInputAction.next,
                       decoration: InputDecoration(labelText: 'Nomor Telepon'),
                       controller: _phoneCtl,
-                      onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
+                      onFieldSubmitted: (_) =>
+                          FocusScope.of(context).nextFocus(),
                       validator: (val) {
                         return val.isEmpty
                             ? "Nomor telepon tidak boleh kosong"
@@ -125,6 +129,17 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                           hintText: 'Pilih lokasi Anda',
                           suffixIcon: Icon(Icons.location_searching)),
                     ),
+                    TextFormField(
+                      keyboardType: TextInputType.text,
+                      textInputAction: TextInputAction.done,
+                      decoration: InputDecoration(labelText: 'Desa'),
+                      controller: _villageCtl,
+                      onFieldSubmitted: (_) =>
+                          FocusScope.of(context).unfocus(),
+                      validator: (val) {
+                        return val.isEmpty ? "Desa tidak boleh kosong" : null;
+                      },
+                    ),
                     Container(
                       margin: EdgeInsets.only(top: 20.0, bottom: 10.0),
                       child: MaterialButton(
@@ -139,7 +154,8 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                                 currentUser.copy(
                                     fullName: _fullNameCtl.text,
                                     email: _emailCtl.text,
-                                    phoneNum: _phoneCtl.text),
+                                    phoneNum: _phoneCtl.text,
+                                    village: _villageCtl.text.capitalize()),
                                 location));
                           }
                         },
@@ -161,7 +177,8 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
     Navigator.of(context)
         .push(MaterialPageRoute(
             builder: (ctx) => LocationPicker(
-                  pinPosition: LatLng(locationData.latitude, locationData.longitude),
+                  pinPosition:
+                      LatLng(locationData.latitude, locationData.longitude),
                 )))
         .then((result) {
       if (result != null) {

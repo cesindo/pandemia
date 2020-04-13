@@ -47,25 +47,27 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       "full_name": event.user.fullName,
       "email": event.user.email,
       "phone_num": event.user.phoneNum,
+      "village": event.user.village,
       "latitude": event.location.latitude,
       "longitude": event.location.longitude,
-    }).then((data) {
-      if (data != null) {
-        User updated = event.user.copy(
-          isSatgas: true,
-          loc: event.location,
-          settings: oldData.settings,
-        );
-        userRepository.getUserInfo();
-        userRepository.repo.putData("currentUser", updated.toMap());
-        userRepository.currentUser = updated;
-        return ProfileUpdated(updated);
-      } else {
-        return ProfileFailure(error: "Tidak dapat mendaftar sebagai satgas");
-      }
-    }).catchError((error) {
-      return ProfileFailure(error: error.toString());
-    }).asStream();
-    dispatch(LoadProfile());
+    })
+        .then((data) {
+          if (data != null) {
+            User updated = event.user.copy(
+                isSatgas: true,
+                settings: oldData.settings,
+                loc: event.location);
+            userRepository.repo.putData("currentUser", updated.toMap());
+            return ProfileUpdated(updated);
+          } else {
+            return ProfileFailure(
+                error: "Tidak dapat mendaftar sebagai satgas");
+          }
+        })
+        .catchError((error) {
+          return ProfileFailure(error: error.toString());
+        })
+        .whenComplete(() => dispatch(LoadProfile()))
+        .asStream();
   }
 }

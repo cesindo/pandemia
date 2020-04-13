@@ -35,6 +35,7 @@ class HomeScreen extends StatelessWidget {
   final String title;
   final PandemiaBloc pandemiaBloc;
   final UserRepository userRepository = UserRepository();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   HomeScreen({Key key, this.title, this.pandemiaBloc}) : super(key: key);
 
@@ -65,20 +66,31 @@ class HomeScreen extends StatelessWidget {
       NotificationUtil().init(context, notifBloc, feedBloc);
     });
 
+    List<CustomPopupMenuItem> choices = [];
+
+    if (currentUser?.isSatgas != true) {
+      choices.add(CustomPopupMenuItem(0, "Daftar Satgas", Icons.edit));
+    } else {
+      choices.add(CustomPopupMenuItem(1, "Data ODP/PDP", Icons.list));
+    }
+    choices.add(CustomPopupMenuItem(2, "Tentang", Icons.info));
+
     void _selectedChoice(CustomPopupMenuItem choice) {
       if (choice.index == 0) {
         Navigator.push(
                 context, MaterialPageRoute(builder: (context) => editProfile))
             .then((result) {
           if (result != null) {
+            choices.clear();
+            choices.add(CustomPopupMenuItem(1, "Data ODP/PDP", Icons.list));
+            choices.add(CustomPopupMenuItem(2, "Tentang", Icons.info));
             User user = result;
-            userRepository.getUserInfo();
             currentUser = currentUser.copy(
                 fullName: user.fullName,
                 email: user.email,
                 phoneNum: user.phoneNum,
                 isSatgas: true);
-            Scaffold.of(context).showSnackBar(SnackBar(
+            _scaffoldKey.currentState.showSnackBar(SnackBar(
                 content: Text(
                     "Anda terdaftar sebagai Satgas. Anda bisa melakukan input data ODP/PDP."),
                 backgroundColor: Colors.green));
@@ -93,15 +105,6 @@ class HomeScreen extends StatelessWidget {
         Navigator.of(context).pushNamed(PandemiaRoutes.about);
       }
     }
-
-    List<CustomPopupMenuItem> choices = [];
-    if (currentUser?.isSatgas != true) {
-      choices.add(CustomPopupMenuItem(0, "Daftar Satgas", Icons.edit));
-    } else {
-      choices.add(CustomPopupMenuItem(1, "Data ODP/PDP", Icons.list));
-    }
-
-    choices.add(CustomPopupMenuItem(2, "Tentang", Icons.info));
 
     return BlocBuilder<TabBloc, AppTab>(
       builder: (context, activeTab) {
@@ -123,6 +126,7 @@ class HomeScreen extends StatelessWidget {
           body = settings;
         }
         return Scaffold(
+          key: _scaffoldKey,
           appBar: AppBar(
             elevation: 2.0,
             leading: Image.asset("assets/img/pandemia-logo-32.png"),
