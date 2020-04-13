@@ -247,7 +247,7 @@ export default {
       this.$modal.hide("Delete");
       this.$pandemia
         .api()
-        .publicApi.post("/pandemia/v1/villages/delete", {
+        .publicApi.post("/pandemia/v1/village/delete", {
           id: this.toDelete["id"]
         })
         .then(resp => {

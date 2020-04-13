@@ -42,7 +42,7 @@ class SubReportBloc extends Bloc<SubReportEvent, SubReportState> {
       "gender": event.gender,
       "coming_from": event.comingFrom,
       "arrival_date": event.arrivalDate,
-      "desc": event.desc,
+      "notes": event.notes,
       "status": event.status,
       "complaint": event.complaint,
     };
@@ -112,7 +112,7 @@ class SubReportBloc extends Bloc<SubReportEvent, SubReportState> {
       "gender": event.gender,
       "coming_from": event.comingFrom,
       "arrival_date": event.arrivalDate,
-      "desc": event.desc,
+      "notes": event.notes,
       "status": event.status,
       "complaint": event.complaint,
     };

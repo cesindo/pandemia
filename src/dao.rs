@@ -3,6 +3,7 @@
 use diesel::sql_types;
 
 pub use crate::admin_dao::AdminDao;
+pub use crate::city_dao::CityDao;
 pub use crate::dao::journal::Logs;
 pub use crate::feed_dao::FeedDao;
 pub use crate::map_marker_dao::MapMarkerDao;

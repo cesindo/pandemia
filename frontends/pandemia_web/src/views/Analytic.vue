@@ -16,51 +16,36 @@
     <div class="dashboard-inner" v-bind:style="customMargin">
       <h1>{{ pageTitle }}</h1>
 
-      <div v-if="currentPage['/dashboard']">
-        <div class="ui placeholder segment center aligned">
-          <div class="ui header">Selamat datang di pusat kontrol Pandemia</div>
+      <h2>Wonosobo / Kalisuren</h2>
+
+      <div class="ui grid">
+        <div class="four wide column">
+          <AnsTable
+            :key="tableUsers"
+            data-source-url="/analytic/v1/area?province=jawa-tengah&city=wonosobo"
+            :columns="['Desa', 'ODP', 'PDP', 'Pos']"
+            :searchable="true"
+            :withActionButton="true"
+            :mapItemFunc="userListAllMapper"
+            :showDetailFunc="showDetail"
+          />
         </div>
+        <div class="eight wide column">dua</div>
       </div>
-
-      <Admins v-if="currentPage['/dashboard/admins'] && currentUserId == 1" />
-      <Users v-if="currentPage['/dashboard/users'] && currentUserId == 1" />
-
-      <Records v-if="currentPage['/dashboard/records']" />
-
-      <AdminDetail baseApiUrl="/admin/v1/detail" v-if="$route.path.startsWith('/dashboard/admins/')" :userId="$route.params.id" />
-      <UserDetail baseApiUrl="/user/v1/detail" v-if="$route.path.startsWith('/dashboard/users/')" :userId="$route.params.id" />
-
-      <Villages v-if="currentPage['/dashboard/villages']" />
-
-      <Logs v-if="currentPage['/dashboard/journal']" />
     </div>
-
-    <notifications group="default" position="top center" classes="vue-notification" />
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
 // import AnsTable from "@/components/AnsTable.vue";
-import UserDetail from "@/components/UserDetail.vue";
-import AdminDetail from "@/components/AdminDetail.vue";
-import Records from "@/views/Records.vue";
-import Users from "@/views/Users.vue";
-import Admins from "@/views/Admins.vue";
-import Villages from "@/views/Villages.vue";
-import Logs from "@/views/Logs.vue";
+// import UserDetail from "@/components/UserDetail.vue";
 
 export default {
   name: "Dashboard",
   components: {
     // AnsTable,
-    UserDetail,
-    AdminDetail,
-    Records,
-    Users,
-    Admins,
-    Villages,
-    Logs
+    // UserDetail,
   },
   data() {
     return {
@@ -161,16 +146,6 @@ export default {
     isCurrentPage(title) {
       return this.currentPage == title;
     },
-    // startLoginChecker() {
-    //   var self = this;
-    //   this.loginCheckerIval = setInterval(() => {
-    //     this.$pandemia.isLoggedIn(loggedIn => {
-    //       if (!loggedIn) {
-    //         self.$router.replace("/");
-    //       }
-    //     });
-    //   }, 6000);
-    // },
     onCollapse(state) {
       this.collapsed = state;
       this.customMargin = {
@@ -234,6 +209,12 @@ export default {
 
 
 <style lang="less">
+h2 {
+  padding: 0 !important;
+  margin: 0 !important;
+  font-weight: 100;
+}
+
 .dashboard-inner {
   width: 100%;
   transition: all 0.1s ease-in-out;

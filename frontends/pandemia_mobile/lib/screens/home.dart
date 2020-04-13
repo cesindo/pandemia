@@ -92,7 +92,7 @@ class HomeScreen extends StatelessWidget {
                 isSatgas: true);
             _scaffoldKey.currentState.showSnackBar(SnackBar(
                 content: Text(
-                    "Anda telah terdaftar sebagai Satgas. Kind Anda bisa melakukan input data ODP/PDP."),
+                    "Anda telah terdaftar sebagai Satgas COVID-19. Kini Anda bisa melakukan input data ODP/PDP."),
                 backgroundColor: Colors.green));
           }
         });

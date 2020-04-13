@@ -55,6 +55,9 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
       } else if (state is ProfileFailure) {
         _scaffoldKey.currentState.showSnackBar(
             SnackBar(content: Text(state.error), backgroundColor: Colors.red));
+            setState(() {
+              _isLoading = false;
+            });
       } else if (state is ProfileUpdateLoading) {
         setState(() => _isLoading = true);
       }
@@ -176,7 +179,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                                     email: _emailCtl.text.trim(),
                                     phoneNum: _phoneCtl.text,
                                     village: _villageCtl.text.capitalize()),
-                                location));
+                                location, _areaCodeCtl.text));
                           }
                         },
                       ),

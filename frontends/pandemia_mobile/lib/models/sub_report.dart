@@ -17,7 +17,7 @@ class SubReport extends Equatable {
   final String comingFrom;
   final String arrivalDate;
   final int healty;
-  final String desc;
+  final String notes;
   final int status;
   final List<String> meta;
   final String ts;
@@ -33,7 +33,7 @@ class SubReport extends Equatable {
       this.comingFrom,
       this.arrivalDate,
       this.healty,
-      this.desc,
+      this.notes,
       this.status,
       this.meta,
       this.ts)
@@ -48,7 +48,7 @@ class SubReport extends Equatable {
           comingFrom,
           arrivalDate,
           healty,
-          desc,
+          notes,
           status,
           meta,
           ts
@@ -66,7 +66,7 @@ class SubReport extends Equatable {
     data["coming_from"] = this.comingFrom;
     data["arrival_date"] = this.arrivalDate;
     data["healty"] = this.healty;
-    data["desc"] = this.desc;
+    data["notes"] = this.notes;
     data["status"] = this.status;
     data["meta"] = this.meta;
     data["ts"] = this.ts;
@@ -85,7 +85,7 @@ class SubReport extends Equatable {
         data['coming_from'] != null, "SubReport.coming_from is null");
     assert(data['arrival_date'] != null, "SubReport.arrival_date is null");
     assert(data['healty'] != null, "SubReport.healty is null");
-    assert(data['desc'] != null, "SubReport.desc is null");
+    assert(data['notes'] != null, "SubReport.notes is null");
     assert(data['status'] != null, "SubReport.status is null");
     assert(data['ts'] != null, "SubReport.ts is null");
     return SubReport(
@@ -99,7 +99,7 @@ class SubReport extends Equatable {
         data['coming_from'] as String,
         data['arrival_date'] as String,
         data['healty'] as int,
-        data['desc'] as String,
+        data['notes'] as String,
         data['status'] as int,
         data['meta'] != null ? List.from(data['meta']) : [],
         data['ts'] as String);
@@ -115,7 +115,7 @@ class SubReport extends Equatable {
       String comingFrom,
       String arrivalDate,
       int healty,
-      String desc,
+      String notes,
       int status,
       List<String> meta,
       String ts}) {
@@ -130,7 +130,7 @@ class SubReport extends Equatable {
         comingFrom ?? this.comingFrom,
         arrivalDate ?? this.arrivalDate,
         healty ?? this.healty,
-        desc ?? this.desc,
+        notes ?? this.notes,
         status ?? this.status,
         meta ?? this.meta,
         ts ?? this.ts);

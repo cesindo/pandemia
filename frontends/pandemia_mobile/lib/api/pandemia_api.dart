@@ -23,12 +23,12 @@ class DetaxApi {
   static Future<Map<String, dynamic>> get(String path) async {
     // print("GET $path (public)");
     return ApiClient().detax().get(path).then((resp) {
-      if (resp == null || resp.body == null){
+      if (resp == null || resp.body == null) {
         throw PandemiaException("Cannot connect to server (code: 5832)");
       }
       // print("GET resp: ${resp.body}");
       final respData = tryDecode(resp.body);
-      if (respData == null){
+      if (respData == null) {
         throw PandemiaException("Cannot connect to server (code: 5832)");
       }
       checkValidResp(respData);
@@ -41,11 +41,11 @@ class DetaxApi {
       String path, Map<String, dynamic> data) async {
     // print("POST $path (public)");
     final rv = await ApiClient().detax().post(path, body: data).then((resp) {
-      if (resp == null || resp.body == null){
+      if (resp == null || resp.body == null) {
         throw PandemiaException("Cannot connect to server (code: 5832)");
       }
       final respData = tryDecode(resp.body);
-      if (respData == null){
+      if (respData == null) {
         throw PandemiaException("Cannot connect to server (code: 5832)");
       }
       checkValidResp(respData);
@@ -60,12 +60,12 @@ class PublicApi {
   static Future<Map<String, dynamic>> get(String path) async {
     // print("GET $path (public)");
     return ApiClient().public().get(path).then((resp) {
-      if (resp == null || resp.body == null){
+      if (resp == null || resp.body == null) {
         throw PandemiaException("Cannot connect to server (code: 5832)");
       }
       // print("GET resp: ${resp.body}");
       final respData = tryDecode(resp.body);
-      if (respData == null){
+      if (respData == null) {
         throw PandemiaException("Cannot connect to server (code: 5832)");
       }
       checkValidResp(respData);
@@ -78,11 +78,11 @@ class PublicApi {
       String path, Map<String, dynamic> data) async {
     // print("POST $path (public)");
     final rv = await ApiClient().public().post(path, body: data).then((resp) {
-      if (resp == null || resp.body == null){
+      if (resp == null || resp.body == null) {
         throw PandemiaException("Cannot connect to server (code: 5832)");
       }
       final respData = tryDecode(resp.body);
-      if (respData == null){
+      if (respData == null) {
         throw PandemiaException("Cannot connect to server (code: 5832)");
       }
       checkValidResp(respData);
@@ -91,17 +91,34 @@ class PublicApi {
     }).catchError(handleError);
     return rv;
   }
+
+  static Future<Map<String, dynamic>> post2(
+      String path, Map<String, dynamic> data) async {
+    // print("POST $path (public)");
+    return ApiClient().public().post(path, body: data).then((resp) {
+      if (resp == null || resp.body == null) {
+        throw PandemiaException("Cannot connect to server (code: 5832)");
+      }
+      final respData = tryDecode(resp.body);
+      if (respData == null) {
+        throw PandemiaException("Cannot connect to server (code: 5832)");
+      }
+      checkValidResp(respData);
+      checkValidResultResp(respData);
+      return respData;
+    });
+  }
 }
 
 class PrivateApi {
   static Future<Map<String, dynamic>> get(String path) async {
     // print("GET $path (private)");
     final data = await ApiClient().private().get(path).then((resp) {
-      if (resp == null || resp.body == null){
+      if (resp == null || resp.body == null) {
         throw PandemiaException("Cannot connect to server (code: 5832)");
       }
       final respData = tryDecode(resp.body);
-      if (respData == null){
+      if (respData == null) {
         throw PandemiaException("Cannot connect to server (code: 5832)");
       }
       checkValidResp(respData);
@@ -115,11 +132,11 @@ class PrivateApi {
       String path, Map<String, dynamic> data) async {
     // print("POST $path (private)");
     final rv = await ApiClient().private().post(path, body: data).then((resp) {
-      if (resp == null || resp.body == null){
+      if (resp == null || resp.body == null) {
         throw PandemiaException("Cannot connect to server (code: 5832)");
       }
       final respData = tryDecode(resp.body);
-      if (respData == null){
+      if (respData == null) {
         throw PandemiaException("Cannot connect to server (code: 5832)");
       }
       checkValidResp(respData);
@@ -142,7 +159,7 @@ void checkValidResp(Map<String, dynamic> respData) {
 void checkValidResultResp(Map<String, dynamic> respData) {
   if (!respData.containsKey("result")) {
     print('Invalid server response: $respData');
-    throw PandemiaException("Invalid server response, please report to developer");
+    throw PandemiaException(
+        "Invalid server response, please report to developer");
   }
 }
-

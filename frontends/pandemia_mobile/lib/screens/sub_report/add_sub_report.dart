@@ -100,7 +100,7 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
           _ageCtl.text = item.age.toString();
           _fromCtl.text = item.comingFrom;
           _comingDateCtl.text = item.arrivalDate;
-          _necessityCtl.text = item.desc;
+          _necessityCtl.text = item.notes;
           if (item.gender == "L") {
             _valGender = gender[0];
           } else {

@@ -48,6 +48,13 @@ pub struct User {
     pub meta: Vec<String>,
 }
 
+impl User {
+    /// Get area code for this user
+    pub fn get_area_code(&self) -> &str {
+        meta_value_str!(self, "area_code", "=")
+    }
+}
+
 /// Bentuk model dari alamat untuk akun.
 #[derive(Queryable)]
 pub struct Address {
@@ -394,10 +401,11 @@ pub struct SubReport {
     pub coming_from: String,
     pub arrival_date: NaiveDate,
     pub healty: i32,
-    pub desc: String,
+    pub notes: String,
     pub status: i32,
     pub meta: Vec<String>,
     pub ts: NaiveDateTime,
+    pub area_code: String,
 }
 
 #[doc(hidden)]
@@ -411,5 +419,15 @@ pub struct Village {
     pub latitude: f64,
     pub longitude: f64,
     pub meta: Vec<String>,
+    pub ts: NaiveDateTime,
+}
+#[doc(hidden)]
+#[derive(Queryable, Serialize)]
+pub struct City {
+    pub id: ID,
+    pub name: String,
+    pub province: String,
+    pub country_code: String,
+    pub area_code: String,
     pub ts: NaiveDateTime,
 }

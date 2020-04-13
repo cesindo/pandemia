@@ -72,6 +72,7 @@ impl_service!(AdminService, admin);
 impl_service!(PandemiaService, pandemia);
 impl_service!(FeedService, feed);
 impl_service!(MapAreaService, map_area);
+impl_service!(AnalyticService, analytic);
 
 /// Initialize and load services
 pub fn load_services() -> Vec<Box<dyn Service>> {
@@ -83,5 +84,6 @@ pub fn load_services() -> Vec<Box<dyn Service>> {
         SystemService::new(),
         UserService::new(),
         MapAreaService::new(),
+        AnalyticService::new(),
     ]
 }

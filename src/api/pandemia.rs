@@ -95,7 +95,7 @@ pub struct AddSubReport {
     pub coming_from: String,
     pub arrival_date: NaiveDate,
     #[validate(length(min = 1, max = 50))]
-    pub desc: String,
+    pub notes: String,
     pub status: i32,
     pub complaint: Option<Vec<String>>,
 }
@@ -114,7 +114,7 @@ pub struct UpdateSubReport {
     pub coming_from: String,
     pub arrival_date: NaiveDate,
     #[validate(length(min = 1, max = 50))]
-    pub desc: String,
+    pub notes: String,
     pub status: i32,
     pub complaint: Option<Vec<String>>,
 }
@@ -164,7 +164,7 @@ impl PublicApi {
         let dao = SubReportDao::new(&conn);
 
         if !current_user.is_satgas() {
-            param_error("Anda tidak dapat menambahkan data")?;
+            return param_error("Anda tidak dapat menambahkan data");
         }
 
         let mut healthy: HealthyKind = HealthyKind::Health;
@@ -175,6 +175,11 @@ impl PublicApi {
                 meta.push(format!("gejala={}", complaint.join(",")))
             }
         }
+        let area_code = match current_user.get_area_code() {
+            "" => return param_error("Anda tidak terdaftar pada area manapun"),
+            a => a,
+        };
+
         let status = match query.status {
             0 => SubReportStatus::ODP,
             1 => SubReportStatus::PDP,
@@ -192,9 +197,10 @@ impl PublicApi {
             &query.coming_from,
             query.arrival_date,
             healthy as i32,
-            &query.desc,
+            &query.notes,
             status as i32,
             &meta.iter().map(|a| a.as_ref()).collect::<Vec<&str>>(),
+            &area_code,
         )?;
         Ok(ApiResult::success(sub_report))
     }
@@ -207,8 +213,13 @@ impl PublicApi {
         let dao = SubReportDao::new(&conn);
 
         if !current_user.is_satgas() {
-            param_error("Anda tidak dapat menambahkan data")?;
+            return param_error("Anda tidak dapat menambahkan data")?;
         }
+
+        let area_code = match current_user.get_area_code() {
+            "" => return param_error("Anda tidak terdaftar pada area manapun"),
+            a => a,
+        };
 
         let mut healthy: HealthyKind = HealthyKind::Health;
         let mut meta: Vec<String> = Vec::new();
@@ -235,9 +246,10 @@ impl PublicApi {
                 coming_from: &query.coming_from,
                 arrival_date: query.arrival_date,
                 healthy: healthy as i32,
-                desc: &query.desc,
+                notes: &query.notes,
                 status: status as i32,
                 meta: &meta.iter().map(|a| a.as_ref()).collect::<Vec<&str>>(),
+                area_code,
             },
         )?;
         Ok(ApiResult::success(sub_report))
@@ -249,6 +261,11 @@ impl PublicApi {
         let conn = state.db();
         let dao = SubReportDao::new(&conn);
 
+        let area_code = match current_user.get_area_code() {
+            "" => return param_error("Anda tidak terdaftar pada area manapun"),
+            a => a,
+        };
+
         let status = match query.status {
             0 => SubReportStatus::ODP,
             1 => SubReportStatus::PDP,
@@ -258,9 +275,10 @@ impl PublicApi {
         };
 
         let result = dao.search(
-            current_user.id,
             status as i32,
+            area_code,
             &query.query.unwrap_or("".to_string()),
+            None,
             query.offset,
             query.limit,
         )?;
@@ -462,7 +480,7 @@ impl PublicApi {
     }
 
     /// Delete village.
-    #[api_endpoint(path = "/villages/delete", auth = "required", mutable, accessor = "admin")]
+    #[api_endpoint(path = "/village/delete", auth = "required", mutable, accessor = "admin")]
     pub fn delete_village(query: IdQuery) -> ApiResult<()> {
         let conn = state.db();
 

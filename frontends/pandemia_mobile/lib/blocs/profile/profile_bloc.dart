@@ -49,13 +49,14 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       "village": event.user.village,
       "latitude": event.location.latitude,
       "longitude": event.location.longitude,
+      "area_code": event.areaCode
     };
 
     if (event.user.email != "") {
       payload["email"] = event.user.email;
     }
 
-    yield* PublicApi.post("/user/v1/me/update", payload)
+    yield* PublicApi.post2("/user/v1/me/update", payload)
         .then((data) {
           if (data != null) {
             User updated = event.user.copy(
@@ -66,7 +67,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
             return ProfileUpdated(updated);
           } else {
             return ProfileFailure(
-                error: "Tidak dapat mendaftar sebagai satgas");
+                error: "Tidak dapat mendaftar sebagai satgas.");
           }
         })
         .catchError((error) {

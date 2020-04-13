@@ -17,8 +17,9 @@ use crate::{
         ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest,
     },
     auth,
+    dao::CityDao,
     error::{Error, ErrorCode},
-    models,
+    geolocator, models,
     prelude::*,
     types::AccountKind,
 };
@@ -74,16 +75,19 @@ pub struct UpdatePassword {
 
 #[derive(Deserialize, Validate)]
 pub struct UpdateUser {
-    #[validate(length(min = 2, max = 50))]
+    #[validate(length(min = 2, max = 64))]
     pub full_name: String,
     #[validate(length(min = 2, max = 50))]
     pub email: Option<String>,
     #[validate(length(min = 2, max = 15))]
     pub phone_num: String,
-    #[validate(length(min = 2, max = 30))]
+    #[validate(length(min = 2, max = 100))]
     pub village: String,
     pub latitude: f64,
     pub longitude: f64,
+
+    #[validate(length(min = 2, max = 30))]
+    pub area_code: String,
 }
 
 use crate::models::AccessToken;
@@ -130,9 +134,43 @@ impl PublicApi {
         query.validate()?;
         let conn = state.db();
         let dao = UserDao::new(&conn);
+
+        let city = CityDao::new(&conn).get_by_area_code(&query.area_code)?;
+
+        if city.is_none() {
+            return param_error("Kode area tidak benar, mohon periksa kembali.");
+        }
+        let city = city.unwrap();
+
+        let loc_info = match geolocator::ll_to_address(query.latitude, query.longitude, &conn) {
+            Ok(loc_info) => Some(loc_info),
+            Err(e) => {
+                error!("Cannot get geo locator. {}", e);
+                None
+            }
+        };
+
         let mut meta: Vec<String> = Vec::new();
+
         meta.push(":satgas:".to_string());
         meta.push(format!("village={}", query.village));
+        meta.push(format!("area_code={}", city.area_code));
+        meta.push(format!("city_by_area_code={}", city.name));
+        meta.push(format!("province_by_area_code={}", city.province));
+        meta.push(format!("address_by_area_code={}/{}", city.province, city.name));
+
+        if let Some(loc_info) = loc_info {
+            meta.push(format!(
+                "address={}/{}/{}/{}/{}/{}",
+                loc_info.country_code,
+                loc_info.province,
+                loc_info.city,
+                loc_info.district,
+                loc_info.subdistrict,
+                loc_info.label
+            ));
+        }
+
         dao.update_user_info(
             current_user.id,
             &query.full_name,

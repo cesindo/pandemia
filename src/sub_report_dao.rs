@@ -26,10 +26,11 @@ struct NewSubReport<'a> {
     pub coming_from: &'a str,
     pub arrival_date: NaiveDate,
     pub healthy: i32,
-    pub desc: &'a str,
+    pub notes: &'a str,
     pub status: i32,
     pub meta: &'a Vec<&'a str>,
     pub ts: NaiveDateTime,
+    pub area_code: &'a str,
 }
 
 #[doc(hidden)]
@@ -41,9 +42,10 @@ pub struct UpdateSubReport<'a> {
     pub coming_from: &'a str,
     pub arrival_date: NaiveDate,
     pub healthy: i32,
-    pub desc: &'a str,
+    pub notes: &'a str,
     pub status: i32,
     pub meta: &'a Vec<&'a str>,
+    pub area_code: &'a str,
 }
 
 /// Data Access Object for SubReport
@@ -66,9 +68,10 @@ impl<'a> SubReportDao<'a> {
         coming_from: &'a str,
         arrival_date: NaiveDate,
         healthy: i32,
-        desc: &'a str,
+        notes: &'a str,
         status: i32,
         meta: &'a Vec<&'a str>,
+        area_code: &'a str,
     ) -> Result<SubReport> {
         use crate::schema::sub_reports::{self, dsl};
 
@@ -83,10 +86,11 @@ impl<'a> SubReportDao<'a> {
                 coming_from,
                 arrival_date,
                 healthy,
-                desc,
+                notes,
                 status,
                 meta,
                 ts: util::now(),
+                area_code,
             })
             .get_result(self.db)
             .map_err(From::from)
@@ -104,7 +108,7 @@ impl<'a> SubReportDao<'a> {
                 dsl::coming_from.eq(data.coming_from),
                 dsl::arrival_date.eq(data.arrival_date),
                 dsl::healthy.eq(data.healthy),
-                dsl::desc.eq(data.desc),
+                dsl::notes.eq(data.notes),
                 dsl::status.eq(data.status),
                 dsl::meta.eq(data.meta),
             ))
@@ -112,31 +116,28 @@ impl<'a> SubReportDao<'a> {
         Ok(result)
     }
 
-    /// Search for specific sub_reports
+    /// Search for specific sub report by creator
     pub fn search(
         &self,
-        creator_id: i64,
         status: i32,
+        area_code: &str,
         query: &str,
+        creator_id: Option<i64>,
         offset: i64,
         limit: i64,
     ) -> Result<EntriesResult<SubReport>> {
         use crate::schema::sub_reports::{self, dsl};
         let mut filterer: Box<dyn BoxableExpression<sub_reports::table, _, SqlType = sql_types::Bool>> =
-            Box::new(dsl::id.ne(0));
+            Box::new(dsl::area_code.eq(area_code));
 
         let query = query.trim();
 
         if query != "" {
             let like_clause = format!("%{}%", query).to_lowercase();
-            filterer = Box::new(
-                filterer.and(
-                    lower(dsl::full_name)
-                        .like(like_clause)
-                        .and(dsl::creator_id.eq(creator_id)),
-                ),
-            );
-        } else {
+            filterer = Box::new(filterer.and(lower(dsl::full_name).like(like_clause)));
+        }
+
+        if let Some(creator_id) = creator_id {
             filterer = Box::new(filterer.and(dsl::creator_id.eq(creator_id)));
         }
 
@@ -155,4 +156,48 @@ impl<'a> SubReportDao<'a> {
                 .first(self.db)?,
         ))
     }
+
+    // /// Search for specific reports in area
+    // pub fn area_search(
+    //     &self,
+    //     query: &str,
+    //     province: &str,
+    //     city: &str,
+    //     offset: i64,
+    //     limit: i64,
+    // ) -> Result<EntriesResult<SubReport>> {
+    //     use crate::schema::sub_reports::{self, dsl};
+    //     let mut filterer: Box<dyn BoxableExpression<sub_reports::table, _, SqlType = sql_types::Bool>> =
+    //         Box::new(dsl::id.ne(0));
+
+    //     let query = query.trim();
+
+    //     if query != "" {
+    //         let like_clause = format!("%{}%", query).to_lowercase();
+    //         filterer = Box::new(
+    //             filterer.and(
+    //                 lower(dsl::province)
+    //                     .like(like_clause)
+    //                     .and(dsl::creator_id.eq(province)),
+    //             ),
+    //         );
+    //     } else {
+    //         filterer = Box::new(filterer.and(dsl::creator_id.eq(creator_id)));
+    //     }
+
+    //     filterer = Box::new(filterer.and(dsl::status.eq(status)));
+
+    //     Ok(EntriesResult::new(
+    //         dsl::sub_reports
+    //             .filter(&filterer)
+    //             .offset(offset)
+    //             .limit(limit)
+    //             .order(dsl::ts.desc())
+    //             .load::<SubReport>(self.db)?,
+    //         dsl::sub_reports
+    //             .filter(filterer)
+    //             .select(diesel::dsl::count(dsl::id))
+    //             .first(self.db)?,
+    //     ))
+    // }
 }

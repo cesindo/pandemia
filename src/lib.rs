@@ -53,6 +53,7 @@ mod macros;
 pub mod admin_dao;
 pub mod api;
 pub mod auth;
+pub mod city_dao;
 pub mod crypto;
 pub mod dao;
 mod db;

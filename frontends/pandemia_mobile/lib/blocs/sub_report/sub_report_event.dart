@@ -24,7 +24,7 @@ class CreateSubReport extends SubReportEvent {
   final String gender;
   final String comingFrom;
   final String arrivalDate;
-  final String desc;
+  final String notes;
   final int status;
   final List<String> complaint;
 
@@ -35,7 +35,7 @@ class CreateSubReport extends SubReportEvent {
       this.gender,
       this.comingFrom,
       this.arrivalDate,
-      this.desc,
+      this.notes,
       this.status,
       this.complaint);
   @override
@@ -50,7 +50,7 @@ class UpdateSubReport extends SubReportEvent {
   final String gender;
   final String comingFrom;
   final String arrivalDate;
-  final String desc;
+  final String notes;
   final int status;
   final List<String> complaint;
 
@@ -62,7 +62,7 @@ class UpdateSubReport extends SubReportEvent {
       this.gender,
       this.comingFrom,
       this.arrivalDate,
-      this.desc,
+      this.notes,
       this.status,
       this.complaint);
   @override

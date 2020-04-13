@@ -55,6 +55,17 @@ table! {
 }
 
 table! {
+    cities (id) {
+        id -> Int8,
+        name -> Text,
+        province -> Text,
+        country_code -> Text,
+        area_code -> Varchar,
+        ts -> Timestamp,
+    }
+}
+
+table! {
     feeds (id) {
         id -> Int8,
         creator_id -> Int8,
@@ -163,10 +174,11 @@ table! {
         coming_from -> Varchar,
         arrival_date -> Date,
         healthy -> Int4,
-        desc -> Varchar,
+        notes -> Varchar,
         status -> Int4,
         meta -> Array<Text>,
         ts -> Timestamp,
+        area_code -> Varchar,
     }
 }
 
@@ -262,6 +274,7 @@ allow_tables_to_appear_in_same_query!(
     admin_access_tokens,
     admin_passhash,
     admins,
+    cities,
     feeds,
     geoloc_cache,
     logs,

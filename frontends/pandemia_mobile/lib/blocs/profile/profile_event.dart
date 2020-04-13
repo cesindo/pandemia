@@ -36,7 +36,8 @@ class DeleteProfile extends ProfileEvent {
 class RegisterAsSatgas extends ProfileEvent {
   final User user;
   final LatLng location;
-  RegisterAsSatgas(this.user, this.location);
+  final String areaCode;
+  RegisterAsSatgas(this.user, this.location, this.areaCode);
   @override
   String toString() => "RegisterAsSatgas";
 }

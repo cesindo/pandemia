@@ -173,9 +173,17 @@ macro_rules! meta_value_i32 {
 
 macro_rules! meta_value_str {
     ($s:ident, $key:literal) => {
+        // $s.meta
+        //     .iter()
+        //     .find(|a| a.starts_with(concat!($key, ":")))
+        //     .and_then(|a| a.splitn(2, ':').last())
+        //     .unwrap_or("")
+        meta_value_str!($s, $key, ":")
+    };
+    ($s:ident, $key:literal, $ass:literal) => {
         $s.meta
             .iter()
-            .find(|a| a.starts_with(concat!($key, ":")))
+            .find(|a| a.starts_with(concat!($key, $ass)))
             .and_then(|a| a.splitn(2, ':').last())
             .unwrap_or("")
     };

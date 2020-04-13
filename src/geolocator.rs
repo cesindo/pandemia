@@ -40,6 +40,9 @@ struct MetaInfo {
 struct Location {
     #[serde(rename = "DisplayPosition")]
     pub display_position: LatLong,
+
+    #[serde(rename = "Address")]
+    pub address: Option<LocInfo>,
 }
 
 #[doc(hidden)]
@@ -93,8 +96,51 @@ struct NewGeolocCache<'a> {
     longitude: f64,
 }
 
+#[doc(hidden)]
+#[derive(Deserialize)]
+pub struct LocInfo {
+    pub label: String,
+
+    #[serde(rename = "Country")]
+    pub country_code: String,
+
+    #[serde(rename = "County")]
+    pub province: String,
+
+    #[serde(rename = "City")]
+    pub city: String,
+
+    #[serde(rename = "District")]
+    pub district: String,
+
+    #[serde(rename = "Subdistrict")]
+    pub subdistrict: String,
+}
+
+/// Get location address from lat long
+pub fn ll_to_address(lat: f64, lng: f64, conn: &PgConnection) -> Result<LocInfo> {
+    let mut resp = reqwest::get(
+        &format!("https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?prox={},{}&mode=retrieveAddresses&maxResults=1&gen=1&apiKey={}",
+            lat,lng,
+            env::var("GEOLOCATOR_API_KEY").expect("GEOLOCATOR_API_KEY env not set")))?;
+
+    let resp_text: String = resp.text()?;
+
+    let mut item: GeocoderResponseWrapper = serde_json::from_str(&resp_text)?;
+    if item.response.view.is_empty() || item.response.view[0].result.is_empty() {
+        return Err(Error::NotFound("geo locator data not found".to_string()));
+    }
+
+    let loc = item.response.view[0]
+        .result
+        .pop()
+        .expect("ll_to_loc cannot get result");
+
+    Ok(loc.location.address.expect("ll_to_loc cannot get address"))
+}
+
 /// Get latitude longitude from query location name like city etc.
-pub fn loc_to_ll(query: &str, conn: &PgConnection) -> Result<LatLong> {
+pub fn address_to_ll(query: &str, conn: &PgConnection) -> Result<LatLong> {
     use crate::schema::geoloc_cache::{self, dsl};
 
     // coba ambil dulu dari cache apabila ada
