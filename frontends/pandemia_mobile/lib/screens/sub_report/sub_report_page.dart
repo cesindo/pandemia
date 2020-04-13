@@ -82,6 +82,13 @@ class _SubReportPageState extends State<SubReportPage>
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) =>
+                AddSubReportPage(subReportBloc: subReportBloc))),
+        child: Icon(Icons.person_add),
+        tooltip: "Tambahkan data ODP/PDP",
+      ),
     );
   }
 }
