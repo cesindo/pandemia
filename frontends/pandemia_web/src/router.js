@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Home from './views/Home.vue'
 import Dashboard from './views/Dashboard.vue'
 import SatgasLogin from './views/Satgas.vue'
+import Analytic from './views/Analytic.vue'
 import NotFound from './views/NotFound.vue'
 
 Vue.use(Router)
@@ -25,6 +26,22 @@ let router = new Router({
     {
       path: '/dashboard',
       name: 'Dashboard',
+      component: Dashboard,
+      meta: {
+        title: 'Dashboard' + titleDesc,
+      },
+    },
+    {
+      path: '/dashboard/admins',
+      name: 'Administrators',
+      component: Dashboard,
+      meta: {
+        title: 'Dashboard' + titleDesc,
+      },
+    },
+    {
+      path: '/dashboard/admins/:id',
+      name: 'Administrator Detail',
       component: Dashboard,
       meta: {
         title: 'Dashboard' + titleDesc,
@@ -84,6 +101,14 @@ let router = new Router({
       component: Dashboard,
       meta: {
         title: 'Desa'
+      },
+    },
+    {
+      path: '/area/:province/:city/:name',
+      name: 'Analitik Daerah',
+      component: Analytic,
+      meta: {
+        title: 'Analitik Daerah'
       },
     },
     {

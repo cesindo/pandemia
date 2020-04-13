@@ -6,11 +6,11 @@
       <AnsTable
         :key="tableVillages"
         data-source-url="/pandemia/v1/village/search"
-        :columns="['ID', 'Nama', 'Kota/Kab', 'Provinsi', 'Lat', 'Long', 'Meta', 'Action']"
+        :columns="['ID', 'Nama', 'Kecamatan', 'Kota/Kab', 'Provinsi', 'Lat', 'Long', 'Meta', 'Action']"
         :searchable="true"
         :withActionButton="false"
         :showDetailFunc="showDetail"
-        :limit="10"
+        :limit="100"
       >
         <template v-slot:bar>
           <button v-if="isDirty" class="ui text icon green button right floated" @click="commit">
@@ -23,6 +23,7 @@
         <template v-slot:tdmap="self">
           <td>{{self.item['id']}}</td>
           <td>{{self.item['name']}}</td>
+          <td>{{self.item['sub_district']}}</td>
           <td>{{self.item['city']}}</td>
           <td>{{self.item['province']}}</td>
           <td>{{self.item['latitude']}}</td>

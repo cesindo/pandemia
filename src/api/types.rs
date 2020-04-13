@@ -10,7 +10,7 @@ use validator::Validate;
 // use crate::crypto::{self, PublicKey, SecretKey, Signature};
 
 use crate::{
-    api,
+    api::{self, ApiResult},
     error::{Error, ErrorCode},
     models,
     prelude::*,
@@ -188,5 +188,67 @@ impl ToApiType<Admin> for models::Admin {
             active: self.active,
             register_time: self.register_time,
         }
+    }
+}
+
+/// Bentuk model akun di dalam database.
+#[derive(Clone, Serialize, Deserialize, PartialEq)]
+pub struct User {
+    /// ID dari akun.
+    pub id: i64,
+
+    /// Nama lengkap akun.
+    pub full_name: String,
+
+    /// Alamat email kun.
+    pub email: String,
+
+    /// Nomor telpon akun.
+    pub phone_num: String,
+
+    /// Waktu kapan akun ini didaftarkan.
+    pub register_time: NaiveDateTime,
+
+    /// Satgas
+    pub is_satgas: bool,
+
+    /// Is user activeated.
+    pub active: bool,
+
+    /// user roles
+    pub roles: Vec<String>,
+
+    /// Additional metadata
+    pub meta: Vec<String>,
+
+    /// Location latitude, longitude
+    pub loc: models::LatLong,
+}
+
+impl From<models::User> for User {
+    fn from(a: models::User) -> Self {
+        let mut roles = vec![];
+
+        if a.is_satgas() {
+            roles.push("satgas".to_owned());
+        }
+        User {
+            id: a.id,
+            full_name: a.full_name.to_owned(),
+            email: a.email.to_owned(),
+            phone_num: a.phone_num.to_owned(),
+            register_time: a.register_time,
+            active: a.active,
+            is_satgas: a.is_satgas(),
+            roles,
+            meta: a.meta.clone(),
+            loc: a.get_lat_long(),
+        }
+    }
+}
+
+impl From<models::User> for ApiResult<User> {
+    fn from(a: models::User) -> Self {
+        ApiResult::success(a.into())
     }
 }

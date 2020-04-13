@@ -40,59 +40,15 @@ use crate::{
 
 /// Model untuk keperluan tukar menukar data API
 /// bukan yang di database (crate::models).
-pub mod types {
+// pub mod types {
 
-    use chrono::NaiveDateTime;
+//     use chrono::NaiveDateTime;
 
-    use crate::{api::ApiResult, models};
+//     use crate::{api::ApiResult, models};
 
-    use std::convert::From;
+//     use std::convert::From;
 
-    /// Bentuk model akun di dalam database.
-    #[derive(Clone, Serialize, Deserialize, PartialEq)]
-    pub struct User {
-        /// ID dari akun.
-        pub id: i64,
-
-        /// Nama lengkap akun.
-        pub full_name: String,
-
-        /// Alamat email kun.
-        pub email: String,
-
-        /// Nomor telpon akun.
-        pub phone_num: String,
-
-        /// Waktu kapan akun ini didaftarkan.
-        pub register_time: NaiveDateTime,
-
-        /// Satgas
-        pub is_satgas: bool,
-
-        /// Location latitude, longitude
-        pub loc: models::LatLong,
-    }
-
-    impl From<models::User> for User {
-        fn from(a: models::User) -> Self {
-            User {
-                id: a.id,
-                full_name: a.full_name.to_owned(),
-                email: a.email.to_owned(),
-                phone_num: a.phone_num.to_owned(),
-                register_time: a.register_time,
-                is_satgas: a.is_satgas(),
-                loc: a.get_lat_long(),
-            }
-        }
-    }
-
-    impl From<models::User> for ApiResult<User> {
-        fn from(a: models::User) -> Self {
-            ApiResult::success(a.into())
-        }
-    }
-}
+// }
 
 // #[derive(Deserialize, Validate)]
 // pub struct SetUserSettings {
@@ -164,7 +120,7 @@ impl PublicApi {
 
     /// Mendapatkan informasi current user.
     #[api_endpoint(path = "/me/info", auth = "required")]
-    pub fn me_info(state: &AppState, query: (), req: &ApiHttpRequest) -> ApiResult<types::User> {
+    pub fn me_info(state: &AppState, query: (), req: &ApiHttpRequest) -> ApiResult<User> {
         Ok(ApiResult::success(current_user.into()))
     }
 
@@ -190,7 +146,7 @@ impl PublicApi {
     }
 
     /// Update password.
-    #[api_endpoint(path = "/update_password", auth = "required", mutable)]
+    #[api_endpoint(path = "/update_password", auth = "required", mutable, accessor=["user", "admin"])]
     pub fn update_password(query: UpdatePassword) -> ApiResult<()> {
         let conn = state.db();
         let dao = UserDao::new(&conn);
@@ -217,6 +173,17 @@ impl PublicApi {
         dao.set_password(current_user.id, &query.new_password)?;
 
         Ok(ApiResult::success(()))
+    }
+
+    /// Mendapatkan data user berdasarkan ID.
+    #[api_endpoint(path = "/detail", auth = "required", accessor = "admin")]
+    pub fn user_detail(query: IdQuery) -> ApiResult<models::User> {
+        let conn = state.db();
+        let dao = UserDao::new(&conn);
+
+        dao.get_by_id(query.id)
+            .map(ApiResult::success)
+            .map_err(From::from)
     }
 
     /// Register and connect current account to event push notif (FCM).
@@ -294,14 +261,37 @@ impl PublicApi {
 
     /// Listing user
     #[api_endpoint(path = "/users", auth = "required", accessor = "admin")]
-    pub fn list_user(query: QueryEntries) -> ApiResult<EntriesResult<db::User>> {
+    pub fn list_user(query: QueryEntries) -> ApiResult<EntriesResult<User>> {
         let conn = state.db();
         let dao = UserDao::new(&conn);
 
         let entries = dao.get_users(query.offset, query.limit)?;
 
         let count = dao.count()?;
-        Ok(ApiResult::success(EntriesResult { count, entries }))
+        Ok(ApiResult::success(EntriesResult {
+            count,
+            entries: entries.into_iter().map(|a| a.into()).collect(),
+        }))
+    }
+
+    /// Mencari akun berdasarkan kata kunci.
+    #[api_endpoint(path = "/search", auth = "none")]
+    pub fn search_users(query: QueryEntries) -> ApiResult<EntriesResult<User>> {
+        let conn = state.db();
+        let dao = UserDao::new(&conn);
+
+        if query.query.is_none() {
+            return Self::list_user(&state, query, req);
+        }
+
+        let keyword = query.query.unwrap();
+
+        let (entries, count) = dao.search(&keyword, query.offset, query.limit)?;
+
+        Ok(ApiResult::success(EntriesResult {
+            count,
+            entries: entries.into_iter().map(|a| a.into()).collect(),
+        }))
     }
 }
 

@@ -79,6 +79,7 @@ mod journal {
             Ok(EntriesResult::new(
                 dsl::logs
                     .filter(&filterer)
+                    .order(dsl::ts.desc())
                     .offset(offset)
                     .limit(limit)
                     .load::<models::Log>(self.db)?,

@@ -9,8 +9,8 @@
     </div>
     <AnsTable
       :key="tableUsers"
-      data-source-url="/admin/v1/list"
-      :columns="['ID', 'Name', 'Email', 'Phone', 'Active', 'Register']"
+      data-source-url="/user/v1/search"
+      :columns="['ID', 'Name', 'Email', 'Phone', 'Active', 'Roles', 'Meta', 'Register']"
       :searchable="true"
       :withActionButton="true"
       :mapItemFunc="userListAllMapper"
@@ -100,7 +100,7 @@ export default {
           phone_num: phone,
           password: password,
           confirm_password: confPassword,
-          accessesInput: accessesInput
+          accesses: accessesInput
         })
         .then(resp => {
           if (resp.data.code == 0) {
@@ -123,10 +123,12 @@ export default {
     userListAllMapper(item) {
       return {
         id: item["id"],
-        name: item["name"],
+        name: item["full_name"],
         email: item["email"],
         phone: item["phone_num"],
         active: item["active"],
+        roles: item["roles"].join(", "),
+        meta: item["meta"],
         register_time: item["register_time"]
       };
     },

@@ -22,11 +22,13 @@
         </div>
       </div>
 
+      <Admins v-if="currentPage['/dashboard/admins'] && currentUserId == 1" />
       <Users v-if="currentPage['/dashboard/users'] && currentUserId == 1" />
 
       <Records v-if="currentPage['/dashboard/records']" />
 
-      <UserDetail v-if="$route.path.startsWith('/dashboard/users/')" :userId="$route.params.id" />
+      <AdminDetail baseApiUrl="/admin/v1/detail" v-if="$route.path.startsWith('/dashboard/admins/')" :userId="$route.params.id" />
+      <UserDetail baseApiUrl="/user/v1/detail" v-if="$route.path.startsWith('/dashboard/users/')" :userId="$route.params.id" />
 
       <Villages v-if="currentPage['/dashboard/villages']" />
 
@@ -41,19 +43,22 @@
 // @ is an alias to /src
 // import AnsTable from "@/components/AnsTable.vue";
 import UserDetail from "@/components/UserDetail.vue";
+import AdminDetail from "@/components/AdminDetail.vue";
 import Records from "@/views/Records.vue";
 import Users from "@/views/Users.vue";
+import Admins from "@/views/Admins.vue";
 import Villages from "@/views/Villages.vue";
 import Logs from "@/views/Logs.vue";
-
 
 export default {
   name: "Dashboard",
   components: {
     // AnsTable,
     UserDetail,
+    AdminDetail,
     Records,
     Users,
+    Admins,
     Villages,
     Logs
   },
@@ -73,6 +78,12 @@ export default {
           href: "/dashboard",
           title: "Dashboard",
           icon: "fa fa-list"
+        },
+        {
+          title: "Admins",
+          icon: "fa fa-user-cog",
+          href: "/dashboard/admins",
+          adminOnly: true
         },
         {
           title: "Users",

@@ -137,7 +137,7 @@ impl PublicApi {
     }
 
     /// Mendapatkan data admin berdasarkan ID.
-    #[api_endpoint(path = "/detail", auth = "required")]
+    #[api_endpoint(path = "/detail", auth = "required", accessor = "admin")]
     pub fn admin_detail(query: IdQuery) -> ApiResult<models::Admin> {
         let conn = state.db();
         let dao = AdminDao::new(&conn);

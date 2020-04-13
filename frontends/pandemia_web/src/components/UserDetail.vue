@@ -10,7 +10,7 @@
             </tr>
             <tr>
               <td data-label="Name">Name:</td>
-              <td class="value">{{d.name}}</td>
+              <td class="value">{{d.full_name}}</td>
             </tr>
             <tr>
               <td data-label="Email">Email:</td>
@@ -77,7 +77,8 @@ export default {
     DialogModal
   },
   props: {
-    userId: String
+    userId: String,
+    baseApiUrl: String
   },
   data() {
     return {
@@ -88,7 +89,7 @@ export default {
     if (!this.userId) return;
     this.$pandemia
       .api()
-      .publicApi.get(`/admin/v1/detail?id=${this.userId}`)
+      .publicApi.get(`${this.baseApiUrl}?id=${this.userId}`)
       .then(resp => {
         console.log(resp);
         this.d = resp.data.result;
@@ -110,7 +111,7 @@ export default {
       }
       this.$pandemia
         .api()
-        .publicApi.post("/admin/v1/update_password", {
+        .publicApi.post("/user/v1/update_password", {
           id: parseInt(this.userId),
           password: newPass,
           password_confm: confNewPass
