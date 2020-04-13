@@ -1,12 +1,14 @@
 import 'dart:async';
 
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:pandemia_mobile/blocs/sub_report/sub_report.dart';
 import 'package:pandemia_mobile/blocs/sub_report/sub_report_bloc.dart';
 import 'package:pandemia_mobile/blocs/sub_report/sub_report_event.dart';
+import 'package:pandemia_mobile/models/sub_report.dart';
 import 'package:pandemia_mobile/models/user.dart';
 import 'package:pandemia_mobile/screens/sub_report/data_kabupaten.dart';
 import 'package:pandemia_mobile/screens/sub_report/sub_report_page.dart';
@@ -14,11 +16,24 @@ import 'package:pandemia_mobile/user_repository/user_repository.dart';
 
 class AddSubReportPage extends StatefulWidget {
   final SubReportBloc subReportBloc;
-  AddSubReportPage({Key key, @required this.subReportBloc}) : super(key: key);
+  final SubReport item;
+
+  AddSubReportPage({Key key, @required this.subReportBloc, this.item})
+      : super(key: key);
 
   @override
   _AddSubReportPageState createState() =>
-      _AddSubReportPageState(this.subReportBloc);
+      _AddSubReportPageState(this.subReportBloc, this.item);
+}
+
+class Gender extends Equatable {
+  final String value;
+  final String label;
+
+  Gender(this.value, this.label);
+
+  @override
+  List get props => [this.value, this.label];
 }
 
 class _AddSubReportPageState extends State<AddSubReportPage> {
@@ -32,16 +47,18 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
   final _comingDateCtl = TextEditingController();
   final _necessityCtl = TextEditingController();
   StreamSubscription _subs;
-  Map<dynamic, String> _valGender;
+  Gender _valGender;
   String _valStatus;
   User currentUser;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   String currentText = "";
   GlobalKey<AutoCompleteTextFieldState<String>> key = new GlobalKey();
+  final SubReport item;
+  final bool editMode;
 
-  List<Map<dynamic, String>> gender = [
-    {"value": "L", "label": "Laki-laki"},
-    {"value": "P", "label": "Perempuan"}
+  List<Gender> gender = [
+    Gender("L", "Laki-laki"),
+    Gender("P", "Perempuan"),
   ];
   List<String> status = ["ODP", "PDP", "Positif", "Sembuh"];
   List<String> keluhan = [
@@ -52,10 +69,12 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
   ];
   List<String> keluhanSelected = [];
 
-  _AddSubReportPageState(this.subReportBloc);
+  _AddSubReportPageState(this.subReportBloc, this.item)
+      : this.editMode = item != null {}
 
   @override
   void initState() {
+    super.initState();
     currentUser = userRepository.currentUser;
     _subs = subReportBloc.state.listen((state) {
       if (state is SubReportFailure) {
@@ -69,9 +88,37 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
             builder: (context) => BlocProvider<SubReportBloc>(
                 builder: (ctx) => SubReportBloc(),
                 child: SubReportPage(subReportBloc: subReportBloc))));
+      } else if (state is SubReportUpdated) {
+        _scaffoldKey.currentState.showSnackBar(SnackBar(
+            content: Text("Data berhasil diperbarui"),
+            backgroundColor: Colors.green));
+        Navigator.pop(context);
       }
     });
-    super.initState();
+
+    if (item != null) {
+      Future.delayed(Duration(milliseconds: 300), () {
+        setState(() {
+          _fullNameCtl.text = item.fullName;
+          _addrCtl.text = item.residenceAddress;
+          _ageCtl.text = item.age.toString();
+          _fromCtl.text = item.comingFrom;
+          _comingDateCtl.text = item.arrivalDate;
+          _necessityCtl.text = item.desc;
+          if (item.gender == "L") {
+            _valGender = gender[0];
+          } else {
+            _valGender = gender[1];
+          }
+          _valStatus = status[item.status];
+          keluhanSelected = item.meta
+              .where((a) => a.startsWith("gejala="))
+              .expand((a) => a.substring(7).split(","))
+              .map((a) => a.trim())
+              .toList();
+        });
+      });
+    }
   }
 
   @override
@@ -85,7 +132,7 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text("Tambah Data"),
+        title: Text("${editMode ? "Edit" : "Tambah"} Data"),
       ),
       body: _getBody(context),
     );
@@ -101,6 +148,7 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
             child: Column(
               children: <Widget>[
                 TextFormField(
+                  autofocus: true,
                   decoration: InputDecoration(labelText: "Nama Lengkap"),
                   controller: _fullNameCtl,
                   textInputAction: TextInputAction.next,
@@ -134,28 +182,29 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
                     return val.isEmpty ? "Usia tidak boleh kosong" : null;
                   },
                 ),
-                DropdownButtonFormField(
+                DropdownButtonFormField<Gender>(
                   decoration: InputDecoration(
                       contentPadding: EdgeInsets.fromLTRB(0, 4, 0, 4)),
                   hint: Text("Jenis Kelamin"),
                   value: _valGender,
                   items: gender.map((val) {
-                    return DropdownMenuItem<Map<dynamic, String>>(
-                      child: Text(val["label"]),
+                    return DropdownMenuItem<Gender>(
+                      child: Text(val.label),
                       value: val,
                     );
                   }).toList(),
-                  onChanged: (Map<dynamic, String> val) {
+                  onChanged: (Gender val) {
+                    print(val);
                     setState(() {
                       _valGender = val;
                     });
                   },
                   isExpanded: true,
-                  validator: (val) {
-                    return val.isEmpty
-                        ? "Jenis kelamin tidak boleh kosong"
-                        : null;
-                  },
+                  // validator: (val) {
+                  //   return val.isEmpty
+                  //       ? "Jenis kelamin tidak boleh kosong"
+                  //       : null;
+                  // },
                 ),
                 // TextFormField(
                 //   decoration: InputDecoration(labelText: "Datang Dari"),
@@ -248,16 +297,30 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
                     minWidth: double.infinity,
                     onPressed: () {
                       if (_formKey.currentState.validate()) {
-                        subReportBloc.dispatch(CreateSubReport(
-                            _fullNameCtl.text,
-                            int.parse(_ageCtl.text),
-                            _addrCtl.text,
-                            _valGender["value"],
-                            _fromCtl.text,
-                            _comingDateCtl.text,
-                            _necessityCtl.text,
-                            status.indexOf(this._valStatus),
-                            keluhanSelected));
+                        if (!this.editMode) {
+                          subReportBloc.dispatch(CreateSubReport(
+                              _fullNameCtl.text,
+                              int.parse(_ageCtl.text),
+                              _addrCtl.text,
+                              _valGender.value,
+                              _fromCtl.text,
+                              _comingDateCtl.text,
+                              _necessityCtl.text,
+                              status.indexOf(this._valStatus),
+                              keluhanSelected));
+                        } else {
+                          subReportBloc.dispatch(UpdateSubReport(
+                              item.id,
+                              _fullNameCtl.text,
+                              int.parse(_ageCtl.text),
+                              _addrCtl.text,
+                              _valGender.value,
+                              _fromCtl.text,
+                              _comingDateCtl.text,
+                              _necessityCtl.text,
+                              status.indexOf(this._valStatus),
+                              keluhanSelected));
+                        }
                       }
                     },
                     color: Theme.of(context).buttonColor,

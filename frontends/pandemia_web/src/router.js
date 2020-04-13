@@ -79,6 +79,14 @@ let router = new Router({
       },
     },
     {
+      path: '/dashboard/villages',
+      name: 'Data Desa',
+      component: Dashboard,
+      meta: {
+        title: 'Desa'
+      },
+    },
+    {
       path: '*',
       name: '404',
       component: NotFound,

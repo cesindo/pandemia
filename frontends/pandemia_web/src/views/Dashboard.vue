@@ -28,6 +28,8 @@
 
       <UserDetail v-if="$route.path.startsWith('/dashboard/users/')" :userId="$route.params.id" />
 
+      <Villages v-if="currentPage['/dashboard/villages']" />
+
       <Logs v-if="currentPage['/dashboard/journal']" />
     </div>
 
@@ -41,7 +43,9 @@
 import UserDetail from "@/components/UserDetail.vue";
 import Records from "@/views/Records.vue";
 import Users from "@/views/Users.vue";
+import Villages from "@/views/Villages.vue";
 import Logs from "@/views/Logs.vue";
+
 
 export default {
   name: "Dashboard",
@@ -50,6 +54,7 @@ export default {
     UserDetail,
     Records,
     Users,
+    Villages,
     Logs
   },
   data() {
@@ -94,6 +99,11 @@ export default {
           title: "Map",
           icon: "fa fa-globe-asia",
           href: "/dashboard/map"
+        },
+        {
+          title: "Villages",
+          icon: "fa fa-campground",
+          href: "/dashboard/villages"
         },
         {
           title: "Log/Journal",

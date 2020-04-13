@@ -1,23 +1,26 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:pandemia_mobile/blocs/profile/profile.dart';
+import 'package:pandemia_mobile/models/sub_report.dart';
 import 'package:pandemia_mobile/models/user.dart';
 import 'package:pandemia_mobile/screens/profile/location_picker.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
 import 'package:pandemia_mobile/util/address_util.dart';
 import 'package:pandemia_mobile/widgets/loading_indicator.dart';
+import 'package:pandemia_mobile/util/string_extension.dart';
 
 class ProfileEditPage extends StatefulWidget {
   final ProfileBloc profileBloc;
+  final SubReport item;
 
-  ProfileEditPage({this.profileBloc, Key key}) : super(key: key);
+  ProfileEditPage({this.profileBloc, this.item, Key key}) : super(key: key);
 
   @override
-  _ProfileEditPageState createState() => _ProfileEditPageState(profileBloc);
+  _ProfileEditPageState createState() =>
+      _ProfileEditPageState(profileBloc, this.item);
 }
 
 class _ProfileEditPageState extends State<ProfileEditPage> {
@@ -28,20 +31,22 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   final _emailCtl = TextEditingController();
   final _phoneCtl = TextEditingController();
   final _locCtl = TextEditingController();
+  final _villageCtl = TextEditingController();
+  final _areaCodeCtl = TextEditingController();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   StreamSubscription subs;
   LatLng location;
   User currentUser;
   bool _isLoading = false;
+  final SubReport item;
 
-  _ProfileEditPageState(this.profileBloc);
+  _ProfileEditPageState(this.profileBloc, this.item);
 
   @override
   void initState() {
+    super.initState();
+
     currentUser = userRepository.currentUser;
-    // _fullNameCtl.text = currentUser.fullName;
-    // _emailCtl.text = currentUser.email;
-    // _phoneCtl.text = currentUser.phoneNum;
 
     subs = profileBloc.state.listen((ProfileState state) {
       if (state is ProfileUpdated) {
@@ -54,7 +59,9 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
         setState(() => _isLoading = true);
       }
     });
-    super.initState();
+    if (item != null) {
+      _fullNameCtl.text = item.fullName;
+    }
   }
 
   @override
@@ -82,7 +89,8 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                       textInputAction: TextInputAction.next,
                       decoration: InputDecoration(labelText: 'Nama Lengkap'),
                       controller: _fullNameCtl,
-                      onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
+                      onFieldSubmitted: (_) =>
+                          FocusScope.of(context).nextFocus(),
                       validator: (val) {
                         return val.isEmpty
                             ? "Nama lengkap tidak boleh kosong"
@@ -94,22 +102,36 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                       textInputAction: TextInputAction.next,
                       decoration: InputDecoration(labelText: 'Alamat Email'),
                       controller: _emailCtl,
-                      onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
-                      validator: (val) {
-                        return val.isEmpty
-                            ? "Alamat email tidak boleh kosong"
-                            : null;
-                      },
+                      onFieldSubmitted: (_) =>
+                          FocusScope.of(context).nextFocus(),
+                      // validator: (val) {
+                      //   return val.isEmpty
+                      //       ? "Alamat email tidak boleh kosong"
+                      //       : null;
+                      // },
                     ),
                     TextFormField(
                       keyboardType: TextInputType.number,
                       textInputAction: TextInputAction.next,
                       decoration: InputDecoration(labelText: 'Nomor Telepon'),
                       controller: _phoneCtl,
-                      onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
+                      onFieldSubmitted: (_) =>
+                          FocusScope.of(context).nextFocus(),
                       validator: (val) {
                         return val.isEmpty
                             ? "Nomor telepon tidak boleh kosong"
+                            : null;
+                      },
+                    ),
+                    TextFormField(
+                      keyboardType: TextInputType.text,
+                      textInputAction: TextInputAction.done,
+                      decoration: InputDecoration(labelText: 'Nama Desa'),
+                      controller: _villageCtl,
+                      onFieldSubmitted: (_) => FocusScope.of(context).unfocus(),
+                      validator: (val) {
+                        return val.isEmpty
+                            ? "Nama Desa tidak boleh kosong"
                             : null;
                       },
                     ),
@@ -125,6 +147,19 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                           hintText: 'Pilih lokasi Anda',
                           suffixIcon: Icon(Icons.location_searching)),
                     ),
+                    TextFormField(
+                      keyboardType: TextInputType.text,
+                      textInputAction: TextInputAction.done,
+                      decoration: InputDecoration(labelText: 'Kode Daerah'),
+                      controller: _areaCodeCtl,
+                      onFieldSubmitted: (_) => FocusScope.of(context).unfocus(),
+                      validator: (val) {
+                        return val.isEmpty
+                            ? "Kode daerah tidak boleh kosong"
+                            : null;
+                      },
+                    ),
+                    Text("Dapatkan kode daerah dari pemerintah daerah Anda", style: TextStyle(fontSize: 15)),
                     Container(
                       margin: EdgeInsets.only(top: 20.0, bottom: 10.0),
                       child: MaterialButton(
@@ -138,8 +173,9 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                             profileBloc.dispatch(RegisterAsSatgas(
                                 currentUser.copy(
                                     fullName: _fullNameCtl.text,
-                                    email: _emailCtl.text,
-                                    phoneNum: _phoneCtl.text),
+                                    email: _emailCtl.text.trim(),
+                                    phoneNum: _phoneCtl.text,
+                                    village: _villageCtl.text.capitalize()),
                                 location));
                           }
                         },
@@ -161,7 +197,8 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
     Navigator.of(context)
         .push(MaterialPageRoute(
             builder: (ctx) => LocationPicker(
-                  pinPosition: LatLng(locationData.latitude, locationData.longitude),
+                  pinPosition:
+                      LatLng(locationData.latitude, locationData.longitude),
                 )))
         .then((result) {
       if (result != null) {

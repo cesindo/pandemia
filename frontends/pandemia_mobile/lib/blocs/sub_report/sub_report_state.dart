@@ -1,4 +1,3 @@
-
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 import 'package:pandemia_mobile/models/sub_report.dart';
@@ -58,8 +57,16 @@ class SubReportDeleted extends SubReportState {
   String toString() => "SubReportDeleted";
 }
 
-
 class SearchLoading extends SubReportState {
   @override
   String toString() => "SearchLoading";
+}
+
+class SubReportUpdated extends SubReportState {
+  final SubReport item;
+
+  SubReportUpdated(this.item);
+
+  @override
+  String toString() => "SubReportUpdated";
 }

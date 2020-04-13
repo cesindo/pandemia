@@ -68,6 +68,9 @@ pub mod types {
 
         /// Satgas
         pub is_satgas: bool,
+
+        /// Location latitude, longitude
+        pub loc: models::LatLong,
     }
 
     impl From<models::User> for User {
@@ -79,6 +82,7 @@ pub mod types {
                 phone_num: a.phone_num.to_owned(),
                 register_time: a.register_time,
                 is_satgas: a.is_satgas(),
+                loc: a.get_lat_long(),
             }
         }
     }
@@ -117,9 +121,11 @@ pub struct UpdateUser {
     #[validate(length(min = 2, max = 50))]
     pub full_name: String,
     #[validate(length(min = 2, max = 50))]
-    pub email: String,
+    pub email: Option<String>,
     #[validate(length(min = 2, max = 15))]
     pub phone_num: String,
+    #[validate(length(min = 2, max = 30))]
+    pub village: String,
     pub latitude: f64,
     pub longitude: f64,
 }
@@ -168,8 +174,9 @@ impl PublicApi {
         query.validate()?;
         let conn = state.db();
         let dao = UserDao::new(&conn);
-        let mut meta: Vec<&str> = Vec::new();
-        meta.push(":satgas:");
+        let mut meta: Vec<String> = Vec::new();
+        meta.push(":satgas:".to_string());
+        meta.push(format!("village={}", query.village));
         dao.update_user_info(
             current_user.id,
             &query.full_name,
@@ -177,7 +184,7 @@ impl PublicApi {
             &query.phone_num,
             query.latitude,
             query.longitude,
-            meta,
+            meta.iter().map(|a| a.as_str()).collect::<Vec<&str>>(),
         )?;
         Ok(ApiResult::success(()))
     }

@@ -16,11 +16,12 @@ use crate::{
         ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest,
     },
     auth,
-    dao::{Logs, RecordDao, SubReportDao},
+    dao::{Logs, RecordDao, SubReportDao, VillageDao},
     error::{self, ErrorCode},
     eventstream::{self, Event::NewRecordUpdate},
     models,
     prelude::*,
+    sub_report_dao,
     types::{HealthyKind, LocKind, SubReportStatus},
     ID,
 };
@@ -91,7 +92,26 @@ pub struct AddSubReport {
     #[validate(length(min = 1, max = 50))]
     pub gender: String,
     #[validate(length(min = 1, max = 70))]
-    pub arrival_address: String,
+    pub coming_from: String,
+    pub arrival_date: NaiveDate,
+    #[validate(length(min = 1, max = 50))]
+    pub desc: String,
+    pub status: i32,
+    pub complaint: Option<Vec<String>>,
+}
+
+#[derive(Deserialize, Validate)]
+pub struct UpdateSubReport {
+    pub id: ID,
+    #[validate(length(min = 1, max = 50))]
+    pub full_name: String,
+    pub age: i32,
+    #[validate(length(min = 1, max = 80))]
+    pub residence_address: String,
+    #[validate(length(min = 1, max = 50))]
+    pub gender: String,
+    #[validate(length(min = 1, max = 70))]
+    pub coming_from: String,
     pub arrival_date: NaiveDate,
     #[validate(length(min = 1, max = 50))]
     pub desc: String,
@@ -169,12 +189,56 @@ impl PublicApi {
             query.age,
             &query.residence_address,
             &query.gender,
-            &query.arrival_address,
+            &query.coming_from,
             query.arrival_date,
             healthy as i32,
             &query.desc,
             status as i32,
             &meta.iter().map(|a| a.as_ref()).collect::<Vec<&str>>(),
+        )?;
+        Ok(ApiResult::success(sub_report))
+    }
+
+    /// Update Sub Report.
+    #[api_endpoint(path = "/sub_report/update", auth = "required", accessor = "user", mutable)]
+    pub fn update_sub_report(query: UpdateSubReport) -> ApiResult<models::SubReport> {
+        query.validate()?;
+        let conn = state.db();
+        let dao = SubReportDao::new(&conn);
+
+        if !current_user.is_satgas() {
+            param_error("Anda tidak dapat menambahkan data")?;
+        }
+
+        let mut healthy: HealthyKind = HealthyKind::Health;
+        let mut meta: Vec<String> = Vec::new();
+        if let Some(complaint) = &query.complaint.as_ref() {
+            if complaint.len() > 0 {
+                healthy = HealthyKind::Sick;
+                meta.push(format!("gejala={}", complaint.join(",")))
+            }
+        }
+        let status = match query.status {
+            0 => SubReportStatus::ODP,
+            1 => SubReportStatus::PDP,
+            2 => SubReportStatus::Positive,
+            3 => SubReportStatus::Recovered,
+            _ => param_error("Status tidak valid")?,
+        };
+        let sub_report = dao.update(
+            query.id,
+            sub_report_dao::UpdateSubReport {
+                full_name: &query.full_name,
+                age: query.age,
+                residence_address: &query.residence_address,
+                gender: &query.gender,
+                coming_from: &query.coming_from,
+                arrival_date: query.arrival_date,
+                healthy: healthy as i32,
+                desc: &query.desc,
+                status: status as i32,
+                meta: &meta.iter().map(|a| a.as_ref()).collect::<Vec<&str>>(),
+            },
         )?;
         Ok(ApiResult::success(sub_report))
     }
@@ -359,6 +423,69 @@ impl PublicApi {
             entries: rv.entries,
         }))
     }
+
+    /// Add village.
+    #[api_endpoint(path = "/village/add", auth = "required", mutable, accessor = "admin")]
+    pub fn add_village(query: AddVillage) -> ApiResult<models::Village> {
+        query.validate()?;
+        let conn = state.db();
+        let dao = VillageDao::new(&conn);
+
+        let village = dao.create(
+            &query.name,
+            &query.sub_district,
+            &query.city,
+            &query.province,
+            query.latitude.parse::<f64>()?,
+            query.longitude.parse::<f64>()?,
+            &vec![],
+        )?;
+        Ok(ApiResult::success(village))
+    }
+
+    /// Search for villages
+    #[api_endpoint(path = "/village/search", auth = "optional")]
+    pub fn search_villages(query: QueryEntries) -> ApiResult<EntriesResult<models::Village>> {
+        query.validate()?;
+        let conn = state.db();
+        let dao = VillageDao::new(&conn);
+
+        let sresult = dao.search(&query.query.unwrap_or("".to_string()), query.offset, query.limit)?;
+
+        // let entries = sresult.entries.into_iter().map(|p| p.into()).collect();
+
+        let count = sresult.count;
+        Ok(ApiResult::success(EntriesResult {
+            count,
+            entries: sresult.entries,
+        }))
+    }
+
+    /// Delete village.
+    #[api_endpoint(path = "/villages/delete", auth = "required", mutable, accessor = "admin")]
+    pub fn delete_village(query: IdQuery) -> ApiResult<()> {
+        let conn = state.db();
+
+        let dao = VillageDao::new(&conn);
+
+        dao.delete_by_id(query.id)?;
+
+        Ok(ApiResult::success(()))
+    }
+}
+
+#[derive(Deserialize, Validate)]
+pub struct AddVillage {
+    #[validate(length(min = 2, max = 1000))]
+    pub name: String,
+    #[validate(length(min = 2, max = 1000))]
+    pub sub_district: String,
+    #[validate(length(min = 2, max = 1000))]
+    pub city: String,
+    #[validate(length(min = 2, max = 1000))]
+    pub province: String,
+    pub latitude: String,
+    pub longitude: String,
 }
 
 use crate::{

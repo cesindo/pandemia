@@ -22,7 +22,7 @@ class CreateSubReport extends SubReportEvent {
   final int age;
   final String residenceAddress;
   final String gender;
-  final String arrivalAddress;
+  final String comingFrom;
   final String arrivalDate;
   final String desc;
   final int status;
@@ -33,13 +33,40 @@ class CreateSubReport extends SubReportEvent {
       this.age,
       this.residenceAddress,
       this.gender,
-      this.arrivalAddress,
+      this.comingFrom,
       this.arrivalDate,
       this.desc,
       this.status,
       this.complaint);
   @override
   String toString() => "CreateSubReport";
+}
+
+class UpdateSubReport extends SubReportEvent {
+  final int id;
+  final String fullName;
+  final int age;
+  final String residenceAddress;
+  final String gender;
+  final String comingFrom;
+  final String arrivalDate;
+  final String desc;
+  final int status;
+  final List<String> complaint;
+
+  UpdateSubReport(
+      this.id,
+      this.fullName,
+      this.age,
+      this.residenceAddress,
+      this.gender,
+      this.comingFrom,
+      this.arrivalDate,
+      this.desc,
+      this.status,
+      this.complaint);
+  @override
+  String toString() => "UpdateSubReport";
 }
 
 /// Event to delete SubReport
