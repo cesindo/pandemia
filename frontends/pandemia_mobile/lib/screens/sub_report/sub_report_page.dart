@@ -6,6 +6,7 @@ import 'package:pandemia_mobile/blocs/sub_report/sub_report.dart';
 import 'package:pandemia_mobile/blocs/sub_report/sub_report_bloc.dart';
 import 'package:pandemia_mobile/core/core.dart';
 import 'package:pandemia_mobile/models/sub_report.dart';
+import 'package:pandemia_mobile/screens/sub_report/add_sub_report.dart';
 import 'package:pandemia_mobile/widgets/widgets.dart';
 
 class SubReportPage extends StatefulWidget {
@@ -73,6 +74,13 @@ class _SubReportPageState extends State<SubReportPage>
             searchController: _pdpSearchController,
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) =>
+                AddSubReportPage(subReportBloc: subReportBloc))),
+        child: Icon(Icons.person_add),
+        tooltip: "Tambahkan data ODP/PDP",
       ),
     );
   }
