@@ -54,6 +54,15 @@ impl<'a> VillageDao<'a> {
             .map_err(From::from)
     }
 
+    /// Mendapatkan village berdasarkan nama-nya.
+    pub fn get_by_name(&self, name: &str) -> Result<Village> {
+        use crate::schema::villages::{self, dsl};
+        dsl::villages
+            .filter(dsl::name.eq(name))
+            .first(self.db)
+            .map_err(From::from)
+    }
+
     /// Search for specific villages
     pub fn search(&self, query: &str, offset: i64, limit: i64) -> Result<EntriesResult<Village>> {
         use crate::schema::villages::{self, dsl};

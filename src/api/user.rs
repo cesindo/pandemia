@@ -17,7 +17,7 @@ use crate::{
         ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest,
     },
     auth,
-    dao::CityDao,
+    dao::{CityDao, VillageDao},
     error::{Error, ErrorCode},
     geolocator, models,
     prelude::*,
@@ -152,8 +152,20 @@ impl PublicApi {
 
         let mut meta: Vec<String> = Vec::new();
 
+        // get village id
+        let village = match VillageDao::new(&conn).get_by_name(&query.village) {
+            Ok(a) => a,
+            Err(_) => {
+                return param_error(&format!(
+                    "Tidak dapat menemukan data untuk desa {}",
+                    query.village
+                ))
+            }
+        };
+
         meta.push(":satgas:".to_string());
         meta.push(format!("village={}", query.village));
+        meta.push(format!("village_id={}", village.id));
         meta.push(format!("area_code={}", city.area_code));
         meta.push(format!("city_by_area_code={}", city.name));
         meta.push(format!("province_by_area_code={}", city.province));
@@ -215,12 +227,12 @@ impl PublicApi {
 
     /// Mendapatkan data user berdasarkan ID.
     #[api_endpoint(path = "/detail", auth = "required", accessor = "admin")]
-    pub fn user_detail(query: IdQuery) -> ApiResult<models::User> {
+    pub fn user_detail(query: IdQuery) -> ApiResult<User> {
         let conn = state.db();
         let dao = UserDao::new(&conn);
 
         dao.get_by_id(query.id)
-            .map(ApiResult::success)
+            .map(|a| ApiResult::success(a.into()))
             .map_err(From::from)
     }
 

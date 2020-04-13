@@ -241,6 +241,21 @@ table! {
 }
 
 table! {
+    village_data (id) {
+        id -> Int8,
+        village_id -> Int8,
+        odp -> Int4,
+        pdp -> Int4,
+        cases -> Int4,
+        recovered -> Int4,
+        deaths -> Int4,
+        last_updated -> Timestamp,
+        last_updated_by_id -> Int8,
+        ts -> Timestamp,
+    }
+}
+
+table! {
     villages (id) {
         id -> Int8,
         name -> Text,
@@ -267,6 +282,8 @@ joinable!(user_connect -> users (user_id));
 joinable!(user_keys -> users (user_id));
 joinable!(user_passhash -> users (user_id));
 joinable!(user_settings -> users (user_id));
+joinable!(village_data -> users (last_updated_by_id));
+joinable!(village_data -> villages (village_id));
 
 allow_tables_to_appear_in_same_query!(
     access_tokens,
@@ -289,5 +306,6 @@ allow_tables_to_appear_in_same_query!(
     user_passhash,
     user_settings,
     users,
+    village_data,
     villages,
 );

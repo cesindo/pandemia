@@ -16,7 +16,7 @@ use crate::{
         ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest,
     },
     auth,
-    dao::{Logs, RecordDao, SubReportDao, VillageDao},
+    dao::{Logs, RecordDao, SubReportDao, VillageDao, VillageDataDao},
     error::{self, ErrorCode},
     eventstream::{self, Event::NewRecordUpdate},
     models,
@@ -187,22 +187,59 @@ impl PublicApi {
             3 => SubReportStatus::Recovered,
             _ => param_error("Status tidak valid")?,
         };
-        let sub_report = dao.create(
-            current_user.id,
-            &current_user.full_name,
-            &query.full_name,
-            query.age,
-            &query.residence_address,
-            &query.gender,
-            &query.coming_from,
-            query.arrival_date,
-            healthy as i32,
-            &query.notes,
-            status as i32,
-            &meta.iter().map(|a| a.as_ref()).collect::<Vec<&str>>(),
-            &area_code,
-        )?;
-        Ok(ApiResult::success(sub_report))
+
+        conn.build_transaction()
+            .read_write()
+            .run::<_, crate::error::Error, _>(|| {
+                let sub_report = dao.create(
+                    current_user.id,
+                    &current_user.full_name,
+                    &query.full_name,
+                    query.age,
+                    &query.residence_address,
+                    &query.gender,
+                    &query.coming_from,
+                    query.arrival_date,
+                    healthy as i32,
+                    &query.notes,
+                    status as i32,
+                    &meta.iter().map(|a| a.as_ref()).collect::<Vec<&str>>(),
+                    &area_code,
+                )?;
+
+                {
+                    // @TODO(*): cover deaths
+                    let (odp, pdp, cases, recovered, deaths) = match query.status {
+                        0 => (1, 0, 0, 0, 0),
+                        1 => (0, 1, 0, 0, 0),
+                        2 => (0, 0, 1, 0, 0),
+                        3 => (0, 0, 0, 1, 0),
+                        _ => {
+                            return Err(crate::error::Error::InvalidParameter(
+                                "Status tidak valid".to_owned(),
+                            ))?
+                        }
+                    };
+                    let village_id =
+                        current_user
+                            .get_village_id()
+                            .ok_or(crate::error::Error::InvalidParameter(
+                                "Has no village id".to_string(),
+                            ))?;
+                    VillageDataDao::new(&conn).update(
+                        village_id,
+                        odp,
+                        pdp,
+                        cases,
+                        recovered,
+                        0,
+                        &current_user,
+                    )?;
+                }
+
+                Ok(ApiResult::success(sub_report))
+            })
+            .map_err(From::from)
     }
 
     /// Update Sub Report.

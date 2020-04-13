@@ -24,6 +24,15 @@
               <td data-label="Active">Active:</td>
               <td class="value">{{d.active ? "YES" : "NO"}}</td>
             </tr>
+            <tr>
+              <td data-label="Active">Roles:</td>
+              <td class="value">{{d.roles}}</td>
+            </tr>
+            <tr>
+              <td data-label="Active">Metadata:</td>
+              <td class="value">{{d.meta}}</td>
+            </tr>
+
           </tbody>
         </table>
       </div>

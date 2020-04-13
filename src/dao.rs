@@ -12,6 +12,7 @@ pub use crate::record_dao::RecordDao;
 pub use crate::sub_report_dao::SubReportDao;
 pub use crate::user_dao::UserDao;
 pub use crate::village_dao::VillageDao;
+pub use crate::village_data_dao::VillageDataDao;
 
 /// Search result type from DAO (not rest API)
 pub struct EntriesResult<T> {

@@ -171,6 +171,16 @@ macro_rules! meta_value_i32 {
     };
 }
 
+macro_rules! meta_value_i64 {
+    ($s:ident, $key:literal) => {
+        $s.meta
+            .iter()
+            .find(|a| a.starts_with(concat!($key, "=")))
+            .and_then(|a| a.splitn(2, '=').last())
+            .and_then(|a| a.parse::<i64>().ok())
+    };
+}
+
 macro_rules! meta_value_str {
     ($s:ident, $key:literal) => {
         // $s.meta
@@ -184,7 +194,7 @@ macro_rules! meta_value_str {
         $s.meta
             .iter()
             .find(|a| a.starts_with(concat!($key, $ass)))
-            .and_then(|a| a.splitn(2, ':').last())
+            .and_then(|a| a.splitn(2, $ass).last())
             .unwrap_or("")
     };
 }

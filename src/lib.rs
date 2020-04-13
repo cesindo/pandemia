@@ -80,6 +80,7 @@ pub mod user_dao;
 pub mod util;
 mod valid;
 pub mod village_dao;
+pub mod village_data_dao;
 pub mod web;
 
 /// Type alias for ID in integer

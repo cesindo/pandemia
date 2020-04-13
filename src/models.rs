@@ -53,6 +53,11 @@ impl User {
     pub fn get_area_code(&self) -> &str {
         meta_value_str!(self, "area_code", "=")
     }
+
+    /// Get village id where this user work
+    pub fn get_village_id(&self) -> Option<ID> {
+        meta_value_i64!(self, "village_id")
+    }
 }
 
 /// Bentuk model dari alamat untuk akun.
@@ -429,5 +434,20 @@ pub struct City {
     pub province: String,
     pub country_code: String,
     pub area_code: String,
+    pub ts: NaiveDateTime,
+}
+
+#[doc(hidden)]
+#[derive(Queryable, Serialize)]
+pub struct VillageData {
+    pub id: ID,
+    pub village_id: ID,
+    pub odp: i32,
+    pub pdp: i32,
+    pub cases: i32,
+    pub recovered: i32,
+    pub deaths: i32,
+    pub last_updated: NaiveDateTime,
+    pub last_updated_by_id: ID,
     pub ts: NaiveDateTime,
 }
