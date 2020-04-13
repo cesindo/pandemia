@@ -228,6 +228,20 @@ table! {
     }
 }
 
+table! {
+    villages (id) {
+        id -> Int8,
+        name -> Text,
+        sub_district -> Text,
+        city -> Text,
+        province -> Text,
+        latitude -> Float8,
+        longitude -> Float8,
+        meta -> Array<Text>,
+        ts -> Timestamp,
+    }
+}
+
 joinable!(access_tokens -> users (user_id));
 joinable!(addresses -> users (user_id));
 joinable!(admin_access_tokens -> admins (admin_id));
@@ -262,4 +276,5 @@ allow_tables_to_appear_in_same_query!(
     user_passhash,
     user_settings,
     users,
+    villages,
 );

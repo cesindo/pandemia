@@ -162,6 +162,15 @@ impl ResponseError for Error {
     }
 }
 
+impl From<std::num::ParseFloatError> for Error {
+    fn from(a: std::num::ParseFloatError) -> Self {
+        Error::InvalidParameter(
+            ErrorCode::InvalidParameter as i32,
+            "Invalid numeric value".to_string(),
+        )
+    }
+}
+
 /// Build parameter error
 pub fn param_error<T>(msg: &str) -> Result<T, Error> {
     Err(Error::InvalidParameter(

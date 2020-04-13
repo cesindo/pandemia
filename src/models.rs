@@ -399,3 +399,17 @@ pub struct SubReport {
     pub meta: Vec<String>,
     pub ts: NaiveDateTime,
 }
+
+#[doc(hidden)]
+#[derive(Queryable, Serialize)]
+pub struct Village {
+    pub id: ID,
+    pub name: String,
+    pub sub_district: String,
+    pub city: String,
+    pub province: String,
+    pub latitude: f64,
+    pub longitude: f64,
+    pub meta: Vec<String>,
+    pub ts: NaiveDateTime,
+}

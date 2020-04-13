@@ -5,7 +5,7 @@ use diesel::prelude::*;
 use reqwest;
 use serde_json;
 
-use crate::{result::Result, schema::geoloc_cache, sqlutil::lower, ID};
+use crate::{error::Error, result::Result, schema::geoloc_cache, sqlutil::lower, ID};
 
 use std::env;
 
@@ -129,6 +129,9 @@ pub fn loc_to_ll(query: &str, conn: &PgConnection) -> Result<LatLong> {
     ))?;
     let resp_text = resp.text()?;
     let item: GeocoderResponseWrapper = serde_json::from_str(&resp_text)?;
+    if item.response.view.is_empty() || item.response.view[0].result.is_empty() {
+        return Err(Error::NotFound("geo locator data not found".to_string()));
+    }
     let latlong = item.response.view[0].result[0].location.display_position;
 
     // simpan dalam cache

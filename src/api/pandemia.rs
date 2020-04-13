@@ -16,7 +16,7 @@ use crate::{
         ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest,
     },
     auth,
-    dao::{Logs, RecordDao, SubReportDao},
+    dao::{Logs, RecordDao, SubReportDao, VillageDao},
     error::{self, ErrorCode},
     eventstream::{self, Event::NewRecordUpdate},
     models,
@@ -423,6 +423,69 @@ impl PublicApi {
             entries: rv.entries,
         }))
     }
+
+    /// Add village.
+    #[api_endpoint(path = "/village/add", auth = "required", mutable, accessor = "admin")]
+    pub fn add_village(query: AddVillage) -> ApiResult<models::Village> {
+        query.validate()?;
+        let conn = state.db();
+        let dao = VillageDao::new(&conn);
+
+        let village = dao.create(
+            &query.name,
+            &query.sub_district,
+            &query.city,
+            &query.province,
+            query.latitude.parse::<f64>()?,
+            query.longitude.parse::<f64>()?,
+            &vec![],
+        )?;
+        Ok(ApiResult::success(village))
+    }
+
+    /// Search for villages
+    #[api_endpoint(path = "/village/search", auth = "optional")]
+    pub fn search_villages(query: QueryEntries) -> ApiResult<EntriesResult<models::Village>> {
+        query.validate()?;
+        let conn = state.db();
+        let dao = VillageDao::new(&conn);
+
+        let sresult = dao.search(&query.query.unwrap_or("".to_string()), query.offset, query.limit)?;
+
+        // let entries = sresult.entries.into_iter().map(|p| p.into()).collect();
+
+        let count = sresult.count;
+        Ok(ApiResult::success(EntriesResult {
+            count,
+            entries: sresult.entries,
+        }))
+    }
+
+    /// Delete village.
+    #[api_endpoint(path = "/villages/delete", auth = "required", mutable, accessor = "admin")]
+    pub fn delete_village(query: IdQuery) -> ApiResult<()> {
+        let conn = state.db();
+
+        let dao = VillageDao::new(&conn);
+
+        dao.delete_by_id(query.id)?;
+
+        Ok(ApiResult::success(()))
+    }
+}
+
+#[derive(Deserialize, Validate)]
+pub struct AddVillage {
+    #[validate(length(min = 2, max = 1000))]
+    pub name: String,
+    #[validate(length(min = 2, max = 1000))]
+    pub sub_district: String,
+    #[validate(length(min = 2, max = 1000))]
+    pub city: String,
+    #[validate(length(min = 2, max = 1000))]
+    pub province: String,
+    pub latitude: String,
+    pub longitude: String,
 }
 
 use crate::{
