@@ -99,6 +99,7 @@ struct NewGeolocCache<'a> {
 #[doc(hidden)]
 #[derive(Deserialize)]
 pub struct LocInfo {
+    #[serde(rename="Label")]
     pub label: String,
 
     #[serde(rename = "Country")]
@@ -111,10 +112,10 @@ pub struct LocInfo {
     pub city: String,
 
     #[serde(rename = "District")]
-    pub district: String,
+    pub district: Option<String>,
 
     #[serde(rename = "Subdistrict")]
-    pub subdistrict: String,
+    pub subdistrict: Option<String>,
 }
 
 /// Get location address from lat long
@@ -170,8 +171,8 @@ pub fn address_to_ll(query: &str, conn: &PgConnection) -> Result<LatLong> {
     let mut resp = reqwest::get(&format!(
         "https://geocoder.ls.hereapi.com/6.2/geocode.json?apiKey={}&country={}&city={}",
         env::var("GEOLOCATOR_API_KEY").expect("GEOLOCATOR_API_KEY env not set"),
-        country,
-        city
+        country.trim(),
+        city.trim()
     ))?;
     let resp_text = resp.text()?;
     let item: GeocoderResponseWrapper = serde_json::from_str(&resp_text)?;

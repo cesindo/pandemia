@@ -66,7 +66,7 @@ fn update_map_marker(old_record: &Option<Record>, new_record: &Record, conn: &Pg
         meta.push(format!("pandemic.total_recovered:{}", new_record.total_recovered));
         dao.create(
             &new_record.loc,
-            &format!("Info pandemi untuk area {}", new_record.loc),
+            "Data Covid-19",
             latlong.latitude,
             latlong.longitude,
             MapMarkerKind::PandemicInfo,
