@@ -10,7 +10,7 @@ use crate::{error::Error, result::Result, schema::geoloc_cache, sqlutil::lower, 
 use std::env;
 
 /// Latitude longitude representation struct
-#[derive(Deserialize, Copy, Clone)]
+#[derive(Deserialize, Copy, Clone, Debug)]
 pub struct LatLong {
     /// The latitude
     #[serde(rename = "Latitude")]
@@ -21,7 +21,7 @@ pub struct LatLong {
 }
 
 #[doc(hidden)]
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct MetaInfo {
     #[serde(rename = "Timestamp")]
     pub timestamp: String,
@@ -36,7 +36,7 @@ struct MetaInfo {
 // }
 
 #[doc(hidden)]
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct Location {
     #[serde(rename = "DisplayPosition")]
     pub display_position: LatLong,
@@ -46,7 +46,7 @@ struct Location {
 }
 
 #[doc(hidden)]
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct MapResult {
     #[serde(rename = "MatchLevel")]
     pub match_level: String,
@@ -55,14 +55,14 @@ struct MapResult {
 }
 
 #[doc(hidden)]
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct View {
     #[serde(rename = "Result")]
     pub result: Vec<MapResult>,
 }
 
 #[doc(hidden)]
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct GeocoderResponse {
     #[serde(rename = "MetaInfo")]
     pub meta_info: MetaInfo,
@@ -71,7 +71,7 @@ struct GeocoderResponse {
 }
 
 #[doc(hidden)]
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct GeocoderResponseWrapper {
     #[serde(rename = "Response")]
     pub response: GeocoderResponse,
@@ -97,9 +97,9 @@ struct NewGeolocCache<'a> {
 }
 
 #[doc(hidden)]
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct LocInfo {
-    #[serde(rename="Label")]
+    #[serde(rename = "Label")]
     pub label: String,
 
     #[serde(rename = "Country")]
@@ -129,6 +129,7 @@ pub fn ll_to_address(lat: f64, lng: f64, conn: &PgConnection) -> Result<LocInfo>
 
     let mut item: GeocoderResponseWrapper = serde_json::from_str(&resp_text)?;
     if item.response.view.is_empty() || item.response.view[0].result.is_empty() {
+        error!("in getting geo locator data {:?}", item);
         return Err(Error::NotFound("geo locator data not found".to_string()));
     }
 
@@ -177,6 +178,7 @@ pub fn address_to_ll(query: &str, conn: &PgConnection) -> Result<LatLong> {
     let resp_text = resp.text()?;
     let item: GeocoderResponseWrapper = serde_json::from_str(&resp_text)?;
     if item.response.view.is_empty() || item.response.view[0].result.is_empty() {
+        error!("in getting geo locator data {:?}", item);
         return Err(Error::NotFound("geo locator data not found".to_string()));
     }
     let latlong = item.response.view[0].result[0].location.display_position;

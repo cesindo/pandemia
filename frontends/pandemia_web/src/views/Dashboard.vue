@@ -117,6 +117,11 @@ export default {
           href: "/dashboard/villages"
         },
         {
+          title: "Laporan",
+          icon: "fa fa-campground",
+          href: "/dashboard/reports"
+        },
+        {
           title: "Log/Journal",
           icon: "fa fa-book",
           href: "/dashboard/journal"

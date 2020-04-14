@@ -154,6 +154,19 @@ table! {
 }
 
 table! {
+    report_notes (id) {
+        id -> Int8,
+        title -> Text,
+        notes -> Text,
+        creator_id -> Int8,
+        creator_name -> Text,
+        area_code -> Varchar,
+        meta -> Array<Text>,
+        ts -> Timestamp,
+    }
+}
+
+table! {
     reset_password_admins (admin_id) {
         admin_id -> Int8,
         token -> Varchar,
@@ -252,6 +265,8 @@ table! {
         last_updated -> Timestamp,
         last_updated_by_id -> Int8,
         ts -> Timestamp,
+        area_code -> Varchar,
+        meta -> Array<Text>,
     }
 }
 
@@ -276,6 +291,7 @@ joinable!(admin_passhash -> admins (admin_id));
 joinable!(feeds -> users (creator_id));
 joinable!(logs -> users (initiator_id));
 joinable!(notifs -> users (receiver_id));
+joinable!(report_notes -> users (creator_id));
 joinable!(reset_password_admins -> admins (admin_id));
 joinable!(sub_reports -> users (creator_id));
 joinable!(user_connect -> users (user_id));
@@ -299,6 +315,7 @@ allow_tables_to_appear_in_same_query!(
     notifs,
     records,
     register_users,
+    report_notes,
     reset_password_admins,
     sub_reports,
     user_connect,

@@ -9,6 +9,8 @@ import 'package:pandemia_mobile/blocs/map/map_event.dart';
 import 'package:pandemia_mobile/blocs/notif/notif_bloc.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia.dart';
 import 'package:pandemia_mobile/blocs/profile/profile.dart';
+import 'package:pandemia_mobile/blocs/report_note/report_note_bloc.dart';
+import 'package:pandemia_mobile/blocs/report_note/report_note_event.dart';
 import 'package:pandemia_mobile/blocs/settings/settings_bloc.dart';
 import 'package:pandemia_mobile/blocs/settings/settings_event.dart';
 import 'package:pandemia_mobile/blocs/stats/stats_bloc.dart';
@@ -21,6 +23,7 @@ import 'package:pandemia_mobile/screens/feed/feed_tab_screen.dart';
 import 'package:pandemia_mobile/screens/issue/issue_page.dart';
 import 'package:pandemia_mobile/screens/map/map_page.dart';
 import 'package:pandemia_mobile/screens/profile/profile_edit_page.dart';
+import 'package:pandemia_mobile/screens/report/report_note_add_page.dart';
 import 'package:pandemia_mobile/screens/setting/setting_page.dart';
 import 'package:pandemia_mobile/screens/sub_report/add_sub_report.dart';
 import 'package:pandemia_mobile/screens/sub_report/sub_report_page.dart';
@@ -72,8 +75,9 @@ class HomeScreen extends StatelessWidget {
       choices.add(CustomPopupMenuItem(0, "Daftar Satgas", Icons.edit));
     } else {
       choices.add(CustomPopupMenuItem(1, "Data ODP/PDP", Icons.list));
+      choices.add(CustomPopupMenuItem(2, "Buat Laporan", Icons.comment));
     }
-    choices.add(CustomPopupMenuItem(2, "Tentang", Icons.info));
+    choices.add(CustomPopupMenuItem(3, "Tentang", Icons.info));
 
     void _selectedChoice(CustomPopupMenuItem choice) {
       if (choice.index == 0) {
@@ -84,7 +88,8 @@ class HomeScreen extends StatelessWidget {
             choices.clear();
             choices.add(CustomPopupMenuItem(1, "Data ODP/PDP", Icons.list));
             choices.add(CustomPopupMenuItem(2, "Tentang", Icons.info));
-            User user = result;
+            User user = result[0];
+            String villageName = result[1];
             currentUser = currentUser.copy(
                 fullName: user.fullName,
                 email: user.email,
@@ -92,14 +97,36 @@ class HomeScreen extends StatelessWidget {
                 isSatgas: true);
             _scaffoldKey.currentState.showSnackBar(SnackBar(
                 content: Text(
-                    "Anda telah terdaftar sebagai Satgas COVID-19. Kini Anda bisa melakukan input data ODP/PDP."),
+                    "Anda telah terdaftar sebagai Satgas COVID-19 di daerah $villageName. Kini Anda bisa melakukan input data ODP/PDP."),
                 backgroundColor: Colors.green));
           }
         });
       } else if (choice.index == 1) {
         Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => SubReportPage(subReportBloc: subReportBloc, profileBloc: profileBloc)));
+            builder: (context) => SubReportPage(
+                subReportBloc: subReportBloc, profileBloc: profileBloc)));
       } else if (choice.index == 2) {
+        Navigator.of(context)
+            .push(MaterialPageRoute(
+                builder: (context) => BlocProvider(
+                    builder: (BuildContext context) {
+                      return ReportNoteBloc()..dispatch(LoadReportNote());
+                    },
+                    child: ReportNoteAddPage())))
+            .then((result) {
+          if (result != null) {
+            _scaffoldKey.currentState.showSnackBar(SnackBar(
+              content: Text("Terimakasih, laporan Anda telah terkirim"),
+              backgroundColor: Colors.green,
+            ));
+          }else{
+            _scaffoldKey.currentState.showSnackBar(SnackBar(
+              content: Text("Laporan gagal terkirim"),
+              backgroundColor: Colors.red,
+            ));
+          }
+        });
+      } else if (choice.index == 3) {
         Navigator.of(context).pushNamed(PandemiaRoutes.about);
       }
     }

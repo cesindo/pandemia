@@ -16,7 +16,7 @@ use crate::{
         ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest,
     },
     auth,
-    dao::{Logs, RecordDao, SubReportDao, VillageDao, VillageDataDao},
+    dao::{Logs, RecordDao, ReportNoteDao, SubReportDao, VillageDao, VillageDataDao},
     error::{self, ErrorCode},
     eventstream::{self, Event::NewRecordUpdate},
     models,
@@ -234,6 +234,8 @@ impl PublicApi {
                         recovered,
                         0,
                         &current_user,
+                        &area_code,
+                        &vec![],
                     )?;
                 }
 
@@ -527,6 +529,83 @@ impl PublicApi {
 
         Ok(ApiResult::success(()))
     }
+
+    /// Add report note.
+    #[api_endpoint(path = "/report_note/add", auth = "required", mutable)]
+    pub fn add_report_note(query: AddReportNote) -> ApiResult<ReportNote> {
+        query.validate()?;
+        let conn = state.db();
+        let dao = ReportNoteDao::new(&conn);
+
+        let area_code = current_user.get_area_code();
+
+        // let village = match VillageDao::new(&conn).get_by_name(&query.village) {
+        //     Ok(a) => a,
+        //     Err(_) => {
+        //         return param_error(&format!(
+        //             "Tidak dapat menemukan data untuk desa {}",
+        //             query.village
+        //         ))
+        //     }
+        // };
+
+        let mut meta = vec![];
+
+        // meta.push(format!("area_code={}", area_code));
+        // meta.push(":reviewed:".to_string());
+        meta.push(format!("location={}", current_user.get_village_name()));
+
+        let report_note = dao.create(
+            &query.title.unwrap_or("".to_string()),
+            &query.notes,
+            current_user.id,
+            &current_user.full_name,
+            area_code,
+            &meta.iter().map(|a| a.as_str()).collect(),
+        )?;
+        Ok(ApiResult::success(report_note.to_api_type(&conn)))
+    }
+
+    /// Search for report_notes
+    #[api_endpoint(path = "/report_note/search", auth = "required")]
+    pub fn search_report_notes(query: SearchNotes) -> ApiResult<EntriesResult<ReportNote>> {
+        query.validate()?;
+        let conn = state.db();
+        let dao = ReportNoteDao::new(&conn);
+
+        let sresult = dao.search(
+            current_user.get_area_code(),
+            &query.query.unwrap_or("".to_string()),
+            query.meta_contains.iter().map(|a| a.as_str()).collect(),
+            query.offset,
+            query.limit,
+        )?;
+
+        let entries = sresult
+            .entries
+            .into_iter()
+            .map(|p| p.to_api_type(&conn))
+            .collect();
+
+        let count = sresult.count;
+        Ok(ApiResult::success(EntriesResult { count, entries }))
+    }
+}
+
+#[derive(Deserialize, Validate)]
+pub struct SearchNotes {
+    pub query: Option<String>,
+    pub meta_contains: Vec<String>,
+    #[validate(range(min = 0, max = 1_000_000))]
+    pub offset: i64,
+    #[validate(range(min = 1, max = 100))]
+    pub limit: i64,
+}
+
+#[derive(Deserialize, Validate)]
+pub struct AddReportNote {
+    pub title: Option<String>,
+    pub notes: String,
 }
 
 #[derive(Deserialize, Validate)]

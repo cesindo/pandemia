@@ -252,3 +252,70 @@ impl From<models::User> for ApiResult<User> {
         ApiResult::success(a.into())
     }
 }
+
+#[doc(hidden)]
+#[derive(Queryable, Serialize)]
+pub struct ReportNote {
+    pub id: ID,
+    pub title: String,
+    pub notes: String,
+    pub creator_id: ID,
+    pub creator_name: String,
+    pub area_code: String,
+    // pub meta: Vec<String>,
+    pub ts: NaiveDateTime,
+    pub location: String,
+}
+
+impl ToApiType<ReportNote> for models::ReportNote {
+    fn to_api_type(&self, conn: &PgConnection) -> ReportNote {
+        let location = meta_value_str!(self, "location", "=").to_owned();
+        ReportNote {
+            id: self.id,
+            title: self.title.to_owned(),
+            notes: self.notes.to_owned(),
+            creator_id: self.creator_id,
+            creator_name: self.creator_name.to_owned(),
+            area_code: self.area_code.to_owned(),
+            location,
+            ts: self.ts,
+        }
+    }
+}
+
+#[doc(hidden)]
+#[derive(Queryable, Serialize)]
+pub struct VillageData {
+    pub id: ID,
+    pub village_id: ID,
+    pub odp: i32,
+    pub pdp: i32,
+    pub cases: i32,
+    pub recovered: i32,
+    pub deaths: i32,
+    pub last_updated: NaiveDateTime,
+    pub last_updated_by_id: ID,
+    pub ts: NaiveDateTime,
+    // pub area_code: String,
+    //----
+    pub village_name: String,
+}
+
+impl From<(models::VillageData, models::Village)> for VillageData {
+    fn from(a: (models::VillageData, models::Village)) -> Self {
+        VillageData {
+            id: a.0.id,
+            village_id: a.0.village_id,
+            odp: a.0.odp,
+            pdp: a.0.pdp,
+            cases: a.0.cases,
+            recovered: a.0.recovered,
+            deaths: a.0.deaths,
+            last_updated: a.0.last_updated,
+            last_updated_by_id: a.0.last_updated_by_id,
+            ts: a.0.ts,
+            // area_code: a.0.area_code.to_owned(),
+            village_name: a.1.name.to_owned(),
+        }
+    }
+}

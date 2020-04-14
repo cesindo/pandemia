@@ -101,7 +101,7 @@ impl PublicApi {
             // cari data daerah terdekat
             let pandemic_data: Result<Vec<models::MapMarker>> = map_markers::table
                 .filter(sql(&format!(
-                    "earth_box(ll_to_earth({}, {}), 10000/1.609) @> ll_to_earth(latitude, longitude) OR (kind=3 AND earth_box(ll_to_earth({}, {}), 100000/1.609) @> ll_to_earth(latitude, longitude))",
+                    "earth_box(ll_to_earth({}, {}), 100000/1.609) @> ll_to_earth(latitude, longitude) OR (kind=3 AND earth_box(ll_to_earth({}, {}), 100000/1.609) @> ll_to_earth(latitude, longitude))",
                     query.latitude, query.longitude,
                     query.latitude, query.longitude
                 )))

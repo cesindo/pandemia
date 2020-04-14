@@ -51,7 +51,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
     subs = profileBloc.state.listen((ProfileState state) {
       if (state is ProfileUpdated) {
         setState(() => _isLoading = false);
-        Navigator.pop(context, state.profile);
+        Navigator.pop(context, [state.profile, _villageCtl.text]);
       } else if (state is ProfileFailure) {
         _scaffoldKey.currentState.showSnackBar(
             SnackBar(content: Text(state.error), backgroundColor: Colors.red));

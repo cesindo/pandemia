@@ -58,6 +58,12 @@ impl User {
     pub fn get_village_id(&self) -> Option<ID> {
         meta_value_i64!(self, "village_id")
     }
+
+    /// Get user location if registered
+    /// if not return empty string ""
+    pub fn get_village_name(&self) -> &str {
+        meta_value_str!(self, "village", "=")
+    }
 }
 
 /// Bentuk model dari alamat untuk akun.
@@ -449,5 +455,20 @@ pub struct VillageData {
     pub deaths: i32,
     pub last_updated: NaiveDateTime,
     pub last_updated_by_id: ID,
+    pub ts: NaiveDateTime,
+    pub area_code: String,
+    pub meta: Vec<String>,
+}
+
+#[doc(hidden)]
+#[derive(Queryable, Serialize)]
+pub struct ReportNote {
+    pub id: ID,
+    pub title: String,
+    pub notes: String,
+    pub creator_id: ID,
+    pub creator_name: String,
+    pub area_code: String,
+    pub meta: Vec<String>,
     pub ts: NaiveDateTime,
 }

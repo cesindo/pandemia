@@ -4,6 +4,7 @@ import Home from './views/Home.vue'
 import Dashboard from './views/Dashboard.vue'
 import SatgasLogin from './views/Satgas.vue'
 import Analytic from './views/Analytic.vue'
+import ReportNotes from './views/ReportNotes.vue'
 import NotFound from './views/NotFound.vue'
 
 Vue.use(Router)
@@ -104,9 +105,18 @@ let router = new Router({
       },
     },
     {
+      path: '/dashboard/reports',
+      name: 'Laporan',
+      component: ReportNotes,
+      meta: {
+        title: 'Desa'
+      },
+    },
+    {
       path: '/area/:province/:city',
       name: 'Analitik Daerah Terdampak COVID-19',
       component: Analytic,
+      props: true,
       meta: {
         title: 'Analitik Daerah'
       },

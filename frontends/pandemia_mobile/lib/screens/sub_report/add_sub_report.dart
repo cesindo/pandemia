@@ -60,7 +60,7 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
     Gender("L", "Laki-laki"),
     Gender("P", "Perempuan"),
   ];
-  List<String> status = ["ODP", "PDP", "Positif", "Sembuh"];
+  List<String> status = ["ODP", "PDP"];
   List<String> keluhan = [
     "Suhu di atas normal",
     "Demam",
@@ -162,6 +162,7 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
                 ),
                 TextFormField(
                   decoration: InputDecoration(labelText: "Alamat Lengkap"),
+                  maxLines: 3,
                   controller: _addrCtl,
                   textInputAction: TextInputAction.next,
                   keyboardType: TextInputType.text,

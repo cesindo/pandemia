@@ -69,6 +69,7 @@ pub mod notif_dao;
 pub mod notif_sender;
 pub mod push_notif_handler;
 pub mod record_dao;
+pub mod report_note_dao;
 mod result;
 mod schema;
 pub mod service;
