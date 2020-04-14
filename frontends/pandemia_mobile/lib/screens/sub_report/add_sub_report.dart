@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,6 +10,7 @@ import 'package:pandemia_mobile/blocs/sub_report/sub_report_bloc.dart';
 import 'package:pandemia_mobile/blocs/sub_report/sub_report_event.dart';
 import 'package:pandemia_mobile/models/sub_report.dart';
 import 'package:pandemia_mobile/models/user.dart';
+import 'package:pandemia_mobile/screens/sub_report/data_kabupaten.dart';
 import 'package:pandemia_mobile/screens/sub_report/sub_report_page.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
 
@@ -49,6 +51,8 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
   String _valStatus;
   User currentUser;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  String currentText = "";
+  GlobalKey<AutoCompleteTextFieldState<String>> key = new GlobalKey();
   final SubReport item;
   final bool editMode;
 
@@ -202,15 +206,22 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
                   //       : null;
                   // },
                 ),
-                TextFormField(
-                  decoration: InputDecoration(labelText: "Datang Dari"),
+                // TextFormField(
+                //   decoration: InputDecoration(labelText: "Datang Dari"),
+                //   controller: _fromCtl,
+                //   textInputAction: TextInputAction.next,
+                //   keyboardType: TextInputType.text,
+                //   onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
+                //   validator: (val) {
+                //     return val.isEmpty ? "Field tidak boleh kosong" : null;
+                //   },
+                // ),
+                SimpleAutoCompleteTextField(
+                  key: key,
+                  suggestions: kab,
+                  textChanged: (text) => currentText = text,
+                  decoration: new InputDecoration(labelText: "Datang Dari"),
                   controller: _fromCtl,
-                  textInputAction: TextInputAction.next,
-                  keyboardType: TextInputType.text,
-                  onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
-                  validator: (val) {
-                    return val.isEmpty ? "Field tidak boleh kosong" : null;
-                  },
                 ),
                 TextFormField(
                   decoration: InputDecoration(labelText: "Tanggal Kedatangan"),
