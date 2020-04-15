@@ -1,7 +1,6 @@
 <template>
   <div>
     <div id="Main">
-      
       <AnsTable
         :key="tableSubReports"
         data-source-url="/pandemia/v1/sub_report/search"
@@ -12,27 +11,38 @@
         :showDetailFunc="showDetail"
         :limit="100"
       >
-        <!-- <template v-slot:bar>
-          <button v-if="isDirty" class="ui text icon green button right floated" @click="commit">
+        <template v-slot:bellow-search>
+          <small>
+            <i class="ui icon fa-info"></i>
+            <a href="javascript://void();" @click="searchTips">Tips pencarian</a>
+          </small>
+        </template>
+        <template v-slot:bar>
+          <!-- <button v-if="isDirty" class="ui text icon green button right floated" @click="commit">
             <i class="fa-angle-double-up icon"></i> Commit
           </button>
           <button class="ui text icon button right floated" @click="addVillage">
             <i class="fa-plus icon"></i> Tambah
-          </button>
-        </template> -->
+          </button>-->
+        </template>
 
         <template v-slot:tdmap="self">
           <td>{{self.item['id']}}</td>
           <td>{{self.item['full_name']}}</td>
           <td>{{self.item['age']}}</td>
           <td>{{self.item['residence_address']}}</td>
-          <td>{{self.item['gender'] == 'L' ? 'Laki-laki' : 'Perempuan'  }}</td>
+          <td>{{self.item['gender'] == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
           <td>{{self.item['coming_from'] }}</td>
           <td>{{self.item['status']}}</td>
           <td>{{self.item['healthy_notes'] }}</td>
           <td>{{self.item['notes'] }}</td>
           <td style="width: 120px;">
-            <button v-if="self.item['status'] != 'approved'" class="ui icon button" title="Approve" @click="approve(self.item)">
+            <button
+              v-if="self.item['status'] != 'approved'"
+              class="ui icon button"
+              title="Approve"
+              @click="approve(self.item)"
+            >
               <i class="check icon"></i>
             </button>
             <button class="ui icon button" title="Hapus" @click="confirmDelete(self.item)">
@@ -68,7 +78,7 @@
           </div>
         </template>
       </DialogModal>
-<!-- 
+      <!-- 
       <DialogModal
         modalName="AddReportModal"
         caption="Tulis Laporan"
@@ -115,7 +125,27 @@
             </div>
           </div>
         </template>
-      </DialogModal> -->
+      </DialogModal>-->
+
+      <BasicModal modalName="SearchTips" caption="Tips Pencarian" :clickToClose="true">
+        <p>
+          <strong>Tips pencarian</strong>
+        </p>
+
+        <ul>
+          <li>tt: - untuk mencari dengan kriteria tempat tinggal, contoh: tt:jakarta</li>
+          <li>umur: - untuk mencari dengan kriteria umur, contoh: umur:33</li>
+          <li>jk: - untuk mencari dengan kriteria jenis kelamin, contoh: jk:L untuk laki-laki, jk:P untuk perempuan</li>
+          <li>dari: - untuk mencari dengan kriteria nama daerah kedatangan, contoh: dari:bandung</li>
+          <li>status: - untuk mencari dengan kriteria status odp/pdp/positive/recovered/death nya, contoh: status:odp</li>
+        </ul>
+
+        <strong>Contoh menggabungkan kriteria pencarian:</strong>
+        <p class="sample">dari:jakarta status:odp nama:anto</p>
+        <center>
+          <button class="ui button" @click="closeTips">Close</button>
+        </center>
+      </BasicModal>
 
       <ConfirmDialog
         modalName="Delete"
@@ -137,9 +167,12 @@
         <p>Yakin untuk meng-approve laporan ini? :</p>
         <strong>"{{toProcess['notes']}}"</strong>
 
-        <p>dari <strong>{{toProcess['creator_name']}}</strong> - <strong>{{toProcess['location']}}</strong></p>
+        <p>
+          dari
+          <strong>{{toProcess['creator_name']}}</strong> -
+          <strong>{{toProcess['location']}}</strong>
+        </p>
       </ConfirmDialog>
-
     </div>
   </div>
 </template>
@@ -148,6 +181,7 @@
 <script>
 import AnsTable from "@/components/AnsTable.vue";
 import DialogModal from "@/components/modal/DialogModal.vue";
+import BasicModal from "@/components/modal/BasicModal.vue";
 import ConfirmDialog from "@/components/modal/ConfirmDialog.vue";
 
 export default {
@@ -156,6 +190,7 @@ export default {
     AnsTable,
     DialogModal,
     ConfirmDialog,
+    BasicModal
   },
   data() {
     return {
@@ -169,17 +204,16 @@ export default {
     };
   },
   methods: {
-    approve(item){
+    approve(item) {
       this.toProcess = item;
-      this.$modal.show('Approve');
+      this.$modal.show("Approve");
     },
-    doApprove(){
-      
+    doApprove() {
       this.$pandemia
         .api()
         .publicApi.post("/pandemia/v1/report_note/update_state", {
-          'id': this.toProcess["id"],
-          'state': 'approved'
+          id: this.toProcess["id"],
+          state: "approved"
         })
         .then(resp => {
           // console.log(resp);
@@ -270,7 +304,13 @@ export default {
         });
     },
     refreshTable() {
-      this.tableSubReports  = "A-" + new Date().getTime();
+      this.tableSubReports = "A-" + new Date().getTime();
+    },
+    searchTips() {
+      this.$modal.show("SearchTips");
+    },
+    closeTips() {
+      this.$modal.hide("SearchTips");
     }
   }
 };
@@ -279,5 +319,10 @@ export default {
 <style lang="less">
 td.dirty {
   color: orange;
+}
+p.sample {
+  background-color: grey;
+  color: white;
+  padding: 10px;
 }
 </style>

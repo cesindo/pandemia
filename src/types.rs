@@ -53,8 +53,20 @@ pub enum SubReportStatus {
     /// Sembuh
     Recovered = 3,
 
+    /// Sembuh
+    Death = 4,
+
     /// Data untuk semua (hanya untuk query)
     All = -1,
+
+    /// Unknown
+    Unknown = 404,
+}
+
+impl Default for SubReportStatus {
+    fn default() -> Self {
+        SubReportStatus::Unknown
+    }
 }
 
 impl std::fmt::Display for SubReportStatus {
@@ -64,7 +76,9 @@ impl std::fmt::Display for SubReportStatus {
             SubReportStatus::PDP => write!(f, "PDP"),
             SubReportStatus::Positive => write!(f, "POSITIVE"),
             SubReportStatus::Recovered => write!(f, "RECOVERED"),
+            SubReportStatus::Death => write!(f, "DEATH"),
             SubReportStatus::All => write!(f, "ALL"),
+            SubReportStatus::Unknown => write!(f, "UNKNOWN"),
         }
     }
 }
@@ -76,8 +90,23 @@ impl From<i32> for SubReportStatus {
             1 => SubReportStatus::PDP,
             2 => SubReportStatus::Positive,
             3 => SubReportStatus::Recovered,
-            4 => SubReportStatus::All,
-            x => panic!("Unknown value {}", x),
+            4 => SubReportStatus::Death,
+            -1 => SubReportStatus::All,
+            x => SubReportStatus::Unknown,
+        }
+    }
+}
+
+impl From<&str> for SubReportStatus {
+    fn from(a: &str) -> Self {
+        match a {
+            "odp" => SubReportStatus::ODP,
+            "pdp" => SubReportStatus::PDP,
+            "positive" => SubReportStatus::Positive,
+            "recovered" => SubReportStatus::Recovered,
+            "death" => SubReportStatus::Death,
+            "all" => SubReportStatus::All,
+            _ => SubReportStatus::Unknown,
         }
     }
 }

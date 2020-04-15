@@ -325,18 +325,29 @@ impl PublicApi {
             return unauthorized();
         };
 
-        let status = match query.status {
-            0 => SubReportStatus::ODP,
-            1 => SubReportStatus::PDP,
-            2 => SubReportStatus::Positive,
-            3 => SubReportStatus::Recovered,
-            _ => SubReportStatus::All,
+        let parq = match query.query.as_ref() {
+            Some(q) => parse_query(q),
+            None => ParsedQuery::default(),
         };
 
+        let name = parq.name.unwrap_or("");
+
+        // let status = match query.status {
+        //     0 => SubReportStatus::ODP,
+        //     1 => SubReportStatus::PDP,
+        //     2 => SubReportStatus::Positive,
+        //     3 => SubReportStatus::Recovered,
+        //     _ => SubReportStatus::All,
+        // };
+
         let result = dao.search(
-            status,
             city_id,
-            &query.query.unwrap_or("".to_string()),
+            parq.come_from,
+            parq.age,
+            parq.residence_address,
+            parq.gender,
+            parq.status,
+            &name,
             None,
             query.offset,
             query.limit,
@@ -762,5 +773,40 @@ impl PrivateApi {
         });
 
         Ok(ApiResult::success(()))
+    }
+}
+
+#[doc(hidden)]
+#[derive(Default)]
+struct ParsedQuery<'a> {
+    pub name: Option<&'a str>,
+    pub residence_address: Option<&'a str>,
+    pub age: Option<i32>,
+    pub gender: Option<&'a str>,
+    pub come_from: Option<&'a str>,
+    pub status: Option<SubReportStatus>,
+}
+
+fn parse_query<'a>(query: &'a str) -> ParsedQuery<'a> {
+    let s: Vec<&str> = query.split(' ').collect();
+
+    let name = s
+        .iter()
+        .find(|a| !a.contains(':') || a.starts_with("name:"))
+        .cloned();
+
+    let residence_address = value_str_opt!(s, "tt");
+    let age = value_str_opt!(s, "umur").and_then(|a| a.parse::<i32>().ok());
+    let gender = value_str_opt!(s, "jk");
+    let come_from = value_str_opt!(s, "dari");
+    let status = value_str_opt!(s, "status").map(|a| a.into());
+
+    ParsedQuery {
+        name,
+        residence_address,
+        age,
+        gender,
+        come_from,
+        status,
     }
 }

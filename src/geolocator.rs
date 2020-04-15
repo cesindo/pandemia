@@ -161,19 +161,20 @@ pub fn address_to_ll(query: &str, conn: &PgConnection) -> Result<LatLong> {
     // tidak ada di cache, ambil dari source luar
     let query = normalize_query(query.to_lowercase());
 
-    let (country, city) = {
+    let (country, province, city) = {
         let s: Vec<&str> = query.split('/').collect();
         match &s[0..] {
-            &[a, b] => (a, b),
-            &[a, b, c] => (a, c),
-            _ => ("", ""),
+            &[a, b] => (a, "", b),
+            &[a, b, c] => (a, b, c),
+            _ => ("", "", ""),
         }
     };
 
     let url_query = format!(
-        "https://geocoder.ls.hereapi.com/6.2/geocode.json?apiKey={}&country={}&city={}",
+        "https://geocoder.ls.hereapi.com/6.2/geocode.json?apiKey={}&country={}&county={}&city={}",
         env::var("GEOLOCATOR_API_KEY").expect("GEOLOCATOR_API_KEY env not set"),
         country.trim(),
+        province.trim(),
         city.trim()
     );
     let mut resp = reqwest::get(&url_query)?;

@@ -119,8 +119,12 @@ impl<'a> SubReportDao<'a> {
     /// Search for specific sub report by creator
     pub fn search(
         &self,
-        status: SubReportStatus,
         city_id: ID,
+        come_from: Option<&str>,
+        age: Option<i32>,
+        residence_address: Option<&str>,
+        gender: Option<&str>,
+        status: Option<SubReportStatus>,
         query: &str,
         creator_id: Option<i64>,
         offset: i64,
@@ -145,8 +149,24 @@ impl<'a> SubReportDao<'a> {
             filterer = Box::new(filterer.and(dsl::creator_id.eq(creator_id)));
         }
 
-        if status != SubReportStatus::All {
+        if let Some(age) = age {
+            filterer = Box::new(filterer.and(dsl::age.eq(age as i32)));
+        }
+
+        if let Some(status) = status {
             filterer = Box::new(filterer.and(dsl::status.eq(status as i32)));
+        }
+
+        if let Some(residence_address) = residence_address {
+            filterer =
+                Box::new(filterer.and(lower(dsl::residence_address).eq(residence_address.to_lowercase())));
+        }
+
+        if let Some(come_from) = come_from {
+            filterer = Box::new(filterer.and(lower(dsl::coming_from).eq(come_from.to_lowercase())));
+        }
+        if let Some(gender) = gender {
+            filterer = Box::new(filterer.and(dsl::gender.eq(gender)));
         }
 
         Ok(EntriesResult::new(

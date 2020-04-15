@@ -7,7 +7,16 @@
           <i class="search icon"></i>
         </div>
 
-        <slot name="bar"></slot>
+        <slot name="bar">
+          <div class="ui mini statistic">
+            <div class="value">{{items.length}}</div>
+            <div class="label">Total</div>
+          </div>
+        </slot>
+
+        <div>
+          <slot name="bellow-search"></slot>
+        </div>
 
         <table class="ui celled table">
           <thead>
@@ -37,7 +46,8 @@
 
 <script>
 const initialState = {
-  items: []
+  items: [],
+  count: 0
 };
 export default {
   name: "AnsTable",
@@ -75,7 +85,12 @@ export default {
       this.apiScopeBuilder(this)
         .get(url)
         .then(resp => {
-          this.items = resp.data.result.entries.map(this.mapItemFunc);
+          if (resp.data.code == 0) {
+            this.items = resp.data.result.entries.map(this.mapItemFunc);
+            this.count = resp.data.result.count;
+          } else {
+            this.showError("Gagal mendapatkan data dari server");
+          }
         });
     },
     showDetail(item) {
@@ -117,5 +132,8 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="less">
+.mini.statistic {
+  margin-left: 10px !important;
+}
 </style>
 
