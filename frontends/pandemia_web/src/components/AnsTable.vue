@@ -3,8 +3,17 @@
     <div class="ui grid">
       <div class="ten wide column">
         <div v-if="searchable" class="ui icon input">
-          <input type="text" placeholder="Search..." v-on:keyup.13="doSearch" ref="inputSearch" />
-          <i class="search icon"></i>
+          <input
+            type="text"
+            placeholder="Search..."
+            v-on:keyup.13="doSearch"
+            ref="inputSearch"
+            v-on:keyup="checkHasText"
+          />
+
+          <a href="javascript://" v-show="hasText" @click="resetSearch" class="search reset"><i class="search remove icon" ></i></a>
+
+          <i v-if="!hasText" class="search icon"></i>
         </div>
 
         <slot name="bar">
@@ -47,7 +56,8 @@
 <script>
 const initialState = {
   items: [],
-  count: 0
+  count: 0,
+  hasText: false
 };
 export default {
   name: "AnsTable",
@@ -73,7 +83,25 @@ export default {
   data() {
     return initialState;
   },
+  // computed: {
+  //   hasText() {
+  //     return (
+  //       this.$refs.inputSearch != null &&
+  //       this.$refs.inputSearch.value.length > 0
+  //     );
+  //   }
+  // },
+  mounted() {},
   methods: {
+    checkHasText() {
+      this.hasText = this.$refs.inputSearch.value.length > 0;
+    },
+    resetSearch() {
+      this.$refs.inputSearch.value = "";
+      this.hasText = "";
+      this.doSearch();
+      this.$refs.inputSearch.focus();
+    },
     doSearch() {
       var url =
         this.dataSourceUrl +
@@ -134,6 +162,18 @@ export default {
 <style scoped lang="less">
 .mini.statistic {
   margin-left: 10px !important;
+}
+a.search.reset {
+  font-size: 0.857143em;
+  float: left;
+  margin: 0;
+  padding: 0;
+  right: 1em;
+  top: 0.7em;
+  z-index: 1000 !important;
+  position: absolute;
+  opacity: 0.5;
+  cursor: pointer;
 }
 </style>
 

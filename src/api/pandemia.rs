@@ -792,7 +792,7 @@ fn parse_query<'a>(query: &'a str) -> ParsedQuery<'a> {
 
     let name = s
         .iter()
-        .find(|a| !a.contains(':') || a.starts_with("name:"))
+        .find(|a| !a.contains(':') || a.starts_with("nama:"))
         .cloned();
 
     let residence_address = value_str_opt!(s, "tt");
