@@ -44,6 +44,7 @@
 
       <Villages v-if="currentPage['/dashboard/villages']" />
 
+      <Satgas v-if="currentPage['/dashboard/satgas'] && userAccesses.indexOf('satgas') > -1" />
       <SubReports v-if="currentPage['/dashboard/data'] && userAccesses.indexOf('data') > -1" />
       <ReportNotes v-if="currentPage['/dashboard/reports'] && userAccesses.indexOf('report_notes') > -1" />
       
@@ -67,6 +68,7 @@ import Villages from "@/views/Villages.vue";
 import Logs from "@/views/Logs.vue";
 import ReportNotes from "@/views/ReportNotes.vue";
 import SubReports from "@/views/SubReports.vue";
+import Satgas from "@/views/Satgas.vue";
 
 export default {
   name: "Dashboard",
@@ -80,7 +82,8 @@ export default {
     Villages,
     Logs,
     ReportNotes,
-    SubReports
+    SubReports,
+    Satgas,
   },
   data() {
     return {

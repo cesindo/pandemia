@@ -3,6 +3,7 @@
 
 use chrono::{NaiveDateTime, Utc};
 use diesel::prelude::*;
+use diesel::sql_types;
 
 use crate::{
     crypto::{self, PublicKey, SecretKey},
@@ -11,7 +12,9 @@ use crate::{
     result::Result,
     schema::*,
     sqlutil::lower,
-    token, ID,
+    token,
+    types::EntriesResult,
+    ID,
 };
 
 use std::sync::Arc;
@@ -355,6 +358,36 @@ impl<'a> UserDao<'a> {
             .first(self.db)?;
 
         Ok((entries, count))
+    }
+
+    /// Search for specific users
+    pub fn search_with_meta(
+        &self,
+        query: &str,
+        contains_meta: &Vec<&str>,
+        offset: i64,
+        limit: i64,
+    ) -> Result<EntriesResult<User>> {
+        use crate::schema::users::{self, dsl};
+        let like_clause = format!("%{}%", query.to_lowercase());
+        let mut filterer: Box<dyn BoxableExpression<users::table, _, SqlType = sql_types::Bool>> =
+            Box::new(dsl::id.ne(0));
+        filterer = Box::new(filterer.and(lower(dsl::full_name).like(&like_clause)));
+
+        if !contains_meta.is_empty() {
+            filterer = Box::new(filterer.and(dsl::meta.contains(contains_meta)));
+        }
+        Ok(EntriesResult::new(
+            dsl::users
+                .filter(&filterer)
+                .offset(offset)
+                .limit(limit)
+                .load::<User>(self.db)?,
+            dsl::users
+                .filter(filterer)
+                .select(diesel::dsl::count(dsl::id))
+                .first(self.db)?,
+        ))
     }
 
     /// Create user connect app id untuk spesifik user,

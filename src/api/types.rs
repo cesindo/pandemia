@@ -256,6 +256,58 @@ impl From<models::User> for ApiResult<User> {
     }
 }
 
+/// Bentuk model akun di dalam database.
+#[derive(Clone, Serialize, Deserialize, PartialEq)]
+pub struct Satgas {
+    /// ID dari akun.
+    pub id: i64,
+
+    /// Nama lengkap akun.
+    pub full_name: String,
+
+    /// Alamat email kun.
+    pub email: String,
+
+    /// Nomor telpon akun.
+    pub phone_num: String,
+
+    /// Waktu kapan akun ini didaftarkan.
+    pub register_time: NaiveDateTime,
+
+    /// Is user activeated.
+    pub active: bool,
+
+    /// user roles
+    pub roles: Vec<String>,
+
+    /// Village
+    pub village: String,
+
+    /// Location latitude, longitude
+    pub loc: models::LatLong,
+}
+
+impl ToApiType<Satgas> for models::User {
+    fn to_api_type(&self, conn: &PgConnection) -> Satgas {
+        let mut roles = vec![];
+
+        if self.is_satgas() {
+            roles.push("satgas".to_owned());
+        }
+        Satgas {
+            id: self.id,
+            full_name: self.full_name.to_owned(),
+            email: self.email.to_owned(),
+            phone_num: self.phone_num.to_owned(),
+            register_time: self.register_time,
+            active: self.active,
+            roles: roles,
+            village: meta_value_str!(self, "village", "=").to_owned(),
+            loc: self.get_lat_long(),
+        }
+    }
+}
+
 #[doc(hidden)]
 #[derive(Queryable, Serialize)]
 pub struct ReportNote {

@@ -327,7 +327,7 @@ impl PublicApi {
     }
 
     /// Mencari akun berdasarkan kata kunci.
-    #[api_endpoint(path = "/search", auth = "none")]
+    #[api_endpoint(path = "/search", auth = "required", accessor = "admin")]
     pub fn search_users(query: QueryEntries) -> ApiResult<EntriesResult<User>> {
         let conn = state.db();
         let dao = UserDao::new(&conn);
@@ -343,6 +343,36 @@ impl PublicApi {
         Ok(ApiResult::success(EntriesResult {
             count,
             entries: entries.into_iter().map(|a| a.into()).collect(),
+        }))
+    }
+
+    /// Mencari akun satgas berdasarkan kata kunci.
+    #[api_endpoint(path = "/satgas/search", auth = "required", accessor = "admin")]
+    pub fn satgas_search(query: QueryEntries) -> ApiResult<EntriesResult<Satgas>> {
+        let conn = state.db();
+        let dao = UserDao::new(&conn);
+
+        let keyword = query.query.unwrap_or("".to_string());
+
+        if !current_admin.has_access("satgas") {
+            return unauthorized();
+        }
+
+        let mut meta = vec![":satgas:"];
+        if current_admin.id != 1 {
+            let city = format!("city_id={}", current_admin.get_city_id().unwrap_or(0));
+            meta.push(&city);
+        }
+
+        let sresult = dao.search_with_meta(&keyword, &meta, query.offset, query.limit)?;
+
+        Ok(ApiResult::success(EntriesResult {
+            count: sresult.count,
+            entries: sresult
+                .entries
+                .into_iter()
+                .map(|a| a.to_api_type(&conn))
+                .collect(),
         }))
     }
 }
