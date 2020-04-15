@@ -5,12 +5,14 @@
     "body": [
       "this.$$pandemia",
       "  .api()",
-      "  .publicApi.get(",
-      "    `${1:path}`",
+      "  .publicApi.${1:get}(",
+      "    `${2:path}`",
       "  )",
       "  .then(resp => {",
       "    if (resp.data.code == 0) {",
-      "      ${2:}",
+      "      ${3:}",
+      "    } else {",
+      "       this.showError(resp.data.description)",
       "    }",
       "  });"
     ]
