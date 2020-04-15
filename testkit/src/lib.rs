@@ -32,7 +32,7 @@ use pandemia::{
     service, ID,
 };
 
-pub use pandemia::api::{types::*, user::types::User};
+pub use pandemia::api::{types::User, types::*};
 
 pub mod helper;
 

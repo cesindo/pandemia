@@ -2,8 +2,8 @@
 // please don't edit this by hand
 // use 'ansvia-vscode extension > Edit Model fields' instead.
 import 'package:equatable/equatable.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:meta/meta.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pandemia_mobile/models/user_settings.dart';
 import 'package:pandemia_mobile/util/string_extension.dart';
 
@@ -18,10 +18,21 @@ class User extends Equatable {
   final bool isSatgas;
   final UserSettings settings; // Nullable
   final LatLng loc; // Nullable
+  final bool blocked;
 
-  User(this.id, this.fullName, this.email, this.phoneNum, this.village, this.isSatgas,
-      this.settings, this.loc)
-      : super([id, fullName, email, phoneNum, village, isSatgas, settings, loc]);
+  User(this.id, this.fullName, this.email, this.phoneNum, this.village,
+      this.isSatgas, this.settings, this.loc, this.blocked)
+      : super([
+          id,
+          fullName,
+          email,
+          phoneNum,
+          village,
+          isSatgas,
+          settings,
+          loc,
+          blocked
+        ]);
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> data = Map();
@@ -33,12 +44,17 @@ class User extends Equatable {
     data["is_satgas"] = this.isSatgas;
     data["settings"] = this.settings != null ? this.settings.toMap() : null;
     data["loc"] = this.loc != null ? this.loc.toMap() : null;
+    data["blocked"] = this.blocked;
     return data;
   }
 
   static User fromMap(Map<String, dynamic> data) {
     assert(data['full_name'] != null, "User.full_name is null");
     assert(data['email'] != null, "User.email is null");
+    assert(data['phone_num'] != null, "User.phone_num is null");
+    assert(data['village'] != null, "User.village is null");
+    assert(data['is_satgas'] != null, "User.is_satgas is null");
+    assert(data['blocked'] != null, "User.blocked is null");
     return User(
         data['id'] as int,
         data['full_name'] as String,
@@ -51,7 +67,8 @@ class User extends Equatable {
             : null,
         data['loc'] != null
             ? LatLng(data['loc']['lat'], data['loc']['long'])
-            : null);
+            : null,
+        data["blocked"] as bool);
   }
 
   User copy(
@@ -61,7 +78,8 @@ class User extends Equatable {
       String village,
       bool isSatgas,
       UserSettings settings,
-      LatLng loc}) {
+      LatLng loc,
+      bool blocked}) {
     return User(
         this.id,
         fullName ?? this.fullName,
@@ -70,6 +88,7 @@ class User extends Equatable {
         village ?? this.village,
         isSatgas ?? this.isSatgas,
         settings ?? this.settings,
-        loc ?? this.loc);
+        loc ?? this.loc,
+        blocked ?? this.blocked);
   }
 }

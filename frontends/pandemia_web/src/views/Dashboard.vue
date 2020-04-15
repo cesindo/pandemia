@@ -45,9 +45,15 @@
       <Villages v-if="currentPage['/dashboard/villages']" />
 
       <Satgas v-if="currentPage['/dashboard/satgas'] && userAccesses.indexOf('satgas') > -1" />
+      <SatgasDetail
+        v-if="$route.path.startsWith('/dashboard/satgas/') && userAccesses.indexOf('satgas') > -1"
+        baseApiUrl="/user/v1/satgas/detail"
+        :userId="$route.params.id"
+      />
       <SubReports v-if="currentPage['/dashboard/data'] && userAccesses.indexOf('data') > -1" />
-      <ReportNotes v-if="currentPage['/dashboard/reports'] && userAccesses.indexOf('report_notes') > -1" />
-      
+      <ReportNotes
+        v-if="currentPage['/dashboard/reports'] && userAccesses.indexOf('report_notes') > -1"
+      />
 
       <Logs v-if="currentPage['/dashboard/journal']" />
     </div>
@@ -69,6 +75,7 @@ import Logs from "@/views/Logs.vue";
 import ReportNotes from "@/views/ReportNotes.vue";
 import SubReports from "@/views/SubReports.vue";
 import Satgas from "@/views/Satgas.vue";
+import SatgasDetail from "@/views/SatgasDetail.vue";
 
 export default {
   name: "Dashboard",
@@ -84,6 +91,7 @@ export default {
     ReportNotes,
     SubReports,
     Satgas,
+    SatgasDetail
   },
   data() {
     return {
@@ -163,7 +171,7 @@ export default {
         {
           title: "Logout",
           icon: "fa fa-sign-out-alt",
-          access: '*'
+          access: "*"
         }
       ]
     };
@@ -172,7 +180,7 @@ export default {
     menu: function() {
       if (this.userId != 1) {
         return this.menu_items.filter(a => {
-          return this.userAccesses.indexOf(a.access) > -1 || a.access == '*';
+          return this.userAccesses.indexOf(a.access) > -1 || a.access == "*";
         });
       } else {
         return this.menu_items;

@@ -52,3 +52,34 @@ pub fn random_number_f64() -> f64 {
 pub fn sleep(millis: u64) {
     thread::sleep(Duration::from_millis(millis));
 }
+
+/// Convert any case to Title Case
+#[inline(always)]
+pub fn title_case(s: &str) -> String {
+    s.split_whitespace()
+        .map(|w| w.chars())
+        .map(|mut c| {
+            c.next()
+                .into_iter()
+                .flat_map(|c| c.to_uppercase())
+                .chain(c.flat_map(|c| c.to_lowercase()))
+        })
+        .map(|c| c.collect::<String>())
+        .collect::<Vec<String>>()
+        .join(" ")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_title_case() {
+        assert_eq!(title_case("kenjeran").as_str(), "Kenjeran");
+        assert_eq!(title_case("jawa tengah").as_str(), "Jawa Tengah");
+        assert_eq!(
+            title_case("daerah istimeWa yogyakARTA").as_str(),
+            "Daerah Istimewa Yogyakarta"
+        );
+    }
+}

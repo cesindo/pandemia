@@ -33,11 +33,15 @@ class _SubReportPageState extends State<SubReportPage>
 
   @override
   void initState() {
-    subReportBloc.dispatch(LoadSubReport(status: 0));
+    subReportBloc.dispatch(LoadSubReport(status: 'ODP'));
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
+      String status = 'ODP';
+      if (_tabController.index == 1){
+        status = 'PDP';
+      }
       subReportBloc.dispatch(
-          LoadSubReport(status: _tabController.index, withLoading: false));
+          LoadSubReport(status: status, withLoading: false));
     });
     super.initState();
   }
@@ -142,6 +146,8 @@ class _ViewODPScreenState extends State<ViewODPScreen> {
             items = state.items;
           } else if (state is SubReportListUpdated) {
             items = state.items;
+          }else if (state is SubReportFailure){
+            return Container(child: Center(child: Text("Gagal memuat data,\n periksa kembali koneksi Anda", textAlign: TextAlign.center,)));
           }
 
           return Column(
@@ -168,7 +174,7 @@ class _ViewODPScreenState extends State<ViewODPScreen> {
                                 setState(() {
                                   widget.searchController.clear();
                                   widget.subReportBloc
-                                      .dispatch(LoadSubReport(status: 0));
+                                      .dispatch(LoadSubReport(status: 'ODP'));
                                   node.requestFocus();
                                 });
                               })
@@ -284,7 +290,7 @@ class _ViewPDPScreenState extends State<ViewPDPScreen> {
                                 setState(() {
                                   widget.searchController.clear();
                                   widget.subReportBloc
-                                      .dispatch(LoadSubReport(status: 1));
+                                      .dispatch(LoadSubReport(status: 'PDP'));
                                   node.requestFocus();
                                 });
                               })

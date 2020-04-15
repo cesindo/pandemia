@@ -179,6 +179,14 @@ pub fn param_error<T>(msg: &str) -> Result<T, Error> {
     ))?;
     panic!("Unhandled error: {}", msg);
 }
+/// Build parameter error
+pub fn bad_request<T>(msg: &str) -> Result<T, Error> {
+    Err(Error::BadRequest(
+        ErrorCode::InvalidParameter as i32,
+        msg.to_string(),
+    ))?;
+    panic!("Unhandled error: {}", msg);
+}
 
 /// Build parameter error
 pub fn unauthorized<T>() -> Result<T, Error> {

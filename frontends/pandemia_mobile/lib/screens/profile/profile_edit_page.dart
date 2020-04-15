@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:pandemia_mobile/blocs/profile/profile.dart';
@@ -9,6 +10,7 @@ import 'package:pandemia_mobile/models/user.dart';
 import 'package:pandemia_mobile/screens/profile/location_picker.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
 import 'package:pandemia_mobile/util/address_util.dart';
+import 'package:pandemia_mobile/util/text_formatter.dart';
 import 'package:pandemia_mobile/widgets/loading_indicator.dart';
 import 'package:pandemia_mobile/util/string_extension.dart';
 
@@ -99,6 +101,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                             ? "Nama lengkap tidak boleh kosong"
                             : null;
                       },
+                      inputFormatters: [new TitleCaseTextFormatter()],
                     ),
                     TextFormField(
                       keyboardType: TextInputType.emailAddress,
@@ -137,6 +140,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                             ? "Nama Desa tidak boleh kosong"
                             : null;
                       },
+                      inputFormatters: [new TitleCaseTextFormatter()],
                     ),
                     TextFormField(
                       controller: _locCtl,
@@ -151,6 +155,10 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                           suffixIcon: Icon(Icons.location_searching)),
                     ),
                     TextFormField(
+                      textCapitalization: TextCapitalization.characters,
+                      inputFormatters: [
+                        new UpperCaseTextFormatter()
+                      ],
                       keyboardType: TextInputType.text,
                       textInputAction: TextInputAction.done,
                       decoration: InputDecoration(labelText: 'Kode Daerah'),

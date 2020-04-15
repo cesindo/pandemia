@@ -206,3 +206,11 @@ macro_rules! value_str_opt {
             .and_then(|a| a.splitn(2, ":").last())
     };
 }
+
+macro_rules! list_has_flag {
+    ($s:expr, $key:literal) => {
+        $s.iter()
+            .find(|a| a.as_str() == concat!(":", $key, ":"))
+            .is_some()
+    };
+}

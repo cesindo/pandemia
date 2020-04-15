@@ -43,7 +43,7 @@ class SubReportBloc extends Bloc<SubReportEvent, SubReportState> {
       "coming_from": event.comingFrom,
       "arrival_date": event.arrivalDate,
       "notes": event.notes,
-      "status": event.status,
+      "status": event.status.toLowerCase(),
       "complaint": event.complaint,
     };
 
@@ -83,10 +83,10 @@ class SubReportBloc extends Bloc<SubReportEvent, SubReportState> {
         .fetchGradually(
             "entries_status-${event.status}",
             () => PublicApi.get(
-                "/pandemia/v1/sub_report/search?status=${event.status}&offset=0&limit=10"),
+                "/pandemia/v1/sub_report/search?status=${event.status.toLowerCase()}&offset=0&limit=10"),
             force: event.force)
         .asyncExpand((d) async* {
-      if (d != null) {
+      if (d != null && !d.isError) {
         final entries = (d.data["entries"] as List<dynamic>)
             .map((a) => SubReport.fromMap(a))
             .toList();
@@ -113,7 +113,7 @@ class SubReportBloc extends Bloc<SubReportEvent, SubReportState> {
       "coming_from": event.comingFrom,
       "arrival_date": event.arrivalDate,
       "notes": event.notes,
-      "status": event.status,
+      "status": event.status.toLowerCase(),
       "complaint": event.complaint,
     };
     yield* PublicApi.post("/pandemia/v1/sub_report/add", payload).then((data) {
@@ -127,7 +127,7 @@ class SubReportBloc extends Bloc<SubReportEvent, SubReportState> {
     }).catchError((error) {
       return SubReportFailure(error: error.toString());
     }).asStream();
-    dispatch(LoadSubReport(status: event.status > 1 ? 1 : 0));
+    dispatch(LoadSubReport(status: event.status));
   }
 
   Stream<SubReportState> _mapDeleteToState(DeleteSubReport event) async* {

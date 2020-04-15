@@ -7,7 +7,7 @@
       <AnsTable
         :key="tableUsers"
         data-source-url="/user/v1/satgas/search"
-        :columns="['ID', 'Nama', 'Email', 'Telp', 'Waktu Daftar', 'Posisi', 'Aktif', 'Desa']"
+        :columns="['ID', 'Nama', 'Email', 'Telp', 'Waktu Daftar', 'Posisi', 'Aktif', 'Diblokir', 'Desa']"
         :searchable="true"
         :withActionButton="true"
         :mapItemFunc="itemMapper"
@@ -171,6 +171,7 @@ export default {
         "register_time": item['register_time'],
         "roles": item['roles'].join(", "),
         "active": item['active'] ? 'Ya' : 'Tidak',
+        "blocked": item['blocked'] ? 'Ya' : 'Tidak',
         "village": item['village']
       }
     },

@@ -199,20 +199,6 @@ fn get_city_id(prov: &str, city: &str, conn: &PgConnection) -> Result<ID> {
         .map_err(Error::from)
 }
 
-// fn title_case(s: &str) -> String {
-//     s.split_whitespace()
-//         .map(|w| w.chars())
-//         .map(|mut c| {
-//             c.next()
-//                 .into_iter()
-//                 .flat_map(|c| c.to_uppercase())
-//                 .chain(c.flat_map(|c| c.to_lowercase()))
-//         })
-//         .map(|c| c.collect::<String>())
-//         .collect::<Vec<String>>()
-//         .join(" ")
-// }
-
 fn normalize(name: &str) -> String {
     // let re = Regex::new("[^a-zA-Z0-9]").unwrap();
     // re.replace_all(name, "-").to_lowercase()

@@ -90,6 +90,14 @@ table! {
 }
 
 table! {
+    kv_store (id) {
+        id -> Int8,
+        a_key -> Text,
+        a_val -> Text,
+    }
+}
+
+table! {
     logs (id) {
         id -> Int8,
         activity -> Text,
@@ -314,6 +322,7 @@ allow_tables_to_appear_in_same_query!(
     cities,
     feeds,
     geoloc_cache,
+    kv_store,
     logs,
     map_markers,
     notifs,

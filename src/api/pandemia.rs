@@ -12,7 +12,7 @@ use validator::Validate;
 use crate::{
     api,
     api::types::*,
-    api::{error::*, ApiResult, Error::*, HttpRequest as ApiHttpRequest},
+    api::{error::*, parsed_query::*, ApiResult, Error::*, HttpRequest as ApiHttpRequest},
     auth,
     dao::{Logs, RecordDao, ReportNoteDao, SubReportDao, VillageDao, VillageDataDao},
     error::{self, Error, ErrorCode},
@@ -57,7 +57,7 @@ pub struct SubReportQuery {
     pub offset: i64,
     pub limit: i64,
     pub query: Option<String>,
-    pub status: i32,
+    pub status: String,
 }
 
 #[derive(Deserialize, Validate)]
@@ -94,7 +94,7 @@ pub struct AddSubReport {
     pub arrival_date: NaiveDate,
     #[validate(length(min = 1, max = 50))]
     pub notes: String,
-    pub status: i32,
+    pub status: String,
     pub complaint: Option<Vec<String>>,
 }
 
@@ -113,7 +113,7 @@ pub struct UpdateSubReport {
     pub arrival_date: NaiveDate,
     #[validate(length(min = 1, max = 50))]
     pub notes: String,
-    pub status: i32,
+    pub status: String,
     pub complaint: Option<Vec<String>>,
 }
 
@@ -171,6 +171,10 @@ impl PublicApi {
             return param_error("Anda tidak dapat menambahkan data");
         }
 
+        if current_user.is_blocked() {
+            return unauthorized();
+        }
+
         let mut healthy: HealthyKind = HealthyKind::Health;
         let mut meta: Vec<String> = Vec::new();
         if let Some(complaint) = &query.complaint.as_ref() {
@@ -188,13 +192,15 @@ impl PublicApi {
             None => return param_error("Anda tidak terdaftar sebagai satgas"),
         };
 
-        let status = match query.status {
-            0 => SubReportStatus::ODP,
-            1 => SubReportStatus::PDP,
-            2 => SubReportStatus::Positive,
-            3 => SubReportStatus::Recovered,
-            _ => param_error("Status tidak valid")?,
-        };
+        // let status = match query.status {
+        //     0 => SubReportStatus::ODP,
+        //     1 => SubReportStatus::PDP,
+        //     2 => SubReportStatus::Positive,
+        //     3 => SubReportStatus::Recovered,
+        //     _ => param_error("Status tidak valid")?,
+        // };
+
+        let status: SubReportStatus = query.status.as_str().into();
 
         conn.build_transaction()
             .read_write()
@@ -216,12 +222,12 @@ impl PublicApi {
                 )?;
 
                 {
-                    // @TODO(*): cover deaths
-                    let (odp, pdp, cases, recovered, deaths) = match query.status {
-                        0 => (1, 0, 0, 0, 0),
-                        1 => (0, 1, 0, 0, 0),
-                        2 => (0, 0, 1, 0, 0),
-                        3 => (0, 0, 0, 1, 0),
+                    let (odp, pdp, cases, recovered, deaths) = match status {
+                        SubReportStatus::ODP => (1, 0, 0, 0, 0),
+                        SubReportStatus::PDP => (0, 1, 0, 0, 0),
+                        SubReportStatus::Positive => (0, 0, 1, 0, 0),
+                        SubReportStatus::Recovered => (0, 0, 0, 1, 0),
+                        SubReportStatus::Death => (0, 0, 0, 0, 1),
                         _ => return Err(Error::InvalidParameter("Status tidak valid".to_owned()))?,
                     };
                     let village_id = current_user
@@ -256,6 +262,10 @@ impl PublicApi {
             return param_error("Anda tidak dapat menambahkan data")?;
         }
 
+        if current_user.is_blocked() {
+            return unauthorized();
+        }
+
         let area_code = match current_user.get_area_code() {
             "" => return param_error("Anda tidak terdaftar pada area manapun"),
             a => a,
@@ -273,13 +283,8 @@ impl PublicApi {
                 meta.push(format!("gejala={}", complaint.join(",")))
             }
         }
-        let status = match query.status {
-            0 => SubReportStatus::ODP,
-            1 => SubReportStatus::PDP,
-            2 => SubReportStatus::Positive,
-            3 => SubReportStatus::Recovered,
-            _ => param_error("Status tidak valid")?,
-        };
+        let status: SubReportStatus = query.status.as_str().into();
+
         let sub_report = dao.update(
             query.id,
             sub_report_dao::UpdateSubReport {
@@ -325,7 +330,7 @@ impl PublicApi {
             return unauthorized();
         };
 
-        let parq = match query.query.as_ref() {
+        let mut parq = match query.query.as_ref() {
             Some(q) => parse_query(q),
             None => ParsedQuery::default(),
         };
@@ -339,6 +344,12 @@ impl PublicApi {
         //     3 => SubReportStatus::Recovered,
         //     _ => SubReportStatus::All,
         // };
+
+        // utamakan status dari param `status`
+        let status: SubReportStatus = query.status.as_str().into();
+        if status != SubReportStatus::Unknown {
+            parq.status = Some(status);
+        }
 
         let result = dao.search(
             city_id,
@@ -568,6 +579,10 @@ impl PublicApi {
         let conn = state.db();
         let dao = ReportNoteDao::new(&conn);
 
+        if current_user.is_blocked() {
+            return unauthorized();
+        }
+
         // let area_code = current_user.get_area_code();
         let city_id = current_user.get_city_id().ok_or(InvalidParameter(
             ErrorCode::Unauthorized as i32,
@@ -773,40 +788,5 @@ impl PrivateApi {
         });
 
         Ok(ApiResult::success(()))
-    }
-}
-
-#[doc(hidden)]
-#[derive(Default)]
-struct ParsedQuery<'a> {
-    pub name: Option<&'a str>,
-    pub residence_address: Option<&'a str>,
-    pub age: Option<i32>,
-    pub gender: Option<&'a str>,
-    pub come_from: Option<&'a str>,
-    pub status: Option<SubReportStatus>,
-}
-
-fn parse_query<'a>(query: &'a str) -> ParsedQuery<'a> {
-    let s: Vec<&str> = query.split(' ').collect();
-
-    let name = s
-        .iter()
-        .find(|a| !a.contains(':') || a.starts_with("nama:"))
-        .cloned();
-
-    let residence_address = value_str_opt!(s, "tt");
-    let age = value_str_opt!(s, "umur").and_then(|a| a.parse::<i32>().ok());
-    let gender = value_str_opt!(s, "jk");
-    let come_from = value_str_opt!(s, "dari");
-    let status = value_str_opt!(s, "status").map(|a| a.into());
-
-    ParsedQuery {
-        name,
-        residence_address,
-        age,
-        gender,
-        come_from,
-        status,
     }
 }

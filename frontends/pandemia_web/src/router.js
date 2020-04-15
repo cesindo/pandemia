@@ -81,6 +81,14 @@ let router = new Router({
       },
     },
     {
+      path: '/dashboard/satgas/:id',
+      name: 'Satgas',
+      component: Dashboard,
+      meta: {
+        title: 'Dashboard' + titleDesc,
+      },
+    },
+    {
       path: '/dashboard/journal',
       name: 'Journal',
       component: Dashboard,

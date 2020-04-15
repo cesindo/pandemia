@@ -57,7 +57,17 @@ class PandemiaBloc extends Bloc<PandemiaEvent, PandemiaState> {
     yield PandemiaLoading();
 
     final bool hasToken = await userRepository.hasToken();
-    final locationData = await Location().getLocation();
+
+    LocationData locationData;
+    try {
+      locationData = await Location().getLocation();
+    } catch (e) {
+      print("GET LOC ERROR: $e");
+      yield PandemiaLocationFailure(
+          "Gagal mendapatkan lokasi, pastikan Pandemia memiliki ijin untuk menggunakan lokasi di setelan HP Anda");
+      return;
+    }
+
     final GeoLocation geoLocName = await getLocationName(locationData);
     final deviceId = await DeviceUtil.getID();
 
@@ -76,7 +86,8 @@ class PandemiaBloc extends Bloc<PandemiaEvent, PandemiaState> {
         }).whenComplete(() {
           print("[LOC] Location changed");
           repo.putData("latest_loc", {"loc_name": geoLocName.city});
-          repo.putData("latest_loc_full", {"loc_full_name": geoLocName.toString()});
+          repo.putData(
+              "latest_loc_full", {"loc_full_name": geoLocName.toString()});
         }).catchError((err) => print("[LOC_ERROR]: $err"));
       } else {
         print("[LOC] Location not changed");
@@ -110,7 +121,7 @@ class PandemiaBloc extends Bloc<PandemiaEvent, PandemiaState> {
       yield* _loadUserSettings();
 
       userRepository.currentUser = userRepository.currentUser
-            .copy(loc: LatLng(locationData.latitude, locationData.longitude));
+          .copy(loc: LatLng(locationData.latitude, locationData.longitude));
 
       yield PandemiaReady();
       return;

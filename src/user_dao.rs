@@ -11,7 +11,7 @@ use crate::{
     models::*,
     result::Result,
     schema::*,
-    sqlutil::lower,
+    sqlutil::{array_append, array_remove, lower},
     token,
     types::EntriesResult,
     ID,
@@ -90,6 +90,32 @@ impl<'a> UserDao<'a> {
             .filter(dsl::email.eq(email))
             .first(self.db)
             .map_err(From::from)
+    }
+
+    /// Mark user as deleted.
+    pub fn mark_deleted(&self, user_id: ID) -> Result<()> {
+        use crate::schema::users::{self, dsl};
+        diesel::update(dsl::users.filter(dsl::id.eq(user_id)))
+            .set(dsl::meta.eq(array_append(dsl::meta, ":deleted:")))
+            .execute(self.db)?;
+        Ok(())
+    }
+
+    /// Mark user as blocked.
+    pub fn mark_blocked(&self, user_id: ID, state: bool) -> Result<()> {
+        use crate::schema::users::{self, dsl};
+
+        if state {
+            diesel::update(dsl::users.filter(dsl::id.eq(user_id)))
+                .set(dsl::meta.eq(array_append(dsl::meta, ":blocked:")))
+                .execute(self.db)?;
+        } else {
+            diesel::update(dsl::users.filter(dsl::id.eq(user_id)))
+                .set(dsl::meta.eq(array_remove(dsl::meta, ":blocked:")))
+                .execute(self.db)?;
+        }
+
+        Ok(())
     }
 
     /// Mendapatkan akun berdasarkan nomor telp-nya.
@@ -364,7 +390,9 @@ impl<'a> UserDao<'a> {
     pub fn search_with_meta(
         &self,
         query: &str,
+        village_name: Option<&str>,
         contains_meta: &Vec<&str>,
+        excludes_meta: &Vec<&str>,
         offset: i64,
         limit: i64,
     ) -> Result<EntriesResult<User>> {
@@ -377,6 +405,15 @@ impl<'a> UserDao<'a> {
         if !contains_meta.is_empty() {
             filterer = Box::new(filterer.and(dsl::meta.contains(contains_meta)));
         }
+
+        if let Some(village_name) = village_name {
+            filterer = Box::new(filterer.and(dsl::meta.contains(vec![format!("village={}", village_name)])));
+        }
+
+        if !excludes_meta.is_empty() {
+            filterer = Box::new(filterer.and(diesel::dsl::not(dsl::meta.contains(excludes_meta))));
+        }
+
         Ok(EntriesResult::new(
             dsl::users
                 .filter(&filterer)

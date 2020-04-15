@@ -69,6 +69,11 @@ impl User {
     pub fn get_city_id(&self) -> Option<ID> {
         meta_value_i64!(self, "city_id")
     }
+
+    /// Check whether this user is blocked
+    pub fn is_blocked(&self) -> bool {
+        list_has_flag!(self.meta, "blocked")
+    }
 }
 
 /// Bentuk model dari alamat untuk akun.
@@ -492,4 +497,11 @@ pub struct ReportNote {
     pub approved: bool,
     pub meta: Vec<String>,
     pub ts: NaiveDateTime,
+}
+#[doc(hidden)]
+#[derive(Queryable, Serialize)]
+pub struct KvStore {
+    pub id: ID,
+    pub a_key: String,
+    pub a_val: String,
 }

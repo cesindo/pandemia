@@ -18,7 +18,7 @@ class SubReport extends Equatable {
   final String arrivalDate;
   final int healty;
   final String notes;
-  final int status;
+  final String status;
   final String ts;
   final String healthyNotes;
 
@@ -100,7 +100,7 @@ class SubReport extends Equatable {
         data['arrival_date'] as String,
         data['healty'] as int,
         data['notes'] as String,
-        data['status'] as int,
+        data['status'] as String,
         data['ts'] as String,
         data['healthy_notes'] as String);
   }
@@ -116,7 +116,7 @@ class SubReport extends Equatable {
       String arrivalDate,
       int healty,
       String notes,
-      int status,
+      String status,
       String ts,
       String healthyNotes}) {
     return SubReport(

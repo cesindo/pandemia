@@ -1,12 +1,14 @@
 use diesel::{connection::Connection, pg::PgConnection};
-use pandemia::api::user::types;
 use pandemia::api::ApiResult;
 use pandemia::auth;
 use pandemia::crypto::*;
 use pandemia::models;
 use pandemia::prelude::*;
 use pandemia::user_dao::*;
-use pandemia::{api::types::IdQuery, util};
+use pandemia::{
+    api::types::{self, IdQuery},
+    util,
+};
 use serde_json::Value as JsonValue;
 
 use crate::{ApiKind, TestKit, TestKitApi, ID};

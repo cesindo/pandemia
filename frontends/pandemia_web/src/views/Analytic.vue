@@ -247,7 +247,7 @@ export default {
 </script>
 
 
-<style lang="less">
+<style lang="less" scoped>
 h1 {
   padding-left: 10px;
 }

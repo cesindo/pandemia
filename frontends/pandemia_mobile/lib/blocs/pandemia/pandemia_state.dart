@@ -40,6 +40,15 @@ class PandemiaFailure extends PandemiaState {
   String toString() => "PandemiaFailure";
 }
 
+class PandemiaLocationFailure extends PandemiaState {
+  final String error;
+
+  PandemiaLocationFailure(this.error);
+
+  @override
+  String toString() => "PandemiaLocationFailure";
+}
+
 class LoadingSetting extends PandemiaState {
   @override
   String toString() => "LoadingSetting";

@@ -221,11 +221,15 @@ pub struct User {
     /// user roles
     pub roles: Vec<String>,
 
-    /// Additional metadata
-    pub meta: Vec<String>,
-
+    // /// Additional metadata
+    // pub meta: Vec<String>,
     /// Location latitude, longitude
     pub loc: models::LatLong,
+    /// Flag whether this user (satgas) blocked.
+    pub blocked: bool,
+
+    /// Current user's village data if satgas
+    pub village: String,
 }
 
 impl From<models::User> for User {
@@ -242,10 +246,12 @@ impl From<models::User> for User {
             phone_num: a.phone_num.to_owned(),
             register_time: a.register_time,
             active: a.active,
-            is_satgas: a.is_satgas(),
+            is_satgas: a.is_satgas() && !a.is_blocked(),
             roles,
-            meta: a.meta.clone(),
+            // meta: a.meta.clone(),
+            village: a.get_village_name().to_owned(),
             loc: a.get_lat_long(),
+            blocked: a.is_blocked(),
         }
     }
 }
@@ -285,6 +291,9 @@ pub struct Satgas {
 
     /// Location latitude, longitude
     pub loc: models::LatLong,
+
+    /// Flag whether this user (satgas) blocked.
+    pub blocked: bool,
 }
 
 impl ToApiType<Satgas> for models::User {
@@ -304,6 +313,7 @@ impl ToApiType<Satgas> for models::User {
             roles: roles,
             village: meta_value_str!(self, "village", "=").to_owned(),
             loc: self.get_lat_long(),
+            blocked: self.is_blocked(),
         }
     }
 }
@@ -401,6 +411,7 @@ pub struct SubReport {
     // pub meta: Vec<String>,
     pub ts: NaiveDateTime,
     // pub city_id: ID,
+    // ------
     pub healthy_notes: String,
 }
 

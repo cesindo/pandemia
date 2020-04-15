@@ -44,7 +44,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var currentUser = userRepository.currentUser;
+    User currentUser = userRepository.currentUser;
     // final pandemiaBloc = BlocProvider.of<PandemiaBloc>(context);
     final tabBloc = BlocProvider.of<TabBloc>(context);
     final notifBloc = BlocProvider.of<NotifBloc>(context);
@@ -70,7 +70,7 @@ class HomeScreen extends StatelessWidget {
 
     List<CustomPopupMenuItem> choices = [];
 
-    if (currentUser?.isSatgas != true) {
+    if (currentUser?.isSatgas != true || currentUser?.blocked == true) {
       choices.add(CustomPopupMenuItem(0, "Daftar Satgas", Icons.edit));
     } else {
       choices.add(CustomPopupMenuItem(1, "Data ODP/PDP", Icons.list));
@@ -79,6 +79,13 @@ class HomeScreen extends StatelessWidget {
     choices.add(CustomPopupMenuItem(3, "Tentang", Icons.info));
 
     void _selectedChoice(CustomPopupMenuItem choice) {
+
+      if (choice.index == 0 || choice.index == 1){
+        if (currentUser?.blocked == true){
+          _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text("Akun anda telah diblokir"), backgroundColor: Colors.red,));
+          return;
+        }
+      }
       if (choice.index == 0) {
         Navigator.push(
                 context, MaterialPageRoute(builder: (context) => ProfileEditPage(profileBloc: profileBloc)))
