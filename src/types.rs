@@ -39,7 +39,7 @@ pub enum NotifKind {
 }
 
 /// Status sub reports
-#[derive(Serialize, Copy, Clone)]
+#[derive(Serialize, Copy, Clone, PartialEq, Eq)]
 pub enum SubReportStatus {
     /// Orang Dalam Pemantauan
     ODP = 0,
@@ -52,6 +52,34 @@ pub enum SubReportStatus {
 
     /// Sembuh
     Recovered = 3,
+
+    /// Data untuk semua (hanya untuk query)
+    All = -1,
+}
+
+impl std::fmt::Display for SubReportStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            SubReportStatus::ODP => write!(f, "ODP"),
+            SubReportStatus::PDP => write!(f, "PDP"),
+            SubReportStatus::Positive => write!(f, "POSITIVE"),
+            SubReportStatus::Recovered => write!(f, "RECOVERED"),
+            SubReportStatus::All => write!(f, "ALL"),
+        }
+    }
+}
+
+impl From<i32> for SubReportStatus {
+    fn from(a: i32) -> Self {
+        match a {
+            0 => SubReportStatus::ODP,
+            1 => SubReportStatus::PDP,
+            2 => SubReportStatus::Positive,
+            3 => SubReportStatus::Recovered,
+            4 => SubReportStatus::All,
+            x => panic!("Unknown value {}", x),
+        }
+    }
 }
 
 /// Location kind

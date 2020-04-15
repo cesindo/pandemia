@@ -3,6 +3,7 @@
 
 use actix_web::{HttpRequest, HttpResponse};
 use chrono::{NaiveDate, NaiveDateTime};
+use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
 use std::collections::HashMap;
@@ -11,13 +12,10 @@ use validator::Validate;
 use crate::{
     api,
     api::types::*,
-    api::{
-        error::{param_error, Error},
-        ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest,
-    },
+    api::{error::*, ApiResult, Error::*, HttpRequest as ApiHttpRequest},
     auth,
     dao::{Logs, RecordDao, ReportNoteDao, SubReportDao, VillageDao, VillageDataDao},
-    error::{self, ErrorCode},
+    error::{self, Error, ErrorCode},
     eventstream::{self, Event::NewRecordUpdate},
     models,
     prelude::*,
@@ -119,6 +117,12 @@ pub struct UpdateSubReport {
     pub complaint: Option<Vec<String>>,
 }
 
+#[derive(Deserialize, Validate)]
+pub struct UpdateReportNoteStatus {
+    pub id: ID,
+    pub state: Vec<String>,
+}
+
 /// Holder untuk implementasi API endpoint publik untuk Pandemia.
 pub struct PublicApi;
 
@@ -179,6 +183,10 @@ impl PublicApi {
             "" => return param_error("Anda tidak terdaftar pada area manapun"),
             a => a,
         };
+        let city_id = match current_user.get_city_id() {
+            Some(a) => a,
+            None => return param_error("Anda tidak terdaftar sebagai satgas"),
+        };
 
         let status = match query.status {
             0 => SubReportStatus::ODP,
@@ -204,7 +212,7 @@ impl PublicApi {
                     &query.notes,
                     status as i32,
                     &meta.iter().map(|a| a.as_ref()).collect::<Vec<&str>>(),
-                    &area_code,
+                    city_id,
                 )?;
 
                 {
@@ -214,18 +222,11 @@ impl PublicApi {
                         1 => (0, 1, 0, 0, 0),
                         2 => (0, 0, 1, 0, 0),
                         3 => (0, 0, 0, 1, 0),
-                        _ => {
-                            return Err(crate::error::Error::InvalidParameter(
-                                "Status tidak valid".to_owned(),
-                            ))?
-                        }
+                        _ => return Err(Error::InvalidParameter("Status tidak valid".to_owned()))?,
                     };
-                    let village_id =
-                        current_user
-                            .get_village_id()
-                            .ok_or(crate::error::Error::InvalidParameter(
-                                "Has no village id".to_string(),
-                            ))?;
+                    let village_id = current_user
+                        .get_village_id()
+                        .ok_or(Error::InvalidParameter("Has no village id".to_string()))?;
                     VillageDataDao::new(&conn).update(
                         village_id,
                         odp,
@@ -234,8 +235,8 @@ impl PublicApi {
                         recovered,
                         0,
                         &current_user,
-                        &area_code,
                         &vec![],
+                        city_id,
                     )?;
                 }
 
@@ -258,6 +259,10 @@ impl PublicApi {
         let area_code = match current_user.get_area_code() {
             "" => return param_error("Anda tidak terdaftar pada area manapun"),
             a => a,
+        };
+        let city_id = match current_user.get_city_id() {
+            None => return param_error("Anda tidak terdaftar pada area manapun (no city_id)"),
+            Some(a) => a,
         };
 
         let mut healthy: HealthyKind = HealthyKind::Health;
@@ -288,21 +293,36 @@ impl PublicApi {
                 notes: &query.notes,
                 status: status as i32,
                 meta: &meta.iter().map(|a| a.as_ref()).collect::<Vec<&str>>(),
-                area_code,
+                city_id,
             },
         )?;
         Ok(ApiResult::success(sub_report))
     }
 
     /// Search for sub_report
-    #[api_endpoint(path = "/sub_report/search", auth = "required", accessor = "user")]
-    pub fn search_sub_reports(query: SubReportQuery) -> ApiResult<EntriesResult<models::SubReport>> {
+    #[api_endpoint(path = "/sub_report/search", auth = "required", accessor = "user,admin")]
+    pub fn search_sub_reports(query: SubReportQuery) -> ApiResult<EntriesResult<SubReport>> {
         let conn = state.db();
         let dao = SubReportDao::new(&conn);
 
-        let area_code = match current_user.get_area_code() {
-            "" => return param_error("Anda tidak terdaftar pada area manapun"),
-            a => a,
+        // let area_code = match current_user.get_area_code() {
+        //     "" => return param_error("Anda tidak terdaftar pada area manapun"),
+        //     a => a,
+        // };
+        let city_id = if let Some(current_user) = current_user.as_ref() {
+            match current_user.get_city_id() {
+                None => return param_error("Anda tidak terdaftar pada area manapun (no city_id)"),
+                Some(a) => a,
+            }
+        } else if let Some(current_admin) = current_admin.as_ref() {
+            match current_admin.get_city_id() {
+                None => return param_error("Anda tidak terdaftar pada area manapun (no city_id)"),
+                Some(a) => a,
+            }
+        } else if current_admin.as_ref().map(|a| a.id == 1).unwrap_or(false) {
+            0
+        } else {
+            return unauthorized();
         };
 
         let status = match query.status {
@@ -310,12 +330,12 @@ impl PublicApi {
             1 => SubReportStatus::PDP,
             2 => SubReportStatus::Positive,
             3 => SubReportStatus::Recovered,
-            _ => param_error("Status tidak valid")?,
+            _ => SubReportStatus::All,
         };
 
         let result = dao.search(
-            status as i32,
-            area_code,
+            status,
+            city_id,
             &query.query.unwrap_or("".to_string()),
             None,
             query.offset,
@@ -323,7 +343,7 @@ impl PublicApi {
         )?;
 
         Ok(ApiResult::success(EntriesResult {
-            entries: result.entries,
+            entries: result.entries.into_iter().map(|a| a.to_api_type(&conn)).collect(),
             count: result.count,
         }))
     }
@@ -537,7 +557,11 @@ impl PublicApi {
         let conn = state.db();
         let dao = ReportNoteDao::new(&conn);
 
-        let area_code = current_user.get_area_code();
+        // let area_code = current_user.get_area_code();
+        let city_id = current_user.get_city_id().ok_or(InvalidParameter(
+            ErrorCode::Unauthorized as i32,
+            "Tidak terdaftar sebagai satgas".to_string(),
+        ))?;
 
         // let village = match VillageDao::new(&conn).get_by_name(&query.village) {
         //     Ok(a) => a,
@@ -560,23 +584,93 @@ impl PublicApi {
             &query.notes,
             current_user.id,
             &current_user.full_name,
-            area_code,
+            city_id,
             &meta.iter().map(|a| a.as_str()).collect(),
         )?;
         Ok(ApiResult::success(report_note.to_api_type(&conn)))
     }
 
+    /// Delete report note.
+    #[api_endpoint(path = "/report_note/delete", auth = "required", mutable, accessor = "admin")]
+    pub fn delete_report_note(query: IdQuery) -> ApiResult<()> {
+        let conn = state.db();
+        let dao = ReportNoteDao::new(&conn);
+
+        if !current_admin.has_access("report_notes") {
+            return unauthorized();
+        }
+
+        let rnote = dao.get_by_id(query.id)?;
+
+        if current_admin.id != 1 {
+            if Some(rnote.city_id) != current_admin.get_city_id() {
+                return unauthorized();
+            }
+        }
+
+        dao.delete_by_id(rnote.id)?;
+
+        Ok(ApiResult::success(()))
+    }
+
+    /// Update report note's approval status.
+    #[api_endpoint(
+        path = "/report_note/update_state",
+        auth = "required",
+        mutable,
+        accessor = "admin"
+    )]
+    pub fn update_state_report_note(query: UpdateReportNoteStatus) -> ApiResult<()> {
+        use crate::schema::report_notes::{self, dsl};
+
+        let conn = state.db();
+        let dao = ReportNoteDao::new(&conn);
+
+        if !current_admin.has_access("report_notes") {
+            return unauthorized();
+        }
+
+        let rnote = dao.get_by_id(query.id)?;
+
+        if current_admin.id != 1 {
+            if Some(rnote.city_id) != current_admin.get_city_id() {
+                return unauthorized();
+            }
+        }
+
+        let mut approved = false;
+
+        if query.state.contains(&"approved".to_string()) {
+            approved = true;
+        }
+        diesel::update(dsl::report_notes.filter(dsl::id.eq(query.id)))
+            .set(dsl::approved.eq(approved))
+            .execute(&conn)
+            .map_err(Error::from)?;
+
+        Ok(ApiResult::success(()))
+    }
+
     /// Search for report_notes
-    #[api_endpoint(path = "/report_note/search", auth = "required")]
+    #[api_endpoint(path = "/report_note/search", auth = "required", accessor = "admin")]
     pub fn search_report_notes(query: SearchNotes) -> ApiResult<EntriesResult<ReportNote>> {
         query.validate()?;
         let conn = state.db();
         let dao = ReportNoteDao::new(&conn);
 
+        let city_id = current_admin.get_city_id();
+
+        if city_id.is_none() && !current_admin.has_access("report_notes") {
+            return unauthorized();
+        }
+
+        let city_id = city_id.unwrap_or(0);
+
         let sresult = dao.search(
-            current_user.get_area_code(),
+            city_id,
             &query.query.unwrap_or("".to_string()),
-            query.meta_contains.iter().map(|a| a.as_str()).collect(),
+            &query.state,
+            vec![],
             query.offset,
             query.limit,
         )?;
@@ -595,7 +689,8 @@ impl PublicApi {
 #[derive(Deserialize, Validate)]
 pub struct SearchNotes {
     pub query: Option<String>,
-    pub meta_contains: Vec<String>,
+    // pub meta_contains: String,
+    pub state: String,
     #[validate(range(min = 0, max = 1_000_000))]
     pub offset: i64,
     #[validate(range(min = 1, max = 100))]

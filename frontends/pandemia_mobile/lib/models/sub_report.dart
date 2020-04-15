@@ -19,8 +19,8 @@ class SubReport extends Equatable {
   final int healty;
   final String notes;
   final int status;
-  final List<String> meta;
   final String ts;
+  final String healthyNotes;
 
   SubReport(
       this.id,
@@ -35,8 +35,8 @@ class SubReport extends Equatable {
       this.healty,
       this.notes,
       this.status,
-      this.meta,
-      this.ts)
+      this.ts,
+      this.healthyNotes)
       : super([
           id,
           creatorId,
@@ -50,8 +50,8 @@ class SubReport extends Equatable {
           healty,
           notes,
           status,
-          meta,
-          ts
+          ts,
+          healthyNotes
         ]);
 
   Map<String, dynamic> toMap() {
@@ -68,8 +68,8 @@ class SubReport extends Equatable {
     data["healty"] = this.healty;
     data["notes"] = this.notes;
     data["status"] = this.status;
-    data["meta"] = this.meta;
     data["ts"] = this.ts;
+    data["healthy_notes"] = this.healthyNotes;
     return data;
   }
 
@@ -81,13 +81,13 @@ class SubReport extends Equatable {
     assert(data['residence_address'] != null,
         "SubReport.residence_address is null");
     assert(data['gender'] != null, "SubReport.gender is null");
-    assert(
-        data['coming_from'] != null, "SubReport.coming_from is null");
+    assert(data['coming_from'] != null, "SubReport.coming_from is null");
     assert(data['arrival_date'] != null, "SubReport.arrival_date is null");
     assert(data['healty'] != null, "SubReport.healty is null");
     assert(data['notes'] != null, "SubReport.notes is null");
     assert(data['status'] != null, "SubReport.status is null");
     assert(data['ts'] != null, "SubReport.ts is null");
+    assert(data['healthy_notes'] != null, "SubReport.healthy_notes is null");
     return SubReport(
         data['id'] as int,
         data['creator_id'] as int,
@@ -101,8 +101,8 @@ class SubReport extends Equatable {
         data['healty'] as int,
         data['notes'] as String,
         data['status'] as int,
-        data['meta'] != null ? List.from(data['meta']) : [],
-        data['ts'] as String);
+        data['ts'] as String,
+        data['healthy_notes'] as String);
   }
 
   SubReport copy(
@@ -117,8 +117,8 @@ class SubReport extends Equatable {
       int healty,
       String notes,
       int status,
-      List<String> meta,
-      String ts}) {
+      String ts,
+      String healthyNotes}) {
     return SubReport(
         this.id,
         creatorId ?? this.creatorId,
@@ -132,7 +132,7 @@ class SubReport extends Equatable {
         healty ?? this.healty,
         notes ?? this.notes,
         status ?? this.status,
-        meta ?? this.meta,
-        ts ?? this.ts);
+        ts ?? this.ts,
+        healthyNotes ?? this.healthyNotes);
   }
 }

@@ -25,7 +25,7 @@ struct NewVillageData<'a> {
     pub deaths: i32,
     // pub last_updated: NaiveDateTime,
     pub last_updated_by_id: ID,
-    pub area_code: &'a str,
+    pub city_id: ID,
     pub meta: &'a Vec<&'a str>,
 }
 
@@ -47,8 +47,8 @@ impl<'a> VillageDataDao<'a> {
         recovered: i32,
         deaths: i32,
         last_updated_by_id: ID,
-        area_code: &str,
         meta: &Vec<&str>,
+        city_id: ID,
     ) -> Result<VillageData> {
         use crate::schema::village_data::{self, dsl};
 
@@ -61,8 +61,8 @@ impl<'a> VillageDataDao<'a> {
                 recovered,
                 deaths,
                 last_updated_by_id,
-                area_code,
                 meta,
+                city_id,
             })
             .get_result(self.db)
             .map_err(From::from)
@@ -78,8 +78,8 @@ impl<'a> VillageDataDao<'a> {
         recovered: i32,
         deaths: i32,
         updater: &User,
-        area_code: &str,
         meta: &Vec<&str>,
+        city_id: ID,
     ) -> Result<()> {
         use crate::schema::village_data::{self, dsl};
         match diesel::update(dsl::village_data.filter(dsl::village_id.eq(village_id)))
@@ -90,7 +90,6 @@ impl<'a> VillageDataDao<'a> {
                 dsl::recovered.eq(dsl::recovered + recovered),
                 dsl::deaths.eq(dsl::deaths + deaths),
                 dsl::last_updated.eq(util::now()),
-                dsl::area_code.eq(area_code),
                 dsl::meta.eq(meta),
                 dsl::last_updated_by_id.eq(updater.id),
             ))
@@ -99,7 +98,7 @@ impl<'a> VillageDataDao<'a> {
             Ok(updated) if updated == 0 => {
                 // do insert
                 self.create(
-                    village_id, odp, pdp, cases, recovered, deaths, updater.id, area_code, meta,
+                    village_id, odp, pdp, cases, recovered, deaths, updater.id, meta, city_id,
                 )?;
             }
             Ok(_) => (),
@@ -109,7 +108,7 @@ impl<'a> VillageDataDao<'a> {
             )) => {
                 // do insert
                 self.create(
-                    village_id, odp, pdp, cases, recovered, deaths, updater.id, area_code, meta,
+                    village_id, odp, pdp, cases, recovered, deaths, updater.id, meta, city_id,
                 )?;
             }
             Err(e) => return Err(e.into()),
@@ -120,7 +119,7 @@ impl<'a> VillageDataDao<'a> {
     /// Search for specific village_data
     pub fn list(
         &self,
-        area_code: &str,
+        city_id: ID,
         // query: &str,
         offset: i64,
         limit: i64,
@@ -129,17 +128,17 @@ impl<'a> VillageDataDao<'a> {
         use crate::schema::villages::{self, dsl as dslv};
         // let like_clause = format!("%{}%", query);
         // let filterer: Box<dyn BoxableExpression<_, diesel::pg::Pg, SqlType = sql_types::Bool>> =
-        //     Box::new(dsl::area_code.eq(&area_code));
+        //     Box::new(dsl::city_id.eq(&city_id));
 
         Ok(EntriesResult::new(
             dsl::village_data
                 .inner_join(dslv::villages)
-                .filter(dsl::area_code.eq(&area_code))
+                .filter(dsl::city_id.eq(&city_id))
                 .offset(offset)
                 .limit(limit)
                 .load::<(VillageData, Village)>(self.db)?,
             dsl::village_data
-                .filter(dsl::area_code.eq(&area_code))
+                .filter(dsl::city_id.eq(&city_id))
                 .select(diesel::dsl::count(dsl::id))
                 .first(self.db)?,
         ))

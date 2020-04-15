@@ -52,7 +52,7 @@ export default class Pandemia {
             if (resp.data.code == 0) {
               session().set("token", resp.data.result.token);
               updateSession(resp.data.result.token);
-              this.loadUserKey();
+              // this.loadUserKey();
             }
             return resp;
           });
@@ -80,8 +80,9 @@ export default class Pandemia {
               session().set("user_id", user.id);
               session().set("user_name", user.name);
               session().set("user_email", user.email);
+              session().set("user_accesses", user.accesses);
               updateSession(resp.data.result.token);
-              this.loadUserKey();
+              // this.loadUserKey();
             }
             return resp;
           });
@@ -108,22 +109,22 @@ export default class Pandemia {
         return api.publicApi.get("/admin/v1/me/info");
       },
 
-      // Fetch current user key-pair.
-      loadUserKey() {
-        return api.publicApi.get("/auth/v1/get_key")
-          .then((resp) => {
-            console.log("user key loaded.");
-            session().set("pk", resp.data.result.pub_key);
-            session().set("sk", resp.data.result.secret_key);
-          }).catch(_e => {
-            // this.$notify({
-            //   group: "default",
-            //   type: "error",
-            //   title: "Error",
-            //   text: "Cannot load keys"
-            // });
-          });
-      },
+      // // Fetch current user key-pair.
+      // loadUserKey() {
+      //   return api.publicApi.get("/auth/v1/get_key")
+      //     .then((resp) => {
+      //       console.log("user key loaded.");
+      //       session().set("pk", resp.data.result.pub_key);
+      //       session().set("sk", resp.data.result.secret_key);
+      //     }).catch(_e => {
+      //       // this.$notify({
+      //       //   group: "default",
+      //       //   type: "error",
+      //       //   title: "Error",
+      //       //   text: "Cannot load keys"
+      //       // });
+      //     });
+      // },
 
       // Mendapatkan current user key pair dari local session.
       getKeys() {

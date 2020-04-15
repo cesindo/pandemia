@@ -63,7 +63,6 @@ class HomeScreen extends StatelessWidget {
     final settings = SettingScreen(
       settingsBloc: settingsBloc,
     );
-    final editProfile = ProfileEditPage(profileBloc: profileBloc);
 
     new Future.delayed(Duration.zero, () {
       NotificationUtil().init(context, notifBloc, feedBloc);
@@ -82,12 +81,13 @@ class HomeScreen extends StatelessWidget {
     void _selectedChoice(CustomPopupMenuItem choice) {
       if (choice.index == 0) {
         Navigator.push(
-                context, MaterialPageRoute(builder: (context) => editProfile))
+                context, MaterialPageRoute(builder: (context) => ProfileEditPage(profileBloc: profileBloc)))
             .then((result) {
           if (result != null) {
             choices.clear();
             choices.add(CustomPopupMenuItem(1, "Data ODP/PDP", Icons.list));
-            choices.add(CustomPopupMenuItem(2, "Tentang", Icons.info));
+            choices.add(CustomPopupMenuItem(2, "Buat Laporan", Icons.comment));
+            choices.add(CustomPopupMenuItem(3, "Tentang", Icons.info));
             User user = result[0];
             String villageName = result[1];
             currentUser = currentUser.copy(

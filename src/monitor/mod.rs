@@ -6,7 +6,7 @@
 
 use chrono::prelude::*;
 use diesel::prelude::*;
-use diesel::{dsl::not, expression::dsl::sql, sql_query, sql_types};
+use diesel::{dsl::not, expression::dsl::sql, sql_types};
 
 use crate::{db, models, result::Result, util};
 

@@ -120,16 +120,17 @@ pub struct LocInfo {
 
 /// Get location address from lat long
 pub fn ll_to_address(lat: f64, lng: f64, conn: &PgConnection) -> Result<LocInfo> {
-    let mut resp = reqwest::get(
-        &format!("https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?prox={},{}&mode=retrieveAddresses&maxResults=1&gen=1&apiKey={}",
-            lat,lng,
-            env::var("GEOLOCATOR_API_KEY").expect("GEOLOCATOR_API_KEY env not set")))?;
+    let url_query = format!("https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?prox={},{}&mode=retrieveAddresses&maxResults=1&gen=1&apiKey={}",
+    lat,lng,
+    env::var("GEOLOCATOR_API_KEY").expect("GEOLOCATOR_API_KEY env not set"));
+    let mut resp = reqwest::get(&url_query)?;
 
     let resp_text: String = resp.text()?;
 
     let mut item: GeocoderResponseWrapper = serde_json::from_str(&resp_text)?;
     if item.response.view.is_empty() || item.response.view[0].result.is_empty() {
         error!("in getting geo locator data {:?}", item);
+        error!("url_query: {}", url_query);
         return Err(Error::NotFound("geo locator data not found".to_string()));
     }
 
@@ -169,16 +170,18 @@ pub fn address_to_ll(query: &str, conn: &PgConnection) -> Result<LatLong> {
         }
     };
 
-    let mut resp = reqwest::get(&format!(
+    let url_query = format!(
         "https://geocoder.ls.hereapi.com/6.2/geocode.json?apiKey={}&country={}&city={}",
         env::var("GEOLOCATOR_API_KEY").expect("GEOLOCATOR_API_KEY env not set"),
         country.trim(),
         city.trim()
-    ))?;
+    );
+    let mut resp = reqwest::get(&url_query)?;
     let resp_text = resp.text()?;
     let item: GeocoderResponseWrapper = serde_json::from_str(&resp_text)?;
     if item.response.view.is_empty() || item.response.view[0].result.is_empty() {
         error!("in getting geo locator data {:?}", item);
+        error!("url_query: {}", url_query);
         return Err(Error::NotFound("geo locator data not found".to_string()));
     }
     let latlong = item.response.view[0].result[0].location.display_position;

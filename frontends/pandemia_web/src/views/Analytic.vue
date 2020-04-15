@@ -28,7 +28,12 @@
             </h3>
 
             <div class="ui divided list">
-              <div v-for="(item, idx) in feeds" v-bind:key="item.id" class="item" :id="'Item-' + idx">
+              <div
+                v-for="(item, idx) in feeds"
+                v-bind:key="item.id"
+                class="item"
+                :id="'Item-' + idx"
+              >
                 <div class="content">
                   <h4 class="ui sub header">{{item.location}}</h4>
                   <div class="ui feed">
@@ -53,23 +58,23 @@
           <div class="eight wide column">
             <div class="ui statistics">
               <div class="blue statistic">
-                <div class="value">1.893</div>
+                <div class="value">{{total_odp}}</div>
                 <div class="label">ODP</div>
               </div>
               <div class="orange statistic">
-                <div class="value">35</div>
+                <div class="value">{{total_pdp}}</div>
                 <div class="label">PDP</div>
               </div>
               <div class="red statistic">
-                <div class="value">4</div>
+                <div class="value">{{total_cases}}</div>
                 <div class="label">COVID-19</div>
               </div>
               <div class="green statistic">
-                <div class="value">1</div>
+                <div class="value">{{total_recovered}}</div>
                 <div class="label">Sembuh</div>
               </div>
               <div class="grey statistic">
-                <div class="value">0</div>
+                <div class="value">{{total_deaths}}</div>
                 <div class="label">Meninggal</div>
               </div>
             </div>
@@ -141,7 +146,12 @@ export default {
     return {
       currentUserId: this.$session.get("user_id"),
       feeds: [],
-      village_data: []
+      village_data: [],
+      total_odp: 0,
+      total_pdp: 0,
+      total_cases: 0,
+      total_recovered: 0,
+      total_deaths: 0
     };
   },
   computed: {},
@@ -195,7 +205,9 @@ export default {
           `/analytic/v1/area?province=${this.province}&city=${this.city}&offset=0&limit=5`
         )
         .then(resp => {
-          this.village_data = resp.data.result.entries;
+          if (resp.data.code == 0) {
+            this.village_data = resp.data.result.entries;
+          }
         });
 
       this.$pandemia
@@ -204,7 +216,27 @@ export default {
           `/analytic/v1/report_notes?province=${this.province}&city=${this.city}&offset=0&limit=5`
         )
         .then(resp => {
-          this.feeds = resp.data.result.entries;
+          if (resp.data.code == 0) {
+            this.feeds = resp.data.result.entries;
+          }
+        });
+
+      this.$pandemia
+        .api()
+        .publicApi.get(
+          `/analytic/v1/total?province=${this.province}&city=${this.city}`
+        )
+        .then(resp => {
+          if (resp.data.code == 0) {
+            var d = resp.data.result;
+            this.total_odp = d.odp;
+            this.total_pdp = d.pdp;
+            this.total_cases = d.cases;
+            this.total_recovered = d.recovered;
+            this.total_deaths = d.deaths;
+          } else {
+            console.log("Gagal mendapatkan data total. e: " + resp.data.description);
+          }
         });
     }
   },
@@ -216,7 +248,6 @@ export default {
 
 
 <style lang="less">
-
 h1 {
   padding-left: 10px;
 }

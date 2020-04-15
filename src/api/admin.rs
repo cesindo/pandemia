@@ -1,6 +1,7 @@
 //! Koleksi query yang digunakan untuk operasi pada rest API Admin
 #![allow(missing_docs)]
 
+use diesel::prelude::*;
 use validator::Validate;
 
 use crate::{
@@ -11,6 +12,7 @@ use crate::{
         ApiResult,
     },
     dao::AdminDao,
+    error::Error,
     models,
     prelude::*,
     ID,
@@ -63,6 +65,18 @@ pub struct UpdatePassword {
     pub password_confm: String,
 }
 
+#[derive(Deserialize, Validate)]
+pub struct UpdateAccesses {
+    pub id: ID,
+    pub accesses: Vec<String>,
+}
+
+#[derive(Deserialize, Validate)]
+pub struct UpdateMeta {
+    pub id: ID,
+    pub meta: Vec<String>,
+}
+
 /// Holder untuk implementasi API endpoint publik untuk admin.
 pub struct PublicApi;
 
@@ -103,6 +117,54 @@ impl PublicApi {
         .map(ApiResult::success)
     }
 
+    /// Update accesses.
+    #[api_endpoint(path = "/update_accesses", auth = "required", mutable, accessor = "admin")]
+    pub fn update_accesses(query: UpdateAccesses) -> ApiResult<()> {
+        use crate::schema::admins::{self, dsl};
+        let conn = state.db();
+
+        if current_admin.id != 1 {
+            return unauthorized();
+        }
+
+        let admin = AdminDao::new(&conn).get_by_id(query.id)?;
+
+        let mut meta = admin.meta.clone();
+
+        meta = meta.into_iter().filter(|a| !a.starts_with("access.")).collect();
+
+        for acc in query.accesses {
+            meta.push(format!("access.{}", acc));
+        }
+
+        diesel::update(dsl::admins.filter(dsl::id.eq(query.id)))
+            .set(dsl::meta.eq(meta))
+            .execute(&conn)
+            .map_err(Error::from)?;
+
+        Ok(ApiResult::success(()))
+    }
+
+    /// Update meta.
+    #[api_endpoint(path = "/update_meta", auth = "required", mutable, accessor = "admin")]
+    pub fn update_meta(query: UpdateMeta) -> ApiResult<()> {
+        use crate::schema::admins::{self, dsl};
+        let conn = state.db();
+
+        if current_admin.id != 1 {
+            return unauthorized();
+        }
+
+        let admin = AdminDao::new(&conn).get_by_id(query.id)?;
+
+        diesel::update(dsl::admins.filter(dsl::id.eq(query.id)))
+            .set(dsl::meta.eq(query.meta))
+            .execute(&conn)
+            .map_err(Error::from)?;
+
+        Ok(ApiResult::success(()))
+    }
+
     /// Mendapatkan daftar admin
     #[api_endpoint(path = "/list", auth = "required", accessor = "admin")]
     pub fn list_admin(query: QueryEntries) -> ApiResult<EntriesResult<Admin>> {
@@ -138,12 +200,12 @@ impl PublicApi {
 
     /// Mendapatkan data admin berdasarkan ID.
     #[api_endpoint(path = "/detail", auth = "required", accessor = "admin")]
-    pub fn admin_detail(query: IdQuery) -> ApiResult<models::Admin> {
+    pub fn admin_detail(query: IdQuery) -> ApiResult<Admin> {
         let conn = state.db();
         let dao = AdminDao::new(&conn);
 
         dao.get_by_id(query.id)
-            .map(ApiResult::success)
+            .map(|a| ApiResult::success(a.to_api_type(&conn)))
             .map_err(From::from)
     }
 

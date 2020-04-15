@@ -18,7 +18,7 @@ struct NewAdmin<'a> {
     pub name: &'a str,
     pub email: &'a str,
     pub phone_num: &'a str,
-    pub labels: &'a Vec<String>,
+    pub meta: &'a Vec<String>,
 }
 
 #[doc(hidden)]
@@ -55,7 +55,7 @@ impl<'a> AdminDao<'a> {
         email: &'a str,
         phone_num: &'a str,
         password: &'a str,
-        labels: &'a Vec<String>,
+        meta: &'a Vec<String>,
     ) -> Result<Admin> {
         self.db.build_transaction().read_write().run::<_, _, _>(|| {
             let admin: Admin = diesel::insert_into(admins::table)
@@ -63,7 +63,7 @@ impl<'a> AdminDao<'a> {
                     name,
                     email,
                     phone_num,
-                    labels,
+                    meta,
                 })
                 .get_result(self.db)?;
 

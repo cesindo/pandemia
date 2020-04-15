@@ -2,7 +2,7 @@
 //!
 #![doc(hidden)]
 
-use chrono::NaiveDateTime;
+use chrono::{NaiveDate, NaiveDateTime};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
@@ -14,6 +14,7 @@ use crate::{
     error::{Error, ErrorCode},
     models,
     prelude::*,
+    types::SubReportStatus,
     ID,
 };
 
@@ -169,6 +170,7 @@ pub struct Admin {
     pub accesses: Vec<String>,
     pub active: bool,
     pub register_time: NaiveDateTime,
+    pub meta: Vec<String>,
 }
 
 impl ToApiType<Admin> for models::Admin {
@@ -187,6 +189,7 @@ impl ToApiType<Admin> for models::Admin {
             accesses,
             active: self.active,
             register_time: self.register_time,
+            meta: self.meta.clone(),
         }
     }
 }
@@ -261,24 +264,32 @@ pub struct ReportNote {
     pub notes: String,
     pub creator_id: ID,
     pub creator_name: String,
-    pub area_code: String,
+    // pub area_code: String,
     // pub meta: Vec<String>,
     pub ts: NaiveDateTime,
+    // ------
     pub location: String,
+    pub status: Vec<String>,
 }
 
 impl ToApiType<ReportNote> for models::ReportNote {
     fn to_api_type(&self, conn: &PgConnection) -> ReportNote {
         let location = meta_value_str!(self, "location", "=").to_owned();
+        let mut status = vec![];
+        if self.approved {
+            status.push("approved".to_string());
+        } else {
+            status.push("pending for approval".to_string());
+        }
         ReportNote {
             id: self.id,
             title: self.title.to_owned(),
             notes: self.notes.to_owned(),
             creator_id: self.creator_id,
             creator_name: self.creator_name.to_owned(),
-            area_code: self.area_code.to_owned(),
             location,
             ts: self.ts,
+            status,
         }
     }
 }
@@ -316,6 +327,52 @@ impl From<(models::VillageData, models::Village)> for VillageData {
             ts: a.0.ts,
             // area_code: a.0.area_code.to_owned(),
             village_name: a.1.name.to_owned(),
+        }
+    }
+}
+
+#[doc(hidden)]
+#[derive(Queryable, Serialize)]
+pub struct SubReport {
+    pub id: ID,
+    pub creator_id: ID,
+    pub creator_name: String,
+    pub full_name: String,
+    pub age: i32,
+    pub residence_address: String,
+    pub gender: String,
+    pub coming_from: String,
+    pub arrival_date: NaiveDate,
+    pub healty: i32,
+    pub notes: String,
+    pub status: String,
+    // pub meta: Vec<String>,
+    pub ts: NaiveDateTime,
+    // pub city_id: ID,
+    pub healthy_notes: String,
+}
+
+impl ToApiType<SubReport> for models::SubReport {
+    fn to_api_type(&self, conn: &PgConnection) -> SubReport {
+        let status: SubReportStatus = self.status.into();
+        let healthy_notes = meta_value_str!(self, "gejala", "=").to_owned();
+        SubReport {
+            id: self.id,
+            creator_id: self.creator_id,
+            creator_name: self.creator_name.to_owned(),
+            full_name: self.full_name.to_owned(),
+            age: self.age,
+            residence_address: self.residence_address.to_owned(),
+            gender: self.gender.to_owned(),
+            coming_from: self.coming_from.to_owned(),
+            arrival_date: self.arrival_date,
+            healty: self.healty,
+            notes: self.notes.to_owned(),
+            status: format!("{}", status),
+            // meta: self.meta.clone(),
+            ts: self.ts,
+            // city_id: self.city_id,
+            healthy_notes,
         }
     }
 }

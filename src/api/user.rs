@@ -163,12 +163,14 @@ impl PublicApi {
             }
         };
 
+        // daftarkan sebagai satgas dan set metadata-nya
         meta.push(":satgas:".to_string());
         meta.push(format!("village={}", query.village));
         meta.push(format!("village_id={}", village.id));
         meta.push(format!("area_code={}", city.area_code));
-        meta.push(format!("city_by_area_code={}", city.name));
-        meta.push(format!("province_by_area_code={}", city.province));
+        meta.push(format!("city_name={}", city.name));
+        meta.push(format!("city_id={}", city.id));
+        meta.push(format!("province_name={}", city.province));
         meta.push(format!("address_by_area_code={}/{}", city.province, city.name));
 
         if let Some(loc_info) = loc_info {

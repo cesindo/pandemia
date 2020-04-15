@@ -43,6 +43,7 @@ export default {
   name: "AnsTable",
   props: {
     dataSourceUrl: String,
+    addParams: String,
     columns: Array,
     searchable: Boolean,
     withActionButton: Boolean,
@@ -67,6 +68,10 @@ export default {
       var url =
         this.dataSourceUrl +
         `?query=${this.$refs.inputSearch.value}&offset=${this.offset}&limit=${this.limit}`;
+
+      if (this.addParams != null) {
+        url = url + "&" + this.addParams;
+      }
       this.apiScopeBuilder(this)
         .get(url)
         .then(resp => {
@@ -91,6 +96,10 @@ export default {
         `&offset=0&limit=${this.limit}`;
     } else {
       url = this.dataSourceUrl + "?offset=0&limit=10";
+    }
+
+    if (this.addParams != null) {
+      url = url + "&" + this.addParams;
     }
 
     if (this.withActionButton) {

@@ -64,6 +64,11 @@ impl User {
     pub fn get_village_name(&self) -> &str {
         meta_value_str!(self, "village", "=")
     }
+
+    /// Get city ID by area code
+    pub fn get_city_id(&self) -> Option<ID> {
+        meta_value_i64!(self, "city_id")
+    }
 }
 
 /// Bentuk model dari alamat untuk akun.
@@ -164,6 +169,21 @@ pub struct Admin {
     pub meta: Vec<String>,
     pub active: bool,
     pub register_time: NaiveDateTime,
+}
+
+impl Admin {
+    /// Get city ID by area code
+    pub fn get_city_id(&self) -> Option<ID> {
+        meta_value_i64!(self, "city_id")
+    }
+
+    /// Check whether user has access to some resource
+    pub fn has_access(&self, access_name: &str) -> bool {
+        self.meta
+            .iter()
+            .find(|a| *a == &format!("access.{}", access_name))
+            .is_some()
+    }
 }
 
 #[doc(hidden)]
@@ -416,7 +436,7 @@ pub struct SubReport {
     pub status: i32,
     pub meta: Vec<String>,
     pub ts: NaiveDateTime,
-    pub area_code: String,
+    pub city_id: ID,
 }
 
 #[doc(hidden)]
@@ -456,7 +476,7 @@ pub struct VillageData {
     pub last_updated: NaiveDateTime,
     pub last_updated_by_id: ID,
     pub ts: NaiveDateTime,
-    pub area_code: String,
+    pub city_id: ID,
     pub meta: Vec<String>,
 }
 
@@ -468,7 +488,8 @@ pub struct ReportNote {
     pub notes: String,
     pub creator_id: ID,
     pub creator_name: String,
-    pub area_code: String,
+    pub city_id: ID,
+    pub approved: bool,
     pub meta: Vec<String>,
     pub ts: NaiveDateTime,
 }
