@@ -420,7 +420,7 @@ export default {
           } else {
             this.showError(resp.data.description);
           }
-        }).catch(e => {
+        }).catch(_ => {
           this.isLoading = false;
         });
     },
