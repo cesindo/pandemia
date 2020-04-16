@@ -22,15 +22,38 @@
         </div>
       </div>
 
-      <Admins v-if="currentPage['/dashboard/admins'] && currentUserId == 1" />
-      <Users v-if="currentPage['/dashboard/users'] && currentUserId == 1" />
+      <Admins
+        v-if="currentPage['/dashboard/admins'] && (userId == 1 || userAccesses.indexOf('admins') > -1 )"
+      />
+      <Users
+        v-if="currentPage['/dashboard/users'] && (userId == 1 || userAccesses.indexOf('users') > -1 )"
+      />
 
       <Records v-if="currentPage['/dashboard/records']" />
 
-      <AdminDetail baseApiUrl="/admin/v1/detail" v-if="$route.path.startsWith('/dashboard/admins/')" :userId="$route.params.id" />
-      <UserDetail baseApiUrl="/user/v1/detail" v-if="$route.path.startsWith('/dashboard/users/')" :userId="$route.params.id" />
+      <AdminDetail
+        baseApiUrl="/admin/v1/detail"
+        v-if="$route.path.startsWith('/dashboard/admins/')"
+        :userId="$route.params.id"
+      />
+      <UserDetail
+        baseApiUrl="/user/v1/detail"
+        v-if="$route.path.startsWith('/dashboard/users/')"
+        :userId="$route.params.id"
+      />
 
       <Villages v-if="currentPage['/dashboard/villages']" />
+
+      <Satgas v-if="currentPage['/dashboard/satgas'] && userAccesses.indexOf('satgas') > -1" />
+      <SatgasDetail
+        v-if="$route.path.startsWith('/dashboard/satgas/') && userAccesses.indexOf('satgas') > -1"
+        baseApiUrl="/user/v1/satgas/detail"
+        :userId="$route.params.id"
+      />
+      <SubReports v-if="currentPage['/dashboard/data'] && userAccesses.indexOf('data') > -1" />
+      <ReportNotes
+        v-if="currentPage['/dashboard/reports'] && userAccesses.indexOf('report_notes') > -1"
+      />
 
       <Logs v-if="currentPage['/dashboard/journal']" />
     </div>
@@ -49,6 +72,10 @@ import Users from "@/views/Users.vue";
 import Admins from "@/views/Admins.vue";
 import Villages from "@/views/Villages.vue";
 import Logs from "@/views/Logs.vue";
+import ReportNotes from "@/views/ReportNotes.vue";
+import SubReports from "@/views/SubReports.vue";
+import Satgas from "@/views/Satgas.vue";
+import SatgasDetail from "@/views/SatgasDetail.vue";
 
 export default {
   name: "Dashboard",
@@ -60,7 +87,11 @@ export default {
     Users,
     Admins,
     Villages,
-    Logs
+    Logs,
+    ReportNotes,
+    SubReports,
+    Satgas,
+    SatgasDetail
   },
   data() {
     return {
@@ -68,7 +99,8 @@ export default {
       customMargin: {},
       currentPage: {},
       pageTitle: this.pageTitle,
-      currentUserId: this.$session.get("user_id"),
+      userId: this.$session.get("user_id"),
+      userAccesses: this.$session.get("user_accesses"),
       menu_items: [
         {
           header: true,
@@ -94,17 +126,20 @@ export default {
         {
           title: "Records",
           icon: "fa fa-address-card",
-          href: "/dashboard/records"
+          href: "/dashboard/records",
+          access: "records"
         },
         {
           title: "Satgas",
           icon: "fa fa-hiking",
-          href: "/dashboard/satgas"
+          href: "/dashboard/satgas",
+          access: "satgas"
         },
         {
           title: "Hospital",
           icon: "fa fa-hotel",
-          href: "/dashboard/hospital"
+          href: "/dashboard/hospital",
+          access: "hospital"
         },
         {
           title: "Map",
@@ -117,9 +152,16 @@ export default {
           href: "/dashboard/villages"
         },
         {
-          title: "Laporan",
-          icon: "fa fa-campground",
-          href: "/dashboard/reports"
+          title: "Data",
+          icon: "fa fa-file-alt",
+          href: "/dashboard/data",
+          access: "data"
+        },
+        {
+          title: "Laporan Satgas",
+          icon: "fa fa-comment-dots",
+          href: "/dashboard/reports",
+          access: "report_notes"
         },
         {
           title: "Log/Journal",
@@ -128,15 +170,18 @@ export default {
         },
         {
           title: "Logout",
-          icon: "fa fa-sign-out-alt"
+          icon: "fa fa-sign-out-alt",
+          access: "*"
         }
       ]
     };
   },
   computed: {
     menu: function() {
-      if (this.currentUserId != 1) {
-        return this.menu_items.filter(a => !a.adminOnly);
+      if (this.userId != 1) {
+        return this.menu_items.filter(a => {
+          return this.userAccesses.indexOf(a.access) > -1 || a.access == "*";
+        });
       } else {
         return this.menu_items;
       }
@@ -151,7 +196,7 @@ export default {
     this.$set(this.currentPage, this.$route.path, true);
     this.pageTitle = this.$router.history.current.name;
 
-    this.startLoginChecker();
+    // this.startLoginChecker();
   },
   destroyed() {
     clearInterval(this.loginCheckerIval);

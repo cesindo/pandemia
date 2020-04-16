@@ -45,6 +45,7 @@ class SplashPage extends StatelessWidget {
     return BlocBuilder<PandemiaBloc, PandemiaState>(
         builder: (BuildContext context, PandemiaState state) {
       String statusText = "memuat...";
+      TextStyle style = TextStyle(color: Colors.grey[600]);
 
       if (state is ValidateToken) {
         statusText = "validasi...";
@@ -52,8 +53,12 @@ class SplashPage extends StatelessWidget {
         statusText = "otorisasi...";
       } else if (state is LoadingSetting) {
         statusText = "memuat setelan...";
-      }else if (state is PandemiaFailure){
+      } else if (state is PandemiaFailure) {
         statusText = state.error;
+        style = TextStyle(color: Colors.red[300]);
+      } else if (state is PandemiaLocationFailure) {
+        statusText = state.error;
+        style = TextStyle(color: Colors.red[300]);
       }
 
       return Scaffold(
@@ -61,7 +66,15 @@ class SplashPage extends StatelessWidget {
           child: ListView(
             children: <Widget>[
               Image.asset("assets/img/pandemia-logo-256.png"),
-              Center(child: Text(statusText))
+              Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        statusText,
+                        style: style,
+                        textAlign: TextAlign.center,
+                      )))
             ],
           ),
         ),

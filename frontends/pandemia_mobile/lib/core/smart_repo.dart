@@ -73,7 +73,8 @@ class LocalSmartRepo extends SmartRepo {
 class RepoData<T> {
   final T data;
   bool isRemote;
-  RepoData(this.data, this.isRemote);
+  bool isError;
+  RepoData(this.data, this.isRemote, this.isError);
   get isLocal => !this.isRemote;
 }
 
@@ -146,7 +147,7 @@ class PersistentSmartRepo extends SmartRepo {
 
     if (result.length > 0) {
       resultData = json.decode(result.first["t_val"]);
-      yield RepoData(resultData, false);
+      yield RepoData(resultData, false, false);
     }
 
     // print("fetchGradually.resultData: $resultData");
@@ -162,7 +163,9 @@ class PersistentSmartRepo extends SmartRepo {
           [storeName, tVal]);
 
       resultData = data["result"];
-      yield RepoData(resultData, true);
+      yield RepoData(resultData, true, false);
+    }else{
+      yield RepoData(null, true, true);
     }
   }
 

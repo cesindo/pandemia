@@ -10,7 +10,7 @@
     <AnsTable
       :key="tableUsers"
       data-source-url="/admin/v1/list"
-      :columns="['ID', 'Name', 'Email', 'Phone', 'Active', 'Register']"
+      :columns="['ID', 'Name', 'Email', 'Phone', 'Active', 'Accesses', 'Register']"
       :searchable="true"
       :withActionButton="true"
       :mapItemFunc="userListAllMapper"
@@ -90,7 +90,7 @@ export default {
         phone = this.$refs["phoneInput"].value,
         password = this.$refs["passInput"].value,
         confPassword = this.$refs["confPassInput"].value,
-        accessesInput = this.$refs["accessesInput"].value;
+        accessesInput = this.$refs["accessesInput"].value.split(',').map((a) => a.trim());
 
       this.$pandemia
         .api()
@@ -127,6 +127,7 @@ export default {
         email: item["email"],
         phone: item["phone_num"],
         active: item["active"],
+        accesses: item["accesses"],
         register_time: item["register_time"]
       };
     },

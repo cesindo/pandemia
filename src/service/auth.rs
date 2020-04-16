@@ -9,7 +9,7 @@ use validator::Validate;
 
 use crate::crypto::{self, SecretKey};
 use crate::{
-    api::{types::IdQuery, ApiResult, Error as ApiError, ErrorCode},
+    api::{types::*, ApiResult, Error as ApiError, ErrorCode},
     auth::AuthDao,
     dao::{AdminDao, Logs},
     models,
@@ -181,10 +181,7 @@ impl PublicApi {
     /// Meng-otorisasi akun admin
     /// Admin bisa melakukan otorisasi menggunakan email / nomor telp.
     #[api_endpoint(path = "/admin/authorize", auth = "none", mutable)]
-    pub fn admin_authorize(
-        state: &mut AppState,
-        query: Authorize,
-    ) -> ApiResult<AuthorizeResult<models::Admin>> {
+    pub fn admin_authorize(state: &mut AppState, query: Authorize) -> ApiResult<AuthorizeResult<Admin>> {
         let conn = state.db();
         let user = {
             let dao = AdminDao::new(&conn);
@@ -219,7 +216,7 @@ impl PublicApi {
 
         Ok(ApiResult::success(AuthorizeResult {
             access_token,
-            user: Some(user),
+            user: Some(user.to_api_type(&conn)),
         }))
     }
 

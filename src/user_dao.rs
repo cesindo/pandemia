@@ -3,6 +3,7 @@
 
 use chrono::{NaiveDateTime, Utc};
 use diesel::prelude::*;
+use diesel::sql_types;
 
 use crate::{
     crypto::{self, PublicKey, SecretKey},
@@ -10,8 +11,10 @@ use crate::{
     models::*,
     result::Result,
     schema::*,
-    sqlutil::lower,
-    token, ID,
+    sqlutil::{array_append, array_remove, lower},
+    token,
+    types::EntriesResult,
+    ID,
 };
 
 use std::sync::Arc;
@@ -87,6 +90,32 @@ impl<'a> UserDao<'a> {
             .filter(dsl::email.eq(email))
             .first(self.db)
             .map_err(From::from)
+    }
+
+    /// Mark user as deleted.
+    pub fn mark_deleted(&self, user_id: ID) -> Result<()> {
+        use crate::schema::users::{self, dsl};
+        diesel::update(dsl::users.filter(dsl::id.eq(user_id)))
+            .set(dsl::meta.eq(array_append(dsl::meta, ":deleted:")))
+            .execute(self.db)?;
+        Ok(())
+    }
+
+    /// Mark user as blocked.
+    pub fn mark_blocked(&self, user_id: ID, state: bool) -> Result<()> {
+        use crate::schema::users::{self, dsl};
+
+        if state {
+            diesel::update(dsl::users.filter(dsl::id.eq(user_id)))
+                .set(dsl::meta.eq(array_append(dsl::meta, ":blocked:")))
+                .execute(self.db)?;
+        } else {
+            diesel::update(dsl::users.filter(dsl::id.eq(user_id)))
+                .set(dsl::meta.eq(array_remove(dsl::meta, ":blocked:")))
+                .execute(self.db)?;
+        }
+
+        Ok(())
     }
 
     /// Mendapatkan akun berdasarkan nomor telp-nya.
@@ -355,6 +384,47 @@ impl<'a> UserDao<'a> {
             .first(self.db)?;
 
         Ok((entries, count))
+    }
+
+    /// Search for specific users
+    pub fn search_with_meta(
+        &self,
+        query: &str,
+        village_name: Option<&str>,
+        contains_meta: &Vec<&str>,
+        excludes_meta: &Vec<&str>,
+        offset: i64,
+        limit: i64,
+    ) -> Result<EntriesResult<User>> {
+        use crate::schema::users::{self, dsl};
+        let like_clause = format!("%{}%", query.to_lowercase());
+        let mut filterer: Box<dyn BoxableExpression<users::table, _, SqlType = sql_types::Bool>> =
+            Box::new(dsl::id.ne(0));
+        filterer = Box::new(filterer.and(lower(dsl::full_name).like(&like_clause)));
+
+        if !contains_meta.is_empty() {
+            filterer = Box::new(filterer.and(dsl::meta.contains(contains_meta)));
+        }
+
+        if let Some(village_name) = village_name {
+            filterer = Box::new(filterer.and(dsl::meta.contains(vec![format!("village={}", village_name)])));
+        }
+
+        if !excludes_meta.is_empty() {
+            filterer = Box::new(filterer.and(diesel::dsl::not(dsl::meta.contains(excludes_meta))));
+        }
+
+        Ok(EntriesResult::new(
+            dsl::users
+                .filter(&filterer)
+                .offset(offset)
+                .limit(limit)
+                .load::<User>(self.db)?,
+            dsl::users
+                .filter(filterer)
+                .select(diesel::dsl::count(dsl::id))
+                .first(self.db)?,
+        ))
     }
 
     /// Create user connect app id untuk spesifik user,

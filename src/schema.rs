@@ -48,7 +48,7 @@ table! {
         name -> Varchar,
         email -> Varchar,
         phone_num -> Varchar,
-        labels -> Array<Text>,
+        meta -> Array<Text>,
         active -> Bool,
         register_time -> Timestamp,
     }
@@ -86,6 +86,14 @@ table! {
         latitude -> Float8,
         longitude -> Float8,
         ts -> Timestamp,
+    }
+}
+
+table! {
+    kv_store (id) {
+        id -> Int8,
+        a_key -> Text,
+        a_val -> Text,
     }
 }
 
@@ -160,7 +168,8 @@ table! {
         notes -> Text,
         creator_id -> Int8,
         creator_name -> Text,
-        area_code -> Varchar,
+        city_id -> Int8,
+        approved -> Bool,
         meta -> Array<Text>,
         ts -> Timestamp,
     }
@@ -191,7 +200,7 @@ table! {
         status -> Int4,
         meta -> Array<Text>,
         ts -> Timestamp,
-        area_code -> Varchar,
+        city_id -> Int8,
     }
 }
 
@@ -265,7 +274,7 @@ table! {
         last_updated -> Timestamp,
         last_updated_by_id -> Int8,
         ts -> Timestamp,
-        area_code -> Varchar,
+        city_id -> Int8,
         meta -> Array<Text>,
     }
 }
@@ -291,13 +300,16 @@ joinable!(admin_passhash -> admins (admin_id));
 joinable!(feeds -> users (creator_id));
 joinable!(logs -> users (initiator_id));
 joinable!(notifs -> users (receiver_id));
+joinable!(report_notes -> cities (city_id));
 joinable!(report_notes -> users (creator_id));
 joinable!(reset_password_admins -> admins (admin_id));
+joinable!(sub_reports -> cities (city_id));
 joinable!(sub_reports -> users (creator_id));
 joinable!(user_connect -> users (user_id));
 joinable!(user_keys -> users (user_id));
 joinable!(user_passhash -> users (user_id));
 joinable!(user_settings -> users (user_id));
+joinable!(village_data -> cities (city_id));
 joinable!(village_data -> users (last_updated_by_id));
 joinable!(village_data -> villages (village_id));
 
@@ -310,6 +322,7 @@ allow_tables_to_appear_in_same_query!(
     cities,
     feeds,
     geoloc_cache,
+    kv_store,
     logs,
     map_markers,
     notifs,

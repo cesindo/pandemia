@@ -60,7 +60,7 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
     Gender("L", "Laki-laki"),
     Gender("P", "Perempuan"),
   ];
-  List<String> status = ["ODP", "PDP"];
+  List<String> statuses = ["ODP", "PDP"];
   List<String> keluhan = [
     "Suhu di atas normal",
     "Demam",
@@ -110,12 +110,9 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
           } else {
             _valGender = gender[1];
           }
-          _valStatus = status[item.status];
-          keluhanSelected = item.meta
-              .where((a) => a.startsWith("gejala="))
-              .expand((a) => a.substring(7).split(","))
-              .map((a) => a.trim())
-              .toList();
+          _valStatus = item.status;
+          keluhanSelected =
+              item.healthyNotes.split(',').map((a) => a.trim()).toList();
         });
       });
     }
@@ -249,7 +246,7 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
                       contentPadding: EdgeInsets.fromLTRB(0, 4, 0, 4)),
                   hint: Text("Status"),
                   value: _valStatus,
-                  items: status.map((val) {
+                  items: statuses.map((val) {
                     return DropdownMenuItem(
                       child: Text(val),
                       value: val,
@@ -307,7 +304,7 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
                               _fromCtl.text,
                               _comingDateCtl.text,
                               _necessityCtl.text,
-                              status.indexOf(this._valStatus),
+                              _valStatus,
                               keluhanSelected));
                         } else {
                           subReportBloc.dispatch(UpdateSubReport(
@@ -319,7 +316,7 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
                               _fromCtl.text,
                               _comingDateCtl.text,
                               _necessityCtl.text,
-                              status.indexOf(this._valStatus),
+                              _valStatus,
                               keluhanSelected));
                         }
                       }

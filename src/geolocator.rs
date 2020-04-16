@@ -120,16 +120,17 @@ pub struct LocInfo {
 
 /// Get location address from lat long
 pub fn ll_to_address(lat: f64, lng: f64, conn: &PgConnection) -> Result<LocInfo> {
-    let mut resp = reqwest::get(
-        &format!("https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?prox={},{}&mode=retrieveAddresses&maxResults=1&gen=1&apiKey={}",
-            lat,lng,
-            env::var("GEOLOCATOR_API_KEY").expect("GEOLOCATOR_API_KEY env not set")))?;
+    let url_query = format!("https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?prox={},{}&mode=retrieveAddresses&maxResults=1&gen=1&apiKey={}",
+    lat,lng,
+    env::var("GEOLOCATOR_API_KEY").expect("GEOLOCATOR_API_KEY env not set"));
+    let mut resp = reqwest::get(&url_query)?;
 
     let resp_text: String = resp.text()?;
 
     let mut item: GeocoderResponseWrapper = serde_json::from_str(&resp_text)?;
     if item.response.view.is_empty() || item.response.view[0].result.is_empty() {
         error!("in getting geo locator data {:?}", item);
+        error!("url_query: {}", url_query);
         return Err(Error::NotFound("geo locator data not found".to_string()));
     }
 
@@ -160,25 +161,28 @@ pub fn address_to_ll(query: &str, conn: &PgConnection) -> Result<LatLong> {
     // tidak ada di cache, ambil dari source luar
     let query = normalize_query(query.to_lowercase());
 
-    let (country, city) = {
+    let (country, province, city) = {
         let s: Vec<&str> = query.split('/').collect();
         match &s[0..] {
-            &[a, b] => (a, b),
-            &[a, b, c] => (a, c),
-            _ => ("", ""),
+            &[a, b] => (a, "", b),
+            &[a, b, c] => (a, b, c),
+            _ => ("", "", ""),
         }
     };
 
-    let mut resp = reqwest::get(&format!(
-        "https://geocoder.ls.hereapi.com/6.2/geocode.json?apiKey={}&country={}&city={}",
+    let url_query = format!(
+        "https://geocoder.ls.hereapi.com/6.2/geocode.json?apiKey={}&country={}&county={}&city={}",
         env::var("GEOLOCATOR_API_KEY").expect("GEOLOCATOR_API_KEY env not set"),
         country.trim(),
+        province.trim(),
         city.trim()
-    ))?;
+    );
+    let mut resp = reqwest::get(&url_query)?;
     let resp_text = resp.text()?;
     let item: GeocoderResponseWrapper = serde_json::from_str(&resp_text)?;
     if item.response.view.is_empty() || item.response.view[0].result.is_empty() {
         error!("in getting geo locator data {:?}", item);
+        error!("url_query: {}", url_query);
         return Err(Error::NotFound("geo locator data not found".to_string()));
     }
     let latlong = item.response.view[0].result[0].location.display_position;

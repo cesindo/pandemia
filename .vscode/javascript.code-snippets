@@ -1,0 +1,20 @@
+{
+  "Call API": {
+    "scope": "javascript",
+    "prefix": "apicall",
+    "body": [
+      "this.$$pandemia",
+      "  .api()",
+      "  .publicApi.${1:get}(",
+      "    `${2:path}`",
+      "  )",
+      "  .then(resp => {",
+      "    if (resp.data.code == 0) {",
+      "      ${3:}",
+      "    } else {",
+      "       this.showError(resp.data.description)",
+      "    }",
+      "  });"
+    ]
+  }
+}

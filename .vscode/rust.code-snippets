@@ -200,5 +200,22 @@
 			"    pub limit: i64,}",
 			"}"
 		]
+	},
+	"Create filterer = Box::new": {
+		"scope": "rust",
+		"prefix": "filterer",
+		"body": [
+			"filterer = Box::new(filterer.and(${1:}))"
+		]
+	},
+	"Create if let Some(..) filterer": {
+		"scope": "rust",
+		"prefix": "condfilterer",
+		"body": [
+			"if let Some(${1:name}) =  ${1:name} {",
+			"    filterer = Box::new(filterer.and(${2:}));",
+			"}",
+			""
+		]
 	}
 }

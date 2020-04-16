@@ -3,7 +3,9 @@
 
 use actix_web::{HttpRequest, HttpResponse};
 use chrono::NaiveDateTime;
+use diesel::dsl::{sql, sum};
 use diesel::prelude::*;
+use diesel::{sql_query, sql_types::BigInt};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
@@ -14,7 +16,7 @@ use crate::{
     api::types::*,
     api::{error::param_error, ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest},
     auth,
-    dao::{ReportNoteDao, VillageDataDao},
+    dao::{CityDao, ReportNoteDao, VillageDataDao},
     // dao::AnalyticDao,
     error::{Error, ErrorCode},
     models,
@@ -45,6 +47,35 @@ pub struct QueryReportNotes {
     pub limit: i64,
 }
 
+#[derive(Deserialize, Validate)]
+pub struct GetTotal {
+    pub province: String,
+    pub city: String,
+}
+
+#[derive(Serialize)]
+pub struct TotalResult {
+    pub odp: i32,
+    pub pdp: i32,
+    pub cases: i32,
+    pub recovered: i32,
+    pub deaths: i32,
+}
+
+#[derive(QueryableByName)]
+struct Entry {
+    #[sql_type = "BigInt"]
+    odp: i64,
+    #[sql_type = "BigInt"]
+    pdp: i64,
+    #[sql_type = "BigInt"]
+    positive: i64,
+    #[sql_type = "BigInt"]
+    recovered: i64,
+    #[sql_type = "BigInt"]
+    deaths: i64,
+}
+
 /// Holder untuk implementasi API endpoint publik untuk Analytic.
 pub struct PublicApi;
 
@@ -58,8 +89,11 @@ impl PublicApi {
 
         // get area code from province & city
         let area_code: String = get_area_code(&normalize(&query.province), &normalize(&query.city), &conn)?;
+        let city = CityDao::new(&conn)
+            .get_by_area_code(&area_code)?
+            .ok_or(Error::NotFound("City not found by area code".to_string()))?;
 
-        let result = VillageDataDao::new(&conn).list(&area_code, query.offset, query.limit)?;
+        let result = VillageDataDao::new(&conn).list(city.id, query.offset, query.limit)?;
         Ok(ApiResult::success(EntriesResult {
             count: result.count,
             entries: result.entries.into_iter().map(|a| a.into()).collect(),
@@ -73,12 +107,17 @@ impl PublicApi {
         let conn = state.db();
         let dao = ReportNoteDao::new(&conn);
 
-        let area_code: String = get_area_code(&normalize(&query.province), &normalize(&query.city), &conn)?;
+        // let area_code: String = get_area_code(&normalize(&query.province), &normalize(&query.city), &conn)?;
+        // let city = CityDao::new(&conn)
+        //     .get_by_area_code(&area_code)?
+        //     .ok_or(Error::NotFound("City not found by area code".to_string()))?;
+        let city_id = get_city_id(&query.province, &query.city, &conn)?;
 
         let sresult = dao.search(
-            &area_code,
+            city_id,
             &query.query.unwrap_or("".to_string()),
-            vec![":reviewed:"],
+            "approved",
+            vec![],
             query.offset,
             query.limit,
         )?;
@@ -91,6 +130,46 @@ impl PublicApi {
 
         let count = sresult.count;
         Ok(ApiResult::success(EntriesResult { count, entries }))
+    }
+
+    /// Get total data result for specific area.
+    #[api_endpoint(path = "/total", auth = "none")]
+    pub fn get_total_data(query: GetTotal) -> ApiResult<TotalResult> {
+        use crate::schema::village_data::{self, dsl};
+        let conn = state.db();
+        // let area_code: String = get_area_code(&normalize(&query.province), &normalize(&query.city), &conn)?;
+
+        // let city = CityDao::new(&conn)
+        //     .get_by_area_code(&area_code)?
+        //     .ok_or(Error::NotFound("City not found by area code".to_string()))?;
+
+        let city_id = get_city_id(&query.province, &query.city, &conn)?;
+
+        let mut entry:Vec<Entry> = //village_data::table
+            // .filter(dsl::city_id.eq(city_id))
+            // .select((
+            //     sum(dsl::odp),
+            //     sum(dsl::pdp),
+            //     sum(dsl::cases),
+            //     sum(dsl::recovered),
+            //     sum(dsl::deaths),
+            // ))
+            // .select(sql("SELECT SUM(odp), SUM(pdp), SUM(cases), SUM(recovered), SUM(deaths)"))
+            sql_query(&format!("SELECT SUM(odp) as odp, SUM(pdp) as pdp, \
+             SUM(cases) as positive, SUM(recovered) as recovered, \
+             SUM(deaths) as deaths FROM village_data WHERE city_id={}", city_id))
+            .load(&conn)
+            .map_err(Error::from)?;
+
+        let result = entry.pop().expect("Cannot get data from db");
+
+        Ok(ApiResult::success(TotalResult {
+            odp: result.odp as i32,
+            pdp: result.pdp as i32,
+            cases: result.positive as i32,
+            recovered: result.recovered as i32,
+            deaths: result.deaths as i32,
+        }))
     }
 }
 
@@ -107,19 +186,18 @@ fn get_area_code(prov: &str, city: &str, conn: &PgConnection) -> Result<String> 
         .map_err(Error::from)
 }
 
-// fn title_case(s: &str) -> String {
-//     s.split_whitespace()
-//         .map(|w| w.chars())
-//         .map(|mut c| {
-//             c.next()
-//                 .into_iter()
-//                 .flat_map(|c| c.to_uppercase())
-//                 .chain(c.flat_map(|c| c.to_lowercase()))
-//         })
-//         .map(|c| c.collect::<String>())
-//         .collect::<Vec<String>>()
-//         .join(" ")
-// }
+fn get_city_id(prov: &str, city: &str, conn: &PgConnection) -> Result<ID> {
+    use crate::schema::cities::{self, dsl};
+    cities::table
+        .filter(
+            lower(dsl::province)
+                .eq(&normalize(prov))
+                .and(lower(dsl::name).eq(&normalize(city))),
+        )
+        .select(dsl::id)
+        .first(conn)
+        .map_err(Error::from)
+}
 
 fn normalize(name: &str) -> String {
     // let re = Regex::new("[^a-zA-Z0-9]").unwrap();

@@ -3,11 +3,29 @@
     <div class="ui grid">
       <div class="ten wide column">
         <div v-if="searchable" class="ui icon input">
-          <input type="text" placeholder="Search..." v-on:keyup.13="doSearch" ref="inputSearch" />
-          <i class="search icon"></i>
+          <input
+            type="text"
+            placeholder="Search..."
+            v-on:keyup.13="doSearch"
+            ref="inputSearch"
+            v-on:keyup="checkHasText"
+          />
+
+          <a href="javascript://" v-show="hasText" @click="resetSearch" class="search reset"><i class="search remove icon" ></i></a>
+
+          <i v-if="!hasText" class="search icon"></i>
         </div>
 
-        <slot name="bar"></slot>
+        <slot name="bar">
+          <div class="ui mini statistic">
+            <div class="value">{{items.length}}</div>
+            <div class="label">Total</div>
+          </div>
+        </slot>
+
+        <div>
+          <slot name="bellow-search"></slot>
+        </div>
 
         <table class="ui celled table">
           <thead>
@@ -37,12 +55,15 @@
 
 <script>
 const initialState = {
-  items: []
+  items: [],
+  count: 0,
+  hasText: false
 };
 export default {
   name: "AnsTable",
   props: {
     dataSourceUrl: String,
+    addParams: String,
     columns: Array,
     searchable: Boolean,
     withActionButton: Boolean,
@@ -62,15 +83,42 @@ export default {
   data() {
     return initialState;
   },
+  // computed: {
+  //   hasText() {
+  //     return (
+  //       this.$refs.inputSearch != null &&
+  //       this.$refs.inputSearch.value.length > 0
+  //     );
+  //   }
+  // },
+  mounted() {},
   methods: {
+    checkHasText() {
+      this.hasText = this.$refs.inputSearch.value.length > 0;
+    },
+    resetSearch() {
+      this.$refs.inputSearch.value = "";
+      this.hasText = "";
+      this.doSearch();
+      this.$refs.inputSearch.focus();
+    },
     doSearch() {
       var url =
         this.dataSourceUrl +
         `?query=${this.$refs.inputSearch.value}&offset=${this.offset}&limit=${this.limit}`;
+
+      if (this.addParams != null) {
+        url = url + "&" + this.addParams;
+      }
       this.apiScopeBuilder(this)
         .get(url)
         .then(resp => {
-          this.items = resp.data.result.entries.map(this.mapItemFunc);
+          if (resp.data.code == 0) {
+            this.items = resp.data.result.entries.map(this.mapItemFunc);
+            this.count = resp.data.result.count;
+          } else {
+            this.showError("Gagal mendapatkan data dari server");
+          }
         });
     },
     showDetail(item) {
@@ -93,6 +141,10 @@ export default {
       url = this.dataSourceUrl + "?offset=0&limit=10";
     }
 
+    if (this.addParams != null) {
+      url = url + "&" + this.addParams;
+    }
+
     if (this.withActionButton) {
       this.columns.push("Action");
     }
@@ -108,5 +160,20 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="less">
+.mini.statistic {
+  margin-left: 10px !important;
+}
+a.search.reset {
+  font-size: 0.857143em;
+  float: left;
+  margin: 0;
+  padding: 0;
+  right: 1em;
+  top: 0.7em;
+  z-index: 1000 !important;
+  position: absolute;
+  opacity: 0.5;
+  cursor: pointer;
+}
 </style>
 

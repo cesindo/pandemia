@@ -9,7 +9,7 @@ abstract class SubReportEvent extends Equatable {
 
 class LoadSubReport extends SubReportEvent {
   final bool force;
-  final int status;
+  final String status;
   final bool withLoading;
   LoadSubReport({this.status, this.force = false, this.withLoading = true});
 
@@ -25,7 +25,7 @@ class CreateSubReport extends SubReportEvent {
   final String comingFrom;
   final String arrivalDate;
   final String notes;
-  final int status;
+  final String status;
   final List<String> complaint;
 
   CreateSubReport(
@@ -51,7 +51,7 @@ class UpdateSubReport extends SubReportEvent {
   final String comingFrom;
   final String arrivalDate;
   final String notes;
-  final int status;
+  final String status;
   final List<String> complaint;
 
   UpdateSubReport(

@@ -4,7 +4,7 @@ import Home from './views/Home.vue'
 import Dashboard from './views/Dashboard.vue'
 import SatgasLogin from './views/Satgas.vue'
 import Analytic from './views/Analytic.vue'
-import ReportNotes from './views/ReportNotes.vue'
+// import ReportNotes from './views/ReportNotes.vue'
 import NotFound from './views/NotFound.vue'
 
 Vue.use(Router)
@@ -81,6 +81,14 @@ let router = new Router({
       },
     },
     {
+      path: '/dashboard/satgas/:id',
+      name: 'Satgas',
+      component: Dashboard,
+      meta: {
+        title: 'Dashboard' + titleDesc,
+      },
+    },
+    {
       path: '/dashboard/journal',
       name: 'Journal',
       component: Dashboard,
@@ -105,9 +113,17 @@ let router = new Router({
       },
     },
     {
+      path: '/dashboard/data',
+      name: 'Data',
+      component: Dashboard,
+      meta: {
+        title: 'Data'
+      },
+    },
+    {
       path: '/dashboard/reports',
       name: 'Laporan',
-      component: ReportNotes,
+      component: Dashboard,
       meta: {
         title: 'Desa'
       },

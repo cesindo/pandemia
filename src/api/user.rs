@@ -3,6 +3,7 @@
 
 use actix_web::{HttpRequest, HttpResponse};
 use chrono::NaiveDateTime;
+use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
 use validator::Validate;
@@ -13,7 +14,8 @@ use crate::{
     api,
     api::types::*,
     api::{
-        error::{param_error, unauthorized},
+        error::{bad_request, param_error, unauthorized},
+        parsed_query::*,
         ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest,
     },
     auth,
@@ -22,43 +24,8 @@ use crate::{
     geolocator, models,
     prelude::*,
     types::AccountKind,
+    util,
 };
-
-// /// Definisi query untuk mendaftarkan akun baru via rest API.
-// #[derive(Debug, Serialize, Deserialize)]
-// pub struct RegisterUser {
-//     pub full_name: String,
-//     pub email: String,
-//     pub phone_num: String,
-// }
-
-// /// Definisi query untuk mengaktifkan akun yang telah didaftarkan.
-// #[derive(Debug, Serialize, Deserialize)]
-// pub struct ActivateUser {
-//     pub token: String,
-//     pub password: String,
-// }
-
-/// Model untuk keperluan tukar menukar data API
-/// bukan yang di database (crate::models).
-// pub mod types {
-
-//     use chrono::NaiveDateTime;
-
-//     use crate::{api::ApiResult, models};
-
-//     use std::convert::From;
-
-// }
-
-// #[derive(Deserialize, Validate)]
-// pub struct SetUserSettings {
-//     pub enable_push_notif: Option<bool>,
-//     pub cough: Option<bool>,
-//     pub fever: Option<bool>,
-//     pub cold: Option<bool>,
-//     pub headache: Option<bool>,
-// }
 
 #[derive(Deserialize, Validate)]
 pub struct SetUserSetting {
@@ -150,10 +117,8 @@ impl PublicApi {
             }
         };
 
-        let mut meta: Vec<String> = Vec::new();
-
         // get village id
-        let village = match VillageDao::new(&conn).get_by_name(&query.village) {
+        let village = match VillageDao::new(&conn).get_by_name(&city.province, &city.name, &query.village) {
             Ok(a) => a,
             Err(_) => {
                 return param_error(&format!(
@@ -163,12 +128,31 @@ impl PublicApi {
             }
         };
 
+        // check maks 2 satgas per daerah
+        {
+            use crate::schema::users::{self, dsl};
+            let village = format!("village_id={}", village.id);
+            if users::table
+                .filter(dsl::meta.contains(&vec![":satgas:", &village]))
+                .select(diesel::dsl::count(dsl::id))
+                .first::<i64>(&conn)
+                .map_err(Error::from)?
+                > 1
+            {
+                return bad_request("Maksimal 2 satgas per desa");
+            }
+        }
+
+        let mut meta: Vec<String> = Vec::new();
+
+        // daftarkan sebagai satgas dan set metadata-nya
         meta.push(":satgas:".to_string());
         meta.push(format!("village={}", query.village));
         meta.push(format!("village_id={}", village.id));
         meta.push(format!("area_code={}", city.area_code));
-        meta.push(format!("city_by_area_code={}", city.name));
-        meta.push(format!("province_by_area_code={}", city.province));
+        meta.push(format!("city_name={}", city.name));
+        meta.push(format!("city_id={}", city.id));
+        meta.push(format!("province_name={}", city.province));
         meta.push(format!("address_by_area_code={}/{}", city.province, city.name));
 
         if let Some(loc_info) = loc_info {
@@ -234,6 +218,71 @@ impl PublicApi {
         dao.get_by_id(query.id)
             .map(|a| ApiResult::success(a.into()))
             .map_err(From::from)
+    }
+
+    /// Mendapatkan data user berdasarkan ID.
+    #[api_endpoint(path = "/satgas/detail", auth = "required", accessor = "admin")]
+    pub fn satgas_detail(query: IdQuery) -> ApiResult<Satgas> {
+        let conn = state.db();
+        let dao = UserDao::new(&conn);
+
+        dao.get_by_id(query.id)
+            .map(|a| ApiResult::success(a.to_api_type(&conn)))
+            .map_err(From::from)
+    }
+
+    /// Delete satgas.
+    #[api_endpoint(path = "/satgas/delete", auth = "required", mutable, accessor = "admin")]
+    pub fn delete_satgas(query: IdQuery) -> ApiResult<()> {
+        let conn = state.db();
+        let dao = UserDao::new(&conn);
+        let user = dao.get_by_id(query.id)?;
+        if !user.is_satgas() {
+            return unauthorized();
+        }
+        if current_admin.get_city_id() != user.get_city_id() {
+            return unauthorized();
+        }
+
+        dao.mark_deleted(user.id)?;
+
+        Ok(ApiResult::success(()))
+    }
+
+    /// Delete satgas.
+    #[api_endpoint(path = "/satgas/block", auth = "required", mutable, accessor = "admin")]
+    pub fn block_satgas(query: IdQuery) -> ApiResult<()> {
+        let conn = state.db();
+        let dao = UserDao::new(&conn);
+        let user = dao.get_by_id(query.id)?;
+        if !user.is_satgas() {
+            return unauthorized();
+        }
+        if current_admin.get_city_id() != user.get_city_id() {
+            return unauthorized();
+        }
+
+        dao.mark_blocked(user.id, true)?;
+
+        Ok(ApiResult::success(()))
+    }
+
+    /// Delete satgas.
+    #[api_endpoint(path = "/satgas/unblock", auth = "required", mutable, accessor = "admin")]
+    pub fn unblock_satgas(query: IdQuery) -> ApiResult<()> {
+        let conn = state.db();
+        let dao = UserDao::new(&conn);
+        let user = dao.get_by_id(query.id)?;
+        if !user.is_satgas() {
+            return unauthorized();
+        }
+        if current_admin.get_city_id() != user.get_city_id() {
+            return unauthorized();
+        }
+
+        dao.mark_blocked(user.id, false)?;
+
+        Ok(ApiResult::success(()))
     }
 
     /// Register and connect current account to event push notif (FCM).
@@ -325,7 +374,7 @@ impl PublicApi {
     }
 
     /// Mencari akun berdasarkan kata kunci.
-    #[api_endpoint(path = "/search", auth = "none")]
+    #[api_endpoint(path = "/search", auth = "required", accessor = "admin")]
     pub fn search_users(query: QueryEntries) -> ApiResult<EntriesResult<User>> {
         let conn = state.db();
         let dao = UserDao::new(&conn);
@@ -341,6 +390,49 @@ impl PublicApi {
         Ok(ApiResult::success(EntriesResult {
             count,
             entries: entries.into_iter().map(|a| a.into()).collect(),
+        }))
+    }
+
+    /// Mencari akun satgas berdasarkan kata kunci.
+    #[api_endpoint(path = "/satgas/search", auth = "required", accessor = "admin")]
+    pub fn satgas_search(query: QueryEntries) -> ApiResult<EntriesResult<Satgas>> {
+        let conn = state.db();
+        let dao = UserDao::new(&conn);
+
+        let keyword = query.query.unwrap_or("".to_string());
+
+        if !current_admin.has_access("satgas") {
+            return unauthorized();
+        }
+
+        let mut meta = vec![":satgas:"];
+        let city = format!("city_id={}", current_admin.get_city_id().unwrap_or(0));
+        if current_admin.id != 1 {
+            meta.push(&city);
+        }
+
+        let excludes_meta = vec![":deleted:"];
+
+        let parq = parse_query(&keyword);
+
+        let village_name = parq.village_name.map(|a| util::title_case(&a));
+
+        let sresult = dao.search_with_meta(
+            &keyword,
+            village_name.as_ref().map(|a| a.as_str()),
+            &meta,
+            &excludes_meta,
+            query.offset,
+            query.limit,
+        )?;
+
+        Ok(ApiResult::success(EntriesResult {
+            count: sresult.count,
+            entries: sresult
+                .entries
+                .into_iter()
+                .map(|a| a.to_api_type(&conn))
+                .collect(),
         }))
     }
 }

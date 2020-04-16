@@ -4,7 +4,7 @@
 use actix_web::{HttpRequest, HttpResponse};
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
-use diesel::{expression::dsl::sql, sql_query, sql_types};
+use diesel::{expression::dsl::sql, sql_types};
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
 use validator::Validate;

@@ -1,0 +1,1 @@
+ALTER TABLE admins RENAME labels TO meta;

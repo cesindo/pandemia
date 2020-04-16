@@ -30,7 +30,7 @@ struct NewSubReport<'a> {
     pub status: i32,
     pub meta: &'a Vec<&'a str>,
     pub ts: NaiveDateTime,
-    pub area_code: &'a str,
+    pub city_id: ID,
 }
 
 #[doc(hidden)]
@@ -45,7 +45,7 @@ pub struct UpdateSubReport<'a> {
     pub notes: &'a str,
     pub status: i32,
     pub meta: &'a Vec<&'a str>,
-    pub area_code: &'a str,
+    pub city_id: ID,
 }
 
 /// Data Access Object for SubReport
@@ -71,7 +71,7 @@ impl<'a> SubReportDao<'a> {
         notes: &'a str,
         status: i32,
         meta: &'a Vec<&'a str>,
-        area_code: &'a str,
+        city_id: ID,
     ) -> Result<SubReport> {
         use crate::schema::sub_reports::{self, dsl};
 
@@ -90,7 +90,7 @@ impl<'a> SubReportDao<'a> {
                 status,
                 meta,
                 ts: util::now(),
-                area_code,
+                city_id,
             })
             .get_result(self.db)
             .map_err(From::from)
@@ -119,8 +119,12 @@ impl<'a> SubReportDao<'a> {
     /// Search for specific sub report by creator
     pub fn search(
         &self,
-        status: i32,
-        area_code: &str,
+        city_id: ID,
+        come_from: Option<&str>,
+        age: Option<i32>,
+        residence_address: Option<&str>,
+        gender: Option<&str>,
+        status: Option<SubReportStatus>,
         query: &str,
         creator_id: Option<i64>,
         offset: i64,
@@ -128,7 +132,11 @@ impl<'a> SubReportDao<'a> {
     ) -> Result<EntriesResult<SubReport>> {
         use crate::schema::sub_reports::{self, dsl};
         let mut filterer: Box<dyn BoxableExpression<sub_reports::table, _, SqlType = sql_types::Bool>> =
-            Box::new(dsl::area_code.eq(area_code));
+            Box::new(dsl::id.ne(0));
+
+        if city_id > 0 {
+            filterer = Box::new(filterer.and(dsl::city_id.eq(city_id)));
+        }
 
         let query = query.trim();
 
@@ -141,7 +149,25 @@ impl<'a> SubReportDao<'a> {
             filterer = Box::new(filterer.and(dsl::creator_id.eq(creator_id)));
         }
 
-        filterer = Box::new(filterer.and(dsl::status.eq(status)));
+        if let Some(age) = age {
+            filterer = Box::new(filterer.and(dsl::age.eq(age as i32)));
+        }
+
+        if let Some(status) = status {
+            filterer = Box::new(filterer.and(dsl::status.eq(status as i32)));
+        }
+
+        if let Some(residence_address) = residence_address {
+            filterer =
+                Box::new(filterer.and(lower(dsl::residence_address).eq(residence_address.to_lowercase())));
+        }
+
+        if let Some(come_from) = come_from {
+            filterer = Box::new(filterer.and(lower(dsl::coming_from).eq(come_from.to_lowercase())));
+        }
+        if let Some(gender) = gender {
+            filterer = Box::new(filterer.and(dsl::gender.eq(gender)));
+        }
 
         Ok(EntriesResult::new(
             dsl::sub_reports

@@ -198,3 +198,19 @@ macro_rules! meta_value_str {
             .unwrap_or("")
     };
 }
+
+macro_rules! value_str_opt {
+    ($s:ident, $key:literal) => {
+        $s.iter()
+            .find(|a| a.starts_with(concat!($key, ":")))
+            .and_then(|a| a.splitn(2, ":").last())
+    };
+}
+
+macro_rules! list_has_flag {
+    ($s:expr, $key:literal) => {
+        $s.iter()
+            .find(|a| a.as_str() == concat!(":", $key, ":"))
+            .is_some()
+    };
+}

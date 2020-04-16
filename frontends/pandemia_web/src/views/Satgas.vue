@@ -3,95 +3,16 @@
     <SatgasLogin v-if="$session.get('user_id') == null" />
 
     <div id="Main">
-      <h1 class="ui header">SATGAS COVID-19 - Wonosobo</h1>
 
       <AnsTable
-        :key="tableRecords"
-        data-source-url="/pandemia/v1/search_records"
-        :columns="['ID', 'Lokasi', 'Jenis', 'ODP', 'PDP', 'Positive', 'Sembuh', 'Meninggal', 'Action']"
+        :key="tableUsers"
+        data-source-url="/user/v1/satgas/search"
+        :columns="['ID', 'Nama', 'Email', 'Telp', 'Waktu Daftar', 'Posisi', 'Aktif', 'Diblokir', 'Desa']"
         :searchable="true"
-        :withActionButton="false"
+        :withActionButton="true"
+        :mapItemFunc="itemMapper"
         :showDetailFunc="showDetail"
-        :limit="10"
-      >
-        <template v-slot:bar>
-          <button v-if="isDirty" class="ui text icon green button right floated" @click="commit">
-            <i class="fa-angle-double-up icon"></i> Commit
-          </button>
-          <button class="ui text icon button right floated" @click="addRecord">
-            <i class="fa-plus icon"></i> Tambah
-          </button>
-        </template>
-        <template v-slot:tdmap="self">
-          <td>{{self.item['id']}}</td>
-          <td>
-            <strong>{{self.item['loc']}}</strong>
-            <br />
-            <span>{{self.item['loc_scope']}}</span>
-            <br />
-            <small>updated: {{self.item['last_updated']}}</small>
-          </td>
-          <td>
-            <span v-if="self.item['loc_kind'] == 0">Global</span>
-            <span v-if="self.item['loc_kind'] == 1">Benua</span>
-            <span v-if="self.item['loc_kind'] == 2">Negara</span>
-            <span v-if="self.item['loc_kind'] == 3">Provinsi</span>
-            <span v-if="self.item['loc_kind'] == 4">Kota</span>
-          </td>
-          <td>0</td>
-          <td>0</td>
-          <td
-            :class="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['total_cases'] != self.item['total_cases'] ? 'dirty': '' "
-          >
-            <a
-              href="javascript://"
-              v-on:click="editValue(self,'positif','total_cases',self.item['total_cases']);"
-            >{{self.item['total_cases']}}</a>
-            <span
-              v-if="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['total_cases'] != self.item['total_cases']"
-            >
-              <i class="ui icon fa-arrow-right"></i>
-              {{commitLogs[self.item['id']]['total_cases']}}
-            </span>
-          </td>
-          <td
-            :class="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['total_recovered'] != self.item['total_recovered'] ? 'dirty': '' "
-          >
-            <a
-              href="javascript://"
-              v-on:click="editValue(self,'sembuh','total_recovered',self.item['total_recovered']);"
-              class="dirty"
-            >{{self.item['total_recovered']}}</a>
-
-            <span
-              v-if="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['total_recovered'] != self.item['total_recovered']"
-            >
-              <i class="ui icon fa-arrow-right"></i>
-              {{commitLogs[self.item['id']]['total_recovered']}}
-            </span>
-          </td>
-          <td
-            :class="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['total_deaths'] != self.item['total_deaths'] ? 'dirty': '' "
-          >
-            <a
-              href="javascript://"
-              v-on:click="editValue(self,'meninggal','total_deaths',self.item['total_deaths']);"
-            >{{self.item['total_deaths']}}</a>
-
-            <span
-              v-if="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['total_deaths'] != self.item['total_deaths']"
-            >
-              <i class="ui icon fa-arrow-right"></i>
-              {{commitLogs[self.item['id']]['total_deaths']}}
-            </span>
-          </td>
-          <td>
-            <button class="ui icon button" @click="confirmDelete(self.item)">
-              <i class="trash icon"></i>
-            </button>
-          </td>
-        </template>
-      </AnsTable>
+      />
 
       <DialogModal
         modalName="EditValueModal"
@@ -241,6 +162,19 @@ export default {
     };
   },
   methods: {
+    itemMapper(item){
+      return {
+        "id": item['id'],
+        "full_name": item['full_name'],
+        "email": item['email'].startsWith("gen__") ? "-" : item['email'],
+        "telp": item['phone_num'],
+        "register_time": item['register_time'],
+        "roles": item['roles'].join(", "),
+        "active": item['active'] ? 'Ya' : 'Tidak',
+        "blocked": item['blocked'] ? 'Ya' : 'Tidak',
+        "village": item['village']
+      }
+    },
     addRecord() {
       this.$modal.show("AddRecordModal");
     },
@@ -285,7 +219,7 @@ export default {
       this.$refs["addRecLocInput"].focus();
     },
     showDetail(item) {
-      this.$router.push("/dashboard/records/" + item.id);
+      this.$router.push("/dashboard/satgas/" + item.id);
     },
     editValue(self, catName, cat) {
       this.editedItem = self.item;
