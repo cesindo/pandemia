@@ -5,7 +5,7 @@
         :key="tableSubReports"
         data-source-url="/pandemia/v1/sub_report/search"
         add-params="status=-1"
-        :columns="['ID', 'Nama', 'Umur', 'Tempat Tinggal', 'JK', 'Datang Dari', 'Status', 'Catatan Kesehatan', 'Catatan', 'Action']"
+        :columns="['ID', 'Nama', 'Umur', 'Tempat Tinggal', 'JK', 'Datang Dari', 'Status', 'Catatan Kesehatan', 'Catatan', 'Operasi']"
         :searchable="true"
         :withActionButton="false"
         :showDetailFunc="showDetail"
@@ -20,10 +20,21 @@
         <template v-slot:bar>
           <!-- <button v-if="isDirty" class="ui text icon green button right floated" @click="commit">
             <i class="fa-angle-double-up icon"></i> Commit
-          </button>
-          <button class="ui text icon button right floated" @click="addVillage">
+          </button> -->
+
+          <div class="ui mini statistic">
+            <div class="value">3</div>
+            <div class="label">ODP</div>
+          </div>
+
+          <div class="ui mini statistic">
+            <div class="value">3</div>
+            <div class="label">PDP</div>
+          </div>
+
+          <button v-if="addable" class="ui text icon button right floated" @click="addSubReport">
             <i class="fa-plus icon"></i> Tambah
-          </button>-->
+          </button>
         </template>
 
         <template v-slot:tdmap="self">
@@ -37,14 +48,14 @@
           <td>{{self.item['healthy_notes'] }}</td>
           <td>{{self.item['notes'] }}</td>
           <td style="width: 120px;">
-            <button
+            <!-- <button
               v-if="self.item['status'] != 'approved'"
               class="ui icon button"
               title="Approve"
               @click="approve(self.item)"
             >
               <i class="check icon"></i>
-            </button>
+            </button> -->
             <button class="ui icon button" title="Hapus" @click="confirmDelete(self.item)">
               <i class="trash icon"></i>
             </button>
@@ -154,10 +165,10 @@
         :withCloseButton="true"
         @onApprove="doDelete"
       >
-        <p>Yakin untuk menghapus data id {{toProcess['id']}} ?</p>
+        <p>Yakin untuk menghapus data id <strong>{{toProcess["id"]}}</strong> atas nama <strong>{{toProcess['full_name']}}</strong> ?</p>
       </ConfirmDialog>
 
-      <ConfirmDialog
+      <!-- <ConfirmDialog
         modalName="Approve"
         caption="Konfirmasi"
         approveText="Approve"
@@ -172,7 +183,7 @@
           <strong>{{toProcess['creator_name']}}</strong> -
           <strong>{{toProcess['location']}}</strong>
         </p>
-      </ConfirmDialog>
+      </ConfirmDialog> -->
     </div>
   </div>
 </template>
@@ -192,6 +203,9 @@ export default {
     ConfirmDialog,
     BasicModal
   },
+  props: {
+    addable: {type: Boolean, default: false }
+  },
   data() {
     return {
       editedItem: { loc: "" },
@@ -200,7 +214,7 @@ export default {
       commitLogs: {},
       isDirty: false,
       tableSubReports: "-0",
-      toProcess: { id: 0, loc: "" }
+      toProcess: { id: 0, loc: "" },
     };
   },
   methods: {
@@ -288,7 +302,7 @@ export default {
       this.$modal.hide("Delete");
       this.$pandemia
         .api()
-        .publicApi.post("/pandemia/v1/report_note/delete", {
+        .publicApi.post("/pandemia/v1/sub_report/delete", {
           id: this.toProcess["id"]
         })
         .then(resp => {
@@ -311,6 +325,9 @@ export default {
     },
     closeTips() {
       this.$modal.hide("SearchTips");
+    },
+    addSubReport(){
+
     }
   }
 };

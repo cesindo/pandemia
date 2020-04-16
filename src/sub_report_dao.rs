@@ -31,6 +31,7 @@ struct NewSubReport<'a> {
     pub meta: &'a Vec<&'a str>,
     pub ts: NaiveDateTime,
     pub city_id: ID,
+    pub village_id: ID,
 }
 
 #[doc(hidden)]
@@ -46,6 +47,7 @@ pub struct UpdateSubReport<'a> {
     pub status: i32,
     pub meta: &'a Vec<&'a str>,
     pub city_id: ID,
+    pub village_id: ID,
 }
 
 /// Data Access Object for SubReport
@@ -72,6 +74,7 @@ impl<'a> SubReportDao<'a> {
         status: i32,
         meta: &'a Vec<&'a str>,
         city_id: ID,
+        village_id: ID,
     ) -> Result<SubReport> {
         use crate::schema::sub_reports::{self, dsl};
 
@@ -91,6 +94,7 @@ impl<'a> SubReportDao<'a> {
                 meta,
                 ts: util::now(),
                 city_id,
+                village_id,
             })
             .get_result(self.db)
             .map_err(From::from)
@@ -119,7 +123,8 @@ impl<'a> SubReportDao<'a> {
     /// Search for specific sub report by creator
     pub fn search(
         &self,
-        city_id: ID,
+        city_id: Option<ID>,
+        village_id: Option<ID>,
         come_from: Option<&str>,
         age: Option<i32>,
         residence_address: Option<&str>,
@@ -134,7 +139,7 @@ impl<'a> SubReportDao<'a> {
         let mut filterer: Box<dyn BoxableExpression<sub_reports::table, _, SqlType = sql_types::Bool>> =
             Box::new(dsl::id.ne(0));
 
-        if city_id > 0 {
+        if let Some(city_id) = city_id {
             filterer = Box::new(filterer.and(dsl::city_id.eq(city_id)));
         }
 
@@ -143,6 +148,10 @@ impl<'a> SubReportDao<'a> {
         if query != "" {
             let like_clause = format!("%{}%", query).to_lowercase();
             filterer = Box::new(filterer.and(lower(dsl::full_name).like(like_clause)));
+        }
+
+        if let Some(village_id) = village_id {
+            filterer = Box::new(filterer.and(dsl::village_id.eq(village_id)));
         }
 
         if let Some(creator_id) = creator_id {

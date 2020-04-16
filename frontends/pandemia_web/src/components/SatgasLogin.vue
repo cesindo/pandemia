@@ -14,20 +14,13 @@
             <div class="ui divider"></div>
             <form class="ui form" method="POST" @submit="doLogin($event)">
               <div class="field">
-                <label>No telp (HP):</label>
-                <input type="text" name="telp" placeholder="No telp (HP), contoh: 08123123123" ref="inputTelp" />
+                <label>TOKEN:</label>
+                <input type="text" name="token" placeholder="Kode Token" ref="inputToken" v-uppercase />
+                <p>
+                  Kode token bisa didapatkan dari Aplikasi Pandemia
+                </p>
               </div>
-              <div class="field">
-                <label>Password:</label>
-                <input type="password" name="password" placeholder="Password" ref="inputPassword" />
-              </div>
-              <div class="field">
-                <div class="ui checkbox">
-                  <input type="checkbox" tabindex="0" class="hidden" />
-                  <label>Remember me</label>
-                </div>
-              </div>
-              <button class="ui button" type="submit">Masuk</button>
+              <button class="ui button" type="submit" :disabled="isLoading">Masuk</button>
             </form>
           </div>
         </div>
@@ -37,6 +30,9 @@
 </template>
 
 <script>
+
+import ErrorCode from "@/pandemia/ErrorCode.js";
+
 export default {
   name: "Login",
   props: {
@@ -45,29 +41,34 @@ export default {
   },
   data() {
     return {
-      token: this.token
+      token: this.token,
+      isLoading: false
     };
   },
   methods: {
     doLogin: function(event) {
       var self = this;
       if (event) event.preventDefault();
+      this.isLoading = true;
       this.$pandemia
-        .login(
-          this.$refs.inputTelp.value,
-          null,
-          this.$refs.inputPassword.value
+        .api().publicApi.post(
+          "/auth/v1/satgas/authorize", {'token': this.$refs.inputToken.value}
         )
         .then(resp => {
+          this.isLoading = false;
           if (resp.data.code == 0) {
+            this.$pandemia.authorize(resp.data.result);
             this.$pandemia.getMeInfo().then(self._handleGetMeInfo);
           } else if (resp.data.code == 3000) {
             showLoginError();
+          } else if (resp.data.code == ErrorCode.DatabaseRecordNotFoundError) {
+            this.showWarning("Token tidak valid");
           } else {
             showLoginError(resp.data.description);
           }
         })
         .catch(_e => {
+          this.isLoading = false;
           showLoginError();
         });
       function showLoginError(desc) {
@@ -80,7 +81,8 @@ export default {
       }
     },
     _handleGetMeInfo(_resp) {
-      this.$router.push("/dashboard");
+      location.reload();
+      this.$router.push("/satgas/data");
     }
   }
 };

@@ -27,6 +27,7 @@ import 'package:pandemia_mobile/screens/report/report_note_add_page.dart';
 import 'package:pandemia_mobile/screens/setting/setting_page.dart';
 import 'package:pandemia_mobile/screens/sub_report/add_sub_report.dart';
 import 'package:pandemia_mobile/screens/sub_report/sub_report_page.dart';
+import 'package:pandemia_mobile/screens/web/web_token_page.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
 import 'package:pandemia_mobile/widgets/widgets.dart';
 
@@ -75,8 +76,9 @@ class HomeScreen extends StatelessWidget {
     } else {
       choices.add(CustomPopupMenuItem(1, "Data ODP/PDP", Icons.list));
       choices.add(CustomPopupMenuItem(2, "Buat Laporan", Icons.comment));
+      choices.add(CustomPopupMenuItem(3, "Login Web", Icons.lock));
     }
-    choices.add(CustomPopupMenuItem(3, "Tentang", Icons.info));
+    choices.add(CustomPopupMenuItem(4, "Tentang", Icons.info));
 
     void _selectedChoice(CustomPopupMenuItem choice) {
 
@@ -94,7 +96,8 @@ class HomeScreen extends StatelessWidget {
             choices.clear();
             choices.add(CustomPopupMenuItem(1, "Data ODP/PDP", Icons.list));
             choices.add(CustomPopupMenuItem(2, "Buat Laporan", Icons.comment));
-            choices.add(CustomPopupMenuItem(3, "Tentang", Icons.info));
+            choices.add(CustomPopupMenuItem(3, "Login Web", Icons.lock));
+            choices.add(CustomPopupMenuItem(4, "Tentang", Icons.info));
             User user = result[0];
             String villageName = result[1];
             currentUser = currentUser.copy(
@@ -134,6 +137,10 @@ class HomeScreen extends StatelessWidget {
           }
         });
       } else if (choice.index == 3) {
+        Navigator.of(context)
+            .push(MaterialPageRoute(
+                builder: (context) => WebTokenPage()));
+      } else if (choice.index == 4) {
         Navigator.of(context).pushNamed(PandemiaRoutes.about);
       }
     }

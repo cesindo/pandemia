@@ -11,17 +11,19 @@
             v-on:keyup="checkHasText"
           />
 
-          <a href="javascript://" v-show="hasText" @click="resetSearch" class="search reset"><i class="search remove icon" ></i></a>
+          <a href="javascript://" v-show="hasText" @click="resetSearch" class="search reset">
+            <i class="search remove icon"></i>
+          </a>
 
           <i v-if="!hasText" class="search icon"></i>
         </div>
 
-        <slot name="bar">
-          <div class="ui mini statistic">
-            <div class="value">{{items.length}}</div>
-            <div class="label">Total</div>
-          </div>
-        </slot>
+        <div class="ui mini statistic">
+          <div class="value">{{items.length}}</div>
+          <div class="label">Total</div>
+        </div>
+
+        <slot name="bar"></slot>
 
         <div>
           <slot name="bellow-search"></slot>

@@ -17,7 +17,7 @@ export default class Notif {
         this.showAlert(msg, title, 'success', group)
       },
       showWarning(msg = "", title = "Warning", group = "alert") {
-        this.showAlert(msg, title, 'warning', group)
+        this.showAlert(msg, title, type = 'warning', group)
       },
       showErrorApi(msg = "An error occured when fetching data") {
         this.showError(msg)

@@ -129,13 +129,13 @@
 </template>
 
 <script>
-import DialogModal from "@/components/modal/DialogModal.vue";
+// import DialogModal from "@/components/modal/DialogModal.vue";
 import ConfirmDialog from "@/components/modal/ConfirmDialog.vue";
 
 export default {
   name: "UserDetail",
   components: {
-    DialogModal,
+    // DialogModal,
     ConfirmDialog
   },
   props: {
@@ -177,7 +177,7 @@ export default {
           }else{
             this.showError(resp.data.description);
           }
-        }).catch(err => this.showError("Gagal menghubungi server, periksa kembali koneksi Anda"));
+        }).catch(_ => this.showError("Gagal menghubungi server, periksa kembali koneksi Anda"));
     },
     blockSatgas(){
       this.$modal.show("Block");
@@ -198,7 +198,7 @@ export default {
           }else{
             this.showError(resp.data.description);
           }
-        }).catch(err => this.showError("Gagal menghubungi server, periksa kembali koneksi Anda"));
+        }).catch(_ => this.showError("Gagal menghubungi server, periksa kembali koneksi Anda"));
     },
     unblockSatgas(){
       this.$modal.show("Unblock");
@@ -219,7 +219,7 @@ export default {
           }else{
             this.showError(resp.data.description);
           }
-        }).catch(err => this.showError("Gagal menghubungi server, periksa kembali koneksi Anda"));
+        }).catch(_ => this.showError("Gagal menghubungi server, periksa kembali koneksi Anda"));
     },
     changePassword() {
       this.$modal.show("EditPasswordModal");

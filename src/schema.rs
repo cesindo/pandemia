@@ -201,6 +201,7 @@ table! {
         meta -> Array<Text>,
         ts -> Timestamp,
         city_id -> Int8,
+        village_id -> Int8,
     }
 }
 

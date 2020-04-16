@@ -12,7 +12,7 @@ use validator::Validate;
 use crate::{
     api,
     api::types::*,
-    api::{error::*, parsed_query::*, ApiResult, Error::*, HttpRequest as ApiHttpRequest},
+    api::{error::*, parsed_query::*, ApiResult, Error as ApiError, Error::*, HttpRequest as ApiHttpRequest},
     auth,
     dao::{Logs, RecordDao, ReportNoteDao, SubReportDao, VillageDao, VillageDataDao},
     error::{self, Error, ErrorCode},
@@ -192,13 +192,9 @@ impl PublicApi {
             None => return param_error("Anda tidak terdaftar sebagai satgas"),
         };
 
-        // let status = match query.status {
-        //     0 => SubReportStatus::ODP,
-        //     1 => SubReportStatus::PDP,
-        //     2 => SubReportStatus::Positive,
-        //     3 => SubReportStatus::Recovered,
-        //     _ => param_error("Status tidak valid")?,
-        // };
+        let village_id = current_user
+            .get_village_id()
+            .ok_or(ApiError::InvalidParameter(4840, "no village_id".to_string()))?;
 
         let status: SubReportStatus = query.status.as_str().into();
 
@@ -219,6 +215,7 @@ impl PublicApi {
                     status as i32,
                     &meta.iter().map(|a| a.as_ref()).collect::<Vec<&str>>(),
                     city_id,
+                    village_id,
                 )?;
 
                 {
@@ -251,6 +248,49 @@ impl PublicApi {
             .map_err(From::from)
     }
 
+    /// Delet sub report.
+    #[api_endpoint(
+        path = "/sub_report/delete",
+        auth = "required",
+        mutable,
+        accessor = "user,admin"
+    )]
+    pub fn delete_sub_report(query: IdQuery) -> ApiResult<()> {
+        let conn = state.db();
+        let dao = SubReportDao::new(&conn);
+
+        let sr = dao.get_by_id(query.id)?;
+
+        if let Some(current_user) = current_user {
+            if !current_user.is_satgas() {
+                return unauthorized();
+            }
+            let village_id = match current_user.get_village_id() {
+                Some(a) => a,
+                None => return unauthorized(),
+            };
+            if sr.village_id != village_id {
+                return unauthorized();
+            }
+        } else if let Some(current_admin) = current_admin {
+            if current_admin.id != 1 {
+                let city_id = match current_admin.get_city_id() {
+                    Some(a) => a,
+                    None => return unauthorized(),
+                };
+                if sr.city_id != city_id {
+                    return unauthorized();
+                }
+            }
+        } else {
+            return unauthorized();
+        }
+
+        dao.delete_by_id(sr.id)?;
+
+        Ok(ApiResult::success(()))
+    }
+
     /// Update Sub Report.
     #[api_endpoint(path = "/sub_report/update", auth = "required", accessor = "user", mutable)]
     pub fn update_sub_report(query: UpdateSubReport) -> ApiResult<models::SubReport> {
@@ -272,6 +312,10 @@ impl PublicApi {
         };
         let city_id = match current_user.get_city_id() {
             None => return param_error("Anda tidak terdaftar pada area manapun (no city_id)"),
+            Some(a) => a,
+        };
+        let village_id = match current_user.get_village_id() {
+            None => return param_error("Anda tidak terdaftar pada area manapun (no village_id)"),
             Some(a) => a,
         };
 
@@ -299,6 +343,7 @@ impl PublicApi {
                 status: status as i32,
                 meta: &meta.iter().map(|a| a.as_ref()).collect::<Vec<&str>>(),
                 city_id,
+                village_id,
             },
         )?;
         Ok(ApiResult::success(sub_report))
@@ -314,18 +359,18 @@ impl PublicApi {
         //     "" => return param_error("Anda tidak terdaftar pada area manapun"),
         //     a => a,
         // };
-        let city_id = if let Some(current_user) = current_user.as_ref() {
-            match current_user.get_city_id() {
-                None => return param_error("Anda tidak terdaftar pada area manapun (no city_id)"),
-                Some(a) => a,
+        let (city_id, village_id) = if let Some(current_user) = current_user.as_ref() {
+            match (current_user.get_city_id(), current_user.get_village_id()) {
+                (Some(a), Some(b)) => (Some(a), Some(b)),
+                _ => return param_error("Anda tidak terdaftar pada area manapun (no city_id)"),
             }
         } else if let Some(current_admin) = current_admin.as_ref() {
             match current_admin.get_city_id() {
                 None => return param_error("Anda tidak terdaftar pada area manapun (no city_id)"),
-                Some(a) => a,
+                Some(a) => (Some(a), None),
             }
         } else if current_admin.as_ref().map(|a| a.id == 1).unwrap_or(false) {
-            0
+            (None, None)
         } else {
             return unauthorized();
         };
@@ -337,14 +382,6 @@ impl PublicApi {
 
         let name = parq.name.unwrap_or("");
 
-        // let status = match query.status {
-        //     0 => SubReportStatus::ODP,
-        //     1 => SubReportStatus::PDP,
-        //     2 => SubReportStatus::Positive,
-        //     3 => SubReportStatus::Recovered,
-        //     _ => SubReportStatus::All,
-        // };
-
         // utamakan status dari param `status`
         let status: SubReportStatus = query.status.as_str().into();
         if status != SubReportStatus::Unknown {
@@ -353,6 +390,7 @@ impl PublicApi {
 
         let result = dao.search(
             city_id,
+            village_id,
             parq.come_from,
             parq.age,
             parq.residence_address,

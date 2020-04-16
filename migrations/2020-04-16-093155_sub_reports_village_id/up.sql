@@ -1,0 +1,3 @@
+ALTER TABLE sub_reports ADD COLUMN village_id BIGINT NOT NULL DEFAULT 0;
+
+

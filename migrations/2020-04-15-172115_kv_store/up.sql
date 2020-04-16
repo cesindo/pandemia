@@ -5,4 +5,5 @@ CREATE TABLE kv_store (
 );
 
 CREATE UNIQUE INDEX idx_kv_store_a_key ON kv_store(a_key);
+CREATE INDEX idx_kv_store_a_val ON kv_store(a_val);
 

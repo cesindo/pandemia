@@ -2,7 +2,8 @@
 #![allow(missing_docs)]
 
 use actix_web::{HttpRequest, HttpResponse};
-use chrono::NaiveDateTime;
+use chrono::{Datelike, NaiveDateTime, Timelike};
+use diesel::prelude::*;
 use serde::Serialize;
 use serde_json::Value as JsonValue;
 use validator::Validate;
@@ -12,6 +13,8 @@ use crate::{
     api::{types::*, ApiResult, Error as ApiError, ErrorCode},
     auth::AuthDao,
     dao::{AdminDao, Logs},
+    error::Error,
+    kvstore::KvStore,
     models,
     prelude::*,
     types::AccountKind,
@@ -129,6 +132,31 @@ impl PublicApi {
 
         let dao = UserDao::new(&conn);
 
+        let kv = KvStore::new(&conn);
+
+        let user_device_key = format!("user-device.{}", query.device_id);
+
+        // check apabila sudah terdaftar dan kemungkinan akses token expired
+        // generasikan akses token baru untuk device yang telah terdaftar
+        if let Ok(user_id) = kv.get(&user_device_key) {
+            if let Some(user_id) = user_id {
+                let (user_id, full_name) = {
+                    let s: Vec<&str> = user_id.split("|").collect();
+                    (s[0].to_string(), s[1].to_string())
+                };
+                if let Ok(user_id) = user_id.parse::<i64>() {
+                    let user = dao.get_by_id(user_id)?;
+
+                    let dao = AuthDao::new(&conn);
+
+                    return dao
+                        .generate_access_token(user.id)
+                        .map_err(From::from)
+                        .map(ApiResult::success);
+                }
+            }
+        }
+
         // gunakan semuanya random hanya untuk memudahkan push notif saja
         let gen_name = format!("gen__{}_{}", util::random_string(20), util::random_number());
 
@@ -158,6 +186,8 @@ impl PublicApi {
                 latest_loc_lat: query.loc_lat,
             }),
         )?;
+
+        kv.set(&user_device_key, &format!("{}|{}", user.id, user.full_name))?;
 
         // set default settings
         let _ = user.set_setting("enable_push_notif", "true", &conn);
@@ -236,4 +266,106 @@ impl PublicApi {
             None => Ok(ApiResult::success(())),
         }
     }
+
+    /// Authorize satgas.
+    #[api_endpoint(path = "/satgas/authorize", auth = "none", mutable)]
+    pub fn satgas_authorize(query: SatgasAuthorize) -> ApiResult<SatgasAuthorizeResult> {
+        let conn = state.db();
+
+        let kv = KvStore::new(&conn);
+
+        let entry_key = format!("web-token.{}", query.token.trim());
+
+        let user_id = kv
+            .get(&entry_key)?
+            .ok_or(ApiError::NotFound(404, "Web token tidak valid".to_string()))?
+            .parse::<i64>()?;
+
+        let user_dao = UserDao::new(&conn);
+
+        let user = user_dao.get_by_id(user_id)?;
+
+        if !user.is_satgas() || user.is_blocked() {
+            return Err(ApiError::Unauthorized);
+        }
+
+        // let token = generate_web_token(&user, &conn)?;
+
+        // if token != query.token {
+        //     return Err(ApiError::Unauthorized);
+        // }
+
+        // delete entry
+        kv.delete(&entry_key)?;
+
+        AuthDao::new(&conn)
+            .generate_access_token(user.id)
+            .map_err(From::from)
+            .map(|at| {
+                ApiResult::success(SatgasAuthorizeResult {
+                    token: at.token,
+                    user: user.to_api_type(&conn),
+                })
+            })
+    }
+
+    /// Generate web token for login.
+    #[api_endpoint(path = "/satgas/get_web_token", auth = "required", mutable, accessor = "user")]
+    pub fn get_web_token(query: IdQuery) -> ApiResult<String> {
+        let conn = state.db();
+
+        if !current_user.is_satgas() || current_user.is_blocked() {
+            return Err(ApiError::Unauthorized);
+        }
+
+        let kv = KvStore::new(&conn);
+
+        // clear up token lama
+        kv.delete_by_values(&format!("{}", current_user.id))?;
+
+        let token = generate_web_token(&current_user, &conn)?;
+
+        kv.set(&format!("web-token.{}", token), &format!("{}", current_user.id))?;
+
+        Ok(ApiResult::success(token))
+    }
+}
+
+#[derive(Deserialize, Validate)]
+pub struct SatgasAuthorize {
+    pub token: String,
+}
+
+#[derive(Serialize)]
+pub struct SatgasAuthorizeResult {
+    pub token: String,
+    pub user: Satgas,
+}
+
+fn generate_web_token(user: &models::User, conn: &PgConnection) -> Result<String> {
+    let device_id: String = {
+        use crate::schema::user_connect::{self, dsl};
+        user_connect::table
+            .filter(dsl::user_id.eq(user.id))
+            .select(dsl::device_id)
+            .first(conn)
+            .map_err(Error::from)?
+    };
+
+    let now = util::now();
+
+    let toh = format!(
+        "{}/{}/{}/{}/{}",
+        user.id,
+        device_id,
+        now.day(),
+        now.hour(),
+        now.second()
+    );
+
+    let hash = crypto::hash_str(&toh).to_hex();
+
+    let token = (&hash[0..6]).to_string().to_uppercase();
+
+    Ok(token)
 }

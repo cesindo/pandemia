@@ -83,7 +83,7 @@ impl<'a> AuthDao<'a> {
         let now = chrono::Utc::now().naive_utc();
 
         // hapus token lama kalau ada
-        diesel::delete(dsl::access_tokens.filter(dsl::user_id.eq(user_id))).execute(self.db)?;
+        // diesel::delete(dsl::access_tokens.filter(dsl::user_id.eq(user_id))).execute(self.db)?;
 
         let token = NewAccessToken {
             token: &token::generate_access_token(),
@@ -107,7 +107,7 @@ impl<'a> AuthDao<'a> {
         let now = chrono::Utc::now().naive_utc();
 
         // hapus token lama kalau ada
-        diesel::delete(dsl::admin_access_tokens.filter(dsl::admin_id.eq(admin_id))).execute(self.db)?;
+        // diesel::delete(dsl::admin_access_tokens.filter(dsl::admin_id.eq(admin_id))).execute(self.db)?;
 
         let token = NewAdminAccessToken {
             token: &token::generate_access_token(),

@@ -18,13 +18,13 @@ const user = {
   },
   actions: {
     setCurrentUserByAPI({commit}) {
-      this._vm.$detax.getMeInfo()
+      this._vm.$pandemia.getMeInfo()
       .then(resp => {
         if (!(resp.status != 200 || (resp.data.status == "error" && resp.data.code != 0))) {
           commit('SET_CURRENT_USER', resp.data)
         } else {
           if (this._vm.$session.get('token')) {
-            this._vm.$detax.unauthorize()
+            this._vm.$pandemia.unauthorize()
             window.location.reload()
           }
         }

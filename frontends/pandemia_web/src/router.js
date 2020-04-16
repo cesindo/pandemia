@@ -5,6 +5,7 @@ import Dashboard from './views/Dashboard.vue'
 import SatgasLogin from './views/Satgas.vue'
 import Analytic from './views/Analytic.vue'
 // import ReportNotes from './views/ReportNotes.vue'
+import SatgasPanel from './views/SatgasPanel.vue'
 import NotFound from './views/NotFound.vue'
 
 Vue.use(Router)
@@ -96,14 +97,14 @@ let router = new Router({
         title: 'Dashboard' + titleDesc,
       },
     },
-    {
-      path: '/satgas',
-      name: 'Satgas',
-      component: SatgasLogin,
-      meta: {
-        title: 'Login Satgas COVID-19'
-      },
-    },
+    // {
+    //   path: '/satgas',
+    //   name: 'Satgas',
+    //   component: SatgasLogin,
+    //   meta: {
+    //     title: 'Login Satgas COVID-19'
+    //   },
+    // },
     {
       path: '/dashboard/villages',
       name: 'Data Desa',
@@ -135,6 +136,22 @@ let router = new Router({
       props: true,
       meta: {
         title: 'Analitik Daerah'
+      },
+    },
+    {
+      path: '/satgas',
+      name: 'Satgas Panel',
+      component: SatgasPanel,
+      meta: {
+        title: 'Desa'
+      },
+    },
+    {
+      path: '/satgas/data',
+      name: 'Data ODP/PDP',
+      component: SatgasPanel,
+      meta: {
+        title: 'Desa'
       },
     },
     {

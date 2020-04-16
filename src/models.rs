@@ -442,6 +442,7 @@ pub struct SubReport {
     pub meta: Vec<String>,
     pub ts: NaiveDateTime,
     pub city_id: ID,
+    pub village_id: ID,
 }
 
 #[doc(hidden)]
@@ -498,6 +499,7 @@ pub struct ReportNote {
     pub meta: Vec<String>,
     pub ts: NaiveDateTime,
 }
+
 #[doc(hidden)]
 #[derive(Queryable, Serialize)]
 pub struct KvStore {

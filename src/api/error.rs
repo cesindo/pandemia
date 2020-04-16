@@ -166,7 +166,16 @@ impl From<std::num::ParseFloatError> for Error {
     fn from(a: std::num::ParseFloatError) -> Self {
         Error::InvalidParameter(
             ErrorCode::InvalidParameter as i32,
-            "Invalid numeric value".to_string(),
+            "Invalid numeric float value".to_string(),
+        )
+    }
+}
+
+impl From<std::num::ParseIntError> for Error {
+    fn from(a: std::num::ParseIntError) -> Self {
+        Error::InvalidParameter(
+            ErrorCode::InvalidParameter as i32,
+            "Invalid numeric integer value".to_string(),
         )
     }
 }

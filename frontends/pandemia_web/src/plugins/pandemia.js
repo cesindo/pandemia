@@ -57,9 +57,20 @@ export default class Pandemia {
             return resp;
           });
       },
+      authorize(data) {
+        session().set("token", data['token']);
+        var user = data['user'];
+        session().set("user_id", user.id);
+        session().set("user_name", user.full_name);
+        session().set("user_email", user.email);
+        session().set("user_roles", user.roles);
+        session().set("user_village", user.village);
+        updateSession(data['token']);
+      },
       unauthorize() {
         console.log("unauthorize");
         session().remove("token");
+        session().clear();
         updateSession();
         return api.publicApi.post("/auth/v1/unauthorize", {});
       },

@@ -1,9 +1,6 @@
 <template>
   <div>
-    <SatgasLogin v-if="$session.get('user_id') == null" />
-
     <div id="Main">
-
       <AnsTable
         :key="tableUsers"
         data-source-url="/user/v1/satgas/search"
@@ -139,7 +136,6 @@
 import AnsTable from "@/components/AnsTable.vue";
 import DialogModal from "@/components/modal/DialogModal.vue";
 import ConfirmDialog from "@/components/modal/ConfirmDialog.vue";
-import SatgasLogin from "@/components/SatgasLogin.vue";
 import { obMapToArrayValues } from "@/utils/utils";
 
 export default {
@@ -147,8 +143,7 @@ export default {
   components: {
     AnsTable,
     DialogModal,
-    ConfirmDialog,
-    SatgasLogin
+    ConfirmDialog
   },
   data() {
     return {
@@ -161,19 +156,24 @@ export default {
       toDelete: { id: 0, loc: "" }
     };
   },
+  computed: {
+    loggedIn() {
+      return this.$session.get("user_id") != null;
+    }
+  },
   methods: {
-    itemMapper(item){
+    itemMapper(item) {
       return {
-        "id": item['id'],
-        "full_name": item['full_name'],
-        "email": item['email'].startsWith("gen__") ? "-" : item['email'],
-        "telp": item['phone_num'],
-        "register_time": item['register_time'],
-        "roles": item['roles'].join(", "),
-        "active": item['active'] ? 'Ya' : 'Tidak',
-        "blocked": item['blocked'] ? 'Ya' : 'Tidak',
-        "village": item['village']
-      }
+        id: item["id"],
+        full_name: item["full_name"],
+        email: item["email"].startsWith("gen__") ? "-" : item["email"],
+        telp: item["phone_num"],
+        register_time: item["register_time"],
+        roles: item["roles"].join(", "),
+        active: item["active"] ? "Ya" : "Tidak",
+        blocked: item["blocked"] ? "Ya" : "Tidak",
+        village: item["village"]
+      };
     },
     addRecord() {
       this.$modal.show("AddRecordModal");
@@ -315,6 +315,18 @@ export default {
     },
     refreshTable() {
       this.tableRecords = "A-" + new Date().getTime();
+    },
+    onMenuClick(_event, item) {
+      console.log(_event);
+      if (item.title == "Logout") {
+        this.$dialog
+          .confirm("Yakin untuk logout?")
+          .then(_dialog => {
+            this.$pandemia.unauthorize();
+            window.reload();
+          })
+          .catch(() => {});
+      }
     }
   }
 };
