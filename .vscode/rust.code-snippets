@@ -212,10 +212,29 @@
 		"scope": "rust",
 		"prefix": "condfilterer",
 		"body": [
-			"if let Some(${1:name}) =  ${1:name} {",
+			"if let Some(${1:name}) = ${1:name} {",
 			"    filterer = Box::new(filterer.and(${2:}));",
 			"}",
 			""
 		]
-	}
+	},
+	"Gen DAO delete method": {
+    "scope": "rust",
+    "prefix": "daodelete",
+    "body": [
+"    /// Delete ${1:entry}",
+"    pub fn delete(&self, ${2:a_key: &str}) -> Result<()> {",
+"        use crate::schema::${3:table_name}::{self, dsl};",
+"    ",
+"        diesel::delete(",
+"            dsl::${3:table_name}.filter(",
+"                dsl::${4:a_key}.eq(${4:a_key})",
+"               ),",
+"        )",
+"        .execute(self.db)?;",
+"",
+"        Ok(())",
+"    }"
+    ]
+}
 }
