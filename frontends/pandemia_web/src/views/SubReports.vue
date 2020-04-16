@@ -148,9 +148,9 @@
               </div>
 
               <div class="ui basic center aligned segment">
-                <button class="ui button" @click="onAddDataCanceled">Batal</button>
-                <button v-if="!editMode" class="ui primary button" @click="onAddDataApproved">Tambah</button>
-                <button v-if="editMode" class="ui primary button" @click="onDataUpdate">Simpan</button>
+                <button :disabled="isLoading" class="ui button" @click="onAddDataCanceled">Batal</button>
+                <button :disabled="isLoading" v-if="!editMode" class="ui primary button" @click="onAddDataApproved">Tambah</button>
+                <button :disabled="isLoading" v-if="editMode" class="ui primary button" @click="onDataUpdate">Simpan</button>
               </div>
             </div>
           </div>
@@ -253,7 +253,8 @@ export default {
       toProcess: { id: 0, loc: "" },
       date: null,
       editMode: false,
-      toEdit: null
+      toEdit: null,
+      isLoading: false
     };
   },
   methods: {
@@ -386,6 +387,7 @@ export default {
       this.$modal.show("AddData");
     },
     onAddDataApproved() {
+      this.isLoading = true;
       var village = this.$refs["villageInput"].value,
         name = this.$refs["nameInput"].value,
         address = this.$refs["addAddressInput"].value,
@@ -410,6 +412,7 @@ export default {
           status: addStatus
         })
         .then(resp => {
+          this.isLoading = false;
           if (resp.data.code == 0) {
             this.showSuccess("Berhasil menambahkan data");
             this.refreshTable();
@@ -417,6 +420,8 @@ export default {
           } else {
             this.showError(resp.data.description);
           }
+        }).catch(e => {
+          this.isLoading = false;
         });
     },
     onDataUpdate() {
