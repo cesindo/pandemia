@@ -147,7 +147,7 @@ export default {
           .confirm("Are you sure to logout?")
           .then(_dialog => {
             this.$pandemia.unauthorize();
-            this.$router.replace("/");
+            this.$router.replace("/satgas");
           })
           .catch(() => {});
       }

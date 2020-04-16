@@ -1,12 +1,6 @@
 <template>
   <div>
-    <div class="ui grid right floated">
-      <div class="ten wide column">
-        <button class="ui text icon button right floated" @click="addUser">
-          <i class="fa-plus icon"></i> Tambah
-        </button>
-      </div>
-    </div>
+
     <AnsTable
       :key="tableUsers"
       data-source-url="/user/v1/search"
@@ -15,7 +9,17 @@
       :withActionButton="true"
       :mapItemFunc="userListAllMapper"
       :showDetailFunc="showDetail"
-    />
+    >
+
+    <template v-slot:bar>
+      
+        <button class="ui text icon button right floated" @click="addUser">
+          <i class="fa-plus icon"></i> Tambah
+        </button>
+      
+    </template>
+    
+    </AnsTable>
 
     <DialogModal
       modalName="AddUserModal"

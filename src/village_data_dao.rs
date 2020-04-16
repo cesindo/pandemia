@@ -77,7 +77,7 @@ impl<'a> VillageDataDao<'a> {
         cases: i32,
         recovered: i32,
         deaths: i32,
-        updater: &User,
+        updater_id: ID,
         meta: &Vec<&str>,
         city_id: ID,
     ) -> Result<()> {
@@ -91,14 +91,14 @@ impl<'a> VillageDataDao<'a> {
                 dsl::deaths.eq(dsl::deaths + deaths),
                 dsl::last_updated.eq(util::now()),
                 dsl::meta.eq(meta),
-                dsl::last_updated_by_id.eq(updater.id),
+                dsl::last_updated_by_id.eq(updater_id),
             ))
             .execute(self.db)
         {
             Ok(updated) if updated == 0 => {
                 // do insert
                 self.create(
-                    village_id, odp, pdp, cases, recovered, deaths, updater.id, meta, city_id,
+                    village_id, odp, pdp, cases, recovered, deaths, updater_id, meta, city_id,
                 )?;
             }
             Ok(_) => (),
@@ -108,7 +108,7 @@ impl<'a> VillageDataDao<'a> {
             )) => {
                 // do insert
                 self.create(
-                    village_id, odp, pdp, cases, recovered, deaths, updater.id, meta, city_id,
+                    village_id, odp, pdp, cases, recovered, deaths, updater_id, meta, city_id,
                 )?;
             }
             Err(e) => return Err(e.into()),

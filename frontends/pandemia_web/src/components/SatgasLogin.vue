@@ -1,26 +1,27 @@
 <template>
   <div class="home">
     <div class="login">
-      <div class="ui center aligned grid">
-        <div class="seven wide column left aligned">
+      <div class="ui stackable center aligned grid">
+        <div class="seven wide column center aligned">
           <div class="ui raised very padded container segment">
             <center>
               <img alt="Pandemia logo" src="../assets/logo.png" style="width: 200px;" />
 
               <h1>Login Satgas COVID-19</h1>
-
-              <p>{{ desc }}</p>
             </center>
             <div class="ui divider"></div>
             <form class="ui form" method="POST" @submit="doLogin($event)">
               <div class="field">
                 <label>TOKEN:</label>
-                <input type="text" name="token" placeholder="Kode Token" ref="inputToken" v-uppercase />
-                <p>
+                <input :disabled="isLoading" type="text" name="token" placeholder="Kode Token" ref="inputToken" v-uppercase />
+                <p style="margin-top: 10px;">
                   Kode token bisa didapatkan dari Aplikasi Pandemia
                 </p>
               </div>
-              <button class="ui button" type="submit" :disabled="isLoading">Masuk</button>
+              <center><button :class="isLoading ? 'ui loading large green button' : 'ui icon large green button' " type="submit" :disabled="isLoading">
+                <i class="icon fa-key"></i>
+                Masuk
+                </button></center>
             </form>
           </div>
         </div>
@@ -81,8 +82,8 @@ export default {
       }
     },
     _handleGetMeInfo(_resp) {
-      location.reload();
       this.$router.push("/satgas/data");
+      location.reload();
     }
   }
 };

@@ -56,6 +56,7 @@ pub mod auth;
 pub mod city_dao;
 pub mod crypto;
 pub mod dao;
+pub mod district_dao;
 mod db;
 pub mod error;
 pub mod event_handler;

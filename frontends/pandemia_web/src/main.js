@@ -51,6 +51,7 @@ Vue.use(Pandemia)
 Vue.use(VueSidebarMenu)
 
 
+
 // Add utils option in components
 Vue.mixin({
   beforeCreate() {
@@ -67,18 +68,20 @@ Vue.mixin({
 
 Vue.directive('uppercase',
   {
-    inserted: function (el, _, vnode) {
+    inserted: function (el, _, _2) {
       el.addEventListener('input', async function (e) {
-        e.target.value = e.target.value.toUpperCase()
+        e.target.value = e.target.value.toUpperCase();
         // vnode.componentInstance.$emit('input', e.target.value.toUpperCase())
       })
     }
   });
 
+import { Datetime } from 'vue-datetime'
+import 'vue-datetime/dist/vue-datetime.css'
+Vue.component('datetime', Datetime);
 
 new Vue({
   router,
   store,
   render: h => h(App)
 }).$mount('#app')
-

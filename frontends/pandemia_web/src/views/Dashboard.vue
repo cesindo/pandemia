@@ -14,7 +14,7 @@
     </div>
 
     <div class="dashboard-inner" v-bind:style="customMargin">
-      <h1>{{ pageTitle }}</h1>
+      <h1>{{ pageTitle }} | Wonosobo</h1>
 
       <div v-if="currentPage['/dashboard']">
         <div class="ui placeholder segment center aligned">
@@ -50,7 +50,7 @@
         baseApiUrl="/user/v1/satgas/detail"
         :userId="$route.params.id"
       />
-      <SubReports v-if="currentPage['/dashboard/data'] && userAccesses.indexOf('data') > -1" />
+      <SubReports v-if="currentPage['/dashboard/data'] && userAccesses.indexOf('data') > -1" :addable="true" />
       <ReportNotes
         v-if="currentPage['/dashboard/reports'] && userAccesses.indexOf('report_notes') > -1"
       />

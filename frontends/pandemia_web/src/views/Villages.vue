@@ -23,7 +23,7 @@
         <template v-slot:tdmap="self">
           <td>{{self.item['id']}}</td>
           <td>{{self.item['name']}}</td>
-          <td>{{self.item['sub_district']}}</td>
+          <td>{{self.item['district']}}</td>
           <td>{{self.item['city']}}</td>
           <td>{{self.item['province']}}</td>
           <td>{{self.item['latitude']}}</td>
@@ -166,7 +166,7 @@ export default {
         .api()
         .publicApi.post("/pandemia/v1/village/add", {
           name: name,
-          sub_district: subDistrict,
+          district: subDistrict,
           city: city,
           province: province,
           latitude: latitude,

@@ -5,7 +5,7 @@
         :key="tableSubReports"
         data-source-url="/pandemia/v1/sub_report/search"
         add-params="status=-1"
-        :columns="['ID', 'Nama', 'Umur', 'Tempat Tinggal', 'JK', 'Datang Dari', 'Status', 'Catatan Kesehatan', 'Catatan', 'Operasi']"
+        :columns="['ID', 'Nama', 'Desa', 'Umur', 'Tempat Tinggal', 'JK', 'Datang Dari', 'Status', 'Catatan Kesehatan', 'Catatan', 'Penginput', 'Operasi']"
         :searchable="true"
         :withActionButton="false"
         :showDetailFunc="showDetail"
@@ -20,17 +20,7 @@
         <template v-slot:bar>
           <!-- <button v-if="isDirty" class="ui text icon green button right floated" @click="commit">
             <i class="fa-angle-double-up icon"></i> Commit
-          </button> -->
-
-          <div class="ui mini statistic">
-            <div class="value">3</div>
-            <div class="label">ODP</div>
-          </div>
-
-          <div class="ui mini statistic">
-            <div class="value">3</div>
-            <div class="label">PDP</div>
-          </div>
+          </button>-->
 
           <button v-if="addable" class="ui text icon button right floated" @click="addSubReport">
             <i class="fa-plus icon"></i> Tambah
@@ -40,13 +30,23 @@
         <template v-slot:tdmap="self">
           <td>{{self.item['id']}}</td>
           <td>{{self.item['full_name']}}</td>
+          <td>{{self.item['reporter_village']}}</td>
           <td>{{self.item['age']}}</td>
           <td>{{self.item['residence_address']}}</td>
           <td>{{self.item['gender'] == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
-          <td>{{self.item['coming_from'] }}</td>
+          <td>
+            {{self.item['coming_from'] }}
+            <div>
+              {{
+              self.item['coming_from'] != null && self.item['coming_from'].length > 0 ?
+              " @ " + self.item['arrival_date'] : "-"
+              }}
+            </div>
+          </td>
           <td>{{self.item['status']}}</td>
           <td>{{self.item['healthy_notes'] }}</td>
           <td>{{self.item['notes'] }}</td>
+          <td>{{self.item['creator_name']}} {{ self.item['created_by_admin'] ? '(admin)' : '' }}</td>
           <td style="width: 120px;">
             <!-- <button
               v-if="self.item['status'] != 'approved'"
@@ -55,7 +55,10 @@
               @click="approve(self.item)"
             >
               <i class="check icon"></i>
-            </button> -->
+            </button>-->
+            <button class="ui icon button" title="Edit" @click="edit(self.item)">
+              <i class="edit icon"></i>
+            </button>
             <button class="ui icon button" title="Hapus" @click="confirmDelete(self.item)">
               <i class="trash icon"></i>
             </button>
@@ -63,79 +66,106 @@
         </template>
       </AnsTable>
 
-      <DialogModal
-        modalName="EditValueModal"
-        caption="Edit Value"
-        :withCloseButton="true"
-        @beforeOpen="beforeOpenDialog"
-        @onApprove="approveDialog"
-        @opened="editValueDialogOpened"
-        :buttonsText="{reject: 'Cancel', approve: 'Ok'}"
+      <modal
+        name="AddData"
+        width="95%"
+        :max-width="1000"
+        :min-width="500"
+        :clickToClose="true"
+        :scrollable="true"
+        :adaptive="true"
+        height="auto"
+        @opened="onAddDataOpened"
       >
-        <template v-slot:content>
-          <h2 class="ui header">Edit jumlah {{editedCatName}} di {{editedItem['loc']}}</h2>
+        <div class="size-modal-content">
+          <div class="ui fullscreen modal transition visible active">
+            <i class="close icon" @click="onAddDataCanceled()"></i>
+            <div class="content">
+              <h2 class="ui header">{{ editMode ? 'Edit Data' : 'Tambah Laporan' }}</h2>
 
-          <div>
-            <p>
-              Jumlah saat ini:
-              <br />
-              <strong>{{editedItem[editedCat]}}</strong>
-            </p>
-
-            <p>Jumlah baru:</p>
-            <div class="ui input">
-              <input ref="newValue" type="text" name="NewValue" id="NewValue" />
-            </div>
-          </div>
-        </template>
-      </DialogModal>
-      <!-- 
-      <DialogModal
-        modalName="AddReportModal"
-        caption="Tulis Laporan"
-        :withCloseButton="true"
-        @onApprove="doAddVillage"
-        @opened="onAddVillageOpened"
-        :buttonsText="{reject: 'Cancel', approve: 'Ok'}"
-      >
-        <template v-slot:content>
-          <h2 class="ui header">Laporan</h2>
-
-          <div style="text-align: left;">
-            <div class="ui form">
-              <div class="field">
-                <label>Nama desa:</label>
-                <input ref="addNameInput" type="text" name="Name" id="Name" autofocus />
-              </div>
-              <div class="field">
-                <label>Kecamatan:</label>
-                <input ref="addSubDistrictInput" type="text" name="SubDistrict" id="SubDistrict" />
-              </div>
-              <div class="field">
-                <label>Kota/Kabupaten:</label>
-                <input ref="addCityInput" type="text" name="City" id="City" />
-              </div>
-              <div class="field">
-                <label>Provinsi:</label>
-                <input ref="addProvinceInput" type="text" name="Province" id="Province" />
-              </div>
-              <div class="ui grid">
-                <div class="six wide column">
-                  <div class="field">
-                    <label>Latitude:</label>
-                    <input ref="addLatInput" type="text" name="Lat" id="Lat" />
+              <div style="text-align: left;">
+                <div class="ui form">
+                  <div class="ui grid">
+                    <div class="eight wide column">
+                      <div class="field">
+                        <label>Desa:</label>
+                        <input ref="villageInput" type="text" name="Village" id="Village" />
+                      </div>
+                      <div class="field">
+                        <label>Nama:</label>
+                        <input ref="nameInput" type="text" name="Name" id="Name" autofocus />
+                      </div>
+                      <div class="field">
+                        <label>Alamat:</label>
+                        <!-- <input ref="addAddressInput" type="text" name="Address" id="Address" /> -->
+                        <textarea ref="addAddressInput" name="Address" id cols="30" rows="3"></textarea>
+                      </div>
+                      <div class="field">
+                        <label>Usia:</label>
+                        <input ref="addAgeInput" type="text" name="Age" id="Age" />
+                      </div>
+                      <div class="field">
+                        <label>Jenis Kelamin:</label>
+                        <select ref="addGender" name="addGender" id="Gender">
+                          <option value="L">Laki-laki</option>
+                          <option value="P">Perempuan</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="eight wide column">
+                      <div class="field">
+                        <label>Datang Dari:</label>
+                        <input ref="addComeFromInput" type="text" name="ComeFrom" id="ComeFrom" />
+                      </div>
+                      <div class="field">
+                        <label>Tanggal Kedatangan:</label>
+                        <!-- <input
+                      ref="addArrivalDateInput"
+                      type="text"
+                      name="ArrivalDate"
+                      id="ArrivalDate"
+                        />-->
+                        <datetime v-model="date"></datetime>
+                      </div>
+                      <div class="field">
+                        <label>Catatan:</label>
+                        <!-- <input ref="addNotesInput" type="text" name="Notes" id="Notes" /> -->
+                        <textarea ref="addNotesInput" name="Notes" id="Notes" cols="30" rows="3"></textarea>
+                      </div>
+                      <div class="field">
+                        <label>Status:</label>
+                        <select ref="addStatus" name="AddStatus" id="Status">
+                          <option value="odp">ODP</option>
+                          <option value="pdp">PDP</option>
+                          <option value="positive">POSITIVE</option>
+                          <option value="recovered">SEMBUH</option>
+                          <option value="death">MENINGGAL</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div class="six wide column">
-                  <div class="field">
-                    <label>Longitude:</label>
-                    <input ref="addLonInput" type="text" name="Lon" id="Lon" />
-                  </div>
-                </div>
+              </div>
+
+              <div class="ui basic center aligned segment">
+                <button class="ui button" @click="onAddDataCanceled">Batal</button>
+                <button v-if="!editMode" class="ui primary button" @click="onAddDataApproved">Tambah</button>
+                <button v-if="editMode" class="ui primary button" @click="onDataUpdate">Simpan</button>
               </div>
             </div>
           </div>
-        </template>
+        </div>
+      </modal>
+      <!-- <DialogModal
+        modalName="AddData"
+        caption="Tambah Laporan"
+        :withCloseButton="true"
+        @onApprove="onAddDataApproved"
+        @opened="onAddDataOpened"
+        :buttonsText="{reject: 'Batal', approve: 'Tambah'}"
+        width="1700"
+      >
+        
       </DialogModal>-->
 
       <BasicModal modalName="SearchTips" caption="Tips Pencarian" :clickToClose="true">
@@ -145,6 +175,8 @@
 
         <ul>
           <li>tt: - untuk mencari dengan kriteria tempat tinggal, contoh: tt:jakarta</li>
+          <li>desa: - untuk mencari hanya dari desa asal laporan dibuat, contoh: desa:kalikajar</li>
+          <li>kcm: - untuk mencari hanya dari kecamatan asal laporan dibuat, contoh: kcm:watumalang</li>
           <li>umur: - untuk mencari dengan kriteria umur, contoh: umur:33</li>
           <li>jk: - untuk mencari dengan kriteria jenis kelamin, contoh: jk:L untuk laki-laki, jk:P untuk perempuan</li>
           <li>dari: - untuk mencari dengan kriteria nama daerah kedatangan, contoh: dari:bandung</li>
@@ -165,7 +197,11 @@
         :withCloseButton="true"
         @onApprove="doDelete"
       >
-        <p>Yakin untuk menghapus data id <strong>{{toProcess["id"]}}</strong> atas nama <strong>{{toProcess['full_name']}}</strong> ?</p>
+        <p>
+          Yakin untuk menghapus data id
+          <strong>{{toProcess["id"]}}</strong> atas nama
+          <strong>{{toProcess['full_name']}}</strong> ?
+        </p>
       </ConfirmDialog>
 
       <!-- <ConfirmDialog
@@ -183,7 +219,7 @@
           <strong>{{toProcess['creator_name']}}</strong> -
           <strong>{{toProcess['location']}}</strong>
         </p>
-      </ConfirmDialog> -->
+      </ConfirmDialog>-->
     </div>
   </div>
 </template>
@@ -191,7 +227,7 @@
 
 <script>
 import AnsTable from "@/components/AnsTable.vue";
-import DialogModal from "@/components/modal/DialogModal.vue";
+// import DialogModal from "@/components/modal/DialogModal.vue";
 import BasicModal from "@/components/modal/BasicModal.vue";
 import ConfirmDialog from "@/components/modal/ConfirmDialog.vue";
 
@@ -199,12 +235,12 @@ export default {
   name: "Satgas",
   components: {
     AnsTable,
-    DialogModal,
+    // DialogModal,
     ConfirmDialog,
     BasicModal
   },
   props: {
-    addable: {type: Boolean, default: false }
+    addable: { type: Boolean, default: false }
   },
   data() {
     return {
@@ -215,45 +251,64 @@ export default {
       isDirty: false,
       tableSubReports: "-0",
       toProcess: { id: 0, loc: "" },
+      date: null,
+      editMode: false,
+      toEdit: null
     };
   },
   methods: {
+    edit(item) {
+      this.editMode = true;
+      this.toEdit = item;
+
+      // var village = this.$refs["villageInput"].value,
+      //   name = this.$refs["nameInput"].value,
+      //   address = this.$refs["addAddressInput"].value,
+      //   age = this.$refs["addAgeInput"].value,
+      //   addGender = this.$refs["addGender"].value,
+      //   addComeFrom = this.$refs["addComeFromInput"].value,
+      //   arrivalDate = this.date,
+      //   notes = this.$refs["addNotesInput"].value,
+      //   addStatus = this.$refs["addStatus"].value;
+
+      this.$modal.show("AddData");
+    },
     approve(item) {
       this.toProcess = item;
       this.$modal.show("Approve");
     },
-    doApprove() {
-      this.$pandemia
-        .api()
-        .publicApi.post("/pandemia/v1/report_note/update_state", {
-          id: this.toProcess["id"],
-          state: "approved"
-        })
-        .then(resp => {
-          // console.log(resp);
-          if (resp.data.code == 0) {
-            this.refreshTable();
-            this.$modal.hide("Approve");
-            this.showSuccess("Laporan telah berhasil di-aprove");
-          } else {
-            this.showError(
-              "Gagal meng-approve laporan, hubungi sistem administrator"
-            );
-          }
-        });
-    },
-    onAddVillageOpened() {
-      this.$refs["addRecLocInput"].focus();
-    },
+    // doApprove() {
+    //   this.$pandemia
+    //     .api()
+    //     .publicApi.post("/pandemia/v1/report_note/update_state", {
+    //       id: this.toProcess["id"],
+    //       state: "approved"
+    //     })
+    //     .then(resp => {
+    //       // console.log(resp);
+    //       if (resp.data.code == 0) {
+    //         this.refreshTable();
+    //         this.$modal.hide("Approve");
+    //         this.showSuccess("Laporan telah berhasil di-aprove");
+    //       } else {
+    //         this.showError(
+    //           "Gagal meng-approve laporan, hubungi sistem administrator"
+    //         );
+    //       }
+    //     });
+    // },
+    // onAddVillageOpened() {
+    //   this.$refs["addRecLocInput"].focus();
+    // },
     showDetail(item) {
       this.$router.push("/dashboard/villages/" + item.id);
     },
-    editValue(self, catName, cat) {
-      this.editedItem = self.item;
-      this.editedCatName = catName;
-      this.editedCat = cat;
-      this.$modal.show("EditValueModal", { item: self.item });
-    },
+    // editValue(self, catName, cat) {
+    //   this.editedItem = self.item;
+    //   this.editedCatName = catName;
+    //   this.editedCat = cat;
+    //   this.$modal.show("EditValueModal", { item: self.item });
+    // },
     beforeOpenDialog(_) {
       // console.log(this.editedItem);
       // console.log(this.$refs.editValueDialogPlaceholder);
@@ -275,25 +330,25 @@ export default {
       //   </div>
       // </template>`);
     },
-    editValueDialogOpened(_) {
-      this.$refs["newValue"].focus();
-    },
-    approveDialog() {
-      var commitLog = this.commitLogs[this.editedItem["id"]];
+    // editValueDialogOpened(_) {
+    //   this.$refs["newValue"].focus();
+    // },
+    // approveDialog() {
+    //   var commitLog = this.commitLogs[this.editedItem["id"]];
 
-      if (commitLog == undefined) {
-        commitLog = Object.assign({}, this.editedItem);
-        this.isDirty = true;
-      }
+    //   if (commitLog == undefined) {
+    //     commitLog = Object.assign({}, this.editedItem);
+    //     this.isDirty = true;
+    //   }
 
-      commitLog[this.editedCat] = parseInt(this.$refs.newValue.value);
+    //   commitLog[this.editedCat] = parseInt(this.$refs.newValue.value);
 
-      this.$set(this.commitLogs, this.editedItem["id"], commitLog);
+    //   this.$set(this.commitLogs, this.editedItem["id"], commitLog);
 
-      this.isDirty = true;
+    //   this.isDirty = true;
 
-      this.$modal.hide("EditValueModal");
-    },
+    //   this.$modal.hide("EditValueModal");
+    // },
     confirmDelete(item) {
       this.toProcess = item;
       this.$modal.show("Delete");
@@ -326,8 +381,99 @@ export default {
     closeTips() {
       this.$modal.hide("SearchTips");
     },
-    addSubReport(){
+    addSubReport() {
+      this.editMode = false;
+      this.$modal.show("AddData");
+    },
+    onAddDataApproved() {
+      var village = this.$refs["villageInput"].value,
+        name = this.$refs["nameInput"].value,
+        address = this.$refs["addAddressInput"].value,
+        age = this.$refs["addAgeInput"].value,
+        addGender = this.$refs["addGender"].value,
+        addComeFrom = this.$refs["addComeFromInput"].value,
+        arrivalDate = this.date,
+        notes = this.$refs["addNotesInput"].value,
+        addStatus = this.$refs["addStatus"].value;
 
+      this.$pandemia
+        .api()
+        .publicApi.post(`/pandemia/v1/sub_report/add`, {
+          village_name: village,
+          full_name: name,
+          age: parseInt(age),
+          residence_address: address,
+          gender: addGender,
+          coming_from: addComeFrom,
+          arrival_date: arrivalDate.replace(/T.+$/, ""),
+          notes: notes,
+          status: addStatus
+        })
+        .then(resp => {
+          if (resp.data.code == 0) {
+            this.showSuccess("Berhasil menambahkan data");
+            this.refreshTable();
+            this.$modal.hide("AddData");
+          } else {
+            this.showError(resp.data.description);
+          }
+        });
+    },
+    onDataUpdate() {
+      var village = this.$refs["villageInput"].value,
+        name = this.$refs["nameInput"].value,
+        address = this.$refs["addAddressInput"].value,
+        age = this.$refs["addAgeInput"].value,
+        addGender = this.$refs["addGender"].value,
+        addComeFrom = this.$refs["addComeFromInput"].value,
+        arrivalDate = this.date,
+        notes = this.$refs["addNotesInput"].value,
+        addStatus = this.$refs["addStatus"].value;
+
+      var payload = {
+        village_name: village,
+        full_name: name,
+        age: parseInt(age),
+        residence_address: address,
+        gender: addGender,
+        coming_from: addComeFrom,
+        arrival_date: arrivalDate.replace(/T.+$/, ""),
+        notes: notes,
+        status: addStatus
+      };
+
+      if (this.editMode) {
+        payload["id"] = this.toEdit["id"];
+      }
+
+      this.$pandemia
+        .api()
+        .publicApi.post(`/pandemia/v1/sub_report/update`, payload)
+        .then(resp => {
+          if (resp.data.code == 0) {
+            this.showSuccess("Berhasil memperbaharui data");
+            this.refreshTable();
+            this.$modal.hide("AddData");
+          } else {
+            this.showError(resp.data.description);
+          }
+        });
+    },
+    onAddDataOpened() {
+      this.$refs["villageInput"].focus();
+
+      this.$refs["villageInput"].value = this.toEdit.reporter_village;
+      this.$refs["nameInput"].value = this.toEdit.full_name;
+      this.$refs["addAddressInput"].value = this.toEdit.residence_address;
+      this.$refs["addAgeInput"].value = this.toEdit.age;
+      this.$refs["addGender"].value = this.toEdit.gender;
+      this.$refs["addComeFromInput"].value = this.toEdit.coming_from;
+      this.date = this.toEdit.arrival_date;
+      this.$refs["addNotesInput"].value = this.toEdit.notes;
+      this.$refs["addStatus"].value = this.toEdit.status.toLowerCase();
+    },
+    onAddDataCanceled() {
+      this.$modal.hide("AddData");
     }
   }
 };

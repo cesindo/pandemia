@@ -14,7 +14,7 @@ use crate::{
     api::types::*,
     api::{error::*, parsed_query::*, ApiResult, Error as ApiError, Error::*, HttpRequest as ApiHttpRequest},
     auth,
-    dao::{Logs, RecordDao, ReportNoteDao, SubReportDao, VillageDao, VillageDataDao},
+    dao::{CityDao, DistrictDao, Logs, RecordDao, ReportNoteDao, SubReportDao, VillageDao, VillageDataDao},
     error::{self, Error, ErrorCode},
     eventstream::{self, Event::NewRecordUpdate},
     models,
@@ -92,10 +92,12 @@ pub struct AddSubReport {
     #[validate(length(min = 1, max = 70))]
     pub coming_from: String,
     pub arrival_date: NaiveDate,
-    #[validate(length(min = 1, max = 50))]
+    #[validate(length(max = 500))]
     pub notes: String,
     pub status: String,
     pub complaint: Option<Vec<String>>,
+    #[validate(length(max = 100))]
+    pub village_name: Option<String>,
 }
 
 #[derive(Deserialize, Validate)]
@@ -161,18 +163,84 @@ impl PublicApi {
     }
 
     /// Add Sub Report.
-    #[api_endpoint(path = "/sub_report/add", auth = "required", accessor = "user", mutable)]
+    #[api_endpoint(path = "/sub_report/add", auth = "required", accessor = "user,admin", mutable)]
     pub fn add_sub_report(query: AddSubReport) -> ApiResult<models::SubReport> {
         query.validate()?;
         let conn = state.db();
         let dao = SubReportDao::new(&conn);
 
-        if !current_user.is_satgas() {
-            return param_error("Anda tidak dapat menambahkan data");
+        let mut city_id = 0;
+        let mut district_id = 0;
+        let mut village_id = 0;
+        let mut current_user_id = 0;
+        let mut reporter_full_name = "";
+        let mut village_name = String::from("");
+
+        if let Some(current_user) = current_user.as_ref() {
+            if !current_user.is_satgas() {
+                return param_error("Anda tidak dapat menambahkan data");
+            }
+
+            if current_user.is_blocked() {
+                return unauthorized();
+            }
+
+            // let area_code = match current_user.get_area_code() {
+            //     "" => return param_error("Anda tidak terdaftar pada area manapun"),
+            //     a => a,
+            // };
+            city_id = match current_user.get_city_id() {
+                Some(a) => a,
+                None => return param_error("Anda tidak terdaftar sebagai satgas"),
+            };
+
+            // village_id = current_user
+            //     .get_village_id()
+            //     .ok_or(ApiError::InvalidParameter(4840, "no village_id".to_string()))?;
+
+            current_user_id = current_user.id;
+
+            village_id = current_user
+                .get_village_id()
+                .ok_or(Error::InvalidParameter("Has no village id".to_string()))?;
+
+            district_id = current_user
+                .get_district_id()
+                .ok_or(Error::InvalidParameter("Has no district id".to_string()))?;
+
+            reporter_full_name = &current_user.full_name;
+
+            village_name = current_user.get_village_name().to_owned();
         }
 
-        if current_user.is_blocked() {
-            return unauthorized();
+        if let Some(current_admin) = current_admin.as_ref() {
+            if current_admin.id != 1 {
+                city_id = match current_admin.get_city_id() {
+                    Some(a) => a,
+                    None => return unauthorized(),
+                };
+            }
+
+            if query.village_name.is_none() {
+                return param_error("Nama desa belum diset");
+            }
+
+            let _village_name = query.village_name.as_ref().unwrap();
+
+            let village = VillageDao::new(&conn)
+                .get_by_name_with_city(city_id, _village_name)
+                .map_err(|e| {
+                    ApiError::BadRequest(
+                        48231,
+                        format!("Desa {} tidak terdaftar di dalam kota Anda", village_name),
+                    )
+                })?;
+
+            village_id = village.id;
+            village_name = village.name.to_owned();
+            district_id = village.district_id;
+
+            reporter_full_name = &current_admin.name;
         }
 
         let mut healthy: HealthyKind = HealthyKind::Health;
@@ -183,18 +251,14 @@ impl PublicApi {
                 meta.push(format!("gejala={}", complaint.join(",")))
             }
         }
-        let area_code = match current_user.get_area_code() {
-            "" => return param_error("Anda tidak terdaftar pada area manapun"),
-            a => a,
-        };
-        let city_id = match current_user.get_city_id() {
-            Some(a) => a,
-            None => return param_error("Anda tidak terdaftar sebagai satgas"),
-        };
 
-        let village_id = current_user
-            .get_village_id()
-            .ok_or(ApiError::InvalidParameter(4840, "no village_id".to_string()))?;
+        if let Some(ca) = current_admin.as_ref() {
+            meta.push(":updated_by_admin:".to_string());
+            meta.push(format!("updated_by_admin_name={}", ca.name));
+            meta.push(format!("updated_by_admin_id={}", ca.id));
+        }
+
+        meta.push(format!("village={}", village_name));
 
         let status: SubReportStatus = query.status.as_str().into();
 
@@ -202,8 +266,8 @@ impl PublicApi {
             .read_write()
             .run::<_, crate::error::Error, _>(|| {
                 let sub_report = dao.create(
-                    current_user.id,
-                    &current_user.full_name,
+                    current_user_id,
+                    reporter_full_name,
                     &query.full_name,
                     query.age,
                     &query.residence_address,
@@ -215,10 +279,21 @@ impl PublicApi {
                     status as i32,
                     &meta.iter().map(|a| a.as_ref()).collect::<Vec<&str>>(),
                     city_id,
+                    district_id,
                     village_id,
                 )?;
 
                 {
+                    let mut meta = vec![];
+
+                    if let Some(ca) = current_admin.as_ref() {
+                        meta.push(":updated_by_admin:".to_string());
+                        meta.push(format!("updated_by_admin_name={}", ca.name));
+                        meta.push(format!("updated_by_admin_id={}", ca.id));
+                    }
+
+                    meta.push(format!("village={}", village_name));
+
                     let (odp, pdp, cases, recovered, deaths) = match status {
                         SubReportStatus::ODP => (1, 0, 0, 0, 0),
                         SubReportStatus::PDP => (0, 1, 0, 0, 0),
@@ -227,9 +302,6 @@ impl PublicApi {
                         SubReportStatus::Death => (0, 0, 0, 0, 1),
                         _ => return Err(Error::InvalidParameter("Status tidak valid".to_owned()))?,
                     };
-                    let village_id = current_user
-                        .get_village_id()
-                        .ok_or(Error::InvalidParameter("Has no village id".to_string()))?;
                     VillageDataDao::new(&conn).update(
                         village_id,
                         odp,
@@ -237,8 +309,8 @@ impl PublicApi {
                         cases,
                         recovered,
                         0,
-                        &current_user,
-                        &vec![],
+                        current_user_id,
+                        &meta.iter().map(|a| a.as_str()).collect(),
                         city_id,
                     )?;
                 }
@@ -318,6 +390,7 @@ impl PublicApi {
             None => return param_error("Anda tidak terdaftar pada area manapun (no village_id)"),
             Some(a) => a,
         };
+        let district_id = VillageDao::new(&conn).get_by_id(village_id)?.district_id;
 
         let mut healthy: HealthyKind = HealthyKind::Health;
         let mut meta: Vec<String> = Vec::new();
@@ -343,6 +416,7 @@ impl PublicApi {
                 status: status as i32,
                 meta: &meta.iter().map(|a| a.as_ref()).collect::<Vec<&str>>(),
                 city_id,
+                district_id,
                 village_id,
             },
         )?;
@@ -359,25 +433,55 @@ impl PublicApi {
         //     "" => return param_error("Anda tidak terdaftar pada area manapun"),
         //     a => a,
         // };
-        let (city_id, village_id) = if let Some(current_user) = current_user.as_ref() {
-            match (current_user.get_city_id(), current_user.get_village_id()) {
-                (Some(a), Some(b)) => (Some(a), Some(b)),
-                _ => return param_error("Anda tidak terdaftar pada area manapun (no city_id)"),
-            }
-        } else if let Some(current_admin) = current_admin.as_ref() {
-            match current_admin.get_city_id() {
-                None => return param_error("Anda tidak terdaftar pada area manapun (no city_id)"),
-                Some(a) => (Some(a), None),
-            }
-        } else if current_admin.as_ref().map(|a| a.id == 1).unwrap_or(false) {
-            (None, None)
-        } else {
-            return unauthorized();
-        };
 
         let mut parq = match query.query.as_ref() {
             Some(q) => parse_query(q),
             None => ParsedQuery::default(),
+        };
+
+        let (city_id, district_id, village_id) = if let Some(current_user) = current_user.as_ref() {
+            match (
+                current_user.get_city_id(),
+                current_user.get_district_id(),
+                current_user.get_village_id(),
+            ) {
+                (Some(a), Some(b), Some(c)) => (Some(a), Some(b), Some(c)),
+                _ => return param_error("Anda tidak terdaftar pada area manapun (no city_id)"),
+            }
+        } else if current_admin.as_ref().map(|a| a.id == 1).unwrap_or(false) {
+            // root admin tak perlu dibatasi city
+            (None, None, None)
+        } else if let Some(current_admin) = current_admin.as_ref() {
+            match current_admin.get_city_id() {
+                None => return param_error("Anda tidak terdaftar pada area manapun (no city_id)"),
+                Some(city_id) => {
+                    let city = CityDao::new(&conn).get_by_id(city_id)?;
+                    let district = match parq
+                        .district_name
+                        .and_then(|name| DistrictDao::new(&conn).get_by_name(city_id, name).ok())
+                    {
+                        Some(district) => {
+                            if district.city_id != city_id {
+                                return bad_request(&format!(
+                                    "Anda tidak memiliki akses untuk kecamatan {}",
+                                    district.name
+                                ));
+                            }
+                            Some(district)
+                        }
+                        None => None,
+                    };
+
+                    let village_id = parq
+                        .village_name
+                        .and_then(|name| VillageDao::new(&conn).get_by_name_with_city(city.id, name).ok())
+                        .map(|a| a.id);
+
+                    (Some(city_id), district.map(|a| a.id), village_id)
+                }
+            }
+        } else {
+            return unauthorized();
         };
 
         let name = parq.name.unwrap_or("");
@@ -390,6 +494,7 @@ impl PublicApi {
 
         let result = dao.search(
             city_id,
+            district_id,
             village_id,
             parq.come_from,
             parq.age,
@@ -568,14 +673,22 @@ impl PublicApi {
         let conn = state.db();
         let dao = VillageDao::new(&conn);
 
+        let city = CityDao::new(&conn)
+            .get_by_name(&query.province, &query.city)
+            .map_err(|_| {
+                ApiError::BadRequest(83913, format!("Tidak ada kota/kab dengan nama {}", query.city))
+            })?;
+
         let village = dao.create(
             &query.name,
-            &query.sub_district,
+            &query.district,
             &query.city,
             &query.province,
             query.latitude.parse::<f64>()?,
             query.longitude.parse::<f64>()?,
             &vec![],
+            city.id,
+            0,
         )?;
         Ok(ApiResult::success(village))
     }
@@ -772,7 +885,7 @@ pub struct AddVillage {
     #[validate(length(min = 2, max = 1000))]
     pub name: String,
     #[validate(length(min = 2, max = 1000))]
-    pub sub_district: String,
+    pub district: String,
     #[validate(length(min = 2, max = 1000))]
     pub city: String,
     #[validate(length(min = 2, max = 1000))]

@@ -4,7 +4,7 @@
 use chrono::prelude::*;
 use diesel::prelude::*;
 
-use crate::{models::City, result::Result, schema::cities, ID};
+use crate::{models::City, result::Result, schema::cities, ID, sqlutil::lower};
 
 #[derive(Insertable)]
 #[table_name = "cities"]
@@ -53,5 +53,18 @@ impl<'a> CityDao<'a> {
             Err(diesel::result::Error::NotFound) => Ok(None),
             Err(e) => Err(e.into()),
         }
+    }
+
+    /// Mendapatkan city berdasarkan nama-nya.
+    pub fn get_by_name(&self, province: &str, name: &str) -> Result<City> {
+      use crate::schema::cities::{self, dsl};
+      dsl::cities
+        .filter(
+            lower(dsl::name).eq(name.to_lowercase()).and(
+                lower(dsl::province).eq(province.to_lowercase())
+            )
+        )
+        .first(self.db)
+        .map_err(From::from)
     }
 }

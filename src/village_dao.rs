@@ -11,12 +11,14 @@ use crate::{models::Village, result::Result, schema::villages, sqlutil::lower, t
 #[table_name = "villages"]
 struct NewVillage<'a> {
     pub name: &'a str,
-    pub sub_district: &'a str,
+    pub district_name: &'a str,
     pub city: &'a str,
     pub province: &'a str,
     pub latitude: f64,
     pub longitude: f64,
     pub meta: &'a Vec<&'a str>,
+    pub city_id:ID,
+    pub district_id:ID,
 }
 
 /// Data Access Object for Village
@@ -31,24 +33,28 @@ impl<'a> VillageDao<'a> {
     pub fn create(
         &self,
         name: &'a str,
-        sub_district: &'a str,
+        district_name: &'a str,
         city: &'a str,
         province: &'a str,
         latitude: f64,
         longitude: f64,
         meta: &'a Vec<&'a str>,
+        city_id:ID,
+        district_id:ID
     ) -> Result<Village> {
         use crate::schema::villages::{self, dsl};
 
         diesel::insert_into(villages::table)
             .values(&NewVillage {
                 name,
-                sub_district,
+                district_name,
                 city,
                 province,
                 latitude,
                 longitude,
                 meta,
+                city_id,
+                district_id
             })
             .get_result(self.db)
             .map_err(From::from)
@@ -68,6 +74,15 @@ impl<'a> VillageDao<'a> {
             .map_err(From::from)
     }
 
+    /// Mendapatkan village berdasarkan nama dan city_id.
+    pub fn get_by_name_with_city(&self, city_id: ID, name: &str) -> Result<Village> {
+        use crate::schema::villages::{self, dsl};
+        dsl::villages
+            .filter(dsl::city_id.eq(city_id).and(lower(dsl::name).eq(name.to_lowercase())))
+            .first(self.db)
+            .map_err(From::from)
+    }
+
     /// Search for specific villages
     pub fn search(&self, query: &str, offset: i64, limit: i64) -> Result<EntriesResult<Village>> {
         use crate::schema::villages::{self, dsl};
@@ -80,7 +95,7 @@ impl<'a> VillageDao<'a> {
         filterer = Box::new(
             filterer
                 .and(lower(dsl::name).like(&like_clause))
-                .or(lower(dsl::sub_district).like(&like_clause))
+                .or(lower(dsl::district_name).like(&like_clause))
                 .or(lower(dsl::city).like(&like_clause)),
         );
 

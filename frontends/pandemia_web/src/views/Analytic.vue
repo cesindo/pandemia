@@ -78,20 +78,13 @@
                 <div class="label">Meninggal</div>
               </div>
             </div>
-            <iframe
-              width="100%"
-              height="78%"
-              frameborder="0"
-              scrolling="no"
-              marginheight="0"
-              marginwidth="0"
-              src="https://www.openstreetmap.org/export/embed.html?bbox=109.83718872070314%2C-7.423070318382198%2C109.98138427734375%2C-7.302025398075166&amp;layer=mapnik"
-              style="border: 1px solid black"
-            ></iframe>
-            <br />
-            <small>
-              <a href="https://www.openstreetmap.org/#map=13/-7.3626/109.9093">View Larger Map</a>
-            </small>
+            
+            
+            <div>
+              <div class="map-view"></div>
+            </div>
+
+            
           </div>
         </div>
 
@@ -269,6 +262,12 @@ h2 {
 }
 .card .content {
   text-align: left;
+}
+div.map-view {
+  width: 100%;
+  height: 1000px;
+  background-image: url("/img/peta-wonosobo.jpg");
+  background-repeat: no-repeat;
 }
 </style>
 

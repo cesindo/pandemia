@@ -31,6 +31,7 @@ struct NewSubReport<'a> {
     pub meta: &'a Vec<&'a str>,
     pub ts: NaiveDateTime,
     pub city_id: ID,
+    pub district_id: ID,
     pub village_id: ID,
 }
 
@@ -47,6 +48,7 @@ pub struct UpdateSubReport<'a> {
     pub status: i32,
     pub meta: &'a Vec<&'a str>,
     pub city_id: ID,
+    pub district_id: ID,
     pub village_id: ID,
 }
 
@@ -74,6 +76,8 @@ impl<'a> SubReportDao<'a> {
         status: i32,
         meta: &'a Vec<&'a str>,
         city_id: ID,
+        
+        district_id: ID,
         village_id: ID,
     ) -> Result<SubReport> {
         use crate::schema::sub_reports::{self, dsl};
@@ -95,6 +99,7 @@ impl<'a> SubReportDao<'a> {
                 ts: util::now(),
                 city_id,
                 village_id,
+                district_id,
             })
             .get_result(self.db)
             .map_err(From::from)
@@ -124,6 +129,7 @@ impl<'a> SubReportDao<'a> {
     pub fn search(
         &self,
         city_id: Option<ID>,
+        district_id: Option<ID>,
         village_id: Option<ID>,
         come_from: Option<&str>,
         age: Option<i32>,
@@ -153,6 +159,11 @@ impl<'a> SubReportDao<'a> {
         if let Some(village_id) = village_id {
             filterer = Box::new(filterer.and(dsl::village_id.eq(village_id)));
         }
+
+        if let Some(district_id) = district_id {
+            filterer = Box::new(filterer.and(dsl::district_id.eq(district_id)));
+        }
+        
 
         if let Some(creator_id) = creator_id {
             filterer = Box::new(filterer.and(dsl::creator_id.eq(creator_id)));

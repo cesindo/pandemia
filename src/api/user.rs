@@ -149,6 +149,8 @@ impl PublicApi {
         meta.push(":satgas:".to_string());
         meta.push(format!("village={}", query.village));
         meta.push(format!("village_id={}", village.id));
+        meta.push(format!("district_id={}", village.district_id));
+        meta.push(format!("district={}", village.district_name));
         meta.push(format!("area_code={}", city.area_code));
         meta.push(format!("city_name={}", city.name));
         meta.push(format!("city_id={}", city.id));

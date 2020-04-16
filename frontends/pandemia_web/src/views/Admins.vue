@@ -1,12 +1,5 @@
 <template>
   <div>
-    <div class="ui grid right floated">
-      <div class="ten wide column">
-        <button class="ui text icon button right floated" @click="addUser">
-          <i class="fa-plus icon"></i> Tambah
-        </button>
-      </div>
-    </div>
     <AnsTable
       :key="tableUsers"
       data-source-url="/admin/v1/list"
@@ -15,7 +8,13 @@
       :withActionButton="true"
       :mapItemFunc="userListAllMapper"
       :showDetailFunc="showDetail"
-    />
+    >
+      <template v-slot:bar>
+        <button class="ui text icon button right floated" @click="addUser">
+          <i class="fa-plus icon"></i> Tambah
+        </button>
+      </template>
+    </AnsTable>
 
     <DialogModal
       modalName="AddUserModal"
@@ -46,7 +45,7 @@
             <div class="field">
               <label>Accesses:</label>
               <input ref="accessesInput" type="text" name="AccessesInput" id="AccessesInput" />
-              <small>supported: users, records </small>
+              <small>supported: users, records</small>
             </div>
             <div class="field">
               <label>Password:</label>
@@ -90,7 +89,9 @@ export default {
         phone = this.$refs["phoneInput"].value,
         password = this.$refs["passInput"].value,
         confPassword = this.$refs["confPassInput"].value,
-        accessesInput = this.$refs["accessesInput"].value.split(',').map((a) => a.trim());
+        accessesInput = this.$refs["accessesInput"].value
+          .split(",")
+          .map(a => a.trim());
 
       this.$pandemia
         .api()

@@ -66,6 +66,15 @@ table! {
 }
 
 table! {
+    districts (id) {
+        id -> Int8,
+        name -> Text,
+        city_id -> Int8,
+        meta -> Array<Text>,
+    }
+}
+
+table! {
     feeds (id) {
         id -> Int8,
         creator_id -> Int8,
@@ -201,6 +210,7 @@ table! {
         meta -> Array<Text>,
         ts -> Timestamp,
         city_id -> Int8,
+        district_id -> Int8,
         village_id -> Int8,
     }
 }
@@ -284,13 +294,15 @@ table! {
     villages (id) {
         id -> Int8,
         name -> Text,
-        sub_district -> Text,
+        district_name -> Text,
         city -> Text,
         province -> Text,
         latitude -> Float8,
         longitude -> Float8,
         meta -> Array<Text>,
         ts -> Timestamp,
+        city_id -> Int8,
+        district_id -> Int8,
     }
 }
 
@@ -298,6 +310,7 @@ joinable!(access_tokens -> users (user_id));
 joinable!(addresses -> users (user_id));
 joinable!(admin_access_tokens -> admins (admin_id));
 joinable!(admin_passhash -> admins (admin_id));
+joinable!(districts -> cities (city_id));
 joinable!(feeds -> users (creator_id));
 joinable!(logs -> users (initiator_id));
 joinable!(notifs -> users (receiver_id));
@@ -321,6 +334,7 @@ allow_tables_to_appear_in_same_query!(
     admin_passhash,
     admins,
     cities,
+    districts,
     feeds,
     geoloc_cache,
     kv_store,

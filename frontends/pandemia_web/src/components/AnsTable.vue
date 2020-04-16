@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="ui grid">
-      <div class="ten wide column">
+      <div class="fourteen wide column">
         <div v-if="searchable" class="ui icon input">
           <input
             type="text"

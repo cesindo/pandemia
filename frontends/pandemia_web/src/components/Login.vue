@@ -1,7 +1,7 @@
 <template>
   <div class="login">
-    <div class="ui center aligned grid">
-      <div class="seven wide column left aligned">
+    <div class="ui center aligned stackable grid">
+      <div class="seven wide column center aligned">
         <div class="ui raised very padded container segment">
           <center>
             <img alt="Pandemia logo" src="../assets/logo.png" style="width: 200px;" />
@@ -14,19 +14,22 @@
           <form class="ui form" method="POST" @submit="doLogin($event)">
             <div class="field">
               <label>Email:</label>
-              <input type="text" name="email" placeholder="Email" ref="inputEmail" />
+              <input :disabled="isLoading" type="text" name="email" placeholder="Email" ref="inputEmail" />
             </div>
             <div class="field">
               <label>Password:</label>
-              <input type="password" name="password" placeholder="Password" ref="inputPassword" />
+              <input :disabled="isLoading" type="password" name="password" placeholder="Password" ref="inputPassword" />
             </div>
-            <div class="field">
+            <!-- <div class="field">
               <div class="ui checkbox">
                 <input type="checkbox" tabindex="0" class="hidden" />
                 <label>Remember me</label>
               </div>
-            </div>
-            <button class="ui button" type="submit">Masuk</button>
+            </div>-->
+            <center>
+              <button :disabled="isLoading" :class=" isLoading ? 'ui loading green large button' : 'ui green large button' " type="submit">
+                ENTER</button>
+            </center>
           </form>
         </div>
       </div>
@@ -43,12 +46,14 @@ export default {
   },
   data() {
     return {
-      token: this.token
+      token: this.token,
+      isLoading: false
     };
   },
   methods: {
     doLogin: function(event) {
       var self = this;
+      this.isLoading = true;
       if (event) event.preventDefault();
       this.$pandemia
         .adminLogin(
@@ -57,15 +62,19 @@ export default {
           this.$refs.inputPassword.value
         )
         .then(resp => {
+          this.isLoading = false;
           if (resp.data.code == 0) {
             this.$pandemia.getAdminMeInfo().then(self._handleGetMeInfo);
           } else if (resp.data.code == 3000) {
+            showLoginError();
+          } else if (resp.data.code == 6002) {
             showLoginError();
           } else {
             showLoginError(resp.data.description);
           }
         })
         .catch(_e => {
+          this.isLoading = false;
           showLoginError();
         });
       function showLoginError(desc) {

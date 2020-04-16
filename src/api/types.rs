@@ -399,6 +399,7 @@ pub struct SubReport {
     pub id: ID,
     pub creator_id: ID,
     pub creator_name: String,
+    
     pub full_name: String,
     pub age: i32,
     pub residence_address: String,
@@ -413,6 +414,8 @@ pub struct SubReport {
     // pub city_id: ID,
     // ------
     pub healthy_notes: String,
+    pub created_by_admin: bool,
+    pub reporter_village:String
 }
 
 impl ToApiType<SubReport> for models::SubReport {
@@ -423,6 +426,7 @@ impl ToApiType<SubReport> for models::SubReport {
             id: self.id,
             creator_id: self.creator_id,
             creator_name: self.creator_name.to_owned(),
+            
             full_name: self.full_name.to_owned(),
             age: self.age,
             residence_address: self.residence_address.to_owned(),
@@ -436,6 +440,8 @@ impl ToApiType<SubReport> for models::SubReport {
             ts: self.ts,
             // city_id: self.city_id,
             healthy_notes,
+            created_by_admin: list_has_flag!(self.meta, "updated_by_admin"),
+            reporter_village: meta_value_str!(self, "village", "=").to_owned()
         }
     }
 }

@@ -129,12 +129,12 @@ class HomeScreen extends StatelessWidget {
               content: Text("Terimakasih, laporan Anda telah terkirim"),
               backgroundColor: Colors.green,
             ));
-          }else{
-            _scaffoldKey.currentState.showSnackBar(SnackBar(
-              content: Text("Laporan gagal terkirim"),
-              backgroundColor: Colors.red,
-            ));
-          }
+          }//else{
+          //   _scaffoldKey.currentState.showSnackBar(SnackBar(
+          //     content: Text("Laporan gagal terkirim"),
+          //     backgroundColor: Colors.red,
+          //   ));
+          // }
         });
       } else if (choice.index == 3) {
         Navigator.of(context)

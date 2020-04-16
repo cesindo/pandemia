@@ -5,6 +5,8 @@
     @beforeOpen="beforeOpen"
     @beforeClose="beforeClose"
     @opened="opened"
+    :width="width"
+    :minWidth="minWidth"
   >
     <div class="ui basic center aligned segment">
       <slot name="content">
@@ -30,6 +32,8 @@ export default {
       type: String,
       required: true
     },
+    width: Number,
+    minWidth: Number,
     clickToClose: {
       type: Boolean,
       default: false

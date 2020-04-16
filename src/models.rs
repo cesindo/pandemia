@@ -65,6 +65,17 @@ impl User {
         meta_value_str!(self, "village", "=")
     }
 
+    /// Get district id where this user work
+    pub fn get_district_id(&self) -> Option<ID> {
+        meta_value_i64!(self, "district_id")
+    }
+
+    /// Get user district name
+    /// if not return empty string ""
+    pub fn get_district_name(&self) -> &str {
+        meta_value_str!(self, "district", "=")
+    }
+
     /// Get city ID by area code
     pub fn get_city_id(&self) -> Option<ID> {
         meta_value_i64!(self, "city_id")
@@ -442,6 +453,7 @@ pub struct SubReport {
     pub meta: Vec<String>,
     pub ts: NaiveDateTime,
     pub city_id: ID,
+    pub district_id: ID,
     pub village_id: ID,
 }
 
@@ -450,14 +462,17 @@ pub struct SubReport {
 pub struct Village {
     pub id: ID,
     pub name: String,
-    pub sub_district: String,
+    pub district_name: String,
     pub city: String,
     pub province: String,
     pub latitude: f64,
     pub longitude: f64,
     pub meta: Vec<String>,
     pub ts: NaiveDateTime,
+    pub city_id: ID,
+    pub district_id: ID,
 }
+
 #[doc(hidden)]
 #[derive(Queryable, Serialize)]
 pub struct City {
@@ -507,3 +522,13 @@ pub struct KvStore {
     pub a_key: String,
     pub a_val: String,
 }
+
+#[doc(hidden)]
+#[derive(Queryable, Serialize)]
+pub struct District {
+    pub id: ID,
+    pub name: String,
+    pub city_id: ID,
+    pub meta: Vec<String>,
+}
+

@@ -16,5 +16,19 @@
       "    }",
       "  });"
     ]
+  },
+  "Modal show this.$modal.show": {
+    "scope": "javascript",
+    "prefix": "modalshow",
+    "body": [
+      "this.$$modal.show(\"${1:Name}\");"
+    ]
+  },
+  "Modal hide this.$modal.hide": {
+    "scope": "javascript",
+    "prefix": "modalhide",
+    "body": [
+      "this.$$modal.hide(\"${1:Name}\");"
+    ]
   }
 }

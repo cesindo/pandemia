@@ -46,7 +46,7 @@
     "body": [
       "<div class=\"field\">",
       "   <label>${1:Name}:</label>",
-      "   <input ref=\"add${2:Name}Input\" type=\"text\" name=\"${2:Name}\" id=\"${2:Name}\" />",
+      "   <input ref=\"${2:Name}Input\" type=\"text\" name=\"${3:Name}\" id=\"${3:Name}\" />",
       "</div>"
     ]
   },

@@ -12,6 +12,7 @@ pub struct ParsedQuery<'a> {
     pub come_from: Option<&'a str>,
     pub status: Option<SubReportStatus>,
     pub village_name: Option<&'a str>,
+    pub district_name: Option<&'a str>,
 }
 
 /// Parse query to get "semantic"-like search
@@ -29,6 +30,7 @@ pub fn parse_query<'a>(query: &'a str) -> ParsedQuery<'a> {
     let come_from = value_str_opt!(s, "dari");
     let status: Option<SubReportStatus> = value_str_opt!(s, "status").map(|a| a.into());
     let village_name = value_str_opt!(s, "desa");
+    let district_name = value_str_opt!(s, "kcm");
 
     ParsedQuery {
         name,
@@ -38,5 +40,6 @@ pub fn parse_query<'a>(query: &'a str) -> ParsedQuery<'a> {
         come_from,
         status,
         village_name,
+        district_name
     }
 }

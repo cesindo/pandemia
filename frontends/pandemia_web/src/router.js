@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Home from './views/Home.vue'
 import Dashboard from './views/Dashboard.vue'
-import SatgasLogin from './views/Satgas.vue'
+// import SatgasLogin from './views/Satgas.vue'
 import Analytic from './views/Analytic.vue'
 // import ReportNotes from './views/ReportNotes.vue'
 import SatgasPanel from './views/SatgasPanel.vue'
@@ -75,7 +75,7 @@ let router = new Router({
     },
     {
       path: '/dashboard/satgas',
-      name: 'Satgas COVID-19',
+      name: 'Data Satgas COVID-19',
       component: Dashboard,
       meta: {
         title: 'Dashboard' + titleDesc,
