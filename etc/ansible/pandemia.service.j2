@@ -3,8 +3,7 @@ Description=Pandemia Service
 After=network.target
 StartLimitBurst=5
 StartLimitIntervalSec=0
-StandardOutput=/var/log/pandemia_server.out
-StandardError=/var/log/pandemia_server.err
+
 
 [Service]
 Type=simple
@@ -15,6 +14,8 @@ Environment="DATABASE_URL={{DATABASE_URL}}"
 Environment="FCM_SERVER_KEY={{FCM_SERVER_KEY}}"
 Environment="GEOLOCATOR_API_KEY={{GEOLOCATOR_API_KEY}}"
 ExecStart=/usr/local/bin/pandemia_server
+StandardOutput=file:/var/log/pandemia_server.out
+StandardError=file:/var/log/pandemia_server.err
 
 [Install]
 WantedBy=multi-user.target
