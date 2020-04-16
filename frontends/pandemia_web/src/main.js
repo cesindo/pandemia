@@ -50,6 +50,14 @@ Vue.use(Notifications)
 Vue.use(Pandemia)
 Vue.use(VueSidebarMenu)
 
+// ---- moment stuff ----
+var moment = require('moment')
+require('moment/locale/id')
+ 
+Vue.use(require('vue-moment'), {
+    moment
+})
+// --- end of moment stuff ---
 
 
 // Add utils option in components

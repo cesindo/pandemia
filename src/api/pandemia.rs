@@ -14,7 +14,10 @@ use crate::{
     api::types::*,
     api::{error::*, parsed_query::*, ApiResult, Error as ApiError, Error::*, HttpRequest as ApiHttpRequest},
     auth,
-    dao::{CityDao, DistrictDao, Logs, RecordDao, ReportNoteDao, SubReportDao, VillageDao, VillageDataDao},
+    dao::{
+        CityDao, DistrictDao, DistrictDataDao, Logs, RecordDao, ReportNoteDao, SubReportDao, VillageDao,
+        VillageDataDao,
+    },
     error::{self, Error, ErrorCode},
     eventstream::{self, Event::NewRecordUpdate},
     models,
@@ -82,14 +85,14 @@ pub struct AddRecord {
 
 #[derive(Deserialize, Validate)]
 pub struct AddSubReport {
-    #[validate(length(min = 1, max = 50))]
+    #[validate(length(min = 1, max = 50, message = "Nama wajib diisi"))]
     pub full_name: String,
     pub age: i32,
-    #[validate(length(min = 1, max = 80))]
+    #[validate(length(min = 1, max = 80, message = "Alamat tempat tinggal wajib diisi"))]
     pub residence_address: String,
     #[validate(length(min = 1, max = 50))]
     pub gender: String,
-    #[validate(length(min = 1, max = 70))]
+    #[validate(length(max = 70))]
     pub coming_from: String,
     pub arrival_date: NaiveDate,
     #[validate(length(max = 500))]
@@ -98,6 +101,8 @@ pub struct AddSubReport {
     pub complaint: Option<Vec<String>>,
     #[validate(length(max = 100))]
     pub village_name: Option<String>,
+    #[validate(length(max = 100))]
+    pub district_name: Option<String>,
 }
 
 #[derive(Deserialize, Validate)]
@@ -175,6 +180,7 @@ impl PublicApi {
         let mut current_user_id = 0;
         let mut reporter_full_name = "";
         let mut village_name = String::from("");
+        let mut district_name = String::from("");
 
         if let Some(current_user) = current_user.as_ref() {
             if !current_user.is_satgas() {
@@ -211,6 +217,7 @@ impl PublicApi {
             reporter_full_name = &current_user.full_name;
 
             village_name = current_user.get_village_name().to_owned();
+            district_name = current_user.get_district_name().to_owned();
         }
 
         if let Some(current_admin) = current_admin.as_ref() {
@@ -227,8 +234,19 @@ impl PublicApi {
 
             let _village_name = query.village_name.as_ref().unwrap();
 
+            if query.district_name.is_none() || query.district_name == Some("".to_string()) {
+                return param_error("Nama kecamatan belum diset");
+            }
+            let _district_name = query.district_name.as_ref().unwrap();
+
+            let district = DistrictDao::new(&conn)
+                .get_by_name(city_id, _district_name)
+                .map_err(|_| {
+                    ApiError::NotFound(404, format!("Tidak ada kecamatan dengan nama {}", _district_name))
+                })?;
+
             let village = VillageDao::new(&conn)
-                .get_by_name_with_city(city_id, _village_name)
+                .get_by_name_id(city_id, district.id, _village_name)
                 .map_err(|e| {
                     ApiError::BadRequest(
                         48231,
@@ -238,7 +256,7 @@ impl PublicApi {
 
             village_id = village.id;
             village_name = village.name.to_owned();
-            district_id = village.district_id;
+            district_id = district.id;
 
             reporter_full_name = &current_admin.name;
         }
@@ -259,6 +277,7 @@ impl PublicApi {
         }
 
         meta.push(format!("village={}", village_name));
+        meta.push(format!("district={}", district_name));
 
         let status: SubReportStatus = query.status.as_str().into();
 
@@ -308,10 +327,22 @@ impl PublicApi {
                         pdp,
                         cases,
                         recovered,
-                        0,
+                        deaths,
                         current_user_id,
                         &meta.iter().map(|a| a.as_str()).collect(),
                         city_id,
+                    )?;
+
+                    DistrictDataDao::new(&conn).update(
+                        district_id,
+                        odp,
+                        pdp,
+                        cases,
+                        recovered,
+                        deaths,
+                        current_user_id,
+                        city_id,
+                        &meta.iter().map(|a| a.as_str()).collect(),
                     )?;
                 }
 
@@ -474,7 +505,11 @@ impl PublicApi {
 
                     let village_id = parq
                         .village_name
-                        .and_then(|name| VillageDao::new(&conn).get_by_name_with_city(city.id, name).ok())
+                        .and_then(|name| {
+                            VillageDao::new(&conn)
+                                .get_by_name_id(city.id, district.as_ref().map(|a| a.id).unwrap_or(0), name)
+                                .ok()
+                        })
                         .map(|a| a.id);
 
                     (Some(city_id), district.map(|a| a.id), village_id)

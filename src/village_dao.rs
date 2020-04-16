@@ -17,8 +17,8 @@ struct NewVillage<'a> {
     pub latitude: f64,
     pub longitude: f64,
     pub meta: &'a Vec<&'a str>,
-    pub city_id:ID,
-    pub district_id:ID,
+    pub city_id: ID,
+    pub district_id: ID,
 }
 
 /// Data Access Object for Village
@@ -39,8 +39,8 @@ impl<'a> VillageDao<'a> {
         latitude: f64,
         longitude: f64,
         meta: &'a Vec<&'a str>,
-        city_id:ID,
-        district_id:ID
+        city_id: ID,
+        district_id: ID,
     ) -> Result<Village> {
         use crate::schema::villages::{self, dsl};
 
@@ -54,14 +54,14 @@ impl<'a> VillageDao<'a> {
                 longitude,
                 meta,
                 city_id,
-                district_id
+                district_id,
             })
             .get_result(self.db)
             .map_err(From::from)
     }
 
     /// Mendapatkan village berdasarkan nama-nya.
-    pub fn get_by_name(&self, province: &str, city: &str, name: &str) -> Result<Village> {
+    pub fn get_by_name_str(&self, province: &str, city: &str, name: &str) -> Result<Village> {
         use crate::schema::villages::{self, dsl};
         dsl::villages
             .filter(
@@ -75,10 +75,15 @@ impl<'a> VillageDao<'a> {
     }
 
     /// Mendapatkan village berdasarkan nama dan city_id.
-    pub fn get_by_name_with_city(&self, city_id: ID, name: &str) -> Result<Village> {
+    pub fn get_by_name_id(&self, city_id: ID, district_id: ID, name: &str) -> Result<Village> {
         use crate::schema::villages::{self, dsl};
         dsl::villages
-            .filter(dsl::city_id.eq(city_id).and(lower(dsl::name).eq(name.to_lowercase())))
+            .filter(
+                dsl::city_id
+                    .eq(city_id)
+                    .and(dsl::district_id.eq(district_id))
+                    .and(lower(dsl::name).eq(name.to_lowercase())),
+            )
             .first(self.db)
             .map_err(From::from)
     }

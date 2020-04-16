@@ -40,6 +40,6 @@ pub fn parse_query<'a>(query: &'a str) -> ParsedQuery<'a> {
         come_from,
         status,
         village_name,
-        district_name
+        district_name,
     }
 }

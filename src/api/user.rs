@@ -118,7 +118,8 @@ impl PublicApi {
         };
 
         // get village id
-        let village = match VillageDao::new(&conn).get_by_name(&city.province, &city.name, &query.village) {
+        let village = match VillageDao::new(&conn).get_by_name_str(&city.province, &city.name, &query.village)
+        {
             Ok(a) => a,
             Err(_) => {
                 return param_error(&format!(

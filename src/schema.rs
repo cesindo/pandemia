@@ -66,6 +66,23 @@ table! {
 }
 
 table! {
+    district_data (id) {
+        id -> Int8,
+        district_id -> Int8,
+        odp -> Int4,
+        pdp -> Int4,
+        cases -> Int4,
+        recovered -> Int4,
+        deaths -> Int4,
+        last_updated -> Timestamp,
+        last_updated_by_id -> Int8,
+        city_id -> Int8,
+        meta -> Array<Text>,
+        ts -> Timestamp,
+    }
+}
+
+table! {
     districts (id) {
         id -> Int8,
         name -> Text,
@@ -310,6 +327,7 @@ joinable!(access_tokens -> users (user_id));
 joinable!(addresses -> users (user_id));
 joinable!(admin_access_tokens -> admins (admin_id));
 joinable!(admin_passhash -> admins (admin_id));
+joinable!(district_data -> districts (district_id));
 joinable!(districts -> cities (city_id));
 joinable!(feeds -> users (creator_id));
 joinable!(logs -> users (initiator_id));
@@ -334,6 +352,7 @@ allow_tables_to_appear_in_same_query!(
     admin_passhash,
     admins,
     cities,
+    district_data,
     districts,
     feeds,
     geoloc_cache,

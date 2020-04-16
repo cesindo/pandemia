@@ -532,3 +532,19 @@ pub struct District {
     pub meta: Vec<String>,
 }
 
+#[doc(hidden)]
+#[derive(Queryable, Serialize)]
+pub struct DistrictData {
+    pub id: ID,
+    pub district_id: ID,
+    pub odp: i32,
+    pub pdp: i32,
+    pub cases: i32,
+    pub recovered: i32,
+    pub deaths: i32,
+    pub last_updated: NaiveDateTime,
+    pub last_updated_by_id: ID,
+    pub city_id: ID,
+    pub meta: Vec<String>,
+    pub ts: NaiveDateTime,
+}

@@ -369,7 +369,6 @@ pub struct VillageData {
     pub last_updated: NaiveDateTime,
     pub last_updated_by_id: ID,
     pub ts: NaiveDateTime,
-    // pub area_code: String,
     //----
     pub village_name: String,
 }
@@ -395,11 +394,45 @@ impl From<(models::VillageData, models::Village)> for VillageData {
 
 #[doc(hidden)]
 #[derive(Queryable, Serialize)]
+pub struct DistrictData {
+    pub id: ID,
+    pub district_id: ID,
+    pub odp: i32,
+    pub pdp: i32,
+    pub cases: i32,
+    pub recovered: i32,
+    pub deaths: i32,
+    pub last_updated: NaiveDateTime,
+    pub last_updated_by_id: ID,
+    pub ts: NaiveDateTime,
+    //----
+    pub district_name: String,
+}
+
+impl From<(models::DistrictData, models::District)> for DistrictData {
+    fn from(a: (models::DistrictData, models::District)) -> Self {
+        DistrictData {
+            id: a.0.id,
+            district_id: a.0.district_id,
+            odp: a.0.odp,
+            pdp: a.0.pdp,
+            cases: a.0.cases,
+            recovered: a.0.recovered,
+            deaths: a.0.deaths,
+            last_updated: a.0.last_updated,
+            last_updated_by_id: a.0.last_updated_by_id,
+            ts: a.0.ts,
+            district_name: a.1.name.to_owned(),
+        }
+    }
+}
+
+#[doc(hidden)]
+#[derive(Queryable, Serialize)]
 pub struct SubReport {
     pub id: ID,
     pub creator_id: ID,
     pub creator_name: String,
-    
     pub full_name: String,
     pub age: i32,
     pub residence_address: String,
@@ -415,7 +448,8 @@ pub struct SubReport {
     // ------
     pub healthy_notes: String,
     pub created_by_admin: bool,
-    pub reporter_village:String
+    pub reporter_village: String,
+    pub reporter_district: String,
 }
 
 impl ToApiType<SubReport> for models::SubReport {
@@ -426,7 +460,6 @@ impl ToApiType<SubReport> for models::SubReport {
             id: self.id,
             creator_id: self.creator_id,
             creator_name: self.creator_name.to_owned(),
-            
             full_name: self.full_name.to_owned(),
             age: self.age,
             residence_address: self.residence_address.to_owned(),
@@ -441,7 +474,8 @@ impl ToApiType<SubReport> for models::SubReport {
             // city_id: self.city_id,
             healthy_notes,
             created_by_admin: list_has_flag!(self.meta, "updated_by_admin"),
-            reporter_village: meta_value_str!(self, "village", "=").to_owned()
+            reporter_village: meta_value_str!(self, "village", "=").to_owned(),
+            reporter_district: meta_value_str!(self, "district", "=").to_owned(),
         }
     }
 }

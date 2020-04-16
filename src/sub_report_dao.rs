@@ -76,7 +76,7 @@ impl<'a> SubReportDao<'a> {
         status: i32,
         meta: &'a Vec<&'a str>,
         city_id: ID,
-        
+
         district_id: ID,
         village_id: ID,
     ) -> Result<SubReport> {
@@ -163,7 +163,6 @@ impl<'a> SubReportDao<'a> {
         if let Some(district_id) = district_id {
             filterer = Box::new(filterer.and(dsl::district_id.eq(district_id)));
         }
-        
 
         if let Some(creator_id) = creator_id {
             filterer = Box::new(filterer.and(dsl::creator_id.eq(creator_id)));

@@ -4,8 +4,7 @@
 use chrono::prelude::*;
 use diesel::prelude::*;
 
-
-use crate::{models::District, result::Result, schema::districts, ID, sqlutil::lower};
+use crate::{models::District, result::Result, schema::districts, sqlutil::lower, ID};
 
 #[derive(Insertable)]
 #[table_name = "districts"]
@@ -34,13 +33,13 @@ impl<'a> DistrictDao<'a> {
     }
 
     /// Mendapatkan district berdasarkan nama-nya.
-    pub fn get_by_name(&self, city_id:ID, name: &str) -> Result<District> {
+    pub fn get_by_name(&self, city_id: ID, name: &str) -> Result<District> {
         use crate::schema::districts::{self, dsl};
         dsl::districts
             .filter(
-                lower(dsl::name).eq(name.to_lowercase()).and(
-                    dsl::city_id.eq(city_id)
-                )
+                lower(dsl::name)
+                    .eq(name.to_lowercase())
+                    .and(dsl::city_id.eq(city_id)),
             )
             .first(self.db)
             .map_err(From::from)

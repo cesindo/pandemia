@@ -92,6 +92,10 @@
                         <input ref="villageInput" type="text" name="Village" id="Village" />
                       </div>
                       <div class="field">
+                        <label>Kecamatan:</label>
+                        <input ref="districtInput" type="text" name="District" id="District" />
+                      </div>
+                      <div class="field">
                         <label>Nama:</label>
                         <input ref="nameInput" type="text" name="Name" id="Name" autofocus />
                       </div>
@@ -149,8 +153,18 @@
 
               <div class="ui basic center aligned segment">
                 <button :disabled="isLoading" class="ui button" @click="onAddDataCanceled">Batal</button>
-                <button :disabled="isLoading" v-if="!editMode" class="ui primary button" @click="onAddDataApproved">Tambah</button>
-                <button :disabled="isLoading" v-if="editMode" class="ui primary button" @click="onDataUpdate">Simpan</button>
+                <button
+                  :disabled="isLoading"
+                  v-if="!editMode"
+                  class="ui primary button"
+                  @click="onAddDataApproved"
+                >Tambah</button>
+                <button
+                  :disabled="isLoading"
+                  v-if="editMode"
+                  class="ui primary button"
+                  @click="onDataUpdate"
+                >Simpan</button>
               </div>
             </div>
           </div>
@@ -389,6 +403,7 @@ export default {
     onAddDataApproved() {
       this.isLoading = true;
       var village = this.$refs["villageInput"].value,
+        district = this.$refs["districtInput"].value,
         name = this.$refs["nameInput"].value,
         address = this.$refs["addAddressInput"].value,
         age = this.$refs["addAgeInput"].value,
@@ -402,6 +417,7 @@ export default {
         .api()
         .publicApi.post(`/pandemia/v1/sub_report/add`, {
           village_name: village,
+          district_name: district,
           full_name: name,
           age: parseInt(age),
           residence_address: address,
@@ -420,12 +436,14 @@ export default {
           } else {
             this.showError(resp.data.description);
           }
-        }).catch(_ => {
+        })
+        .catch(_ => {
           this.isLoading = false;
         });
     },
     onDataUpdate() {
       var village = this.$refs["villageInput"].value,
+        district = this.$refs["districtInput"].value,
         name = this.$refs["nameInput"].value,
         address = this.$refs["addAddressInput"].value,
         age = this.$refs["addAgeInput"].value,
@@ -437,6 +455,7 @@ export default {
 
       var payload = {
         village_name: village,
+        district_name: district,
         full_name: name,
         age: parseInt(age),
         residence_address: address,
@@ -468,6 +487,7 @@ export default {
       this.$refs["villageInput"].focus();
 
       this.$refs["villageInput"].value = this.toEdit.reporter_village;
+      this.$refs["districtInput"].value = this.toEdit.reporter_district;
       this.$refs["nameInput"].value = this.toEdit.full_name;
       this.$refs["addAddressInput"].value = this.toEdit.residence_address;
       this.$refs["addAgeInput"].value = this.toEdit.age;
