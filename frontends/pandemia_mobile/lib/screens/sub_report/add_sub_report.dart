@@ -61,6 +61,11 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
     Gender("P", "Perempuan"),
   ];
   List<String> statuses = ["ODP", "PDP"];
+  List<Map<String, String>> addInfo = [
+    {"no": "1", "info": "Datang dari zona merah"},
+    {"no": "2", "info": "Bergejala COVID-19"},
+  ];
+  List<String> addInfoSelected = [];
   List<String> keluhan = [
     "Suhu di atas normal",
     "Demam",
@@ -264,10 +269,27 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text("Keluhan:"),
-                        ListView(
-                          shrinkWrap: true,
-                          primary: false,
+                        Text("Info tambahan"),
+                        Column(
+                            children: addInfo
+                                .map((a) => LabeledCheckbox(
+                                      label: a["info"],
+                                      value: addInfoSelected.contains(a["no"]),
+                                      onChanged: (value) {
+                                        setState(() {
+                                          if (value) {
+                                            addInfoSelected.add(a["no"]);
+                                          } else {
+                                            addInfoSelected.remove(a["no"]);
+                                          }
+                                        });
+                                      },
+                                    ))
+                                .toList()),
+                        Text("Keluhan Kesehatan:"),
+                        Column(
+                          // shrinkWrap: true,
+                          // primary: false,
                           children: keluhan
                               .map((f) => LabeledCheckbox(
                                   label: f,

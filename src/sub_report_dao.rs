@@ -134,7 +134,7 @@ impl<'a> SubReportDao<'a> {
         &self,
         city_id: Option<ID>,
         district_id: Option<ID>,
-        village_id: Option<ID>,
+        village_name: Option<&str>,
         come_from: Option<&str>,
         age: Option<i32>,
         residence_address: Option<&str>,
@@ -160,8 +160,8 @@ impl<'a> SubReportDao<'a> {
             filterer = Box::new(filterer.and(lower(dsl::full_name).like(like_clause)));
         }
 
-        if let Some(village_id) = village_id {
-            filterer = Box::new(filterer.and(dsl::village_id.eq(village_id)));
+        if let Some(village_name) = village_name {
+            filterer = Box::new(filterer.and(dsl::meta.contains(vec![format!("village={}", village_name)])));
         }
 
         if let Some(district_id) = district_id {

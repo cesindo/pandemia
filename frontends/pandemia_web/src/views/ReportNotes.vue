@@ -29,7 +29,7 @@
           <td>{{self.item['location']}}</td>
           <td>{{self.item['status'].join(", ") }}</td>
           <td style="width: 120px;">
-            <button v-if="self.item['status'] != 'approved'" class="ui icon button" title="Approve" @click="approve(self.item)">
+            <button v-if="self.item['status'] != 'published'" class="ui icon button" title="Publish" @click="publish(self.item)">
               <i class="check icon"></i>
             </button>
             <button class="ui icon button" title="Hapus" @click="confirmDelete(self.item)">
@@ -44,9 +44,9 @@
         caption="Edit Value"
         :withCloseButton="true"
         @beforeOpen="beforeOpenDialog"
-        @onApprove="approveDialog"
+        @onPublish="publishDialog"
         @opened="editValueDialogOpened"
-        :buttonsText="{reject: 'Cancel', approve: 'Ok'}"
+        :buttonsText="{reject: 'Cancel', publish: 'Ok'}"
       >
         <template v-slot:content>
           <h2 class="ui header">Edit jumlah {{editedCatName}} di {{editedItem['loc']}}</h2>
@@ -70,9 +70,9 @@
         modalName="AddReportModal"
         caption="Tulis Laporan"
         :withCloseButton="true"
-        @onApprove="doAddVillage"
+        @onPublish="doAddVillage"
         @opened="onAddVillageOpened"
-        :buttonsText="{reject: 'Cancel', approve: 'Ok'}"
+        :buttonsText="{reject: 'Cancel', publish: 'Ok'}"
       >
         <template v-slot:content>
           <h2 class="ui header">Laporan</h2>
@@ -117,7 +117,7 @@
       <ConfirmDialog
         modalName="Delete"
         caption="Konfirmasi"
-        approveText="Hapus"
+        publishText="Hapus"
         :withCloseButton="true"
         @onApprove="doDelete"
       >
@@ -125,13 +125,13 @@
       </ConfirmDialog>
 
       <ConfirmDialog
-        modalName="Approve"
+        modalName="Publish"
         caption="Konfirmasi"
-        approveText="Approve"
+        publishText="Publish"
         :withCloseButton="true"
-        @onApprove="doApprove"
+        @onApprove="doPublish"
       >
-        <p>Yakin untuk meng-approve laporan ini? :</p>
+        <p>Yakin untuk meng-publish laporan ini? :</p>
         <strong>"{{toProcess['notes']}}"</strong>
 
         <p>dari <strong>{{toProcess['creator_name']}}</strong> - <strong>{{toProcess['location']}}</strong></p>
@@ -166,27 +166,27 @@ export default {
     };
   },
   methods: {
-    approve(item){
+    publish(item){
       this.toProcess = item;
-      this.$modal.show('Approve');
+      this.$modal.show('Publish');
     },
-    doApprove(){
+    doPublish(){
       
       this.$pandemia
         .api()
         .publicApi.post("/pandemia/v1/report_note/update_state", {
           'id': this.toProcess["id"],
-          'state': ['approved']
+          'state': ['published']
         })
         .then(resp => {
           // console.log(resp);
           if (resp.data.code == 0) {
             this.refreshTable();
-            this.$modal.hide("Approve");
+            this.$modal.hide("Publish");
             this.showSuccess("Laporan telah berhasil di-aprove");
           } else {
             this.showError(
-              "Gagal meng-approve laporan, hubungi sistem administrator"
+              "Gagal mempublish laporan, hubungi sistem administrator"
             );
           }
         });
@@ -227,7 +227,7 @@ export default {
     editValueDialogOpened(_) {
       this.$refs["newValue"].focus();
     },
-    approveDialog() {
+    publishDialog() {
       var commitLog = this.commitLogs[this.editedItem["id"]];
 
       if (commitLog == undefined) {

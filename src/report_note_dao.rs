@@ -52,11 +52,11 @@ impl<'a> ReportNoteDao<'a> {
     }
 
     /// Update state
-    pub fn update(&self, id: ID, approved: bool) -> Result<()> {
+    pub fn update(&self, id: ID, published: bool) -> Result<()> {
         use crate::schema::report_notes::{self, dsl};
 
         diesel::update(dsl::report_notes.filter(dsl::id.eq(id)))
-            .set(dsl::approved.eq(approved))
+            .set(dsl::published.eq(published))
             .execute(self.db)?;
 
         Ok(())
@@ -83,10 +83,10 @@ impl<'a> ReportNoteDao<'a> {
             filterer = Box::new(filterer.and(dsl::city_id.eq(city_id)));
         }
 
-        if state == "approved" {
-            filterer = Box::new(filterer.and(dsl::approved.eq(true)));
-        } else if state == "unapproved" {
-            filterer = Box::new(filterer.and(dsl::approved.eq(false)));
+        if state == "published" {
+            filterer = Box::new(filterer.and(dsl::published.eq(true)));
+        } else if state == "unpublished" {
+            filterer = Box::new(filterer.and(dsl::published.eq(false)));
         }
 
         filterer = Box::new(filterer.and(dsl::notes.like(&like_clause)));

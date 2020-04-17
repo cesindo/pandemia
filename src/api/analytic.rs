@@ -118,7 +118,7 @@ impl PublicApi {
         let sresult = dao.search(
             city.id,
             &query.query.unwrap_or("".to_string()),
-            "approved",
+            "published",
             vec![],
             query.offset,
             query.limit,
@@ -159,7 +159,7 @@ impl PublicApi {
             // .select(sql("SELECT SUM(odp), SUM(pdp), SUM(cases), SUM(recovered), SUM(deaths)"))
             sql_query(&format!("SELECT SUM(odp) as odp, SUM(pdp) as pdp, \
              SUM(cases) as positive, SUM(recovered) as recovered, \
-             SUM(deaths) as deaths FROM village_data WHERE city_id={}", city.id))
+             SUM(deaths) as deaths FROM district_data WHERE city_id={}", city.id))
             .load(&conn)
             .map_err(Error::from)?;
 

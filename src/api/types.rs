@@ -342,10 +342,10 @@ impl ToApiType<ReportNote> for models::ReportNote {
     fn to_api_type(&self, conn: &PgConnection) -> ReportNote {
         let location = meta_value_str!(self, "location", "=").to_owned();
         let mut status = vec![];
-        if self.approved {
-            status.push("approved".to_string());
+        if self.published {
+            status.push("published".to_string());
         } else {
-            status.push("pending for approval".to_string());
+            status.push("unpublished".to_string());
         }
         ReportNote {
             id: self.id,

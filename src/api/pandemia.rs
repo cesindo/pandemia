@@ -367,7 +367,7 @@ impl PublicApi {
             .map_err(From::from)
     }
 
-    /// Delet sub report.
+    /// Delete sub report.
     #[api_endpoint(
         path = "/sub_report/delete",
         auth = "required",
@@ -380,6 +380,10 @@ impl PublicApi {
 
         let sr = dao.get_by_id(query.id)?;
 
+        let mut current_user_id = 0;
+        // let mut city_id = 0;
+        // let mut village_id = 0;
+
         if let Some(current_user) = current_user {
             if !current_user.is_satgas() || current_user.is_blocked() || current_user.is_deleted() {
                 return unauthorized();
@@ -391,6 +395,8 @@ impl PublicApi {
             if sr.village_id != village_id {
                 return unauthorized();
             }
+            current_user_id = current_user.id;
+        // city_id = current_user.get_city_id().ok_or(ApiError::Unauthorized)?;
         } else if let Some(current_admin) = current_admin {
             if current_admin.id != 1 {
                 let city_id = match current_admin.get_city_id() {
@@ -405,7 +411,57 @@ impl PublicApi {
             return unauthorized();
         }
 
-        dao.delete_by_id(sr.id)?;
+        conn.build_transaction()
+            .read_write()
+            .run::<_, crate::error::Error, _>(|| {
+                dao.delete_by_id(sr.id)?;
+
+                // let mut meta = vec![];
+
+                // if let Some(ca) = current_admin.as_ref() {
+                //     meta.push(":updated_by_admin:".to_string());
+                //     meta.push(format!("updated_by_admin_name={}", ca.name));
+                //     meta.push(format!("updated_by_admin_id={}", ca.id));
+                // }
+
+                // meta.push(format!("village={}", village_name));
+                // meta.push(format!("district={}", district_name));
+
+                let (odp, pdp, cases, recovered, deaths) = match sr.status.into() {
+                    SubReportStatus::ODP => (-1, 0, 0, 0, 0),
+                    SubReportStatus::PDP => (0, -1, 0, 0, 0),
+                    SubReportStatus::Positive => (0, 0, -1, 0, 0),
+                    SubReportStatus::Recovered => (0, 0, 0, -1, 0),
+                    SubReportStatus::Death => (0, 0, 0, 0, -1),
+                    _ => return Err(Error::InvalidParameter("Status tidak valid".to_owned()))?,
+                };
+
+                VillageDataDao::new(&conn).update(
+                    sr.village_id,
+                    odp,
+                    pdp,
+                    cases,
+                    recovered,
+                    deaths,
+                    current_user_id,
+                    &sr.meta.iter().map(|a| a.as_str()).collect(),
+                    sr.city_id,
+                )?;
+
+                DistrictDataDao::new(&conn).update(
+                    sr.district_id,
+                    odp,
+                    pdp,
+                    cases,
+                    recovered,
+                    deaths,
+                    current_user_id,
+                    sr.city_id,
+                    &sr.meta.iter().map(|a| a.as_str()).collect(),
+                )?;
+
+                Ok(())
+            })?;
 
         Ok(ApiResult::success(()))
     }
@@ -543,10 +599,12 @@ impl PublicApi {
             parq.status = Some(status);
         }
 
+        let village_name = parq.village_name.map(|a| util::title_case(a));
+
         let result = dao.search(
             city_id,
             district_id,
-            village_id,
+            village_name.as_ref().map(|a| a.as_str()),
             parq.come_from,
             parq.age,
             parq.residence_address,
@@ -892,13 +950,13 @@ impl PublicApi {
             }
         }
 
-        let mut approved = false;
+        let mut published = false;
 
-        if query.state.contains(&"approved".to_string()) {
-            approved = true;
+        if query.state.contains(&"published".to_string()) {
+            published = true;
         }
         diesel::update(dsl::report_notes.filter(dsl::id.eq(query.id)))
-            .set(dsl::approved.eq(approved))
+            .set(dsl::published.eq(published))
             .execute(&conn)
             .map_err(Error::from)?;
 

@@ -195,7 +195,7 @@ table! {
         creator_id -> Int8,
         creator_name -> Text,
         city_id -> Int8,
-        approved -> Bool,
+        published -> Bool,
         meta -> Array<Text>,
         ts -> Timestamp,
     }

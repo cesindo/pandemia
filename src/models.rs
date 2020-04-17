@@ -515,7 +515,7 @@ pub struct ReportNote {
     pub creator_id: ID,
     pub creator_name: String,
     pub city_id: ID,
-    pub approved: bool,
+    pub published: bool,
     pub meta: Vec<String>,
     pub ts: NaiveDateTime,
 }

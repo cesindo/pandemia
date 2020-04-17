@@ -94,23 +94,23 @@
               <div class="thirteen wide column">
                 <div class="ui statistics">
                   <div class="blue statistic">
-                    <div class="value">{{total_odp}}</div>
+                    <div class="value stat-num">{{total_odp}}</div>
                     <div class="label">ODP</div>
                   </div>
                   <div class="orange statistic">
-                    <div class="value">{{total_pdp}}</div>
+                    <div class="value stat-num">{{total_pdp}}</div>
                     <div class="label">PDP</div>
                   </div>
                   <div class="red statistic">
-                    <div class="value">{{total_cases}}</div>
+                    <div class="value stat-num">{{total_cases}}</div>
                     <div class="label">COVID-19</div>
                   </div>
                   <div class="green statistic">
-                    <div class="value">{{total_recovered}}</div>
+                    <div class="value stat-num">{{total_recovered}}</div>
                     <div class="label">Sembuh</div>
                   </div>
                   <div class="grey statistic">
-                    <div class="value">{{total_deaths}}</div>
+                    <div class="value stat-num">{{total_deaths}}</div>
                     <div class="label">Meninggal</div>
                   </div>
                 </div>
@@ -524,5 +524,10 @@ table.village-data, table.district-data {
     background-color: #c7f7c3 !important;
   }
 }
+
+#app div.stat-num {
+  font-size: 2rem!important;  
+}
+
 </style>
 

@@ -1,0 +1,1 @@
+ALTER TABLE report_notes RENAME approved TO published;
