@@ -5,6 +5,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:meta/meta.dart';
+import 'package:package_info/package_info.dart';
 import 'package:pandemia_mobile/api/pandemia_api.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_event.dart';
 import 'package:pandemia_mobile/blocs/pandemia/pandemia_state.dart';
@@ -36,8 +37,8 @@ class PandemiaBloc extends Bloc<PandemiaEvent, PandemiaState> {
     if (event is StartupEvent) {
       print("Got startup event");
       yield* _mapStartupToState(event);
-      // } else if (event is LoggedOut) {
-      //   yield* _mapLoggedOutToState(event);
+    } else if (event is CheckForUpdate) {
+      yield* _mapCheckForUpdateToState(event);
     }
   }
 
@@ -168,4 +169,29 @@ class PandemiaBloc extends Bloc<PandemiaEvent, PandemiaState> {
   //   yield AuthenticationUnauthenticated();
   // }
 
+  Stream<PandemiaState> _mapCheckForUpdateToState(CheckForUpdate event) async* {
+    PackageInfo pInfo = await PackageInfo.fromPlatform();
+
+    String platform = "unknown";
+    if (Platform.isAndroid) {
+      platform = "android";
+    } else if (Platform.isIOS) {
+      platform = "ios";
+    } else if (Platform.isWindows) {
+      // realy?
+      platform = "windows";
+    }
+
+    final data = await PublicApi.get(
+        "/system/v1/check_version?version=${pInfo.version}&platform=$platform");
+
+    if (data != null) {
+      if (data["result"] != null) {
+        if (data["result"]["new_update"] != null && data["result"]["new_update"] != "") {
+          yield PandemiaNewUpdateAvailable(data["new_update"], data["notes"]);
+          yield PandemiaReady();
+        }
+      }
+    }
+  }
 }

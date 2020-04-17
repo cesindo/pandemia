@@ -62,8 +62,8 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
   ];
   List<String> statuses = ["ODP", "PDP"];
   List<Map<String, String>> addInfo = [
-    {"no": "1", "info": "Datang dari zona merah"},
-    {"no": "2", "info": "Bergejala COVID-19"},
+    {"no": "from_red_zone", "info": "Datang dari zona merah"},
+    {"no": "has_symptoms", "info": "Bergejala COVID-19"},
   ];
   List<String> addInfoSelected = [];
   List<String> keluhan = [
@@ -225,6 +225,7 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
                   textChanged: (text) => currentText = text,
                   decoration: new InputDecoration(labelText: "Datang Dari"),
                   controller: _fromCtl,
+                  
                 ),
                 TextFormField(
                   decoration: InputDecoration(labelText: "Tanggal Kedatangan"),
@@ -327,7 +328,8 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
                               _comingDateCtl.text,
                               _necessityCtl.text,
                               _valStatus,
-                              keluhanSelected));
+                              keluhanSelected,
+                              addInfoSelected));
                         } else {
                           subReportBloc.dispatch(UpdateSubReport(
                               item.id,
@@ -339,7 +341,8 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
                               _comingDateCtl.text,
                               _necessityCtl.text,
                               _valStatus,
-                              keluhanSelected));
+                              keluhanSelected,
+                              addInfoSelected));
                         }
                       }
                     },

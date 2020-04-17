@@ -27,6 +27,12 @@ impl Service for SystemService {
     }
 }
 
+#[derive(Deserialize)]
+pub struct CheckVersion {
+    pub version: String,
+    pub platform: String,
+}
+
 /// Contoh API public untuk service contoh [[SystemService]].
 struct PublicApi {}
 
@@ -37,5 +43,18 @@ impl PublicApi {
     pub fn info(state: &AppState, query: ()) -> JsonValue {
         Ok(json!({ "version": env!("CARGO_PKG_VERSION"), 
                 "build": env!("BUILD_INFO"), "git": env!("GIT_REV") }))
+    }
+
+    /// check for new version
+    #[api_endpoint(path = "/check_version", auth = "optional")]
+    pub fn check_version(state: &AppState, query: CheckVersion) -> JsonValue {
+        // @TODO(Rboin): code here
+        Ok(json!({
+            "code": 0,
+            "description": "",
+            "result": {
+                "new_update": "", "notes": ""
+            }
+        }))
     }
 }

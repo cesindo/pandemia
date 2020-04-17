@@ -5,7 +5,7 @@
         :key="tableSubReports"
         data-source-url="/pandemia/v1/sub_report/search"
         add-params="status=-1"
-        :columns="['ID', 'Nama', 'Desa', 'Umur', 'Tempat Tinggal', 'JK', 'Datang Dari', 'Status', 'Catatan Kesehatan', 'Catatan', 'Penginput', 'Operasi']"
+        :columns="['ID', 'Nama', 'Desa', 'Umur', 'Tempat Tinggal', 'JK', 'Status', 'Catatan & Info Tambahan', 'Pendata', 'Operasi']"
         :searchable="true"
         :withActionButton="false"
         :showDetailFunc="showDetail"
@@ -34,18 +34,29 @@
           <td>{{self.item['age']}}</td>
           <td>{{self.item['residence_address']}}</td>
           <td>{{self.item['gender'] == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
+          <td>{{self.item['status']}}</td>
           <td>
-            {{self.item['coming_from'] }}
+            {{self.item['notes'] }}
+            <div v-if="self.item['coming_from'] != ''">
+              datang dari:
+              {{self.item['coming_from'] }}
+              <div>
+                {{
+                self.item['coming_from'] != null && self.item['coming_from'].length > 0 ?
+                " @ " + self.item['arrival_date'] : "-"
+                }}
+              </div>
+            </div>
+
             <div>
-              {{
-              self.item['coming_from'] != null && self.item['coming_from'].length > 0 ?
-              " @ " + self.item['arrival_date'] : "-"
-              }}
+              {{self.item['healthy_notes']}}
+              <br />
+              {{self.item['from_red_zone'] ? 'Dari zona merah' : 'Tidak dari zona merah'}},
+              <br />
+              {{self.item['has_symptoms'] ? 'Bergejala' : 'Tidak bergejala'}}
+              <br />
             </div>
           </td>
-          <td>{{self.item['status']}}</td>
-          <td>{{self.item['healthy_notes'] }}</td>
-          <td>{{self.item['notes'] }}</td>
           <td>{{self.item['creator_name']}} {{ self.item['created_by_admin'] ? '(admin)' : '' }}</td>
           <td style="width: 120px;">
             <!-- <button
@@ -186,6 +197,24 @@
                           <option v-if="adminMode" value="death">MENINGGAL</option>
                         </select>
                       </div>
+
+                      <div class="ui top attached segment">
+                        <div class="ui header">Info Tambahan</div>
+
+                        <div class="field">
+                          <div class="ui checkbox">
+                            <input type="checkbox" name="FromRedZone" id="FromRedZone" v-model="fromRedZone" />
+                            <label>Dari zona merah</label>
+                          </div>
+                        </div>
+
+                        <div class="field">
+                          <div class="ui checkbox">
+                            <input type="checkbox" name="DasSymptoms" id="DasSymptoms" v-model="hasSymptoms" />
+                            <label>Punya gejala COVID-19</label>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -317,7 +346,10 @@ export default {
       villageName: "",
       districtName: "",
       villageSuggestions: [],
-      districtSuggestions: []
+      districtSuggestions: [],
+
+      fromRedZone: false,
+      hasSymptoms: false
     };
   },
   computed: {
@@ -354,9 +386,7 @@ export default {
     });
   },
   methods: {
-    clickHandler(_) {
-
-    },
+    clickHandler(_) {},
     onSelected(item) {
       this.villageName = item.item;
       this.query = item.item;
@@ -378,17 +408,8 @@ export default {
     edit(item) {
       this.editMode = true;
       this.toEdit = item;
-
-      // var village = this.$refs["villageInput"].value,
-      //   name = this.$refs["nameInput"].value,
-      //   address = this.$refs["addAddressInput"].value,
-      //   age = this.$refs["addAgeInput"].value,
-      //   addGender = this.$refs["addGender"].value,
-      //   addComeFrom = this.$refs["addComeFromInput"].value,
-      //   arrivalDate = this.date,
-      //   notes = this.$refs["addNotesInput"].value,
-      //   addStatus = this.$refs["addStatus"].value;
-
+      this.fromRedZone = item['from_red_zone'] == true;
+      this.hasSymptoms = item['has_symptoms'] == true;
       this.$modal.show("AddData");
     },
     approve(item) {
@@ -615,7 +636,7 @@ export default {
       this.$refs["nameInput"].focus();
 
       this.query = this.toEdit.reporter_village;
-      this.villageName = this.this.toEdit.reporter_village;
+      this.villageName = this.toEdit.reporter_village;
       this.queryDistrict = this.toEdit.reporter_district;
       this.districtName = this.toEdit.reporter_district;
       this.$refs["nameInput"].value = this.toEdit.full_name;

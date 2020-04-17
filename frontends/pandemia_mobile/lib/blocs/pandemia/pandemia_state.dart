@@ -53,3 +53,13 @@ class LoadingSetting extends PandemiaState {
   @override
   String toString() => "LoadingSetting";
 }
+
+class PandemiaNewUpdateAvailable extends PandemiaState {
+  final String version;
+  final String notes;
+
+  PandemiaNewUpdateAvailable(this.version, this.notes);
+
+  @override
+  String toString() => "PandemiaNewUpdateAvailable";
+}

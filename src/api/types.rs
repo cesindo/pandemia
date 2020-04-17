@@ -456,6 +456,8 @@ pub struct SubReport {
     pub created_by_admin: bool,
     pub reporter_village: String,
     pub reporter_district: String,
+    pub from_red_zone: bool,
+    pub has_symptoms: bool,
 }
 
 impl ToApiType<SubReport> for models::SubReport {
@@ -482,6 +484,8 @@ impl ToApiType<SubReport> for models::SubReport {
             created_by_admin: list_has_flag!(self.meta, "updated_by_admin"),
             reporter_village: meta_value_str!(self, "village", "=").to_owned(),
             reporter_district: meta_value_str!(self, "district", "=").to_owned(),
+            from_red_zone: list_has_flag!(self.meta, "from_red_zone"),
+            has_symptoms: list_has_flag!(self.meta, "has_symptoms"),
         }
     }
 }

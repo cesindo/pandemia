@@ -45,6 +45,7 @@ class SubReportBloc extends Bloc<SubReportEvent, SubReportState> {
       "notes": event.notes,
       "status": event.status.toLowerCase(),
       "complaint": event.complaint,
+      "add_info": event.addInfo,
     };
 
     final data =
@@ -115,6 +116,7 @@ class SubReportBloc extends Bloc<SubReportEvent, SubReportState> {
       "notes": event.notes,
       "status": event.status.toLowerCase(),
       "complaint": event.complaint,
+      "add_info": event.addInfo,
     };
     yield* PublicApi.post("/pandemia/v1/sub_report/add", payload).then((data) {
       if (data != null) {

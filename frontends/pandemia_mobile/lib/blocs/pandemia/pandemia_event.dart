@@ -40,3 +40,8 @@ class LoggedOut extends PandemiaEvent {
   String toString() => 'LoggedOut';
 }
 
+class CheckForUpdate extends PandemiaEvent {
+  CheckForUpdate();
+  @override
+  String toString() => "CheckForUpdate";
+}

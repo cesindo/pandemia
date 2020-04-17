@@ -27,6 +27,7 @@ class CreateSubReport extends SubReportEvent {
   final String notes;
   final String status;
   final List<String> complaint;
+  final List<String> addInfo;
 
   CreateSubReport(
       this.fullName,
@@ -37,7 +38,9 @@ class CreateSubReport extends SubReportEvent {
       this.arrivalDate,
       this.notes,
       this.status,
-      this.complaint);
+      this.complaint,
+      this.addInfo,
+      );
   @override
   String toString() => "CreateSubReport";
 }
@@ -53,6 +56,7 @@ class UpdateSubReport extends SubReportEvent {
   final String notes;
   final String status;
   final List<String> complaint;
+  final List<String> addInfo;
 
   UpdateSubReport(
       this.id,
@@ -64,7 +68,8 @@ class UpdateSubReport extends SubReportEvent {
       this.arrivalDate,
       this.notes,
       this.status,
-      this.complaint);
+      this.complaint,
+      this.addInfo);
   @override
   String toString() => "UpdateSubReport";
 }

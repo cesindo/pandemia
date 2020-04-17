@@ -373,8 +373,8 @@ h2 {
 }
 div.map-view {
   width: 520px;
-  height: 600px;
-  background-image: url("/img/peta-wonosobo.png");
+  height: 700px;
+  background-image: url("/img/peta-wonosobo.jpeg");
   background-repeat: no-repeat;
 }
 

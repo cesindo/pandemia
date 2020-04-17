@@ -67,6 +67,16 @@ class HomeScreen extends StatelessWidget {
 
     new Future.delayed(Duration.zero, () {
       NotificationUtil().init(context, notifBloc, feedBloc);
+      pandemiaBloc.state.listen((PandemiaState state) {
+        if (state is PandemiaNewUpdateAvailable) {
+          _scaffoldKey.currentState.showSnackBar(SnackBar(
+            content: Text("Pandemia versi ${state.version} telah tersedia, segera lakukan update!"),
+            backgroundColor: Colors.blue,
+            behavior: SnackBarBehavior.fixed,
+          ));
+        }
+      });
+      pandemiaBloc.dispatch(CheckForUpdate());
     });
 
     List<CustomPopupMenuItem> choices = [];
@@ -81,17 +91,21 @@ class HomeScreen extends StatelessWidget {
     choices.add(CustomPopupMenuItem(4, "Tentang", Icons.info));
 
     void _selectedChoice(CustomPopupMenuItem choice) {
-
-      if (choice.index == 0 || choice.index == 1){
-        if (currentUser?.isBlocked == true){
-          _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text("Akun anda telah diblokir"), backgroundColor: Colors.red,));
+      if (choice.index == 0 || choice.index == 1) {
+        if (currentUser?.isBlocked == true) {
+          _scaffoldKey.currentState.showSnackBar(SnackBar(
+            content: Text("Akun anda telah diblokir"),
+            backgroundColor: Colors.red,
+          ));
           return;
         }
       }
       if (choice.index == 0) {
         Navigator.push(
-                context, MaterialPageRoute(builder: (context) => ProfileEditPage(profileBloc: profileBloc)))
-            .then((result) {
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    ProfileEditPage(profileBloc: profileBloc))).then((result) {
           if (result != null) {
             choices.clear();
             choices.add(CustomPopupMenuItem(1, "Data ODP/PDP", Icons.list));
@@ -129,7 +143,7 @@ class HomeScreen extends StatelessWidget {
               content: Text("Terimakasih, laporan Anda telah terkirim"),
               backgroundColor: Colors.green,
             ));
-          }//else{
+          } //else{
           //   _scaffoldKey.currentState.showSnackBar(SnackBar(
           //     content: Text("Laporan gagal terkirim"),
           //     backgroundColor: Colors.red,
@@ -138,8 +152,7 @@ class HomeScreen extends StatelessWidget {
         });
       } else if (choice.index == 3) {
         Navigator.of(context)
-            .push(MaterialPageRoute(
-                builder: (context) => WebTokenPage()));
+            .push(MaterialPageRoute(builder: (context) => WebTokenPage()));
       } else if (choice.index == 4) {
         Navigator.of(context).pushNamed(PandemiaRoutes.about);
       }

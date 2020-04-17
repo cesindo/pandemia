@@ -99,6 +99,7 @@ pub struct AddSubReport {
     pub notes: String,
     pub status: String,
     pub complaint: Option<Vec<String>>,
+    pub add_info: Option<Vec<String>>,
     #[validate(length(max = 100))]
     pub village_name: Option<String>,
     #[validate(length(max = 100))]
@@ -278,6 +279,24 @@ impl PublicApi {
 
         meta.push(format!("village={}", village_name));
         meta.push(format!("district={}", district_name));
+        if let Some(add_info) = query.add_info.as_ref() {
+            if add_info
+                .iter()
+                .map(|a| a.as_str())
+                .collect::<Vec<&str>>()
+                .contains(&"from_red_zone")
+            {
+                meta.push(format!(":from_red_zone:"));
+            }
+            if add_info
+                .iter()
+                .map(|a| a.as_str())
+                .collect::<Vec<&str>>()
+                .contains(&"has_symptoms")
+            {
+                meta.push(format!(":has_symptoms:"));
+            }
+        }
 
         let status: SubReportStatus = query.status.as_str().into();
 
@@ -313,16 +332,16 @@ impl PublicApi {
                 )?;
 
                 {
-                    let mut meta = vec![];
+                    // let mut meta = vec![];
 
-                    if let Some(ca) = current_admin.as_ref() {
-                        meta.push(":updated_by_admin:".to_string());
-                        meta.push(format!("updated_by_admin_name={}", ca.name));
-                        meta.push(format!("updated_by_admin_id={}", ca.id));
-                    }
+                    // if let Some(ca) = current_admin.as_ref() {
+                    //     meta.push(":updated_by_admin:".to_string());
+                    //     meta.push(format!("updated_by_admin_name={}", ca.name));
+                    //     meta.push(format!("updated_by_admin_id={}", ca.id));
+                    // }
 
-                    meta.push(format!("village={}", village_name));
-                    meta.push(format!("district={}", district_name));
+                    // meta.push(format!("village={}", village_name));
+                    // meta.push(format!("district={}", district_name));
 
                     debug!(
                         "city_id={}, district_id={}, village_id={}",
@@ -467,62 +486,172 @@ impl PublicApi {
     }
 
     /// Update Sub Report.
-    #[api_endpoint(path = "/sub_report/update", auth = "required", accessor = "user", mutable)]
+    #[api_endpoint(
+        path = "/sub_report/update",
+        auth = "required",
+        accessor = "user,admin",
+        mutable
+    )]
     pub fn update_sub_report(query: UpdateSubReport) -> ApiResult<models::SubReport> {
         query.validate()?;
         let conn = state.db();
         let dao = SubReportDao::new(&conn);
 
-        if !current_user.is_satgas() {
-            return param_error("Anda tidak dapat menambahkan data")?;
+        let mut current_user_id = 0;
+        let mut city_id = 0;
+        let mut village_id = 0;
+
+        let subr = dao.get_by_id(query.id)?;
+
+        let old_status: SubReportStatus = subr.status.into();
+
+        if let Some(current_user) = current_user {
+            if !current_user.is_satgas() {
+                return param_error("Anda tidak dapat menambahkan data")?;
+            }
+            if current_user.is_blocked() || current_user.is_deleted() {
+                return unauthorized();
+            }
+            // let area_code = match current_user.get_area_code() {
+            //     "" => return param_error("Anda tidak terdaftar pada area manapun"),
+            //     a => a,
+            // };
+            city_id = match current_user.get_city_id() {
+                None => return param_error("Anda tidak terdaftar pada area manapun (no city_id)"),
+                Some(a) => a,
+            };
+            village_id = match current_user.get_village_id() {
+                None => return param_error("Anda tidak terdaftar pada area manapun (no village_id)"),
+                Some(a) => a,
+            };
+
+            if subr.city_id != city_id {
+                return unauthorized();
+            }
+            if subr.village_id != village_id {
+                return unauthorized();
+            }
+
+            current_user_id = current_user.id;
         }
 
-        if current_user.is_blocked() || current_user.is_deleted() {
-            return unauthorized();
-        }
+        // apabila admin hanya admin pada city tertentu yg boleh update
+        if let Some(current_admin) = current_admin {
+            if current_admin.id != 1 {
+                city_id = match current_admin.get_city_id() {
+                    None => return param_error("Anda tidak terdaftar pada area ini"),
+                    Some(a) => a,
+                };
 
-        let area_code = match current_user.get_area_code() {
-            "" => return param_error("Anda tidak terdaftar pada area manapun"),
-            a => a,
-        };
-        let city_id = match current_user.get_city_id() {
-            None => return param_error("Anda tidak terdaftar pada area manapun (no city_id)"),
-            Some(a) => a,
-        };
-        let village_id = match current_user.get_village_id() {
-            None => return param_error("Anda tidak terdaftar pada area manapun (no village_id)"),
-            Some(a) => a,
-        };
-        let district_id = VillageDao::new(&conn).get_by_id(village_id)?.district_id;
-
-        let mut healthy: HealthyKind = HealthyKind::Health;
-        let mut meta: Vec<String> = Vec::new();
-        if let Some(complaint) = &query.complaint.as_ref() {
-            if complaint.len() > 0 {
-                healthy = HealthyKind::Sick;
-                meta.push(format!("gejala={}", complaint.join(",")))
+                if subr.city_id != city_id {
+                    return unauthorized();
+                }
             }
         }
-        let status: SubReportStatus = query.status.as_str().into();
 
-        let sub_report = dao.update(
-            query.id,
-            sub_report_dao::UpdateSubReport {
-                full_name: &query.full_name,
-                age: query.age,
-                residence_address: &query.residence_address,
-                gender: &query.gender,
-                coming_from: &query.coming_from,
-                arrival_date: query.arrival_date,
-                healthy: healthy as i32,
-                notes: &query.notes,
-                status: status as i32,
-                meta: &meta.iter().map(|a| a.as_ref()).collect::<Vec<&str>>(),
-                city_id,
-                district_id,
-                village_id,
-            },
-        )?;
+        let sub_report = conn
+            .build_transaction()
+            .read_write()
+            .run::<_, crate::error::Error, _>(|| {
+                let village = VillageDao::new(&conn).get_by_id(village_id)?;
+
+                let mut healthy: HealthyKind = HealthyKind::Health;
+                let mut meta: Vec<String> = Vec::new();
+                if let Some(complaint) = &query.complaint.as_ref() {
+                    if complaint.len() > 0 {
+                        healthy = HealthyKind::Sick;
+                        meta.push(format!("gejala={}", complaint.join(",")))
+                    }
+                }
+                let new_status: SubReportStatus = query.status.as_str().into();
+
+                let sub_report = dao.update(
+                    query.id,
+                    sub_report_dao::UpdateSubReport {
+                        full_name: &query.full_name,
+                        age: query.age,
+                        residence_address: &query.residence_address,
+                        gender: &query.gender,
+                        coming_from: &query.coming_from,
+                        arrival_date: query.arrival_date,
+                        healthy: healthy as i32,
+                        notes: &query.notes,
+                        status: new_status as i32,
+                        meta: &meta.iter().map(|a| a.as_ref()).collect::<Vec<&str>>(),
+                        city_id,
+                        district_id: subr.district_id,
+                        village_id: village.id,
+                    },
+                )?;
+
+                let (odp, pdp, cases, recovered, deaths) = match old_status {
+                    SubReportStatus::ODP => (-1, 0, 0, 0, 0),
+                    SubReportStatus::PDP => (0, -1, 0, 0, 0),
+                    SubReportStatus::Positive => (0, 0, -1, 0, 0),
+                    SubReportStatus::Recovered => (0, 0, 0, -1, 0),
+                    SubReportStatus::Death => (0, 0, 0, 0, -1),
+                    _ => return Err(Error::InvalidParameter("Status tidak valid".to_owned()))?,
+                };
+
+                VillageDataDao::new(&conn).update(
+                    subr.village_id,
+                    odp,
+                    pdp,
+                    cases,
+                    recovered,
+                    deaths,
+                    current_user_id,
+                    &subr.meta.iter().map(|a| a.as_str()).collect(),
+                    subr.city_id,
+                )?;
+
+                DistrictDataDao::new(&conn).update(
+                    subr.district_id,
+                    odp,
+                    pdp,
+                    cases,
+                    recovered,
+                    deaths,
+                    current_user_id,
+                    subr.city_id,
+                    &subr.meta.iter().map(|a| a.as_str()).collect(),
+                )?;
+
+                let (odp, pdp, cases, recovered, deaths) = match new_status {
+                    SubReportStatus::ODP => (1, 0, 0, 0, 0),
+                    SubReportStatus::PDP => (0, 1, 0, 0, 0),
+                    SubReportStatus::Positive => (0, 0, 1, 0, 0),
+                    SubReportStatus::Recovered => (0, 0, 0, 1, 0),
+                    SubReportStatus::Death => (0, 0, 0, 0, 1),
+                    _ => return Err(Error::InvalidParameter("Status tidak valid".to_owned()))?,
+                };
+
+                VillageDataDao::new(&conn).update(
+                    subr.village_id,
+                    odp,
+                    pdp,
+                    cases,
+                    recovered,
+                    deaths,
+                    current_user_id,
+                    &subr.meta.iter().map(|a| a.as_str()).collect(),
+                    subr.city_id,
+                )?;
+
+                DistrictDataDao::new(&conn).update(
+                    subr.district_id,
+                    odp,
+                    pdp,
+                    cases,
+                    recovered,
+                    deaths,
+                    current_user_id,
+                    subr.city_id,
+                    &subr.meta.iter().map(|a| a.as_str()).collect(),
+                )?;
+                Ok(sub_report)
+            })?;
+
         Ok(ApiResult::success(sub_report))
     }
 
