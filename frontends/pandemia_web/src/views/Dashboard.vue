@@ -14,7 +14,7 @@
     </div>
 
     <div class="dashboard-inner" v-bind:style="customMargin">
-      <h1>{{ pageTitle }} | Wonosobo</h1>
+      <h1>{{ pageTitle }}</h1>
 
       <div v-if="currentPage['/dashboard']">
         <div class="ui placeholder segment center aligned">
@@ -30,6 +30,7 @@
       />
 
       <Records v-if="currentPage['/dashboard/records']" />
+      <VillageData v-if="currentPage['/dashboard/village-data']" />
 
       <AdminDetail
         baseApiUrl="/admin/v1/detail"
@@ -44,18 +45,24 @@
 
       <Villages v-if="currentPage['/dashboard/villages']" />
 
-      <Satgas v-if="currentPage['/dashboard/satgas'] && userAccesses.indexOf('satgas') > -1" />
+      <Satgas v-if="currentPage['/dashboard/satgas'] && (userAccesses.indexOf('satgas') > -1 || isSuperAdmin)" />
       <SatgasDetail
-        v-if="$route.path.startsWith('/dashboard/satgas/') && userAccesses.indexOf('satgas') > -1"
+        v-if="$route.path.startsWith('/dashboard/satgas/') && (userAccesses.indexOf('satgas') > -1 || isSuperAdmin)"
         baseApiUrl="/user/v1/satgas/detail"
         :userId="$route.params.id"
       />
-      <SubReports v-if="currentPage['/dashboard/data'] && userAccesses.indexOf('data') > -1" :addable="true" />
+      <SubReports
+        v-if="currentPage['/dashboard/data'] && (userAccesses.indexOf('data') > -1 || isSuperAdmin)"
+        :addable="true"
+        :adminMode="true"
+      />
       <ReportNotes
-        v-if="currentPage['/dashboard/reports'] && userAccesses.indexOf('report_notes') > -1"
+        v-if="currentPage['/dashboard/reports'] && (userAccesses.indexOf('report_notes') > -1 || isSuperAdmin)"
       />
 
-      <Logs v-if="currentPage['/dashboard/journal']" />
+      <Logs v-if="currentPage['/dashboard/journal'] && isSuperAdmin" />
+
+      <div v-if="currentPage['/dashboard/hospital'] || currentPage['/dashboard/map']">Coming soon</div>
     </div>
 
     <notifications group="default" position="top center" classes="vue-notification" />
@@ -76,6 +83,7 @@ import ReportNotes from "@/views/ReportNotes.vue";
 import SubReports from "@/views/SubReports.vue";
 import Satgas from "@/views/Satgas.vue";
 import SatgasDetail from "@/views/SatgasDetail.vue";
+import VillageData from "@/views/VillageData.vue";
 
 export default {
   name: "Dashboard",
@@ -91,7 +99,8 @@ export default {
     ReportNotes,
     SubReports,
     Satgas,
-    SatgasDetail
+    SatgasDetail,
+    VillageData
   },
   data() {
     return {
@@ -136,24 +145,18 @@ export default {
           access: "satgas"
         },
         {
-          title: "Hospital",
-          icon: "fa fa-hotel",
-          href: "/dashboard/hospital",
-          access: "hospital"
-        },
-        {
-          title: "Map",
-          icon: "fa fa-globe-asia",
-          href: "/dashboard/map"
-        },
-        {
-          title: "Villages",
+          title: "Desa",
           icon: "fa fa-campground",
           href: "/dashboard/villages"
         },
         {
-          title: "Data",
+          title: "Data Desa",
           icon: "fa fa-file-alt",
+          href: "/dashboard/village-data",
+        },
+        {
+          title: "Data Perorang",
+          icon: "fa fa-address-book",
           href: "/dashboard/data",
           access: "data"
         },
@@ -162,6 +165,17 @@ export default {
           icon: "fa fa-comment-dots",
           href: "/dashboard/reports",
           access: "report_notes"
+        },
+        {
+          title: "Rumah Sakit",
+          icon: "fa fa-hotel",
+          href: "/dashboard/hospital",
+          access: "hospital"
+        },
+        {
+          title: "Peta",
+          icon: "fa fa-globe-asia",
+          href: "/dashboard/map"
         },
         {
           title: "Log/Journal",
@@ -185,6 +199,9 @@ export default {
       } else {
         return this.menu_items;
       }
+    },
+    isSuperAdmin(){
+      return this.$session.get("user_id") == 1;
     }
   },
   created() {
@@ -232,7 +249,7 @@ export default {
       console.log(_event);
       if (item.title == "Logout") {
         this.$dialog
-          .confirm("Are you sure to logout?")
+          .confirm("Yakin untuk keluar?")
           .then(_dialog => {
             this.$pandemia.unauthorize();
             this.$router.replace("/");

@@ -10,6 +10,7 @@ use crate::{
     models::{User, Village, VillageData},
     result::Result,
     schema::village_data,
+    sqlutil::lower,
     types::EntriesResult,
     util, ID,
 };
@@ -134,11 +135,55 @@ impl<'a> VillageDataDao<'a> {
             dsl::village_data
                 .inner_join(dslv::villages)
                 .filter(dsl::city_id.eq(&city_id))
+                .order(dsl::last_updated.desc())
                 .offset(offset)
                 .limit(limit)
                 .load::<(VillageData, Village)>(self.db)?,
             dsl::village_data
                 .filter(dsl::city_id.eq(&city_id))
+                .select(diesel::dsl::count(dsl::id))
+                .first(self.db)?,
+        ))
+    }
+
+    /// Search for specific village_data
+    pub fn search(
+        &self,
+        district_name: Option<&str>,
+        // village_name: Option<&str>,
+        query: &str,
+        offset: i64,
+        limit: i64,
+    ) -> Result<EntriesResult<(VillageData, Village)>> {
+        use crate::schema::village_data::{self, dsl};
+        use crate::schema::villages::{self, dsl as dslv};
+
+        let like_clause = format!("%{}%", query.to_lowercase());
+
+        let mut filterer: Box<dyn BoxableExpression<_, _, SqlType = sql_types::Bool>> =
+            Box::new(dsl::id.ne(0));
+
+        filterer = Box::new(filterer.and(lower(dslv::name).like(&like_clause)));
+
+        // if let Some(village_name) = village_name {
+        //     filterer = Box::new(filterer.and(dsl::meta.contains(vec![format!("village={}", village_name)])));
+        // }
+        if let Some(district_name) = district_name {
+            filterer =
+                Box::new(filterer.and(dsl::meta.contains(vec![format!("district={}", district_name)])));
+        }
+
+        Ok(EntriesResult::new(
+            dsl::village_data
+                .inner_join(dslv::villages)
+                .filter(&filterer)
+                .offset(offset)
+                .order(dsl::last_updated.desc())
+                .limit(limit)
+                .load::<(VillageData, Village)>(self.db)?,
+            dsl::village_data
+                .inner_join(dslv::villages)
+                .filter(filterer)
                 .select(diesel::dsl::count(dsl::id))
                 .first(self.db)?,
         ))

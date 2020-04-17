@@ -121,7 +121,7 @@
               <div class="fourteen wide column">
                 <div class="map-view">
                   <div
-                    v-for="m in mapMarkers"
+                    v-for="m in districtData"
                     v-bind:key="m.id"
                     class="marker"
                     :id=" 'M' + m.district_name"
@@ -135,7 +135,31 @@
           </div>
 
           <div class="five wide column">
-            <h1>Per Kecamatan</h1>
+            <div class="four wide column">
+              <h2>Per Kecamatan</h2>
+              <table class="ui celled table district-data">
+                <thead>
+                  <tr>
+                    <th>Kecamatan</th>
+                    <th>O</th>
+                    <th>P</th>
+                    <th>C</th>
+                    <th>S</th>
+                    <th class="death">M</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="item in districtData" v-bind:key="item.id">
+                    <td class="district-name">{{item.district_name}}</td>
+                    <td>{{item.odp}}</td>
+                    <td>{{item.pdp}}</td>
+                    <td class="positive">{{item.cases}}</td>
+                    <td class="recover">{{item.recovered}}</td>
+                    <td class="death">{{item.deaths}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
@@ -173,7 +197,7 @@ export default {
       total_cases: 0,
       total_recovered: 0,
       total_deaths: 0,
-      mapMarkers: [
+      districtData: [
         {
           name: "Kejajar",
           odp: 2,
@@ -255,7 +279,7 @@ export default {
       this.$pandemia
         .api()
         .publicApi.get(
-          `/analytic/v1/area?province=${this.province}&city=${this.city}&offset=0&limit=5`
+          `/analytic/v1/area?province=${this.province}&city=${this.city}&offset=0&limit=10`
         )
         .then(resp => {
           if (resp.data.code == 0) {
@@ -294,9 +318,9 @@ export default {
           }
         });
 
-      this.loadMapMarkers();
+      this.loaddistrictData();
     },
-    loadMapMarkers() {
+    loaddistrictData() {
       this.$pandemia
         .api()
         .publicApi.get(
@@ -304,7 +328,7 @@ export default {
         )
         .then(resp => {
           if (resp.data.code == 0) {
-            this.mapMarkers = resp.data.result.entries;
+            this.districtData = resp.data.result.entries;
           } else {
             this.showError(resp.data.description);
           }
@@ -396,10 +420,10 @@ div.map-view {
   top: 10px;
   right: 40px;
 
-  &:hover {
-    background-color: white;
-    // opacity: 50%;
-  }
+  // &:hover {
+  //   background-color: white;
+  //   // opacity: 50%;
+  // }
 }
 
 .marker#MKepil {
@@ -476,8 +500,8 @@ td {
   text-align: center !important;
 }
 
-table.village-data {
-  td.village-name {
+table.village-data, table.district-data {
+  td.village-name, td.district-name {
     font-weight: bold !important;
     text-align: left !important;
   }

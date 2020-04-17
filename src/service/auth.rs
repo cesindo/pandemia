@@ -285,7 +285,7 @@ impl PublicApi {
 
         let user = user_dao.get_by_id(user_id)?;
 
-        if !user.is_satgas() || user.is_blocked() {
+        if !user.is_satgas() || user.is_blocked() || user.is_deleted() {
             return Err(ApiError::Unauthorized);
         }
 
@@ -314,7 +314,7 @@ impl PublicApi {
     pub fn get_web_token(query: IdQuery) -> ApiResult<String> {
         let conn = state.db();
 
-        if !current_user.is_satgas() || current_user.is_blocked() {
+        if !current_user.is_satgas() || current_user.is_blocked() || current_user.is_deleted() {
             return Err(ApiError::Unauthorized);
         }
 

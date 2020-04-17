@@ -59,6 +59,9 @@ Vue.use(require('vue-moment'), {
 })
 // --- end of moment stuff ---
 
+import VueAutosuggest from "vue-autosuggest";
+Vue.use(VueAutosuggest);
+
 
 // Add utils option in components
 Vue.mixin({

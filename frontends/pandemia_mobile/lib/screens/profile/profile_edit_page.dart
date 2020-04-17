@@ -37,7 +37,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   final _areaCodeCtl = TextEditingController();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   StreamSubscription subs;
-  LatLng location;
+  // LatLng location;
   User currentUser;
   bool _isLoading = false;
   final SubReport item;
@@ -57,9 +57,9 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
       } else if (state is ProfileFailure) {
         _scaffoldKey.currentState.showSnackBar(
             SnackBar(content: Text(state.error), backgroundColor: Colors.red));
-            setState(() {
-              _isLoading = false;
-            });
+        setState(() {
+          _isLoading = false;
+        });
       } else if (state is ProfileUpdateLoading) {
         setState(() => _isLoading = true);
       }
@@ -142,23 +142,21 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                       },
                       inputFormatters: [new TitleCaseTextFormatter()],
                     ),
-                    TextFormField(
-                      controller: _locCtl,
-                      readOnly: true,
-                      onTap: () => showPlacePicker(),
-                      validator: (val) {
-                        return val.isEmpty ? "Lokasi tidak boleh kosong" : null;
-                      },
-                      decoration: InputDecoration(
-                          labelText: 'Lokasi',
-                          hintText: 'Pilih lokasi Anda',
-                          suffixIcon: Icon(Icons.location_searching)),
-                    ),
+                    // TextFormField(
+                    //   controller: _locCtl,
+                    //   readOnly: true,
+                    //   onTap: () => showPlacePicker(),
+                    //   validator: (val) {
+                    //     return val.isEmpty ? "Lokasi tidak boleh kosong" : null;
+                    //   },
+                    //   decoration: InputDecoration(
+                    //       labelText: 'Lokasi',
+                    //       hintText: 'Pilih lokasi Anda',
+                    //       suffixIcon: Icon(Icons.location_searching)),
+                    // ),
                     TextFormField(
                       textCapitalization: TextCapitalization.characters,
-                      inputFormatters: [
-                        new UpperCaseTextFormatter()
-                      ],
+                      inputFormatters: [new UpperCaseTextFormatter()],
                       keyboardType: TextInputType.text,
                       textInputAction: TextInputAction.done,
                       decoration: InputDecoration(labelText: 'Kode Daerah'),
@@ -170,7 +168,8 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                             : null;
                       },
                     ),
-                    Text("Dapatkan kode daerah dari pemerintah daerah Anda", style: TextStyle(fontSize: 15)),
+                    Text("Dapatkan kode daerah dari pemerintah daerah Anda",
+                        style: TextStyle(fontSize: 15)),
                     Container(
                       margin: EdgeInsets.only(top: 20.0, bottom: 10.0),
                       child: MaterialButton(
@@ -187,7 +186,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                                     email: _emailCtl.text.trim(),
                                     phoneNum: _phoneCtl.text,
                                     village: _villageCtl.text.capitalize()),
-                                location, _areaCodeCtl.text));
+                                _areaCodeCtl.text));
                           }
                         },
                       ),
@@ -203,22 +202,22 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
     );
   }
 
-  void showPlacePicker() async {
-    final locationData = await Location().getLocation();
-    Navigator.of(context)
-        .push(MaterialPageRoute(
-            builder: (ctx) => LocationPicker(
-                  pinPosition:
-                      LatLng(locationData.latitude, locationData.longitude),
-                )))
-        .then((result) {
-      if (result != null) {
-        GeoLocation geoLoc = result["geoloc"];
-        LatLng latLng = result["latlng"];
-        _locCtl.text =
-            "${geoLoc.subdistrict ?? "-"}, ${geoLoc.district ?? "-"}, ${geoLoc.city}, ${geoLoc.country}";
-        setState(() => location = latLng);
-      }
-    });
-  }
+//   void showPlacePicker() async {
+//     final locationData = await Location().getLocation();
+//     Navigator.of(context)
+//         .push(MaterialPageRoute(
+//             builder: (ctx) => LocationPicker(
+//                   pinPosition:
+//                       LatLng(locationData.latitude, locationData.longitude),
+//                 )))
+//         .then((result) {
+//       if (result != null) {
+//         GeoLocation geoLoc = result["geoloc"];
+//         LatLng latLng = result["latlng"];
+//         _locCtl.text =
+//             "${geoLoc.subdistrict ?? "-"}, ${geoLoc.district ?? "-"}, ${geoLoc.city}, ${geoLoc.country}";
+//         setState(() => location = latLng);
+//       }
+//     });
+//   }
 }

@@ -50,7 +50,7 @@ class _WebTokenPageState extends State<WebTokenPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("WebToken Detail"),
+        title: Text("Web Token"),
       ),
       body: _getBody(context),
     );

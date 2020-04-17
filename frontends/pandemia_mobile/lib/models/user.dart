@@ -18,10 +18,11 @@ class User extends Equatable {
   final bool isSatgas;
   final UserSettings settings; // Nullable
   final LatLng loc; // Nullable
-  final bool blocked;
+  final bool isBlocked;
+  final bool isDeleted;
 
   User(this.id, this.fullName, this.email, this.phoneNum, this.village,
-      this.isSatgas, this.settings, this.loc, this.blocked)
+      this.isSatgas, this.settings, this.loc, this.isBlocked, this.isDeleted)
       : super([
           id,
           fullName,
@@ -31,7 +32,8 @@ class User extends Equatable {
           isSatgas,
           settings,
           loc,
-          blocked
+          isBlocked,
+          isDeleted
         ]);
 
   Map<String, dynamic> toMap() {
@@ -44,7 +46,8 @@ class User extends Equatable {
     data["is_satgas"] = this.isSatgas;
     data["settings"] = this.settings != null ? this.settings.toMap() : null;
     data["loc"] = this.loc != null ? this.loc.toMap() : null;
-    data["blocked"] = this.blocked;
+    data["is_blocked"] = this.isBlocked;
+    data["is_deleted"] = this.isDeleted;
     return data;
   }
 
@@ -54,7 +57,8 @@ class User extends Equatable {
     assert(data['phone_num'] != null, "User.phone_num is null");
     assert(data['village'] != null, "User.village is null");
     assert(data['is_satgas'] != null, "User.is_satgas is null");
-    assert(data['blocked'] != null, "User.blocked is null");
+    assert(data['is_blocked'] != null, "User.is_blocked is null");
+    assert(data['is_deleted'] != null, "User.is_deleted is null");
     return User(
         data['id'] as int,
         data['full_name'] as String,
@@ -68,7 +72,8 @@ class User extends Equatable {
         data['loc'] != null
             ? LatLng(data['loc']['lat'], data['loc']['long'])
             : null,
-        data["blocked"] as bool);
+        data['is_blocked'] as bool,
+        data['is_deleted'] as bool);
   }
 
   User copy(
@@ -79,7 +84,8 @@ class User extends Equatable {
       bool isSatgas,
       UserSettings settings,
       LatLng loc,
-      bool blocked}) {
+      bool isBlocked,
+      bool isDeleted}) {
     return User(
         this.id,
         fullName ?? this.fullName,
@@ -89,6 +95,7 @@ class User extends Equatable {
         isSatgas ?? this.isSatgas,
         settings ?? this.settings,
         loc ?? this.loc,
-        blocked ?? this.blocked);
+        isBlocked ?? this.isBlocked,
+        isDeleted ?? this.isDeleted);
   }
 }

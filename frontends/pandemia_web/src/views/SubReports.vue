@@ -88,17 +88,57 @@
                   <div class="ui grid">
                     <div class="eight wide column">
                       <div class="field">
-                        <label>Desa:</label>
-                        <input ref="villageInput" type="text" name="Village" id="Village" />
-                      </div>
-                      <div class="field">
-                        <label>Kecamatan:</label>
-                        <input ref="districtInput" type="text" name="District" id="District" />
-                      </div>
-                      <div class="field">
                         <label>Nama:</label>
                         <input ref="nameInput" type="text" name="Name" id="Name" autofocus />
                       </div>
+
+                      <div v-if="adminMode" class="field">
+                        <label>Desa:</label>
+                        <!-- <input ref="villageInput" type="text" name="Village" id="Village" /> -->
+
+                        <!-- <div class="autosuggest-container"> -->
+                        <vue-autosuggest
+                          v-model="query"
+                          :suggestions="filteredOptions"
+                          @click="clickHandler"
+                          @input="onInputChange"
+                          @selected="onSelected"
+                          :get-suggestion-value="getSuggestionValue"
+                          :input-props="{id:'autosuggest__input', placeholder:'Desa'}"
+                        >
+                          <div
+                            slot-scope="{suggestion}"
+                            style="display: flex; align-items: center;"
+                          >
+                            <div style="{ display: 'flex', color: 'navyblue'}">{{suggestion.item}}</div>
+                          </div>
+                        </vue-autosuggest>
+                        <!-- </div> -->
+                      </div>
+                      <div v-if="adminMode" class="field">
+                        <label>Kecamatan:</label>
+                        <!-- <input ref="districtInput" type="text" name="District" id="District" /> -->
+
+                        <!-- <div class="autosuggest-container"> -->
+                        <vue-autosuggest
+                          v-model="queryDistrict"
+                          :suggestions="filteredDistricts"
+                          @click="clickHandler"
+                          @input="onInputChange"
+                          @selected="onDistrictSelected"
+                          :get-suggestion-value="getSuggestionValue"
+                          :input-props="{id:'autosuggest__input', placeholder:'Kecamatan'}"
+                        >
+                          <div
+                            slot-scope="{suggestion}"
+                            style="display: flex; align-items: center;"
+                          >
+                            <div style="{ display: 'flex', color: 'navyblue'}">{{suggestion.item}}</div>
+                          </div>
+                        </vue-autosuggest>
+                        <!-- </div> -->
+                      </div>
+
                       <div class="field">
                         <label>Alamat:</label>
                         <!-- <input ref="addAddressInput" type="text" name="Address" id="Address" /> -->
@@ -141,9 +181,9 @@
                         <select ref="addStatus" name="AddStatus" id="Status">
                           <option value="odp">ODP</option>
                           <option value="pdp">PDP</option>
-                          <option value="positive">POSITIVE</option>
-                          <option value="recovered">SEMBUH</option>
-                          <option value="death">MENINGGAL</option>
+                          <option v-if="adminMode" value="positive">POSITIVE</option>
+                          <option v-if="adminMode" value="recovered">SEMBUH</option>
+                          <option v-if="adminMode" value="death">MENINGGAL</option>
                         </select>
                       </div>
                     </div>
@@ -244,6 +284,7 @@ import AnsTable from "@/components/AnsTable.vue";
 // import DialogModal from "@/components/modal/DialogModal.vue";
 import BasicModal from "@/components/modal/BasicModal.vue";
 import ConfirmDialog from "@/components/modal/ConfirmDialog.vue";
+import _axios from "axios";
 
 export default {
   name: "Satgas",
@@ -254,7 +295,8 @@ export default {
     BasicModal
   },
   props: {
-    addable: { type: Boolean, default: false }
+    addable: { type: Boolean, default: false },
+    adminMode: { type: Boolean, default: false }
   },
   data() {
     return {
@@ -268,10 +310,71 @@ export default {
       date: null,
       editMode: false,
       toEdit: null,
-      isLoading: false
+      isLoading: false,
+
+      query: "",
+      queryDistrict: "",
+      villageName: "",
+      districtName: "",
+      villageSuggestions: [],
+      districtSuggestions: []
     };
   },
+  computed: {
+    filteredOptions() {
+      return [
+        {
+          data: this.villageSuggestions.filter(option => {
+            return option.toLowerCase().indexOf(this.query.toLowerCase()) > -1;
+          })
+        }
+      ];
+    },
+    filteredDistricts() {
+      return [
+        {
+          data: this.districtSuggestions.filter(option => {
+            return (
+              option.toLowerCase().indexOf(this.queryDistrict.toLowerCase()) >
+              -1
+            );
+          })
+        }
+      ];
+    }
+  },
+  mounted() {
+    _axios.get("/json/wonosobo-villages.json").then(response => {
+      console.log(response);
+      this.villageSuggestions = response.data.villages;
+    });
+    _axios.get("/json/wonosobo-districts.json").then(response => {
+      console.log(response);
+      this.districtSuggestions = response.data.districts;
+    });
+  },
   methods: {
+    clickHandler(_) {
+
+    },
+    onSelected(item) {
+      this.villageName = item.item;
+      this.query = item.item;
+    },
+    onDistrictSelected(item) {
+      this.districtName = item.item;
+      this.queryDistrict = item.item;
+    },
+    // onInputChange(text) {
+    //   // event fired when the input changes
+    //   console.log(text);
+    // },
+    getSuggestionValue(suggestion) {
+      return suggestion.item.name;
+    },
+    // focusMe(e) {
+    //   console.log(e); // FocusEvent
+    // },
     edit(item) {
       this.editMode = true;
       this.toEdit = item;
@@ -402,31 +505,44 @@ export default {
     },
     onAddDataApproved() {
       this.isLoading = true;
-      var village = this.$refs["villageInput"].value,
-        district = this.$refs["districtInput"].value,
-        name = this.$refs["nameInput"].value,
+
+      var name = this.$refs["nameInput"].value,
         address = this.$refs["addAddressInput"].value,
         age = this.$refs["addAgeInput"].value,
         addGender = this.$refs["addGender"].value,
         addComeFrom = this.$refs["addComeFromInput"].value,
-        arrivalDate = this.date,
+        // arrivalDate = this.date,
         notes = this.$refs["addNotesInput"].value,
         addStatus = this.$refs["addStatus"].value;
 
+      var payload = {
+        full_name: name,
+        age: parseInt(age),
+        residence_address: address,
+        gender: addGender,
+        coming_from: addComeFrom,
+
+        notes: notes,
+        status: addStatus
+      };
+
+      if (this.adminMode) {
+        var village = this.villageName, //this.$refs["villageInput"].value,
+          district = this.districtName;
+
+        payload["village_name"] = village;
+        payload["district_name"] = district;
+      }
+
+      let arrivalDate = this.date.replace(/T.+$/, "").trim();
+
+      if (arrivalDate != "") {
+        payload["arrival_date"] = arrivalDate;
+      }
+
       this.$pandemia
         .api()
-        .publicApi.post(`/pandemia/v1/sub_report/add`, {
-          village_name: village,
-          district_name: district,
-          full_name: name,
-          age: parseInt(age),
-          residence_address: address,
-          gender: addGender,
-          coming_from: addComeFrom,
-          arrival_date: arrivalDate.replace(/T.+$/, ""),
-          notes: notes,
-          status: addStatus
-        })
+        .publicApi.post(`/pandemia/v1/sub_report/add`, payload)
         .then(resp => {
           this.isLoading = false;
           if (resp.data.code == 0) {
@@ -442,29 +558,41 @@ export default {
         });
     },
     onDataUpdate() {
-      var village = this.$refs["villageInput"].value,
-        district = this.$refs["districtInput"].value,
-        name = this.$refs["nameInput"].value,
+      var name = this.$refs["nameInput"].value,
         address = this.$refs["addAddressInput"].value,
         age = this.$refs["addAgeInput"].value,
         addGender = this.$refs["addGender"].value,
         addComeFrom = this.$refs["addComeFromInput"].value,
-        arrivalDate = this.date,
+        // arrivalDate = this.date,
         notes = this.$refs["addNotesInput"].value,
         addStatus = this.$refs["addStatus"].value;
 
       var payload = {
-        village_name: village,
-        district_name: district,
         full_name: name,
         age: parseInt(age),
         residence_address: address,
         gender: addGender,
         coming_from: addComeFrom,
-        arrival_date: arrivalDate.replace(/T.+$/, ""),
         notes: notes,
         status: addStatus
       };
+
+      if (this.adminMode) {
+        // var village = this.$refs["villageInput"].value,
+        //   district = this.$refs["districtInput"].value;
+
+        var village = this.villageName,
+          district = this.districtName;
+
+        payload["village_name"] = village;
+        payload["district_name"] = district;
+      }
+
+      let arrivalDate = this.date.replace(/T.+$/, "").trim();
+
+      if (arrivalDate != "") {
+        payload["arrival_date"] = arrivalDate;
+      }
 
       if (this.editMode) {
         payload["id"] = this.toEdit["id"];
@@ -484,10 +612,12 @@ export default {
         });
     },
     onAddDataOpened() {
-      this.$refs["villageInput"].focus();
+      this.$refs["nameInput"].focus();
 
-      this.$refs["villageInput"].value = this.toEdit.reporter_village;
-      this.$refs["districtInput"].value = this.toEdit.reporter_district;
+      this.query = this.toEdit.reporter_village;
+      this.villageName = this.this.toEdit.reporter_village;
+      this.queryDistrict = this.toEdit.reporter_district;
+      this.districtName = this.toEdit.reporter_district;
       this.$refs["nameInput"].value = this.toEdit.full_name;
       this.$refs["addAddressInput"].value = this.toEdit.residence_address;
       this.$refs["addAgeInput"].value = this.toEdit.age;
@@ -512,5 +642,40 @@ p.sample {
   background-color: grey;
   color: white;
   padding: 10px;
+}
+
+ul {
+  width: 100%;
+  color: rgba(30, 39, 46, 1);
+  list-style: none;
+  margin: 0;
+  padding: 0.5rem 0 0.5rem 0;
+}
+li {
+  margin: 0 0 0 0;
+  border-radius: 5px;
+  padding: 0.75rem 0 0.75rem 0.75rem;
+  display: flex;
+  align-items: center;
+}
+li:hover {
+  cursor: pointer;
+}
+
+.autosuggest-container,
+.autosuggest__results {
+  position: absolute;
+  justify-content: center;
+  width: 280px;
+  background-color: white;
+  border: 1px solid #cacaca;
+}
+
+#autosuggest {
+  width: 100%;
+  display: block;
+}
+.autosuggest__results-item--highlighted {
+  background-color: rgba(51, 217, 178, 0.2);
 }
 </style>

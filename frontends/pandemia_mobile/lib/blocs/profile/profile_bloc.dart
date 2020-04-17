@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:location/location.dart';
 import 'package:pandemia_mobile/api/pandemia_api.dart';
 import 'package:pandemia_mobile/blocs/profile/profile_event.dart';
 import 'package:pandemia_mobile/blocs/profile/profile_state.dart';
@@ -43,12 +44,24 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     final userRepository = UserRepository();
     final oldData = await userRepository.getLocalUserInfo();
 
+
+    LocationData locationData;
+    try {
+      locationData = await Location().getLocation();
+    } catch (e) {
+      print("GET LOC ERROR: $e");
+      yield ProfileFailure(error:
+          "Gagal mendapatkan lokasi, pastikan Pandemia memiliki ijin untuk menggunakan lokasi di setelan HP Anda");
+      return;
+    }
+
+
     Map<String, dynamic> payload = {
       "full_name": event.user.fullName,
       "phone_num": event.user.phoneNum,
       "village": event.user.village,
-      "latitude": event.location.latitude,
-      "longitude": event.location.longitude,
+      "latitude": locationData.latitude,
+      "longitude": locationData.longitude,
       "area_code": event.areaCode
     };
 
@@ -61,8 +74,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           if (data != null) {
             User updated = event.user.copy(
                 isSatgas: true,
-                settings: oldData.settings,
-                loc: event.location);
+                settings: oldData.settings);
             userRepository.repo.putData("currentUser", updated.toMap());
             return ProfileUpdated(updated);
           } else {

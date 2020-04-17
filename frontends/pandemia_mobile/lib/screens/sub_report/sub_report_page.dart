@@ -118,18 +118,18 @@ class _ViewODPScreenState extends State<ViewODPScreen> {
   @override
   void initState() {
     super.initState();
-    _subs = widget.subReportBloc.state.listen((SubReportState state) {
-      if (state is SubReportListUpdated || state is SubReportListLoaded) {
-        Future.delayed(Duration(milliseconds: 1000), () {
-          node.requestFocus();
-        });
-      }
-    });
+    // _subs = widget.subReportBloc.state.listen((SubReportState state) {
+    //   if (state is SubReportListUpdated || state is SubReportListLoaded) {
+    //     Future.delayed(Duration(milliseconds: 1000), () {
+    //       node.requestFocus();
+    //     });
+    //   }
+    // });
   }
 
   @override
   void dispose() {
-    _subs.cancel();
+    // _subs.cancel();
     super.dispose();
   }
 
@@ -160,7 +160,7 @@ class _ViewODPScreenState extends State<ViewODPScreen> {
                 padding: EdgeInsets.only(left: 10),
                 child: TextFormField(
                   focusNode: node,
-                  autofocus: true,
+                  // autofocus: true,
                   controller: this.widget.searchController,
                   onFieldSubmitted: (text) {
                     print("submit $text");
@@ -239,18 +239,18 @@ class _ViewPDPScreenState extends State<ViewPDPScreen> {
   @override
   void initState() {
     super.initState();
-    _subs = widget.subReportBloc.state.listen((SubReportState state) {
-      if (state is SubReportListUpdated || state is SubReportListLoaded) {
-        Future.delayed(Duration(milliseconds: 1000), () {
-          node.requestFocus();
-        });
-      }
-    });
+    // _subs = widget.subReportBloc.state.listen((SubReportState state) {
+    //   if (state is SubReportListUpdated || state is SubReportListLoaded) {
+    //     Future.delayed(Duration(milliseconds: 1000), () {
+    //       node.requestFocus();
+    //     });
+    //   }
+    // });
   }
 
   @override
   void dispose() {
-    _subs.cancel();
+    // _subs.cancel();
     super.dispose();
   }
 
@@ -276,7 +276,7 @@ class _ViewPDPScreenState extends State<ViewPDPScreen> {
                 padding: EdgeInsets.only(left: 10),
                 child: TextFormField(
                   focusNode: node,
-                  autofocus: true,
+                  // autofocus: true,
                   controller: this.widget.searchController,
                   onFieldSubmitted: (text) {
                     print("submit $text");

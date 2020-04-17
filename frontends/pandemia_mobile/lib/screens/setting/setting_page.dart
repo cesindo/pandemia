@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:multiselect_formfield/multiselect_formfield.dart';
 import 'package:pandemia_mobile/blocs/settings/settings.dart';
 import 'package:pandemia_mobile/blocs/settings/settings_bloc.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
@@ -78,11 +77,16 @@ class _SettingScreenState extends State<SettingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cUser = UserRepository().currentUser;
     return Container(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
+          cUser.isSatgas ? Padding(
+            padding: EdgeInsets.only(left: 15, top: 20, bottom: 5),
+            child: Text("${cUser.fullName}, Anda terdaftar sebagai satgas untuk desa ${cUser.village}")
+          ) : Container(),
           Padding(
             padding: EdgeInsets.only(left: 15, top: 20, bottom: 5),
             child: Row(

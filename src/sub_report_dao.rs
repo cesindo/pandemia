@@ -42,7 +42,7 @@ pub struct UpdateSubReport<'a> {
     pub residence_address: &'a str,
     pub gender: &'a str,
     pub coming_from: &'a str,
-    pub arrival_date: NaiveDate,
+    pub arrival_date: Option<NaiveDate>,
     pub healthy: i32,
     pub notes: &'a str,
     pub status: i32,
@@ -70,7 +70,7 @@ impl<'a> SubReportDao<'a> {
         residence_address: &'a str,
         gender: &'a str,
         coming_from: &'a str,
-        arrival_date: NaiveDate,
+        arrival_date: Option<NaiveDate>,
         healthy: i32,
         notes: &'a str,
         status: i32,
@@ -91,7 +91,7 @@ impl<'a> SubReportDao<'a> {
                 residence_address,
                 gender,
                 coming_from,
-                arrival_date,
+                arrival_date: arrival_date.unwrap_or(util::now().date()),
                 healthy,
                 notes,
                 status,
@@ -108,6 +108,9 @@ impl<'a> SubReportDao<'a> {
     /// Update
     pub fn update(&self, id: ID, data: UpdateSubReport) -> Result<SubReport> {
         use crate::schema::sub_reports::{self, dsl};
+
+        let arrival_date = data.arrival_date.unwrap_or(util::now().date());
+
         let result = diesel::update(dsl::sub_reports.filter(dsl::id.eq(id)))
             .set((
                 dsl::full_name.eq(data.full_name),
@@ -115,13 +118,14 @@ impl<'a> SubReportDao<'a> {
                 dsl::residence_address.eq(data.residence_address),
                 dsl::gender.eq(data.gender),
                 dsl::coming_from.eq(data.coming_from),
-                dsl::arrival_date.eq(data.arrival_date),
+                dsl::arrival_date.eq(arrival_date),
                 dsl::healthy.eq(data.healthy),
                 dsl::notes.eq(data.notes),
                 dsl::status.eq(data.status),
                 dsl::meta.eq(data.meta),
             ))
             .get_result::<SubReport>(self.db)?;
+
         Ok(result)
     }
 

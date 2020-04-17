@@ -85,6 +85,11 @@ impl User {
     pub fn is_blocked(&self) -> bool {
         list_has_flag!(self.meta, "blocked")
     }
+
+    /// Check whether this user is marked as deleted
+    pub fn is_deleted(&self) -> bool {
+        list_has_flag!(self.meta, "deleted")
+    }
 }
 
 /// Bentuk model dari alamat untuk akun.

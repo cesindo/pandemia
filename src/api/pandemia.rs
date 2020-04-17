@@ -94,7 +94,7 @@ pub struct AddSubReport {
     pub gender: String,
     #[validate(length(max = 70))]
     pub coming_from: String,
-    pub arrival_date: NaiveDate,
+    pub arrival_date: Option<NaiveDate>,
     #[validate(length(max = 500))]
     pub notes: String,
     pub status: String,
@@ -117,7 +117,7 @@ pub struct UpdateSubReport {
     pub gender: String,
     #[validate(length(min = 1, max = 70))]
     pub coming_from: String,
-    pub arrival_date: NaiveDate,
+    pub arrival_date: Option<NaiveDate>,
     #[validate(length(min = 1, max = 50))]
     pub notes: String,
     pub status: String,
@@ -187,7 +187,7 @@ impl PublicApi {
                 return param_error("Anda tidak dapat menambahkan data");
             }
 
-            if current_user.is_blocked() {
+            if current_user.is_blocked() || current_user.is_deleted() {
                 return unauthorized();
             }
 
@@ -281,6 +281,16 @@ impl PublicApi {
 
         let status: SubReportStatus = query.status.as_str().into();
 
+        if status == SubReportStatus::Positive
+            || status == SubReportStatus::Recovered
+            || status == SubReportStatus::Death
+        {
+            // status ini hanya boleh admin ke-atas
+            if current_user.is_some() {
+                return unauthorized();
+            }
+        }
+
         conn.build_transaction()
             .read_write()
             .run::<_, crate::error::Error, _>(|| {
@@ -312,6 +322,12 @@ impl PublicApi {
                     }
 
                     meta.push(format!("village={}", village_name));
+                    meta.push(format!("district={}", district_name));
+
+                    debug!(
+                        "city_id={}, district_id={}, village_id={}",
+                        city_id, district_id, village_id
+                    );
 
                     let (odp, pdp, cases, recovered, deaths) = match status {
                         SubReportStatus::ODP => (1, 0, 0, 0, 0),
@@ -365,7 +381,7 @@ impl PublicApi {
         let sr = dao.get_by_id(query.id)?;
 
         if let Some(current_user) = current_user {
-            if !current_user.is_satgas() {
+            if !current_user.is_satgas() || current_user.is_blocked() || current_user.is_deleted() {
                 return unauthorized();
             }
             let village_id = match current_user.get_village_id() {
@@ -405,7 +421,7 @@ impl PublicApi {
             return param_error("Anda tidak dapat menambahkan data")?;
         }
 
-        if current_user.is_blocked() {
+        if current_user.is_blocked() || current_user.is_deleted() {
             return unauthorized();
         }
 
@@ -756,6 +772,32 @@ impl PublicApi {
         dao.delete_by_id(query.id)?;
 
         Ok(ApiResult::success(()))
+    }
+
+    /// Search for village_data
+    #[api_endpoint(path = "/village_data/search", auth = "required", accessor = "admin")]
+    pub fn search_village_data(query: QueryEntries) -> ApiResult<EntriesResult<VillageData>> {
+        query.validate()?;
+        let conn = state.db();
+        let dao = VillageDataDao::new(&conn);
+
+        let parq = match query.query.as_ref() {
+            Some(q) => parse_query(q),
+            None => ParsedQuery::default(),
+        };
+
+        let sresult = dao.search(
+            parq.district_name,
+            // parq.village_name,
+            query.query.as_ref().unwrap_or(&"".to_string()),
+            query.offset,
+            query.limit,
+        )?;
+
+        let entries = sresult.entries.into_iter().map(|p| p.into()).collect();
+
+        let count = sresult.count;
+        Ok(ApiResult::success(EntriesResult { count, entries }))
     }
 
     /// Add report note.

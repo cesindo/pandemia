@@ -226,10 +226,13 @@ pub struct User {
     /// Location latitude, longitude
     pub loc: models::LatLong,
     /// Flag whether this user (satgas) blocked.
-    pub blocked: bool,
+    pub is_blocked: bool,
 
     /// Current user's village data if satgas
     pub village: String,
+
+    /// whether this user is deleted
+    pub is_deleted: bool,
 }
 
 impl From<models::User> for User {
@@ -251,7 +254,8 @@ impl From<models::User> for User {
             // meta: a.meta.clone(),
             village: a.get_village_name().to_owned(),
             loc: a.get_lat_long(),
-            blocked: a.is_blocked(),
+            is_blocked: a.is_blocked(),
+            is_deleted: a.is_deleted(),
         }
     }
 }
@@ -371,6 +375,7 @@ pub struct VillageData {
     pub ts: NaiveDateTime,
     //----
     pub village_name: String,
+    pub district_name: String,
 }
 
 impl From<(models::VillageData, models::Village)> for VillageData {
@@ -388,6 +393,7 @@ impl From<(models::VillageData, models::Village)> for VillageData {
             ts: a.0.ts,
             // area_code: a.0.area_code.to_owned(),
             village_name: a.1.name.to_owned(),
+            district_name: a.1.district_name.to_owned(),
         }
     }
 }

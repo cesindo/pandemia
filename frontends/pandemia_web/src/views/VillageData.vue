@@ -2,8 +2,8 @@
   <div>
     <AnsTable
       :key="tableRecords"
-      data-source-url="/pandemia/v1/search_records"
-      :columns="['ID', 'Lokasi', 'Jenis', 'ODP', 'PDP', 'Positive', 'Sembuh', 'Meninggal', 'Action']"
+      data-source-url="/pandemia/v1/village_data/search"
+      :columns="['ID', 'Desa', 'Kecamatan', 'ODP', 'PDP', 'Positive', 'Sembuh', 'Meninggal', 'Action']"
       :searchable="true"
       :withActionButton="false"
       :showDetailFunc="showDetail"
@@ -20,64 +20,86 @@
       <template v-slot:tdmap="self">
         <td>{{self.item['id']}}</td>
         <td>
-          <strong>{{self.item['loc']}}</strong>
+          <strong>{{self.item['village_name']}}</strong>
           <br />
           <span>{{self.item['loc_scope']}}</span>
           <br />
           <small>updated: {{self.item['last_updated']}}</small>
         </td>
-        <td>
-          <span v-if="self.item['loc_kind'] == 0">Global</span>
-          <span v-if="self.item['loc_kind'] == 1">Benua</span>
-          <span v-if="self.item['loc_kind'] == 2">Negara</span>
-          <span v-if="self.item['loc_kind'] == 3">Provinsi</span>
-          <span v-if="self.item['loc_kind'] == 4">Kota</span>
-        </td>
-        <td>0</td>
-        <td>0</td>
+        <td>{{self.item['district_name']}}</td>
         <td
-          :class="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['total_cases'] != self.item['total_cases'] ? 'dirty': '' "
+          :class="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['odp'] != self.item['odp'] ? 'dirty': '' "
         >
           <a
             href="javascript://"
-            v-on:click="editValue(self,'positif','total_cases',self.item['total_cases']);"
-          >{{self.item['total_cases']}}</a>
+            v-on:click="editValue(self,'odp','odp',self.item['odp']);"
+          >{{self.item['odp']}}</a>
           <span
-            v-if="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['total_cases'] != self.item['total_cases']"
+            v-if="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['odp'] != self.item['odp']"
           >
             <i class="ui icon fa-arrow-right"></i>
-            {{commitLogs[self.item['id']]['total_cases']}}
+            {{commitLogs[self.item['id']]['odp']}}
           </span>
         </td>
         <td
-          :class="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['total_recovered'] != self.item['total_recovered'] ? 'dirty': '' "
+          :class="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['pdp'] != self.item['pdp'] ? 'dirty': '' "
         >
           <a
             href="javascript://"
-            v-on:click="editValue(self,'sembuh','total_recovered',self.item['total_recovered']);"
+            v-on:click="editValue(self,'pdp','pdp',self.item['pdp']);"
+          >{{self.item['pdp']}}</a>
+          <span
+            v-if="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['pdp'] != self.item['pdp']"
+          >
+            <i class="ui icon fa-arrow-right"></i>
+            {{commitLogs[self.item['id']]['pdp']}}
+          </span>
+        </td>
+        <td
+          :class="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['cases'] != self.item['cases'] ? 'dirty': '' "
+        >
+          <a
+            href="javascript://"
+            v-on:click="editValue(self,'cases','cases',self.item['cases']);"
             class="dirty"
-          >{{self.item['total_recovered']}}</a>
+          >{{self.item['cases']}}</a>
 
           <span
-            v-if="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['total_recovered'] != self.item['total_recovered']"
+            v-if="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['cases'] != self.item['cases']"
           >
             <i class="ui icon fa-arrow-right"></i>
-            {{commitLogs[self.item['id']]['total_recovered']}}
+            {{commitLogs[self.item['id']]['cases']}}
           </span>
         </td>
         <td
-          :class="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['total_deaths'] != self.item['total_deaths'] ? 'dirty': '' "
+          :class="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['recovered'] != self.item['recovered'] ? 'dirty': '' "
         >
           <a
             href="javascript://"
-            v-on:click="editValue(self,'meninggal','total_deaths',self.item['total_deaths']);"
-          >{{self.item['total_deaths']}}</a>
+            v-on:click="editValue(self,'sembuh','recovered',self.item['recovered']);"
+            class="dirty"
+          >{{self.item['recovered']}}</a>
 
           <span
-            v-if="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['total_deaths'] != self.item['total_deaths']"
+            v-if="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['recovered'] != self.item['recovered']"
           >
             <i class="ui icon fa-arrow-right"></i>
-            {{commitLogs[self.item['id']]['total_deaths']}}
+            {{commitLogs[self.item['id']]['recovered']}}
+          </span>
+        </td>
+        <td
+          :class="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['deaths'] != self.item['deaths'] ? 'dirty': '' "
+        >
+          <a
+            href="javascript://"
+            v-on:click="editValue(self,'meninggal','deaths',self.item['deaths']);"
+          >{{self.item['deaths']}}</a>
+
+          <span
+            v-if="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['deaths'] != self.item['deaths']"
+          >
+            <i class="ui icon fa-arrow-right"></i>
+            {{commitLogs[self.item['id']]['deaths']}}
           </span>
         </td>
         <td>
@@ -248,7 +270,7 @@ export default {
           parseInt(this.$refs["addRecTotalRecovered"].value) || 0;
       this.$pandemia
         .api()
-        .publicApi.post("/pandemia/v1/add_record", {
+        .publicApi.post("/pandemia/v1/village_data/add", {
           loc: loc,
           loc_scope: locScope,
           loc_kind: locKind,
@@ -333,7 +355,7 @@ export default {
       var normCommitLogs = obMapToArrayValues(this.commitLogs);
       this.$pandemia
         .api()
-        .publicApi.post("/pandemia/v1/update_records", {
+        .publicApi.post("/pandemia/v1/village_data/commit", {
           records: normCommitLogs
         })
         .then(resp => {
@@ -356,7 +378,7 @@ export default {
       this.$modal.hide("Delete");
       this.$pandemia
         .api()
-        .publicApi.post("/pandemia/v1/delete_record", {
+        .publicApi.post("/pandemia/v1/village_data/delete", {
           id: this.toDelete["id"]
         })
         .then(resp => {

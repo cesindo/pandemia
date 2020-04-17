@@ -151,6 +151,7 @@ impl<'a> DistrictDataDao<'a> {
             dsl::district_data
                 .inner_join(dslv::districts)
                 .filter(dsl::city_id.eq(&city_id))
+                .order(dsl::last_updated.desc())
                 .offset(offset)
                 .limit(limit)
                 .load::<(DistrictData, District)>(self.db)?,

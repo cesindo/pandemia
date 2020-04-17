@@ -237,9 +237,9 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
                   textInputAction: TextInputAction.done,
                   keyboardType: TextInputType.text,
                   onFieldSubmitted: (_) => FocusScope.of(context).unfocus(),
-                  validator: (val) {
-                    return val.isEmpty ? "Field tidak boleh kosong" : null;
-                  },
+                  // validator: (val) {
+                  //   return val.isEmpty ? "Field tidak boleh kosong" : null;
+                  // },
                 ),
                 DropdownButtonFormField(
                   decoration: InputDecoration(

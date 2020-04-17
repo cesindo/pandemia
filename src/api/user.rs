@@ -19,7 +19,7 @@ use crate::{
         ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest,
     },
     auth,
-    dao::{CityDao, VillageDao},
+    dao::{AuthDao, CityDao, VillageDao},
     error::{Error, ErrorCode},
     geolocator, models,
     prelude::*,
@@ -92,6 +92,9 @@ impl PublicApi {
     /// Mendapatkan informasi current user.
     #[api_endpoint(path = "/me/info", auth = "required")]
     pub fn me_info(state: &AppState, query: (), req: &ApiHttpRequest) -> ApiResult<User> {
+        if current_user.is_deleted() {
+            return unauthorized();
+        }
         Ok(ApiResult::success(current_user.into()))
     }
 
@@ -240,14 +243,19 @@ impl PublicApi {
         let conn = state.db();
         let dao = UserDao::new(&conn);
         let user = dao.get_by_id(query.id)?;
-        if !user.is_satgas() {
-            return unauthorized();
-        }
-        if current_admin.get_city_id() != user.get_city_id() {
-            return unauthorized();
+        if current_admin.id != 1 {
+            if !user.is_satgas() {
+                return unauthorized();
+            }
+            if current_admin.get_city_id() != user.get_city_id() {
+                return unauthorized();
+            }
         }
 
         dao.mark_deleted(user.id)?;
+
+        // clear up user's access token
+        AuthDao::new(&conn).clear_access_token_by_user_id(user.id)?;
 
         Ok(ApiResult::success(()))
     }
@@ -258,11 +266,13 @@ impl PublicApi {
         let conn = state.db();
         let dao = UserDao::new(&conn);
         let user = dao.get_by_id(query.id)?;
-        if !user.is_satgas() {
-            return unauthorized();
-        }
-        if current_admin.get_city_id() != user.get_city_id() {
-            return unauthorized();
+        if current_admin.id != 1 {
+            if !user.is_satgas() {
+                return unauthorized();
+            }
+            if current_admin.get_city_id() != user.get_city_id() {
+                return unauthorized();
+            }
         }
 
         dao.mark_blocked(user.id, true)?;
@@ -276,11 +286,13 @@ impl PublicApi {
         let conn = state.db();
         let dao = UserDao::new(&conn);
         let user = dao.get_by_id(query.id)?;
-        if !user.is_satgas() {
-            return unauthorized();
-        }
-        if current_admin.get_city_id() != user.get_city_id() {
-            return unauthorized();
+        if current_admin.id != 1 {
+            if !user.is_satgas() {
+                return unauthorized();
+            }
+            if current_admin.get_city_id() != user.get_city_id() {
+                return unauthorized();
+            }
         }
 
         dao.mark_blocked(user.id, false)?;
@@ -404,7 +416,7 @@ impl PublicApi {
 
         let keyword = query.query.unwrap_or("".to_string());
 
-        if !current_admin.has_access("satgas") {
+        if !current_admin.has_access("satgas") && current_admin.id != 1 {
             return unauthorized();
         }
 

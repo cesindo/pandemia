@@ -74,6 +74,14 @@ let router = new Router({
       },
     },
     {
+      path: '/dashboard/village-data',
+      name: 'Data Desa',
+      component: Dashboard,
+      meta: {
+        title: 'Dashboard' + titleDesc,
+      },
+    },
+    {
       path: '/dashboard/satgas',
       name: 'Data Satgas COVID-19',
       component: Dashboard,
@@ -97,14 +105,22 @@ let router = new Router({
         title: 'Dashboard' + titleDesc,
       },
     },
-    // {
-    //   path: '/satgas',
-    //   name: 'Satgas',
-    //   component: SatgasLogin,
-    //   meta: {
-    //     title: 'Login Satgas COVID-19'
-    //   },
-    // },
+    {
+      path: '/dashboard/hospital',
+      name: 'Hospital',
+      component: Dashboard,
+      meta: {
+        title: 'Dashboard' + titleDesc,
+      },
+    },
+    {
+      path: '/dashboard/map',
+      name: 'Map',
+      component: Dashboard,
+      meta: {
+        title: 'Dashboard' + titleDesc,
+      },
+    },
     {
       path: '/dashboard/villages',
       name: 'Data Desa',
@@ -115,7 +131,7 @@ let router = new Router({
     },
     {
       path: '/dashboard/data',
-      name: 'Data',
+      name: 'Data Perorang',
       component: Dashboard,
       meta: {
         title: 'Data'

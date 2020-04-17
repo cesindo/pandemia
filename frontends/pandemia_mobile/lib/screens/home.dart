@@ -71,7 +71,7 @@ class HomeScreen extends StatelessWidget {
 
     List<CustomPopupMenuItem> choices = [];
 
-    if (currentUser?.isSatgas != true || currentUser?.blocked == true) {
+    if (currentUser?.isSatgas != true || currentUser?.isBlocked == true) {
       choices.add(CustomPopupMenuItem(0, "Daftar Satgas", Icons.edit));
     } else {
       choices.add(CustomPopupMenuItem(1, "Data ODP/PDP", Icons.list));
@@ -83,7 +83,7 @@ class HomeScreen extends StatelessWidget {
     void _selectedChoice(CustomPopupMenuItem choice) {
 
       if (choice.index == 0 || choice.index == 1){
-        if (currentUser?.blocked == true){
+        if (currentUser?.isBlocked == true){
           _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text("Akun anda telah diblokir"), backgroundColor: Colors.red,));
           return;
         }

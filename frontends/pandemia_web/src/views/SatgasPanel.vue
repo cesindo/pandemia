@@ -26,7 +26,7 @@
         </div>
       </div>
 
-      <SubReports v-if="currentPage['/satgas/data']" :addable="true" />
+      <SubReports v-if="currentPage['/satgas/data']" :addable="true" :adminMode="false" />
 
       <ReportNotes
         v-if="currentPage['/satgas/reports']"
@@ -71,18 +71,18 @@ export default {
           href: "/satgas/data",
           access: "records"
         },
-        {
-          title: "Rumah Sakit",
-          icon: "fa fa-hotel",
-          href: "/satgas/hospital",
-          access: "hospital"
-        },
-        {
-          title: "Lapor",
-          icon: "fa fa-comment-dots",
-          href: "/satgas/reports",
-          access: "report_notes"
-        },
+        // {
+        //   title: "Rumah Sakit",
+        //   icon: "fa fa-hotel",
+        //   href: "/satgas/hospital",
+        //   access: "hospital"
+        // },
+        // {
+        //   title: "Lapor",
+        //   icon: "fa fa-comment-dots",
+        //   href: "/satgas/reports",
+        //   access: "report_notes"
+        // },
         {
           title: "Logout",
           icon: "fa fa-sign-out-alt",
