@@ -78,235 +78,246 @@ class _SettingScreenState extends State<SettingScreen> {
   @override
   Widget build(BuildContext context) {
     final cUser = UserRepository().currentUser;
-    return Container(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          cUser.isSatgas ? Padding(
-            padding: EdgeInsets.only(left: 15, top: 20, bottom: 5),
-            child: Text("${cUser.fullName}, Anda terdaftar sebagai satgas untuk desa ${cUser.village}")
-          ) : Container(),
-          Padding(
-            padding: EdgeInsets.only(left: 15, top: 20, bottom: 5),
-            child: Row(
-              children: <Widget>[
-                Checkbox(
-                    value: _pushIsChecked,
-                    onChanged: (value) {
-                      setState(() {
-                        _pushIsChecked = value;
-                        settingsBloc.dispatch(SetSetting("enable_push_notif",
-                            _pushIsChecked ? "true" : "false"));
-                        _onTap = true;
-                      });
-                    }),
-                // Text("[ ]"),
-                Text(
-                  "Push Notif",
-                  style: TextStyle(
-                    fontSize: 18,
-                  ),
-                )
-              ],
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(bottom: 10, left: 30, right: 30),
-            child: Center(
-              child: _pushIsChecked == true
-                  ? FilterLocation(disabled: false)
-                  : FilterLocation(disabled: true),
-            ),
-          ),
-          Divider(),
-          Padding(
-            padding: EdgeInsets.only(left: 15, top: 0, bottom: 0),
-            child: Row(
-              children: <Widget>[
-                Checkbox(
-                  value: _petaIsChecked,
-                  onChanged: (value) {
-                    _petaIsChecked == true
-                        ? null
-                        : showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Row(
-                                  children: <Widget>[
-                                    Padding(
-                                      padding: EdgeInsets.only(right: 10),
-                                      child: Icon(
-                                        Icons.info,
-                                        color: Colors.purple[400],
-                                      ),
-                                    ),
-                                    Text(
-                                      "Informasi",
-                                      style: TextStyle(color: Colors.purple),
-                                    )
-                                  ],
-                                ),
-                                content: Text(
-                                    "Fitur ini memungkinkan anda untuk mendapatkan info daerah sekitar kita tentang pandemi Covid-19 ( Corona )"),
-                                actions: <Widget>[
-                                  Center(
-                                    child: FlatButton(
-                                      child: Text("OKE"),
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                    ),
-                                  )
-                                ],
-                              );
-                            });
-
-                    setState(() {
-                      _petaIsChecked = value;
-                      settingsBloc.dispatch(SetSetting(
-                          "complaint_map", _petaIsChecked ? "true" : "false"));
-                    });
-                  },
+    return ListView(
+      children: <Widget>[
+        Container(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              cUser.isSatgas
+                  ? Padding(
+                      padding: EdgeInsets.only(left: 15, top: 20, bottom: 5),
+                      child: Text(
+                          "${cUser.fullName}, Anda terdaftar sebagai satgas untuk desa ${cUser.village}"))
+                  : Container(),
+              Padding(
+                padding: EdgeInsets.only(left: 15, top: 20, bottom: 5),
+                child: Row(
+                  children: <Widget>[
+                    Checkbox(
+                        value: _pushIsChecked,
+                        onChanged: (value) {
+                          setState(() {
+                            _pushIsChecked = value;
+                            settingsBloc.dispatch(SetSetting(
+                                "enable_push_notif",
+                                _pushIsChecked ? "true" : "false"));
+                            _onTap = true;
+                          });
+                        }),
+                    // Text("[ ]"),
+                    Text(
+                      "Push Notif",
+                      style: TextStyle(
+                        fontSize: 18,
+                      ),
+                    )
+                  ],
                 ),
-                Text(
-                  "Peta Keluhan",
-                  style: TextStyle(
-                    fontSize: 18,
-                  ),
-                )
-              ],
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 30, right: 30, bottom: 15),
-            child: Text(
-                "Menandai daerah keberadaan kita dengan keluhan kita, data hanya dalam bentuk " +
-                    "statistik anonim (tidak ada data pribadi yang ditampilkan), " +
-                    "fitur ini mempermudah kita dalam melakukan tracing.",
-                maxLines: 5,
-                style: TextStyle(fontSize: 16)),
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 30, bottom: 15),
-            child: Text(
-              "Keluhan saya :",
-              style: TextStyle(
-                fontSize: 18,
               ),
-            ),
+              Padding(
+                padding: EdgeInsets.only(bottom: 10, left: 30, right: 30),
+                child: Center(
+                  child: _pushIsChecked == true
+                      ? FilterLocation(disabled: false)
+                      : FilterLocation(disabled: true),
+                ),
+              ),
+              Divider(),
+              Padding(
+                padding: EdgeInsets.only(left: 15, top: 0, bottom: 0),
+                child: Row(
+                  children: <Widget>[
+                    Checkbox(
+                      value: _petaIsChecked,
+                      onChanged: (value) {
+                        _petaIsChecked == true
+                            ? null
+                            : showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Row(
+                                      children: <Widget>[
+                                        Padding(
+                                          padding: EdgeInsets.only(right: 10),
+                                          child: Icon(
+                                            Icons.info,
+                                            color: Colors.purple[400],
+                                          ),
+                                        ),
+                                        Text(
+                                          "Informasi",
+                                          style:
+                                              TextStyle(color: Colors.purple),
+                                        )
+                                      ],
+                                    ),
+                                    content: Text(
+                                        "Fitur ini memungkinkan anda untuk mendapatkan info daerah sekitar kita tentang pandemi Covid-19 ( Corona )"),
+                                    actions: <Widget>[
+                                      Center(
+                                        child: FlatButton(
+                                          child: Text("OKE"),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                      )
+                                    ],
+                                  );
+                                });
+
+                        setState(() {
+                          _petaIsChecked = value;
+                          settingsBloc.dispatch(SetSetting("complaint_map",
+                              _petaIsChecked ? "true" : "false"));
+                        });
+                      },
+                    ),
+                    Text(
+                      "Peta Keluhan",
+                      style: TextStyle(
+                        fontSize: 18,
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 30, right: 30, bottom: 15),
+                child: Text(
+                    "Menandai daerah keberadaan kita dengan keluhan kita, data hanya dalam bentuk " +
+                        "statistik anonim (tidak ada data pribadi yang ditampilkan), " +
+                        "fitur ini mempermudah kita dalam melakukan tracing.",
+                    maxLines: 5,
+                    style: TextStyle(fontSize: 16)),
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 30, bottom: 15),
+                child: Text(
+                  "Keluhan saya :",
+                  style: TextStyle(
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 45),
+                child: Column(
+                  children: <Widget>[
+                    Container(
+                      height: 35,
+                      child: Row(
+                        children: <Widget>[
+                          Checkbox(
+                            value: _isBatuk,
+                            onChanged: _petaIsChecked
+                                ? (value) {
+                                    setState(() {
+                                      _isBatuk = value;
+                                      settingsBloc.dispatch(SetSetting(
+                                          "has_cough",
+                                          _isBatuk ? "true" : "false"));
+                                    });
+                                  }
+                                : null,
+                          ),
+                          Text(
+                            "Batuk",
+                            style: TextStyle(
+                              fontSize: 16,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    Container(
+                      height: 35,
+                      child: Row(
+                        children: <Widget>[
+                          Checkbox(
+                            value: _isDemam,
+                            onChanged: _petaIsChecked
+                                ? (value) {
+                                    setState(() {
+                                      _isDemam = value;
+                                      settingsBloc.dispatch(SetSetting(
+                                          "has_fever",
+                                          _isDemam ? "true" : "false"));
+                                    });
+                                  }
+                                : null,
+                          ),
+                          Text(
+                            "Demam",
+                            style: TextStyle(
+                              fontSize: 16,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    Container(
+                      height: 35,
+                      child: Row(
+                        children: <Widget>[
+                          Checkbox(
+                            value: _isCold,
+                            onChanged: _petaIsChecked
+                                ? (value) {
+                                    setState(() {
+                                      _isCold = value;
+                                      settingsBloc.dispatch(SetSetting(
+                                          "has_cold",
+                                          _isCold ? "true" : "false"));
+                                    });
+                                  }
+                                : null,
+                          ),
+                          Text(
+                            "Flu",
+                            style: TextStyle(
+                              fontSize: 16,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    Container(
+                      height: 35,
+                      child: Row(
+                        children: <Widget>[
+                          Checkbox(
+                            value: _isPusing,
+                            onChanged: _petaIsChecked
+                                ? (value) {
+                                    setState(() {
+                                      _isPusing = value;
+                                      settingsBloc.dispatch(SetSetting(
+                                          "has_headache",
+                                          _isPusing ? "true" : "false"));
+                                    });
+                                  }
+                                : null,
+                          ),
+                          Text(
+                            "Pusing",
+                            style: TextStyle(
+                              fontSize: 16,
+                            ),
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              )
+            ],
           ),
-          Padding(
-            padding: EdgeInsets.only(left: 45),
-            child: Column(
-              children: <Widget>[
-                Container(
-                  height: 35,
-                  child: Row(
-                    children: <Widget>[
-                      Checkbox(
-                        value: _isBatuk,
-                        onChanged: _petaIsChecked
-                            ? (value) {
-                                setState(() {
-                                  _isBatuk = value;
-                                  settingsBloc.dispatch(SetSetting("has_cough",
-                                      _isBatuk ? "true" : "false"));
-                                });
-                              }
-                            : null,
-                      ),
-                      Text(
-                        "Batuk",
-                        style: TextStyle(
-                          fontSize: 16,
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                Container(
-                  height: 35,
-                  child: Row(
-                    children: <Widget>[
-                      Checkbox(
-                        value: _isDemam,
-                        onChanged: _petaIsChecked
-                            ? (value) {
-                                setState(() {
-                                  _isDemam = value;
-                                  settingsBloc.dispatch(SetSetting("has_fever",
-                                      _isDemam ? "true" : "false"));
-                                });
-                              }
-                            : null,
-                      ),
-                      Text(
-                        "Demam",
-                        style: TextStyle(
-                          fontSize: 16,
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                Container(
-                  height: 35,
-                  child: Row(
-                    children: <Widget>[
-                      Checkbox(
-                        value: _isCold,
-                        onChanged: _petaIsChecked
-                            ? (value) {
-                                setState(() {
-                                  _isCold = value;
-                                  settingsBloc.dispatch(SetSetting(
-                                      "has_cold", _isCold ? "true" : "false"));
-                                });
-                              }
-                            : null,
-                      ),
-                      Text(
-                        "Flu",
-                        style: TextStyle(
-                          fontSize: 16,
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                Container(
-                  height: 35,
-                  child: Row(
-                    children: <Widget>[
-                      Checkbox(
-                        value: _isPusing,
-                        onChanged: _petaIsChecked
-                            ? (value) {
-                                setState(() {
-                                  _isPusing = value;
-                                  settingsBloc.dispatch(SetSetting(
-                                      "has_headache",
-                                      _isPusing ? "true" : "false"));
-                                });
-                              }
-                            : null,
-                      ),
-                      Text(
-                        "Pusing",
-                        style: TextStyle(
-                          fontSize: 16,
-                        ),
-                      )
-                    ],
-                  ),
-                )
-              ],
-            ),
-          )
-        ],
-      ),
+        )
+      ],
     );
   }
 }
