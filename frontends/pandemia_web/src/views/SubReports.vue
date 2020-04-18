@@ -536,6 +536,15 @@ export default {
         notes = this.$refs["addNotesInput"].value,
         addStatus = this.$refs["addStatus"].value;
 
+      var addInfo = [];
+
+      if (this.fromRedZone){
+        addInfo.push("from_red_zone");
+      }
+      if (this.hasSymptoms){
+        addInfo.push("has_symptoms");
+      }
+
       var payload = {
         full_name: name,
         age: parseInt(age),
@@ -544,7 +553,8 @@ export default {
         coming_from: addComeFrom,
 
         notes: notes,
-        status: addStatus
+        status: addStatus,
+        add_info: addInfo
       };
 
       if (this.adminMode) {
