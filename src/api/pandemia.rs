@@ -379,6 +379,7 @@ impl PublicApi {
                             last_updated_by_id: current_user_id,
                             meta: &meta.iter().map(|a| a.as_str()).collect(),
                             city_id: Some(city_id),
+                            district_id: Some(district_id),
                             ppdwt,
                             pptb,
                             odpsp: 0,
@@ -390,6 +391,7 @@ impl PublicApi {
 
                     DistrictDataDao::new(&conn).update(
                         district_id,
+                        Ops::Add,
                         &UpdateDistrictData {
                             odp,
                             pdp,
@@ -498,17 +500,17 @@ impl PublicApi {
                 // meta.push(format!("district={}", district_name));
 
                 let (odp, pdp, cases, recovered, deaths) = match sr.status.into() {
-                    SubReportStatus::ODP => (-1, 0, 0, 0, 0),
-                    SubReportStatus::PDP => (0, -1, 0, 0, 0),
-                    SubReportStatus::Positive => (0, 0, -1, 0, 0),
-                    SubReportStatus::Recovered => (0, 0, 0, -1, 0),
-                    SubReportStatus::Death => (0, 0, 0, 0, -1),
+                    SubReportStatus::ODP => (1, 0, 0, 0, 0),
+                    SubReportStatus::PDP => (0, 1, 0, 0, 0),
+                    SubReportStatus::Positive => (0, 0, 1, 0, 0),
+                    SubReportStatus::Recovered => (0, 0, 0, 1, 0),
+                    SubReportStatus::Death => (0, 0, 0, 0, 1),
                     _ => return Err(Error::InvalidParameter("Status tidak valid".to_owned()))?,
                 };
 
                 VillageDataDao::new(&conn).update(
                     sr.village_id,
-                    Ops::Add,
+                    Ops::Subs,
                     &UpdateVillageData {
                         odp,
                         pdp,
@@ -518,6 +520,7 @@ impl PublicApi {
                         last_updated_by_id: current_user_id,
                         meta: &sr.meta.iter().map(|a| a.as_str()).collect(),
                         city_id: Some(sr.city_id),
+                        district_id: Some(sr.district_id),
                         ppdwt,
                         pptb,
                         odpsp,
@@ -529,6 +532,7 @@ impl PublicApi {
 
                 DistrictDataDao::new(&conn).update(
                     sr.district_id,
+                    Ops::Subs,
                     &UpdateDistrictData {
                         odp,
                         pdp,
@@ -686,17 +690,17 @@ impl PublicApi {
                 )?;
 
                 let (odp, pdp, cases, recovered, deaths) = match old_status {
-                    SubReportStatus::ODP => (-1, 0, 0, 0, 0),
-                    SubReportStatus::PDP => (0, -1, 0, 0, 0),
-                    SubReportStatus::Positive => (0, 0, -1, 0, 0),
-                    SubReportStatus::Recovered => (0, 0, 0, -1, 0),
-                    SubReportStatus::Death => (0, 0, 0, 0, -1),
+                    SubReportStatus::ODP => (1, 0, 0, 0, 0),
+                    SubReportStatus::PDP => (0, 1, 0, 0, 0),
+                    SubReportStatus::Positive => (0, 0, 1, 0, 0),
+                    SubReportStatus::Recovered => (0, 0, 0, 1, 0),
+                    SubReportStatus::Death => (0, 0, 0, 0, 1),
                     _ => return Err(Error::InvalidParameter("Status tidak valid".to_owned()))?,
                 };
 
                 VillageDataDao::new(&conn).update(
                     subr.village_id,
-                    Ops::Add,
+                    Ops::Subs,
                     &UpdateVillageData {
                         odp,
                         pdp,
@@ -706,6 +710,7 @@ impl PublicApi {
                         last_updated_by_id: current_user_id,
                         meta: &subr.meta.iter().map(|a| a.as_str()).collect(),
                         city_id: Some(city_id),
+                        district_id: Some(subr.district_id),
                         ppdwt,
                         pptb,
                         odpsp,
@@ -717,6 +722,7 @@ impl PublicApi {
 
                 DistrictDataDao::new(&conn).update(
                     subr.district_id,
+                    Ops::Subs,
                     &UpdateDistrictData {
                         odp,
                         pdp,
@@ -735,14 +741,14 @@ impl PublicApi {
                     },
                 )?;
 
-                let (odp, pdp, cases, recovered, deaths) = match new_status {
-                    SubReportStatus::ODP => (1, 0, 0, 0, 0),
-                    SubReportStatus::PDP => (0, 1, 0, 0, 0),
-                    SubReportStatus::Positive => (0, 0, 1, 0, 0),
-                    SubReportStatus::Recovered => (0, 0, 0, 1, 0),
-                    SubReportStatus::Death => (0, 0, 0, 0, 1),
-                    _ => return Err(Error::InvalidParameter("Status tidak valid".to_owned()))?,
-                };
+                // let (odp, pdp, cases, recovered, deaths) = match new_status {
+                //     SubReportStatus::ODP => (1, 0, 0, 0, 0),
+                //     SubReportStatus::PDP => (0, 1, 0, 0, 0),
+                //     SubReportStatus::Positive => (0, 0, 1, 0, 0),
+                //     SubReportStatus::Recovered => (0, 0, 0, 1, 0),
+                //     SubReportStatus::Death => (0, 0, 0, 0, 1),
+                //     _ => return Err(Error::InvalidParameter("Status tidak valid".to_owned()))?,
+                // };
 
                 VillageDataDao::new(&conn).update(
                     subr.village_id,
@@ -755,6 +761,7 @@ impl PublicApi {
                         deaths,
                         last_updated_by_id: current_user_id,
                         city_id: Some(subr.city_id),
+                        district_id: Some(subr.district_id),
                         meta: &subr.meta.iter().map(|a| a.as_str()).collect(),
                         ppdwt,
                         pptb,
@@ -767,6 +774,7 @@ impl PublicApi {
 
                 DistrictDataDao::new(&conn).update(
                     subr.district_id,
+                    Ops::Add,
                     &UpdateDistrictData {
                         odp,
                         pdp,

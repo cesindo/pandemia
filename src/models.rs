@@ -504,6 +504,7 @@ pub struct VillageData {
     pub ts: NaiveDateTime,
     pub city_id: ID,
     pub meta: Vec<String>,
+    pub district_id: ID,
     pub ppdwt: i32,
     pub pptb: i32,
     pub odpsp: i32,

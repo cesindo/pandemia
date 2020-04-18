@@ -89,52 +89,68 @@
             </div>
           </div>
 
-          <div class="seven wide column">
+          <div class="eight wide column">
             <div class="ui center aligned grid">
-              <div class="thirteen wide column">
+              <div class="nine wide column">
                 <div class="ui statistics">
-                  <div class="blue statistic">
-                    <div class="value stat-num">{{total_odp}}</div>
-                    <div class="label">ODP</div>
-                  </div>
-                  <div class="orange statistic">
-                    <div class="value stat-num">{{total_pdp}}</div>
-                    <div class="label">PDP</div>
-                  </div>
-                  <div class="red statistic">
-                    <div class="value stat-num">{{total_cases}}</div>
-                    <div class="label">COVID-19</div>
-                  </div>
-                  <div class="green statistic">
-                    <div class="value stat-num">{{total_recovered}}</div>
-                    <div class="label">Sembuh</div>
-                  </div>
-                  <div class="grey statistic">
-                    <div class="value stat-num">{{total_deaths}}</div>
-                    <div class="label">Meninggal</div>
-                  </div>
+                  <table class="statistics" style="border: 1px solid #cacaca;">
+                    <tr>
+                      <td>
+                        <div class="blue statistic">
+                          <div class="value stat-num">{{total_odp}}</div>
+                          <div class="label">ODP</div>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="orange statistic">
+                          <div class="value stat-num">{{total_pdp}}</div>
+                          <div class="label">PDP</div>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="red statistic">
+                          <div class="value stat-num">{{total_cases}}</div>
+                          <div class="label">COVID19</div>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="green statistic">
+                          <div class="value stat-num">{{total_recovered}}</div>
+                          <div class="label">Sembuh</div>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="grey statistic">
+                          <div class="value stat-num">{{total_deaths}}</div>
+                          <div class="label">Meninggal</div>
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
                 </div>
               </div>
             </div>
 
             <div class="ui center aligned grid">
-              <div class="fourteen wide column">
-                <div class="map-view">
-                  <div
-                    v-for="m in districtData"
-                    v-bind:key="m.id"
-                    class="marker"
-                    :id=" 'M' + m.district_name"
-                  >
-                    <div v-if="m.cases > 0" class="ui red label">{{m.cases}}</div>
-                    <div v-if="m.cases == 0" class="ui label">{{m.cases}}</div>
+              <div class="sixteen wide column">
+                <center>
+                  <div class="map-view">
+                    <div
+                      v-for="m in districtData"
+                      v-bind:key="m.id"
+                      class="marker"
+                      :id=" 'M' + m.district_name"
+                    >
+                      <div v-if="m.cases > 0" class="ui red circular label">{{m.cases}}</div>
+                      <div v-if="m.cases == 0" class="ui circular label">{{m.cases}}</div>
+                    </div>
                   </div>
-                </div>
+                </center>
               </div>
             </div>
           </div>
 
-          <div class="five wide column">
+          <div class="four wide column">
             <div class="four wide column">
               <h2>Per Kecamatan</h2>
               <table class="ui celled table district-data">
@@ -372,7 +388,7 @@ h2 {
   text-align: left;
 }
 div.map-view {
-  width: 520px;
+  width: 620px;
   height: 700px;
   background-image: url("/img/peta-wonosobo.jpeg");
   background-repeat: no-repeat;
@@ -426,19 +442,14 @@ div.map-view {
   // }
 }
 
-.marker#MKepil {
-  bottom: 50px;
-  right: 5px;
-}
-
 .marker#MSapuran {
-  bottom: 140px;
-  right: 90px;
+  bottom: 170px;
+  right: 150px;
 }
 
 .marker#MKaliwiro {
-  bottom: 130px;
-  left: 90px;
+  bottom: 150px;
+  left: 145px;
 }
 
 .marker#MWadaslintang {
@@ -459,40 +470,36 @@ div.map-view {
   left: 10px;
 }
 .marker#MSukoharjo {
-  top: 180px;
-  left: 0px;
-}
-.marker#MSukoharjo {
-  top: 180px;
-  left: 0px;
+  top: 320px;
+  left: 30px;
 }
 .marker#MLeksono {
   top: 310px;
-  left: 25px;
+  left: 135px;
 }
 .marker#MKepil {
-  top: 470px;
-  right: 0px;
+  bottom: 140px;
+  right: 70px;
 }
 .marker#MKalikajar {
-  top: 200px;
-  right: -5px;
+  top: 280px;
+  right: 70px;
 }
 .marker#MKertek {
-  top: 130px;
-  right: -5px;
+  top: 220px;
+  right: 130px;
 }
 .marker#MSelomerto {
-  top: 270px;
-  right: 180px;
+  top: 335px;
+  right: 280px;
 }
 .marker#MWonosobo {
-  top: 200px;
-  right: 175px;
+  top: 250px;
+  right: 255px;
 }
 .marker#MKalibawang {
-  top: 482px;
-  right: 181px;
+  bottom: 50px;
+  right: 250px;
 }
 
 th,
@@ -500,8 +507,10 @@ td {
   text-align: center !important;
 }
 
-table.village-data, table.district-data {
-  td.village-name, td.district-name {
+table.village-data,
+table.district-data {
+  td.village-name,
+  td.district-name {
     font-weight: bold !important;
     text-align: left !important;
   }
@@ -526,8 +535,10 @@ table.village-data, table.district-data {
 }
 
 #app div.stat-num {
-  font-size: 2rem!important;  
+  font-size: 2rem !important;
 }
-
+table.statistics tr td {
+  padding: 0 10px;
+}
 </style>
 

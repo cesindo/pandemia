@@ -444,7 +444,7 @@
       :withCloseButton="true"
       @onApprove="doDelete"
     >
-      <p>Yakin untuk menghapus record {{toDelete['id']}} "{{toDelete['loc']}}"?</p>
+      <p>Yakin untuk menghapus record {{toDelete['id']}} desa <strong>{{toDelete['village_name']}}</strong> ?</p>
     </ConfirmDialog>
   </div>
 </template>
@@ -603,6 +603,7 @@ export default {
 
             this.showSuccess("Rekod berhasil ditambahkan");
             this.refreshTable();
+            this.resetData();
           } else {
             var suggest = "";
             if (resp.data.description.indexOf("Invalid") > -1) {
@@ -612,8 +613,22 @@ export default {
           }
         });
     },
+    resetData(){
+      this.addCases = 0;
+      this.addDeaths = 0;
+      this.addRecovered = 0;
+      this.addPpdwt = 0;
+      this.addPptb = 0;
+      this.addOdp = 0;
+      this.addOdpsp = 0;
+      this.addPdp = 0;
+      this.addPdps = 0;
+      this.addPdpm = 0;
+      this.addOtg = 0;
+      this.addVillageAddress = "";
+    },
     onAddRecordOpened() {
-      this.$refs["addRecLocInput"].focus();
+      // this.$refs["addRecLocInput"].focus();
     },
     showDetail(item) {
       this.$router.push("/dashboard/records/" + item.id);
@@ -712,16 +727,21 @@ export default {
     },
     doDelete() {
       this.$modal.hide("Delete");
+      let id = this.toDelete["id"];
       this.$pandemia
         .api()
-        .publicApi.post("/pandemia/v1/village_data/delete", {
-          id: this.toDelete["id"]
+        .publicApi.post("/village/v1/village_data/delete", {
+          id: id
         })
         .then(resp => {
           // console.log(resp);
           if (resp.data.code == 0) {
             this.refreshTable();
             this.showSuccess("Record telah berhasil dihapus");
+            delete this.commitLogs[id];
+            this.toDelete = { id: 0, loc: "" };
+            this.commitLogs = {};
+            this.persist();
           } else {
             this.showError(
               "Gagal menghapus record, hubungi sistem administrator"

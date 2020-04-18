@@ -310,6 +310,7 @@ table! {
         ts -> Timestamp,
         city_id -> Int8,
         meta -> Array<Text>,
+        district_id -> Int8,
         ppdwt -> Int4,
         pptb -> Int4,
         odpsp -> Int4,

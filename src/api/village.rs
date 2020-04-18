@@ -13,7 +13,8 @@ use crate::{
     api::types::*,
     api::{error::*, parsed_query::*, ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest},
     auth,
-    dao::{CityDao, Logs, VillageDao, VillageDataDao},
+    dao::{CityDao, DistrictDataDao, Logs, VillageDao, VillageDataDao},
+    district_data_dao::UpdateDistrictData,
     error,
     error::{Error, ErrorCode},
     models,
@@ -207,6 +208,7 @@ impl PublicApi {
 
         let village_data = dao.create(&NewVillageData {
             village_id: query.village_id,
+            district_id: village.district_id,
             odp: query.record.odp,
             pdp: query.record.pdp,
             cases: query.record.cases,
@@ -222,7 +224,66 @@ impl PublicApi {
             pdpm: query.record.pdpm,
             otg: query.record.otg,
         })?;
+
+        meta.push(":updated_by_admin:".to_string());
+        meta.push(format!("updated_by_admin_name={}", current_admin.name));
+        meta.push(format!("updated_by_admin_id={}", current_admin.id));
+        meta.push(format!("village={}", village.name));
+        meta.push(format!("district={}", village.district_name));
+        meta.push(format!("city={}", village.city));
+
+        // // update district data
+        // {
+        //     DistrictDataDao::new(&conn).update(
+        //         village.district_id,
+        //         Ops::Add,
+        //         &UpdateDistrictData {
+        //             odp: query.record.odp,
+        //             pdp: query.record.pdp,
+        //             cases: query.record.cases,
+        //             recovered: query.record.recovered,
+        //             deaths: query.record.deaths,
+
+        //             ppdwt: query.record.ppdwt,
+        //             pptb: query.record.pptb,
+        //             odpsp: query.record.odpsp,
+        //             pdps: query.record.pdps,
+        //             pdpm: query.record.pdpm,
+        //             otg: query.record.otg,
+
+        //             city_id: village.city_id,
+        //             last_updated_by_id: current_admin.id,
+        //             meta: &meta.iter().map(|a| a.as_str()).collect(),
+        //         },
+        //     )?;
+        // }
+
         Ok(ApiResult::success(village_data.to_api_type(&conn)))
+    }
+
+    /// Delete village data.
+    #[api_endpoint(path = "/village_data/delete", auth = "required", mutable, accessor = "admin")]
+    pub fn delete_village_data(query: IdQuery) -> ApiResult<()> {
+        let conn = state.db();
+        let dao = VillageDataDao::new(&conn);
+
+        let d = dao.get_by_id(query.id)?;
+
+        if current_admin.id != 1 && d.city_id != current_admin.get_city_id().unwrap_or(0) {
+            return unauthorized();
+        }
+
+        dao.delete_by_id(query.id)?;
+
+        // // recalculate district data
+        // DistrictDataDao::new(&conn).recalculate(
+        //     d.city_id,
+        //     d.district_id,
+        //     d.village_id,
+        //     current_admin.id,
+        // )?;
+
+        Ok(ApiResult::success(()))
     }
 
     /// Mendapatkan data village berdasarkan ID.
@@ -301,6 +362,7 @@ impl PublicApi {
                             last_updated_by_id: current_admin.id,
                             meta: &meta.iter().map(|a| a.as_str()).collect(),
                             city_id: None,
+                            district_id: None,
                             ppdwt: record.ppdwt,
                             pptb: record.pptb,
                             odpsp: record.odpsp,
@@ -311,6 +373,16 @@ impl PublicApi {
                     )?;
 
                     debug!("updating village data id {}...", record.id);
+
+                    let village = VillageDao::new(&conn).get_by_id(record.village_id)?;
+
+                    // // recalculate district data
+                    // DistrictDataDao::new(&conn).recalculate(
+                    //     village.city_id,
+                    //     village.district_id,
+                    //     village.id,
+                    //     current_admin.id,
+                    // )?;
                 }
 
                 Ok(())

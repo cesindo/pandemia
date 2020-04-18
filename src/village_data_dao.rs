@@ -30,6 +30,7 @@ pub struct NewVillageData<'a> {
     pub last_updated_by_id: ID,
     pub city_id: ID,
     pub meta: &'a Vec<&'a str>,
+    pub district_id: ID,
 
     pub ppdwt: i32,
     pub pptb: i32,
@@ -49,6 +50,7 @@ pub struct UpdateVillageData<'a> {
     // pub last_updated: NaiveDateTime,
     pub last_updated_by_id: ID,
     pub city_id: Option<ID>,
+    pub district_id: Option<ID>,
     pub meta: &'a Vec<&'a str>,
 
     pub ppdwt: i32,
@@ -146,8 +148,14 @@ impl<'a> VillageDataDao<'a> {
                 let city_id = data
                     .city_id
                     .ok_or(Error::InvalidParameter("No city_id".to_string()))?;
+
+                let district_id = data
+                    .district_id
+                    .ok_or(Error::InvalidParameter("No district_id".to_string()))?;
+
                 self.create(&NewVillageData {
                     village_id,
+                    district_id,
                     odp: data.odp,
                     pdp: data.pdp,
                     cases: data.cases,
@@ -173,8 +181,13 @@ impl<'a> VillageDataDao<'a> {
                 let city_id = data
                     .city_id
                     .ok_or(Error::InvalidParameter("No city_id".to_string()))?;
+                let district_id = data
+                    .district_id
+                    .ok_or(Error::InvalidParameter("No district_id".to_string()))?;
+
                 self.create(&NewVillageData {
                     village_id,
+                    district_id,
                     odp: data.odp,
                     pdp: data.pdp,
                     cases: data.cases,
