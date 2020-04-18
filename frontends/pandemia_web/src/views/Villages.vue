@@ -23,7 +23,7 @@
         <template v-slot:tdmap="self">
           <td>{{self.item['id']}}</td>
           <td>{{self.item['name']}}</td>
-          <td>{{self.item['district']}}</td>
+          <td>{{self.item['district_name']}}</td>
           <td>{{self.item['city']}}</td>
           <td>{{self.item['province']}}</td>
           <td>{{self.item['latitude']}}</td>

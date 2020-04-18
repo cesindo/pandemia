@@ -65,7 +65,13 @@ pub struct RecordUpdate {
     pub pdpm: i32,
     pub otg: i32,
     // pub meta: Vec<String>,
-    pub last_updated: NaiveDateTime,
+    // pub last_updated: NaiveDateTime,
+}
+
+#[derive(Deserialize, Validate)]
+pub struct AddVillageData {
+    pub village_id: i64,
+    pub record: RecordUpdate,
 }
 
 #[derive(Deserialize, Validate)]
@@ -179,6 +185,46 @@ impl PublicApi {
     //         .map(ApiResult::success)
     // }
 
+    /// Add village_data.
+    #[api_endpoint(path = "/village_data/add", auth = "required", mutable, accessor = "admin")]
+    pub fn add_village_data(query: AddVillageData) -> ApiResult<VillageData> {
+        query.validate()?;
+
+        let conn = state.db();
+        let dao = VillageDataDao::new(&conn);
+
+        let village = VillageDao::new(&conn).get_by_id(query.village_id)?;
+
+        if current_admin.id != 1 {
+            if current_admin.get_city_id().unwrap_or(0) != village.city_id {
+                return param_error("Anda tidak memiliki akses untuk kab/kota ini");
+            }
+        }
+
+        let mut meta = vec![];
+
+        meta.push(format!("added_by_admin_id={}", current_admin.id));
+
+        let village_data = dao.create(&NewVillageData {
+            village_id: query.village_id,
+            odp: query.record.odp,
+            pdp: query.record.pdp,
+            cases: query.record.cases,
+            recovered: query.record.recovered,
+            deaths: query.record.deaths,
+            last_updated_by_id: current_admin.id,
+            city_id: village.city_id,
+            meta: &meta.iter().map(|a| a.as_str()).collect(),
+            ppdwt: query.record.ppdwt,
+            pptb: query.record.pptb,
+            odpsp: query.record.odpsp,
+            pdps: query.record.pdps,
+            pdpm: query.record.pdpm,
+            otg: query.record.otg,
+        })?;
+        Ok(ApiResult::success(village_data.to_api_type(&conn)))
+    }
+
     /// Mendapatkan data village berdasarkan ID.
     #[api_endpoint(path = "/detail", auth = "required")]
     pub fn village_detail(query: IdQuery) -> ApiResult<models::Village> {
@@ -282,6 +328,34 @@ impl PublicApi {
 
         Ok(ApiResult::success(()))
     }
+
+    /// Search for village_addresses
+    #[api_endpoint(path = "/village_address", auth = "required")]
+    pub fn search_village_address(query: QueryEntries) -> ApiResult<EntriesResult<VillageAddress>> {
+        query.validate()?;
+        let conn = state.db();
+        let dao = VillageDao::new(&conn);
+
+        let sresult = dao.search(&query.query.unwrap_or("".to_string()), query.offset, query.limit)?;
+
+        let entries = sresult
+            .entries
+            .into_iter()
+            .map(|a| VillageAddress {
+                village_id: a.id,
+                address: format!("{}, {}, {}, {}", a.name, a.city, a.district_name, a.province),
+            })
+            .collect();
+
+        let count = sresult.count;
+        Ok(ApiResult::success(EntriesResult { count, entries }))
+    }
+}
+
+#[derive(Serialize)]
+pub struct VillageAddress {
+    pub village_id: i64,
+    pub address: String,
 }
 
 /// Holder untuk implementasi API endpoint privat.

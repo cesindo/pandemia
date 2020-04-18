@@ -411,6 +411,39 @@ impl From<(models::VillageData, models::Village)> for VillageData {
     }
 }
 
+impl ToApiType<VillageData> for models::VillageData {
+    fn to_api_type(&self, conn: &PgConnection) -> VillageData {
+        use crate::schema::villages::{self, dsl};
+        let (village_name, district_name) = {
+            villages::table
+                .filter(dsl::id.eq(self.village_id))
+                .select((dsl::name, dsl::district_name))
+                .first::<(String, String)>(conn)
+                .unwrap_or_else(|_| ("".to_string(), "".to_string()))
+        };
+        VillageData {
+            id: self.id,
+            village_id: self.village_id,
+            odp: self.odp,
+            pdp: self.pdp,
+            cases: self.cases,
+            recovered: self.recovered,
+            deaths: self.deaths,
+            last_updated: self.last_updated,
+            last_updated_by_id: self.last_updated_by_id,
+            ts: self.ts,
+            ppdwt: self.ppdwt,
+            pptb: self.pptb,
+            odpsp: self.odpsp,
+            pdps: self.pdps,
+            pdpm: self.pdpm,
+            otg: self.otg,
+            village_name,
+            district_name,
+        }
+    }
+}
+
 #[doc(hidden)]
 #[derive(Queryable, Serialize)]
 pub struct DistrictData {

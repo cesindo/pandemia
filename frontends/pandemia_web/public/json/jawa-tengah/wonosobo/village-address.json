@@ -1,0 +1,1056 @@
+{
+  "address": [
+    {
+      "id": 280,
+      "address": "Wonosobo Barat, Wonosobo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 281,
+      "address": "Wonosobo Timur, Wonosobo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 88,
+      "address": "Banjar, Kertek, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 89,
+      "address": "Bejiarum, Kertek, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 90,
+      "address": "Bojasari, Kertek, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 91,
+      "address": "Candimulyo, Kertek, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 92,
+      "address": "Candiyasan, Kertek, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 93,
+      "address": "Damarkasihan, Kertek, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 94,
+      "address": "Kapencar, Kertek, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 95,
+      "address": "Karangluhur, Kertek, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 96,
+      "address": "Ngadikusuman, Kertek, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 73,
+      "address": "Selokromo, Leksono, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 74,
+      "address": "Sojokerto, Leksono, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 77,
+      "address": "Timbang, Leksono, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 78,
+      "address": "Wonokerto, Leksono, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 79,
+      "address": "Leksono, Leksono, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 103,
+      "address": "Blederan, Mojotengah, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 105,
+      "address": "Bumirejo, Mojotengah, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 107,
+      "address": "Candirejo, Mojotengah, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 108,
+      "address": "Deroduwur, Mojotengah, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 113,
+      "address": "Deroduwur , Mojotengah, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 114,
+      "address": "Derongisor, Mojotengah, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 115,
+      "address": "Gunturmadu, Mojotengah, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 246,
+      "address": "Binangun, Watumalang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 247,
+      "address": "Banyukembar, Watumalang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 248,
+      "address": "Bumiroso, Watumalang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 250,
+      "address": "Gumawang Kidul, Watumalang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 251,
+      "address": "Kalidesel, Watumalang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 252,
+      "address": "Krinjing, Watumalang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 253,
+      "address": "Kuripan, Watumalang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 155,
+      "address": "Besuki, Wadaslintang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 156,
+      "address": "Erorejo, Wadaslintang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 157,
+      "address": "Gumelar, Wadaslintang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 158,
+      "address": "Kalidadap, Wadaslintang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 159,
+      "address": "Kaligowong, Wadaslintang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 160,
+      "address": "Karanganyar, Wadaslintang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 161,
+      "address": "Lancar, Wadaslintang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 162,
+      "address": "Ngalian, Wadaslintang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 163,
+      "address": "Panerusan, Wadaslintang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 164,
+      "address": "Plunjaran, Wadaslintang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 165,
+      "address": "Somogede, Wadaslintang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 166,
+      "address": "Sumberejo, Wadaslintang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 167,
+      "address": "Sumbersari, Wadaslintang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 168,
+      "address": "Tirip, Wadaslintang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 169,
+      "address": "Trimulyo, Wadaslintang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 254,
+      "address": "Limbangan, Watumalang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 255,
+      "address": "Lumajang, Watumalang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 256,
+      "address": "Mutisari, Watumalang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 257,
+      "address": "Pasuruhan, Watumalang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 258,
+      "address": "Wonokampir, Watumalang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 259,
+      "address": "Watumalang, Watumalang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 260,
+      "address": "Wonosroyo, Watumalang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 261,
+      "address": "Wonoroto, Watumalang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 278,
+      "address": "Sambek, Wonosobo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 279,
+      "address": "Tawangsari, Wonosobo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 29,
+      "address": "Dempel, Kalibawang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 31,
+      "address": "Depok, Kalibawang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 32,
+      "address": "Kalialang, Kalibawang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 33,
+      "address": "Kalikarung, Kalibawang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 34,
+      "address": "Karangsambung, Kalibawang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 35,
+      "address": "Mergolangu, Kalibawang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 36,
+      "address": "Pengarengan, Kalibawang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 37,
+      "address": "Tempurejo, Kalibawang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 54,
+      "address": "Bowongso, Kalikajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 4,
+      "address": "Kayugiyang, Garung, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 5,
+      "address": "Kuripan, Garung, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 6,
+      "address": "Larangan Lor, Garung, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 7,
+      "address": "Lengkong, Garung, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 8,
+      "address": "Maron, Garung, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 9,
+      "address": "Menjer, Garung, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 10,
+      "address": "Mlandi, Garung, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 11,
+      "address": "Sendangsari, Garung, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 12,
+      "address": "Sitiharjo, Garung, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 13,
+      "address": "Siwuran, Garung, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 14,
+      "address": "Tegalsari, Garung, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 15,
+      "address": "Tlogo, Garung, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 23,
+      "address": "Gemblengan, Garung, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 27,
+      "address": "Garung, Garung, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 56,
+      "address": "Jengkol, Garung, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 61,
+      "address": "Kembaran, Kalikajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 64,
+      "address": "Kwadungan, Kalikajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 67,
+      "address": "Lamuk, Kalikajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 70,
+      "address": "Maduretno, Kalikajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 55,
+      "address": "Butuh, Kalikajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 57,
+      "address": "Butuh Kidul, Kalikajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 58,
+      "address": "Kalikuning, Kalikajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 59,
+      "address": "Karangduwur, Kalikajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 60,
+      "address": "Kedalon, Kalikajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 38,
+      "address": "Buntu, Kejajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 39,
+      "address": "Campursari, Kejajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 40,
+      "address": "Dieng, Kejajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 41,
+      "address": "Igirmranak, Kejajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 42,
+      "address": "Jojogan, Kejajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 43,
+      "address": "Kreo, Kejajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 44,
+      "address": "Parikesit, Kejajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 45,
+      "address": "Patakbanteng, Kejajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 46,
+      "address": "Sembungan, Kejajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 47,
+      "address": "Serang, Kejajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 48,
+      "address": "Sigedang, Kejajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 49,
+      "address": "Sikunang, Kejajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 50,
+      "address": "Surengede, Kejajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 51,
+      "address": "Tambi, Kejajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 52,
+      "address": "Tieng, Kejajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 53,
+      "address": "Kejajar, Kejajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 62,
+      "address": "Besani, Leksono, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 63,
+      "address": "Durensawit, Leksono, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 65,
+      "address": "Jlamprang, Leksono, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 66,
+      "address": "Kalimendong, Leksono, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 68,
+      "address": "Lipursari, Leksono, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 69,
+      "address": "Manggis, Leksono, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 71,
+      "address": "Pacarmulyo, Leksono, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 72,
+      "address": "Sawangan, Leksono, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 116,
+      "address": "Kebrengan, Mojotengah, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 117,
+      "address": "Keseneng, Mojotengah, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 119,
+      "address": "Krasak, Mojotengah, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 120,
+      "address": "Larangan Kulon, Mojotengah, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 121,
+      "address": "Mojosari, Mojotengah, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 122,
+      "address": "Mudal, Mojotengah, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 123,
+      "address": "Pungangan, Mojotengah, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 124,
+      "address": "Slukatan, Mojotengah, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 128,
+      "address": "Adiwarno, Selomerto, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 170,
+      "address": "Wadaslintang, Wadaslintang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 131,
+      "address": "Karangrejo, Selomerto, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 132,
+      "address": "Kecis, Selomerto, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 133,
+      "address": "Krasak, Selomerto, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 134,
+      "address": "Ngadimulyo, Selomerto, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 135,
+      "address": "Pakuncen, Selomerto, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 136,
+      "address": "Plobangan, Selomerto, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 137,
+      "address": "Semayu, Selomerto, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 138,
+      "address": "Simbarejo, Selomerto, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 139,
+      "address": "Sinduagung, Selomerto, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 140,
+      "address": "Balekambang, Selomerto, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 141,
+      "address": "Sumberwulan, Selomerto, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 142,
+      "address": "Tumenggungan, Selomerto, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 143,
+      "address": "Wilayu, Selomerto, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 144,
+      "address": "Wulungsari, Selomerto, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 145,
+      "address": "Bumitirto, Selomerto, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 146,
+      "address": "Candi, Selomerto, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 209,
+      "address": "Bener, Kepil, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 210,
+      "address": "Berab, Kepil, Wonosono, Jawa Tengah"
+    },
+    {
+      "id": 211,
+      "address": "Burat, Kepil, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 212,
+      "address": "Gadingrejo, Kepil, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 213,
+      "address": "Gadingsukuh, Kepil, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 214,
+      "address": "Gondowulan, Kepil, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 215,
+      "address": "Jangkrikan, Kepil, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 216,
+      "address": "Kagungan, Kepil, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 217,
+      "address": "Kalipuru, Kepil, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 218,
+      "address": "Kaliwuluh, Kepil, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 219,
+      "address": "Kapulogo, Kepil, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 220,
+      "address": "Ngalian, Kepil, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 221,
+      "address": "Pulosaren, Kepil, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 222,
+      "address": "Randusari, Kepil, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 223,
+      "address": "Rejosari, Kepil, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 224,
+      "address": "Ropoh, Kepil, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 225,
+      "address": "Tanjunganom, Kepil, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 226,
+      "address": "Tegalgot, Kepil, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 227,
+      "address": "Teges Wetan, Kepil, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 228,
+      "address": "Warangan, Kepil, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 229,
+      "address": "Kepil, Kepil, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 230,
+      "address": "Garung Lor, Sukoharjo, Wonosono, Jawa Tengah"
+    },
+    {
+      "id": 231,
+      "address": "Gumiwang, Sukoharjo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 232,
+      "address": "Gunungtugel, Sukoharjo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 233,
+      "address": "Jebengplampitan, Sukoharjo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 234,
+      "address": "Kajeksan, Sukoharjo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 235,
+      "address": "Kalibening, Sukoharjo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 236,
+      "address": "Karanganyar, Sukoharjo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 237,
+      "address": "Kupangan, Sukoharjo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 238,
+      "address": "Mergosari, Sukoharjo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 239,
+      "address": "Plodongan, Sukoharjo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 240,
+      "address": "Pucungwetan, Sukoharjo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 241,
+      "address": "Pulus, Sukoharjo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 242,
+      "address": "Rogojati, Sukoharjo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 243,
+      "address": "Sempol, Sukoharjo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 244,
+      "address": "Suroyudan, Sukoharjo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 245,
+      "address": "Tlogo, Sukoharjo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 249,
+      "address": "Gondang, Watumalang, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 262,
+      "address": "Bomertp, Wonosobo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 263,
+      "address": "Jogoyitnan, Wonosobo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 264,
+      "address": "Pancurwening, Wonosobo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 265,
+      "address": "Sariyoso, Wonosobo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 266,
+      "address": "Tlogojati, Wonosobo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 267,
+      "address": "Wonolelo, Wonosobo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 268,
+      "address": "Wonosari, Wonosobo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 269,
+      "address": "Bumireso, Wonosobo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 270,
+      "address": "Jaraksari, Wonosobo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 271,
+      "address": "Jlamprang, Wonosobo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 272,
+      "address": "Kalianget, Wonosobo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 273,
+      "address": "Kejiwan, Wonosobo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 274,
+      "address": "Kramatan, Wonosobo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 275,
+      "address": "Mlipak, Wonosobo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 276,
+      "address": "Pagerkukuh, Wonosobo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 277,
+      "address": "Rojoimo, Wonosobo, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 75,
+      "address": "Mangunrejo, Kalikajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 76,
+      "address": "Mungkung, Kalikajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 80,
+      "address": "Perboto, Kalikajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 82,
+      "address": "Purwojiwo, Kalikajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 83,
+      "address": "Rejosari, Kalikajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 84,
+      "address": "Simbang, Kalikajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 85,
+      "address": "Tegalombo, Kalikajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 86,
+      "address": "Wonosari, Kalikajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 87,
+      "address": "Kalikajar, Kalikajar, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 188,
+      "address": "Bendungan, Kaliwiro, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 189,
+      "address": "Lebak, Kaliwiro, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 190,
+      "address": "Medono, Kaliwiro, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 191,
+      "address": "Ngadisono, Kaliwiro, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 192,
+      "address": "Ngasinan, Kaliwiro, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 193,
+      "address": "Pesodongan, Kaliwiro, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 194,
+      "address": "Pucungkerep, Kaliwiro, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 195,
+      "address": "Purwosari, Kaliwiro, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 196,
+      "address": "Selomanik, Kaliwiro, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 197,
+      "address": "Sukoreno, Kaliwiro, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 198,
+      "address": "Tanjunganom, Kaliwiro, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 199,
+      "address": "Cledok, Kaliwiro, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 200,
+      "address": "Tracap, Kaliwiro, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 201,
+      "address": "Winongsari, Kaliwiro, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 202,
+      "address": "Gambaran, Kaliwiro, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 203,
+      "address": "Grugu, Kaliwiro, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 204,
+      "address": "Kaliguwo, Kaliwiro, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 205,
+      "address": "Kauman, Kaliwiro, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 206,
+      "address": "Kemiriombo, Kaliwiro, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 207,
+      "address": "Lamuk, Kaliwiro, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 208,
+      "address": "Kaliwiro, Kaliwiro, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 97,
+      "address": "Pagerejo, Kertek, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 98,
+      "address": "Purbosono, Kertek, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 99,
+      "address": "Purwojati, Kertek, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 100,
+      "address": "Reco, Kertek, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 101,
+      "address": "Sindupaten, Kertek, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 102,
+      "address": "Sudungdewo, Kertek, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 104,
+      "address": "Sumberdalem, Kertek, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 106,
+      "address": "Surengede, Kertek, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 109,
+      "address": "Tlogodalem, Kertek, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 110,
+      "address": "Tlogomulyo, Kertek, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 111,
+      "address": "Kertek, Kertek, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 112,
+      "address": "Wringinanom, Kertek, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 125,
+      "address": "Sojopuro, Mojotengah, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 126,
+      "address": "Sukerejo, Mojotengah, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 127,
+      "address": "Wonokromo, Mojotengah, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 129,
+      "address": "Andongsili, Mojotengah, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 130,
+      "address": "Kalibeber, Mojotengah, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 171,
+      "address": "Banyumudal, Sapuran, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 172,
+      "address": "Batursari, Sapuran, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 173,
+      "address": "Bogoran, Sapuran, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 174,
+      "address": "Glagah, Sapuran, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 175,
+      "address": "Jolontoro, Sapuran, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 176,
+      "address": "Karangsari, Sapuran, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 177,
+      "address": "Marongsari, Sapuran, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 178,
+      "address": "Ngadikerso, Sapuran, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 179,
+      "address": "Ngadisalam, Sapuran, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 180,
+      "address": "Pecekelan, Sapuran, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 181,
+      "address": "Rimpak, Sapuran, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 182,
+      "address": "Sapuran, Sapuran, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 183,
+      "address": "Sedayu, Sapuran, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 184,
+      "address": "Surojoyo, Sapuran, Wonosob, Jawa Tengah"
+    },
+    {
+      "id": 185,
+      "address": "Talunombo, Sapuran, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 186,
+      "address": "Tempuranduwur, Sapuran, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 187,
+      "address": "Tempursari, Sapuran, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 147,
+      "address": "Gunungtawang, Selomerto, Wonosob, Jawa Tengah"
+    },
+    {
+      "id": 148,
+      "address": "Kadipaten, Selomerto, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 149,
+      "address": "Kalierang, Selomerto, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 150,
+      "address": "Kaliputih, Selomerto, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 152,
+      "address": "Sidorejo, Selomerto, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 153,
+      "address": "Selomerto, Selomerto, Wonosobo, Jawa Tengah"
+    },
+    {
+      "id": 154,
+      "address": "Wonorejo, Selomerto, Wonosobo, Jawa Tengah"
+    }
+  ]
+}

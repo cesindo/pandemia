@@ -34,11 +34,11 @@
             <tr>
               <th v-for="col in columns" v-bind:key="col">
                 {{col}}
-                <div class="column-info" v-show="columnsTipShow[col] == true">
+                <div v-if="columnsInfo != null" class="column-info" v-show="columnsTipShow[col] == true">
                   <p><i class="ui info circle icon"></i> {{columnsInfo[col]}}</p>
                 </div>
                 <small style="display: inline;"
-                  v-if="columnsInfo[col] != null"
+                  v-if="columnsInfo != null && columnsInfo[col] != null"
                   class="ui badge"
                   :title="columnsInfo[col]"
                   @mouseover="$set(columnsTipShow, col, true)"

@@ -11,6 +11,30 @@
       :limit="10"
     >
       <template v-slot:bar>
+        <div v-if="isSuperUser" class="ui input base-loc">
+          <input
+            ref="ProvinceInput"
+            type="text"
+            name="Province"
+            id="Province"
+            placeholder="Provinsi"
+            v-model="province"
+            @keyup="updateBaseAddress"
+          />
+        </div>
+
+        <div v-if="isSuperUser" class="ui input base-loc">
+          <input
+            ref="CityInput"
+            type="text"
+            name="City"
+            id="City"
+            placeholder="Kab/Kota"
+            v-model="city"
+            @keyup="updateBaseAddress"
+          />
+        </div>
+
         <button v-if="isDirty" class="ui text icon green button right floated" @click="commit">
           <i class="fa-angle-double-up icon"></i> Commit
         </button>
@@ -253,59 +277,128 @@
       :buttonsText="{reject: 'Cancel', approve: 'Ok'}"
     >
       <template v-slot:content>
-        <h2 class="ui header">Tambah rekod baru</h2>
+        <h2 class="ui header">Tambah Entri Baru</h2>
 
         <div style="text-align: left;">
           <div class="ui form">
             <div class="field">
-              <label>Nama Lokasi:</label>
-              <input ref="addRecLocInput" type="text" name="Loc" id="Loc" />
+              <label>Alamat Desa:</label>
+              <!-- <input
+                ref="VillageAddressInput"
+                type="text"
+                name="VillageAddress"
+                id="VillageAddress"
+                v-model="addVillageAddress"
+              />-->
+
+              <vue-autosuggest
+                v-model="addVillageAddress"
+                :suggestions="filteredAddresses"
+                @click="clickHandler"
+                @selected="onSelected"
+                :get-suggestion-value="getSuggestionValue"
+                :input-props="{id:'autosuggest__input', placeholder:'Desa'}"
+              >
+                <div slot-scope="{suggestion}" style="display: flex; align-items: center;">
+                  <div style="{ display: 'flex', color: 'navyblue'}">{{suggestion.item.address}}</div>
+                </div>
+              </vue-autosuggest>
             </div>
-            <div class="field">
-              <label>Jenis:</label>
-              <select ref="addRecLocKind" class="ui fluid dropdown" name="Kind" id="Kind">
-                <option value="4">Kota/Kabupaten</option>
-                <option value="3">Provinsi</option>
-                <option value="2">Negara</option>
-                <option value="1">Benua</option>
-                <option value="0">Global</option>
-                <option value="5">Unknown</option>
-              </select>
-            </div>
-            <div class="field">
+            <!-- <div class="field">
               <label>Area (scope):</label>
               <input ref="addRecLocScopeInput" type="text" name="LocScope" id="LocScope" />
               <small>bisa nama negara di mana lokasi ini berada, contoh: Indonesia</small>
+            </div>-->
+            <div class="ui grid">
+              <div class="three wide column">
+                <div class="field">
+                  <label>PPDWT:</label>
+                  <input ref="addRecOdp" type="text" name="Odp" id="Odp" v-model="addPpdwt" />
+                </div>
+              </div>
+              <div class="three wide column">
+                <div class="field">
+                  <label>PPTB:</label>
+                  <input type="text" name="Pptb" id="Pptb" v-model="addPptb" />
+                </div>
+              </div>
+              <div class="three wide column">
+                <div class="field">
+                  <label>ODP:</label>
+                  <input ref="addRecOdp" type="text" name="Odp" id="Odp" v-model="addOdp" />
+                </div>
+              </div>
+
+              <div class="three wide column">
+                <div class="field">
+                  <label>ODP-SP:</label>
+                  <input type="text" name="Odpsp" id="Odpsp" v-model="addOdpsp" />
+                </div>
+              </div>
+
+              <div class="three wide column">
+                <div class="field">
+                  <label>PDP:</label>
+                  <input type="text" name="Pdp" id="Pdp" v-model="addPdp" />
+                </div>
+              </div>
             </div>
             <div class="ui grid">
               <div class="three wide column">
                 <div class="field">
-                  <label>ODP:</label>
-                  <input ref="addRecOdp" type="text" name="Odp" id="Odp" />
+                  <label>PDP-S:</label>
+                  <input ref="addRecPdp" type="text" name="Pdp" id="Pdp" v-model="addPdps" />
                 </div>
               </div>
+
               <div class="three wide column">
                 <div class="field">
-                  <label>PDP:</label>
-                  <input ref="addRecPdp" type="text" name="Pdp" id="Pdp" />
+                  <label>PDP-M:</label>
+                  <input ref="addRecTotalPdpm" type="text" name="Pdpm" id="Pdpm" v-model="addPdpm" />
                 </div>
               </div>
+
+              <div class="three wide column">
+                <div class="field">
+                  <label>OTG:</label>
+                  <input ref="addRecTotalOtg" type="text" name="Otg" id="Otg" v-model="addOtg" />
+                </div>
+              </div>
+
               <div class="three wide column">
                 <div class="field">
                   <label>Positive:</label>
-                  <input ref="addRecPositive" type="text" name="Positive" id="Positive" />
+                  <input
+                    ref="addRecPositive"
+                    type="text"
+                    name="Positive"
+                    id="Positive"
+                    v-model="addCases"
+                  />
                 </div>
               </div>
               <div class="three wide column">
                 <div class="field">
                   <label>Sembuh:</label>
-                  <input ref="addRecTotalRecovered" type="text" name="Recovered" id="Recovered" />
+                  <input
+                    ref="addRecTotalRecovered"
+                    type="text"
+                    name="Recovered"
+                    id="Recovered"
+                    v-model="addRecovered"
+                  />
                 </div>
               </div>
               <div class="three wide column">
                 <div class="field">
                   <label>Meninggal:</label>
-                  <input ref="addRecTotalDeaths" type="text" name="Deaths" id="Deaths" />
+                  <input
+                    ref="addRecTotalDeaths"
+                    type="text"
+                    name="Deaths"
+                    id="Deaths"
+                    v-model="addDeaths"
+                  />
                 </div>
               </div>
             </div>
@@ -327,13 +420,13 @@
         <div class="ui form">
           <div class="field">
             <label>Nama provinsi:</label>
-            <input ref="provNameInput" v-model="provName" type="text" name="ProvName" id="ProvName" />
+            <input ref="provinceInput" v-model="province" type="text" name="ProvName" id="ProvName" />
           </div>
           <div class="field">
             <label>Nama Kab/Kota:</label>
             <input
-              ref="cityNameInput"
-              v-model="cityName"
+              ref="cityInput"
+              v-model="city"
               type="text"
               name="CityName"
               id="CityName"
@@ -362,6 +455,7 @@ import AnsTable from "@/components/AnsTable.vue";
 import DialogModal from "@/components/modal/DialogModal.vue";
 import ConfirmDialog from "@/components/modal/ConfirmDialog.vue";
 import { obMapToArrayValues } from "@/utils/utils";
+import _axios from "axios";
 
 export default {
   name: "Records",
@@ -376,16 +470,51 @@ export default {
       editedCatName: "",
       editedCat: "",
       commitLogs: {},
-      isDirty: false,
+      // isDirty: false,
       tableRecords: "-0",
       toDelete: { id: 0, loc: "" },
-      provName: "",
-      cityName: ""
+      province: "",
+      city: "",
+      addVillageAddress: "",
+      addVillageId: 0,
+      citySuggestions: [],
+
+      addCases: 0,
+      addDeaths: 0,
+      addRecovered: 0,
+      addPpdwt: 0,
+      addPptb: 0,
+      addOdp: 0,
+      addOdpsp: 0,
+      addPdp: 0,
+      addPdps: 0,
+      addPdpm: 0,
+      addOtg: 0
     };
   },
   computed: {
     isSuperUser() {
       return this.$session.get("user_id") == 1;
+    },
+    isDirty() {
+      // console.log(obMapToArrayValues(this.commitLogs));
+      return (
+        this.commitLogs != null &&
+        obMapToArrayValues(this.commitLogs).length > 0
+      );
+    },
+    filteredAddresses() {
+      return [
+        {
+          data: this.citySuggestions.filter(d => {
+            return (
+              d.address
+                .toLowerCase()
+                .indexOf(this.addVillageAddress.toLowerCase()) > -1
+            );
+          })
+        }
+      ];
     }
   },
   mounted() {
@@ -394,39 +523,79 @@ export default {
         this.commitLogs = JSON.parse(localStorage.commitLogs);
         if (this.commitLogs == null) {
           this.commitLogs = {};
-        } else {
-          this.isDirty = true;
+          // } else {
+          // this.isDirty = true;
         }
       } catch {
         this.commitLogs = {};
       }
     }
+
+    this.province = localStorage.province || localStorage.province;
+    this.city = localStorage.city || localStorage.city;
+
+    if (this.province && this.city) {
+      _axios
+        .get(
+          `/json/${this.normalizePath(this.province)}/${this.normalizePath(
+            this.city
+          )}/village-address.json`
+        )
+        .then(response => {
+          this.citySuggestions = response.data.address;
+        });
+    }
   },
   methods: {
+    updateBaseAddress() {
+      localStorage.province = this.province;
+      localStorage.city = this.city;
+    },
+    normalizePath(q) {
+      return q.replace(/\W+/g, "-").toLowerCase();
+    },
+    clickHandler(_) {},
+    onSelected(item) {
+      this.villageName = item.item.address;
+      this.addVillageAddress = item.item.address;
+      this.addVillageId = item.item.id;
+    },
+    getSuggestionValue(suggestion) {
+      return suggestion.item.address;
+    },
     addRecord() {
       this.$modal.show("AddRecordModal");
     },
     doAddRecord() {
-      var loc = this.$refs["addRecLocInput"].value,
-        locKind = parseInt(this.$refs["addRecLocKind"].value),
-        locScope = this.$refs["addRecLocScopeInput"].value,
-        // Odp = parseInt(this.$refs['addRecOdp'].value),
-        // Pdp = parseInt(this.$refs['addRecPdp'].value),
-        totalCases = parseInt(this.$refs["addRecPositive"].value) || 0,
-        totalDeaths = parseInt(this.$refs["addRecTotalDeaths"].value) || 0,
-        totalRecovered =
-          parseInt(this.$refs["addRecTotalRecovered"].value) || 0;
+      if (this.addVillageId == null || this.addVillageId == 0) {
+        return this.showError("Mohon masukkan alamat desanya terlebih dahulu");
+      }
+
+      let s = this.addVillageAddress.split(", ");
+
+      let record = {
+        id: 0,
+        village_id: this.addVillageId,
+        village_name: s[0],
+        district_name: s[1],
+        cases: parseInt(this.addCases),
+        deaths: parseInt(this.addDeaths),
+        recovered: parseInt(this.addRecovered),
+        ppdwt: parseInt(this.addPpdwt),
+        pptb: parseInt(this.addPptb),
+        odp: parseInt(this.addOdp),
+        odpsp: parseInt(this.addOdpsp),
+        pdp: parseInt(this.addPdp),
+        pdps: parseInt(this.addPdps),
+        pdpm: parseInt(this.addPdpm),
+        otg: parseInt(this.addOtg)
+      };
+
       this.$pandemia
         .api()
-        .publicApi.post("/village/v1/add", {
-          loc: loc,
-          loc_scope: locScope,
-          loc_kind: locKind,
-          total_cases: totalCases,
-          total_deaths: totalDeaths,
-          total_recovered: totalRecovered,
-          active_cases: 0,
-          critical_cases: 0
+        .publicApi.post("/village/v1/village_data/add", {
+          village_id: this.addVillageId,
+          record: record
         })
         .then(resp => {
           if (resp.data.code == 0) {
@@ -484,14 +653,14 @@ export default {
 
       if (commitLog == undefined) {
         commitLog = Object.assign({}, this.editedItem);
-        this.isDirty = true;
+        // this.isDirty = true;
       }
 
       commitLog[this.editedCat] = parseInt(this.$refs.newValue.value);
 
       this.$set(this.commitLogs, this.editedItem["id"], commitLog);
 
-      this.isDirty = true;
+      // this.isDirty = true;
       this.persist();
 
       this.$modal.hide("EditValueModal");
@@ -501,13 +670,13 @@ export default {
     },
     doCommit() {
       if (this.isSupperUser) {
-        if (this.provName == "") {
+        if (this.province == "") {
           this.showError(
             "Anda perlu memasukkan nama provinsi untuk data tersebut"
           );
           return;
         }
-        if (this.cityName == "") {
+        if (this.city == "") {
           this.showError(
             "Anda perlu memasukkan nama kota/kab untuk data tersebut"
           );
@@ -520,14 +689,14 @@ export default {
       this.$pandemia
         .api()
         .publicApi.post("/village/v1/commit", {
-          province: this.provName,
-          city: this.cityName,
+          province: this.province,
+          city: this.city,
           records: normCommitLogs
         })
         .then(resp => {
           // console.log(resp);
           if (resp.data.code == 0) {
-            this.isDirty = false;
+            // this.isDirty = false;
             this.commitLogs = {};
             this.persist();
             this.refreshTable();
@@ -573,5 +742,28 @@ export default {
 <style lang="less">
 td.dirty {
   color: orange;
+}
+
+.base-loc {
+  padding: 0px 10px;
+  margin: 0px 10px;
+}
+
+.autosuggest-container,
+.autosuggest__results {
+  position: absolute;
+  justify-content: center;
+  width: 280px;
+  background-color: white;
+  border: 1px solid #cacaca;
+  z-index: 1000;
+}
+
+#autosuggest {
+  width: 100%;
+  display: block;
+}
+.autosuggest__results-item--highlighted {
+  background-color: rgba(51, 217, 178, 0.2);
 }
 </style>
