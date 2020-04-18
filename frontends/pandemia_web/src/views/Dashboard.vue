@@ -153,6 +153,7 @@ export default {
           title: "Data Desa",
           icon: "fa fa-file-alt",
           href: "/dashboard/village-data",
+          access: "village_data"
         },
         {
           title: "Data Perorang",

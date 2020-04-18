@@ -17,8 +17,12 @@
       <!-- <h1>{{ pageTitle }}</h1> -->
 
       <h1 class="ui header">
-        <img class="ui image pandemia-logo" src="/img/logo-64.png" alt="pandemia logo" />
-        <div class="content">Kabupaten Wonosobo - COVID-19 Control Center</div>
+        <img
+          class="ui image pandemia-logo mobile hidden"
+          src="/img/logo-64.png"
+          alt="pandemia logo"
+        />
+        <div id="MaintTitle" class="content">Kabupaten Wonosobo - COVID-19 Informaton Center</div>
       </h1>
 
       <!-- <div class="ui divider"></div> -->
@@ -27,7 +31,7 @@
         <div class="row">
           <div class="four wide column">
             <h3>
-              <i class="icon fa-bell"></i> Terbaru:
+              <i class="icon fa-bell"></i> Kabar Terbaru:
             </h3>
 
             <div class="ui divided list feeds" style="text-align: left !important;">
@@ -59,9 +63,9 @@
 
             <div class="ui divider"></div>
 
-            <div class="four wide column">
-              <h2>Per Desa</h2>
-              <table class="ui celled table village-data">
+            <div class="four wide mobile hidden column">
+              <h2>Data Per Desa</h2>
+              <table class="ui celled unstackable table village-data">
                 <thead>
                   <tr>
                     <th>Desa</th>
@@ -152,8 +156,8 @@
 
           <div class="four wide column">
             <div class="four wide column">
-              <h2>Per Kecamatan</h2>
-              <table class="ui celled table district-data">
+              <h2>Data Per Kecamatan</h2>
+              <table class="ui celled unstackable table district-data">
                 <thead>
                   <tr>
                     <th>Kecamatan</th>
@@ -179,11 +183,36 @@
           </div>
         </div>
 
-        <!-- <div class="row">
-          <div class="eight wide column">
-            <line-chart :chart-data="dataCollection" :responsive="true" width="700px"></line-chart>
+        <div class="row">
+          <div class="four wide mobile only column">
+            <h2>Data Per Desa</h2>
+            <table class="ui celled unstackable table village-data">
+              <thead>
+                <tr>
+                  <th>Desa</th>
+                  <th>O</th>
+                  <th>P</th>
+                  <th>C</th>
+                  <th>S</th>
+                  <th class="death">M</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in village_data" v-bind:key="item.id">
+                  <td class="village-name">{{item.village_name}}</td>
+                  <td>{{item.odp}}</td>
+                  <td>{{item.pdp}}</td>
+                  <td class="positive">{{item.cases}}</td>
+                  <td class="recover">{{item.recovered}}</td>
+                  <td class="death">{{item.deaths}}</td>
+                </tr>
+              </tbody>
+            </table>
+            <center>
+              <a href="/lihatsemua">Lihat Semua</a>
+            </center>
           </div>
-        </div>-->
+        </div>
       </div>
     </div>
   </div>
@@ -539,6 +568,23 @@ table.district-data {
 }
 table.statistics tr td {
   padding: 0 10px;
+}
+
+@media only screen and (max-width: 767px) {
+  [class*="mobile hidden"],
+  [class*="tablet only"]:not(.mobile),
+  [class*="computer only"]:not(.mobile),
+  [class*="large monitor only"]:not(.mobile),
+  [class*="widescreen monitor only"]:not(.mobile),
+  [class*="or lower hidden"] {
+    display: none !important;
+  }
+
+  #MaintTitle {
+    font-size: 0.6em !important;
+    text-align: center !important;
+    display: block;
+  }
 }
 </style>
 
