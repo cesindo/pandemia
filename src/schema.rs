@@ -79,6 +79,12 @@ table! {
         city_id -> Int8,
         meta -> Array<Text>,
         ts -> Timestamp,
+        ppdwt -> Int4,
+        pptb -> Int4,
+        odpsp -> Int4,
+        pdps -> Int4,
+        pdpm -> Int4,
+        otg -> Int4,
     }
 }
 
@@ -304,6 +310,12 @@ table! {
         ts -> Timestamp,
         city_id -> Int8,
         meta -> Array<Text>,
+        ppdwt -> Int4,
+        pptb -> Int4,
+        odpsp -> Int4,
+        pdps -> Int4,
+        pdpm -> Int4,
+        otg -> Int4,
     }
 }
 

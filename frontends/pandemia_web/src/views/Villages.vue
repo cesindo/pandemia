@@ -5,7 +5,7 @@
     <div id="Main">
       <AnsTable
         :key="tableVillages"
-        data-source-url="/pandemia/v1/village/search"
+        data-source-url="/village/v1/search"
         :columns="['ID', 'Nama', 'Kecamatan', 'Kota/Kab', 'Provinsi', 'Lat', 'Long', 'Meta', 'Action']"
         :searchable="true"
         :withActionButton="false"
@@ -133,7 +133,7 @@ import ConfirmDialog from "@/components/modal/ConfirmDialog.vue";
 import SatgasLogin from "@/components/SatgasLogin.vue";
 
 export default {
-  name: "Satgas",
+  name: "Desa",
   components: {
     AnsTable,
     DialogModal,
@@ -164,7 +164,7 @@ export default {
         longitude = this.$refs["addLonInput"].value;
       this.$pandemia
         .api()
-        .publicApi.post("/pandemia/v1/village/add", {
+        .publicApi.post("/village/v1/add", {
           name: name,
           district: subDistrict,
           city: city,
@@ -200,25 +200,6 @@ export default {
       this.$modal.show("EditValueModal", { item: self.item });
     },
     beforeOpenDialog(_) {
-      // console.log(this.editedItem);
-      // console.log(this.$refs.editValueDialogPlaceholder);
-      // this.$refs.editValueDialogPlaceholder.html(`<template v-slot:content>
-      //   <h2 class="ui header">Edit jumlah positive di ${event.params.item["loc"]}</h2>
-      //   <p>
-      //     nilai lama:
-      //     <br />
-      //     <strong>{{item['total_cases']}}</strong>
-      //   </p>
-      //   <p>nilai baru:</p>
-      //   <div class="ui input">
-      //     <input
-      //       :ref="'newValueInput' + item['id']"
-      //       type="text"
-      //       :id="'NewValueTotalCases-' + item['id']"
-      //       autofocus="autofocus"
-      //     />
-      //   </div>
-      // </template>`);
     },
     editValueDialogOpened(_) {
       this.$refs["newValue"].focus();
@@ -247,7 +228,7 @@ export default {
       this.$modal.hide("Delete");
       this.$pandemia
         .api()
-        .publicApi.post("/pandemia/v1/village/delete", {
+        .publicApi.post("/village/v1/delete", {
           id: this.toDelete["id"]
         })
         .then(resp => {

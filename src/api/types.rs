@@ -373,6 +373,13 @@ pub struct VillageData {
     pub last_updated: NaiveDateTime,
     pub last_updated_by_id: ID,
     pub ts: NaiveDateTime,
+    pub ppdwt: i32,
+    pub pptb: i32,
+    pub odpsp: i32,
+    pub pdps: i32,
+    pub pdpm: i32,
+    pub otg: i32,
+
     //----
     pub village_name: String,
     pub district_name: String,
@@ -394,6 +401,12 @@ impl From<(models::VillageData, models::Village)> for VillageData {
             // area_code: a.0.area_code.to_owned(),
             village_name: a.1.name.to_owned(),
             district_name: a.1.district_name.to_owned(),
+            ppdwt: a.0.ppdwt,
+            pptb: a.0.pptb,
+            odpsp: a.0.odpsp,
+            pdps: a.0.pdps,
+            pdpm: a.0.pdpm,
+            otg: a.0.otg,
         }
     }
 }

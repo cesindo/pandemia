@@ -7,17 +7,19 @@ use diesel::query_source::joins::Join;
 use diesel::sql_types;
 
 use crate::{
+    error::Error,
     models::{User, Village, VillageData},
     result::Result,
     schema::village_data,
     sqlutil::lower,
-    types::EntriesResult,
+    types::{EntriesResult, Ops},
     util, ID,
 };
 
+#[doc(hidden)]
 #[derive(Insertable)]
 #[table_name = "village_data"]
-struct NewVillageData<'a> {
+pub struct NewVillageData<'a> {
     pub village_id: ID,
     pub odp: i32,
     pub pdp: i32,
@@ -28,6 +30,33 @@ struct NewVillageData<'a> {
     pub last_updated_by_id: ID,
     pub city_id: ID,
     pub meta: &'a Vec<&'a str>,
+
+    pub ppdwt: i32,
+    pub pptb: i32,
+    pub odpsp: i32,
+    pub pdps: i32,
+    pub pdpm: i32,
+    pub otg: i32,
+}
+
+#[doc(hidden)]
+pub struct UpdateVillageData<'a> {
+    pub odp: i32,
+    pub pdp: i32,
+    pub cases: i32,
+    pub recovered: i32,
+    pub deaths: i32,
+    // pub last_updated: NaiveDateTime,
+    pub last_updated_by_id: ID,
+    pub city_id: Option<ID>,
+    pub meta: &'a Vec<&'a str>,
+
+    pub ppdwt: i32,
+    pub pptb: i32,
+    pub odpsp: i32,
+    pub pdps: i32,
+    pub pdpm: i32,
+    pub otg: i32,
 }
 
 /// Data Access Object for VillageData
@@ -39,68 +68,101 @@ pub struct VillageDataDao<'a> {
 
 impl<'a> VillageDataDao<'a> {
     /// Create new VillageData
-    pub fn create(
-        &self,
-        village_id: ID,
-        odp: i32,
-        pdp: i32,
-        cases: i32,
-        recovered: i32,
-        deaths: i32,
-        last_updated_by_id: ID,
-        meta: &Vec<&str>,
-        city_id: ID,
-    ) -> Result<VillageData> {
+    pub fn create(&self, data: &NewVillageData) -> Result<VillageData> {
         use crate::schema::village_data::{self, dsl};
 
         diesel::insert_into(village_data::table)
-            .values(&NewVillageData {
-                village_id,
-                odp,
-                pdp,
-                cases,
-                recovered,
-                deaths,
-                last_updated_by_id,
-                meta,
-                city_id,
-            })
+            .values(data)
             .get_result(self.db)
             .map_err(From::from)
     }
 
     /// Update data
-    pub fn update(
-        &self,
-        village_id: ID,
-        odp: i32,
-        pdp: i32,
-        cases: i32,
-        recovered: i32,
-        deaths: i32,
-        updater_id: ID,
-        meta: &Vec<&str>,
-        city_id: ID,
-    ) -> Result<()> {
+    pub fn update(&self, village_id: ID, ops: Ops, data: &UpdateVillageData) -> Result<()> {
         use crate::schema::village_data::{self, dsl};
-        match diesel::update(dsl::village_data.filter(dsl::village_id.eq(village_id)))
-            .set((
-                dsl::odp.eq(dsl::odp + odp),
-                dsl::pdp.eq(dsl::pdp + pdp),
-                dsl::cases.eq(dsl::cases + cases),
-                dsl::recovered.eq(dsl::recovered + recovered),
-                dsl::deaths.eq(dsl::deaths + deaths),
-                dsl::last_updated.eq(util::now()),
-                dsl::meta.eq(meta),
-                dsl::last_updated_by_id.eq(updater_id),
-            ))
-            .execute(self.db)
-        {
+
+        let run_result = {
+            match ops {
+                Ops::Add => diesel::update(dsl::village_data.filter(dsl::village_id.eq(village_id)))
+                    .set((
+                        dsl::odp.eq(dsl::odp + data.odp),
+                        dsl::pdp.eq(dsl::pdp + data.pdp),
+                        dsl::cases.eq(dsl::cases + data.cases),
+                        dsl::recovered.eq(dsl::recovered + data.recovered),
+                        dsl::deaths.eq(dsl::deaths + data.deaths),
+                        dsl::last_updated.eq(util::now()),
+                        dsl::meta.eq(data.meta),
+                        dsl::last_updated_by_id.eq(data.last_updated_by_id),
+                        dsl::ppdwt.eq(dsl::ppdwt + data.ppdwt),
+                        dsl::pptb.eq(dsl::pptb + data.pptb),
+                        dsl::odpsp.eq(dsl::odpsp + data.odpsp),
+                        dsl::pdps.eq(dsl::pdps + data.pdps),
+                        dsl::pdpm.eq(dsl::pdpm + data.pdpm),
+                        dsl::otg.eq(dsl::otg + data.otg),
+                    ))
+                    .execute(self.db),
+                Ops::Subs => diesel::update(dsl::village_data.filter(dsl::village_id.eq(village_id)))
+                    .set((
+                        dsl::odp.eq(dsl::odp - data.odp),
+                        dsl::pdp.eq(dsl::pdp - data.pdp),
+                        dsl::cases.eq(dsl::cases - data.cases),
+                        dsl::recovered.eq(dsl::recovered - data.recovered),
+                        dsl::deaths.eq(dsl::deaths - data.deaths),
+                        dsl::last_updated.eq(util::now()),
+                        dsl::meta.eq(data.meta),
+                        dsl::last_updated_by_id.eq(data.last_updated_by_id),
+                        dsl::ppdwt.eq(dsl::ppdwt - data.ppdwt),
+                        dsl::pptb.eq(dsl::pptb - data.pptb),
+                        dsl::odpsp.eq(dsl::odpsp - data.odpsp),
+                        dsl::pdps.eq(dsl::pdps - data.pdps),
+                        dsl::pdpm.eq(dsl::pdpm - data.pdpm),
+                        dsl::otg.eq(dsl::otg - data.otg),
+                    ))
+                    .execute(self.db),
+                Ops::Set => diesel::update(dsl::village_data.filter(dsl::village_id.eq(village_id)))
+                    .set((
+                        dsl::odp.eq(data.odp),
+                        dsl::pdp.eq(data.pdp),
+                        dsl::cases.eq(data.cases),
+                        dsl::recovered.eq(data.recovered),
+                        dsl::deaths.eq(data.deaths),
+                        dsl::last_updated.eq(util::now()),
+                        dsl::meta.eq(data.meta),
+                        dsl::last_updated_by_id.eq(data.last_updated_by_id),
+                        dsl::ppdwt.eq(data.ppdwt),
+                        dsl::pptb.eq(data.pptb),
+                        dsl::odpsp.eq(data.odpsp),
+                        dsl::pdps.eq(data.pdps),
+                        dsl::pdpm.eq(data.pdpm),
+                        dsl::otg.eq(data.otg),
+                    ))
+                    .execute(self.db),
+            }
+        };
+
+        match run_result {
             Ok(updated) if updated == 0 => {
                 // do insert
-                self.create(
-                    village_id, odp, pdp, cases, recovered, deaths, updater_id, meta, city_id,
-                )?;
+                let city_id = data
+                    .city_id
+                    .ok_or(Error::InvalidParameter("No city_id".to_string()))?;
+                self.create(&NewVillageData {
+                    village_id,
+                    odp: data.odp,
+                    pdp: data.pdp,
+                    cases: data.cases,
+                    recovered: data.recovered,
+                    deaths: data.deaths,
+                    last_updated_by_id: data.last_updated_by_id,
+                    city_id,
+                    meta: data.meta,
+                    ppdwt: data.ppdwt,
+                    pptb: data.pptb,
+                    odpsp: data.odpsp,
+                    pdps: data.pdps,
+                    pdpm: data.pdpm,
+                    otg: data.otg,
+                })?;
             }
             Ok(_) => (),
             Err(diesel::result::Error::DatabaseError(
@@ -108,9 +170,26 @@ impl<'a> VillageDataDao<'a> {
                 _,
             )) => {
                 // do insert
-                self.create(
-                    village_id, odp, pdp, cases, recovered, deaths, updater_id, meta, city_id,
-                )?;
+                let city_id = data
+                    .city_id
+                    .ok_or(Error::InvalidParameter("No city_id".to_string()))?;
+                self.create(&NewVillageData {
+                    village_id,
+                    odp: data.odp,
+                    pdp: data.pdp,
+                    cases: data.cases,
+                    recovered: data.recovered,
+                    deaths: data.deaths,
+                    last_updated_by_id: data.last_updated_by_id,
+                    city_id,
+                    meta: data.meta,
+                    ppdwt: data.ppdwt,
+                    pptb: data.pptb,
+                    odpsp: data.odpsp,
+                    pdps: data.pdps,
+                    pdpm: data.pdpm,
+                    otg: data.otg,
+                })?;
             }
             Err(e) => return Err(e.into()),
         }

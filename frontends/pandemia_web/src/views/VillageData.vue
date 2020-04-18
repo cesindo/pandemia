@@ -2,8 +2,9 @@
   <div>
     <AnsTable
       :key="tableRecords"
-      data-source-url="/pandemia/v1/village_data/search"
-      :columns="['ID', 'Desa', 'Kecamatan', 'ODP', 'PDP', 'Positive', 'Sembuh', 'Meninggal', 'Action']"
+      data-source-url="/village/v1/village_data/search"
+      :columns="['ID', 'Desa', 'Kecamatan', 'PPDWT', 'PPTB', 'ODP', 'ODP-SP', 'PDP', 'PDP-S', 'PDP-M', 'OTG', 'Positive', 'Sembuh', 'Meninggal', 'Action']"
+      :columnsInfo="{'PPDWT':'Pelaku Perjalanan Dari Wilayah Terjangkit', 'PPTB': 'Pelaku Perjalanan Tak Bergejala', 'ODP-SP': 'ODP Selesai Pemantauan', 'PDP-S': 'PDP Sembuh', 'PDP-M': 'PDP Meninggal', 'OTG': 'Orang Tidak Bergejala'}"
       :searchable="true"
       :withActionButton="false"
       :showDetailFunc="showDetail"
@@ -19,7 +20,7 @@
       </template>
       <template v-slot:tdmap="self">
         <td>{{self.item['id']}}</td>
-        <td>
+        <td style="width: 160px !important;">
           <strong>{{self.item['village_name']}}</strong>
           <br />
           <span>{{self.item['loc_scope']}}</span>
@@ -27,6 +28,37 @@
           <small>updated: {{self.item['last_updated']}}</small>
         </td>
         <td>{{self.item['district_name']}}</td>
+
+        <td
+          :class="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['ppdwt'] != self.item['ppdwt'] ? 'dirty': '' "
+        >
+          <a
+            href="javascript://"
+            v-on:click="editValue(self,'ppdwt','ppdwt',self.item['ppdwt']);"
+          >{{self.item['ppdwt']}}</a>
+          <span
+            v-if="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['ppdwt'] != self.item['ppdwt']"
+          >
+            <i class="ui icon fa-arrow-right"></i>
+            {{commitLogs[self.item['id']]['ppdwt']}}
+          </span>
+        </td>
+
+        <td
+          :class="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['pptb'] != self.item['pptb'] ? 'dirty': '' "
+        >
+          <a
+            href="javascript://"
+            v-on:click="editValue(self,'pptb','pptb',self.item['pptb']);"
+          >{{self.item['pptb']}}</a>
+          <span
+            v-if="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['pptb'] != self.item['pptb']"
+          >
+            <i class="ui icon fa-arrow-right"></i>
+            {{commitLogs[self.item['id']]['pptb']}}
+          </span>
+        </td>
+
         <td
           :class="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['odp'] != self.item['odp'] ? 'dirty': '' "
         >
@@ -41,6 +73,22 @@
             {{commitLogs[self.item['id']]['odp']}}
           </span>
         </td>
+
+        <td
+          :class="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['odpsp'] != self.item['odpsp'] ? 'dirty': '' "
+        >
+          <a
+            href="javascript://"
+            v-on:click="editValue(self,'odpsp','odpsp',self.item['odpsp']);"
+          >{{self.item['odpsp']}}</a>
+          <span
+            v-if="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['odpsp'] != self.item['odpsp']"
+          >
+            <i class="ui icon fa-arrow-right"></i>
+            {{commitLogs[self.item['id']]['odpsp']}}
+          </span>
+        </td>
+
         <td
           :class="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['pdp'] != self.item['pdp'] ? 'dirty': '' "
         >
@@ -55,6 +103,58 @@
             {{commitLogs[self.item['id']]['pdp']}}
           </span>
         </td>
+
+        <td
+          :class="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['pdps'] != self.item['pdps'] ? 'dirty': '' "
+        >
+          <a
+            href="javascript://"
+            v-on:click="editValue(self,'pdps','pdps',self.item['pdps']);"
+            class="dirty"
+          >{{self.item['pdps']}}</a>
+
+          <span
+            v-if="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['pdps'] != self.item['pdps']"
+          >
+            <i class="ui icon fa-arrow-right"></i>
+            {{commitLogs[self.item['id']]['pdps']}}
+          </span>
+        </td>
+
+        <td
+          :class="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['pdpm'] != self.item['pdpm'] ? 'dirty': '' "
+        >
+          <a
+            href="javascript://"
+            v-on:click="editValue(self,'pdpm','pdpm',self.item['pdpm']);"
+            class="dirty"
+          >{{self.item['pdpm']}}</a>
+
+          <span
+            v-if="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['pdpm'] != self.item['pdpm']"
+          >
+            <i class="ui icon fa-arrow-right"></i>
+            {{commitLogs[self.item['id']]['pdpm']}}
+          </span>
+        </td>
+
+        <td
+          :class="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['otg'] != self.item['otg'] ? 'dirty': '' "
+        >
+          <a
+            href="javascript://"
+            v-on:click="editValue(self,'otg','otg',self.item['otg']);"
+            class="dirty"
+          >{{self.item['otg']}}</a>
+
+          <span
+            v-if="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['otg'] != self.item['otg']"
+          >
+            <i class="ui icon fa-arrow-right"></i>
+            {{commitLogs[self.item['id']]['otg']}}
+          </span>
+        </td>
+
         <td
           :class="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['cases'] != self.item['cases'] ? 'dirty': '' "
         >
@@ -71,6 +171,7 @@
             {{commitLogs[self.item['id']]['cases']}}
           </span>
         </td>
+
         <td
           :class="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['recovered'] != self.item['recovered'] ? 'dirty': '' "
         >
@@ -117,7 +218,7 @@
       @beforeOpen="beforeOpenDialog"
       @onApprove="approveDialog"
       @opened="editValueDialogOpened"
-      :buttonsText="{reject: 'Cancel', approve: 'Ok'}"
+      :buttonsText="{reject: 'Batal', approve: 'Ok'}"
     >
       <template v-slot:content>
         <h2 class="ui header">Edit jumlah {{editedCatName}} di {{editedItem['loc']}}</h2>
@@ -131,7 +232,13 @@
 
           <p>Jumlah baru:</p>
           <div class="ui input">
-            <input ref="newValue" type="text" name="NewValue" id="NewValue" />
+            <input
+              ref="newValue"
+              type="text"
+              name="NewValue"
+              id="NewValue"
+              @keyup.enter="approveDialog"
+            />
           </div>
         </div>
       </template>
@@ -208,13 +315,33 @@
     </DialogModal>
 
     <ConfirmDialog
-      modalName="Commit"
+      modalName="CommitModal"
       caption="Commit data"
       approveText="Lanjut"
       :withCloseButton="true"
       @onApprove="doCommit"
     >
       <p>Yakin untuk melakukan commit? Semua perubahan akan di-simpan ke server, pastikan koneksi internet Anda lancar.</p>
+
+      <div v-if="isSuperUser">
+        <div class="ui form">
+          <div class="field">
+            <label>Nama provinsi:</label>
+            <input ref="provNameInput" v-model="provName" type="text" name="ProvName" id="ProvName" />
+          </div>
+          <div class="field">
+            <label>Nama Kab/Kota:</label>
+            <input
+              ref="cityNameInput"
+              v-model="cityName"
+              type="text"
+              name="CityName"
+              id="CityName"
+              @keyup.enter="doCommit"
+            />
+          </div>
+        </div>
+      </div>
     </ConfirmDialog>
 
     <ConfirmDialog
@@ -251,8 +378,29 @@ export default {
       commitLogs: {},
       isDirty: false,
       tableRecords: "-0",
-      toDelete: { id: 0, loc: "" }
+      toDelete: { id: 0, loc: "" },
+      provName: "",
+      cityName: ""
     };
+  },
+  computed: {
+    isSuperUser() {
+      return this.$session.get("user_id") == 1;
+    }
+  },
+  mounted() {
+    if (localStorage.commitLogs != null && localStorage.commitLogs != "") {
+      try {
+        this.commitLogs = JSON.parse(localStorage.commitLogs);
+        if (this.commitLogs == null) {
+          this.commitLogs = {};
+        } else {
+          this.isDirty = true;
+        }
+      } catch {
+        this.commitLogs = {};
+      }
+    }
   },
   methods: {
     addRecord() {
@@ -270,7 +418,7 @@ export default {
           parseInt(this.$refs["addRecTotalRecovered"].value) || 0;
       this.$pandemia
         .api()
-        .publicApi.post("/pandemia/v1/village_data/add", {
+        .publicApi.post("/village/v1/add", {
           loc: loc,
           loc_scope: locScope,
           loc_kind: locKind,
@@ -344,18 +492,36 @@ export default {
       this.$set(this.commitLogs, this.editedItem["id"], commitLog);
 
       this.isDirty = true;
+      this.persist();
 
       this.$modal.hide("EditValueModal");
     },
     commit() {
-      this.$modal.show("Commit");
+      this.$modal.show("CommitModal");
     },
     doCommit() {
-      this.$modal.hide("Commit");
+      if (this.isSupperUser) {
+        if (this.provName == "") {
+          this.showError(
+            "Anda perlu memasukkan nama provinsi untuk data tersebut"
+          );
+          return;
+        }
+        if (this.cityName == "") {
+          this.showError(
+            "Anda perlu memasukkan nama kota/kab untuk data tersebut"
+          );
+          return;
+        }
+      }
+
+      this.$modal.hide("CommitModal");
       var normCommitLogs = obMapToArrayValues(this.commitLogs);
       this.$pandemia
         .api()
-        .publicApi.post("/pandemia/v1/village_data/commit", {
+        .publicApi.post("/village/v1/commit", {
+          province: this.provName,
+          city: this.cityName,
           records: normCommitLogs
         })
         .then(resp => {
@@ -363,6 +529,7 @@ export default {
           if (resp.data.code == 0) {
             this.isDirty = false;
             this.commitLogs = {};
+            this.persist();
             this.refreshTable();
             this.showSuccess("Data telah sukses diunggah ke server pusat");
           } else {
@@ -395,6 +562,9 @@ export default {
     },
     refreshTable() {
       this.tableRecords = "A-" + new Date().getTime();
+    },
+    persist() {
+      localStorage.commitLogs = JSON.stringify(this.commitLogs);
     }
   }
 };

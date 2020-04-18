@@ -14,9 +14,10 @@ use crate::{
     util, ID,
 };
 
+#[doc(hidden)]
 #[derive(Insertable)]
 #[table_name = "district_data"]
-struct NewDistrictData<'a> {
+pub struct NewDistrictData<'a> {
     pub district_id: ID,
     pub odp: i32,
     pub pdp: i32,
@@ -27,6 +28,33 @@ struct NewDistrictData<'a> {
     pub last_updated_by_id: ID,
     pub city_id: ID,
     pub meta: &'a Vec<&'a str>,
+
+    pub ppdwt: i32,
+    pub pptb: i32,
+    pub odpsp: i32,
+    pub pdps: i32,
+    pub pdpm: i32,
+    pub otg: i32,
+}
+
+#[doc(hidden)]
+pub struct UpdateDistrictData<'a> {
+    pub odp: i32,
+    pub pdp: i32,
+    pub cases: i32,
+    pub recovered: i32,
+    pub deaths: i32,
+    // pub last_updated: NaiveDateTime,
+    pub last_updated_by_id: ID,
+    pub city_id: ID,
+    pub meta: &'a Vec<&'a str>,
+
+    pub ppdwt: i32,
+    pub pptb: i32,
+    pub odpsp: i32,
+    pub pdps: i32,
+    pub pdpm: i32,
+    pub otg: i32,
 }
 
 /// Data Access Object for DistrictData
@@ -38,77 +66,51 @@ pub struct DistrictDataDao<'a> {
 
 impl<'a> DistrictDataDao<'a> {
     /// Create new DistrictData
-    pub fn create(
-        &self,
-        district_id: ID,
-        odp: i32,
-        pdp: i32,
-        cases: i32,
-        recovered: i32,
-        deaths: i32,
-        last_updated_by_id: ID,
-        city_id: ID,
-        meta: &'a Vec<&'a str>,
-    ) -> Result<DistrictData> {
+    pub fn create(&self, data: &NewDistrictData) -> Result<DistrictData> {
         use crate::schema::district_data::{self, dsl};
 
         diesel::insert_into(district_data::table)
-            .values(&NewDistrictData {
-                district_id,
-                odp,
-                pdp,
-                cases,
-                recovered,
-                deaths,
-                last_updated: util::now(),
-                last_updated_by_id,
-                city_id,
-                meta,
-            })
+            .values(data)
             .get_result(self.db)
             .map_err(From::from)
     }
 
     /// Update data
-    pub fn update(
-        &self,
-        district_id: ID,
-        odp: i32,
-        pdp: i32,
-        cases: i32,
-        recovered: i32,
-        deaths: i32,
-        updater_id: ID,
-        city_id: ID,
-        meta: &Vec<&str>,
-    ) -> Result<()> {
+    pub fn update(&self, district_id: ID, data: &UpdateDistrictData) -> Result<()> {
         use crate::schema::district_data::{self, dsl};
         match diesel::update(dsl::district_data.filter(dsl::district_id.eq(district_id)))
             .set((
-                dsl::odp.eq(dsl::odp + odp),
-                dsl::pdp.eq(dsl::pdp + pdp),
-                dsl::cases.eq(dsl::cases + cases),
-                dsl::recovered.eq(dsl::recovered + recovered),
-                dsl::deaths.eq(dsl::deaths + deaths),
+                dsl::odp.eq(dsl::odp + data.odp),
+                dsl::pdp.eq(dsl::pdp + data.pdp),
+                dsl::cases.eq(dsl::cases + data.cases),
+                dsl::recovered.eq(dsl::recovered + data.recovered),
+                dsl::deaths.eq(dsl::deaths + data.deaths),
                 dsl::last_updated.eq(util::now()),
-                dsl::meta.eq(meta),
-                dsl::last_updated_by_id.eq(updater_id),
+                dsl::meta.eq(data.meta),
+                dsl::last_updated_by_id.eq(data.last_updated_by_id),
             ))
             .execute(self.db)
         {
             Ok(updated) if updated == 0 => {
                 // do insert
-                self.create(
+                self.create(&NewDistrictData {
                     district_id,
-                    odp,
-                    pdp,
-                    cases,
-                    recovered,
-                    deaths,
-                    updater_id,
-                    city_id,
-                    meta,
-                )?;
+                    odp: data.odp,
+                    pdp: data.pdp,
+                    cases: data.cases,
+                    recovered: data.recovered,
+                    deaths: data.deaths,
+                    last_updated: util::now(),
+                    last_updated_by_id: data.last_updated_by_id,
+                    city_id: data.city_id,
+                    meta: data.meta,
+                    ppdwt: data.ppdwt,
+                    pptb: data.pptb,
+                    odpsp: data.odpsp,
+                    pdps: data.pdps,
+                    pdpm: data.pdpm,
+                    otg: data.otg,
+                })?;
             }
             Ok(_) => (),
             Err(diesel::result::Error::DatabaseError(
@@ -116,17 +118,24 @@ impl<'a> DistrictDataDao<'a> {
                 _,
             )) => {
                 // do insert
-                self.create(
+                self.create(&NewDistrictData {
                     district_id,
-                    odp,
-                    pdp,
-                    cases,
-                    recovered,
-                    deaths,
-                    updater_id,
-                    city_id,
-                    meta,
-                )?;
+                    odp: data.odp,
+                    pdp: data.pdp,
+                    cases: data.cases,
+                    recovered: data.recovered,
+                    deaths: data.deaths,
+                    last_updated: util::now(),
+                    last_updated_by_id: data.last_updated_by_id,
+                    city_id: data.city_id,
+                    meta: data.meta,
+                    ppdwt: data.ppdwt,
+                    pptb: data.pptb,
+                    odpsp: data.odpsp,
+                    pdps: data.pdps,
+                    pdpm: data.pdpm,
+                    otg: data.otg,
+                })?;
             }
             Err(e) => return Err(e.into()),
         }

@@ -241,3 +241,10 @@ impl From<MapMarkerKind> for i16 {
         a as i16
     }
 }
+
+#[doc(hidden)]
+pub enum Ops {
+    Add = 1,
+    Subs = 2,
+    Set = 3,
+}

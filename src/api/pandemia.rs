@@ -18,12 +18,14 @@ use crate::{
         CityDao, DistrictDao, DistrictDataDao, Logs, RecordDao, ReportNoteDao, SubReportDao, VillageDao,
         VillageDataDao,
     },
+    district_data_dao::{NewDistrictData, UpdateDistrictData},
     error::{self, Error, ErrorCode},
     eventstream::{self, Event::NewRecordUpdate},
     models,
     prelude::*,
     sub_report_dao,
-    types::{HealthyKind, LocKind, SubReportStatus},
+    types::{HealthyKind, LocKind, Ops, SubReportStatus},
+    village_data_dao::{NewVillageData, UpdateVillageData},
     ID,
 };
 
@@ -123,12 +125,22 @@ pub struct UpdateSubReport {
     pub notes: String,
     pub status: String,
     pub complaint: Option<Vec<String>>,
+    pub add_info: Option<Vec<String>>,
 }
 
 #[derive(Deserialize, Validate)]
 pub struct UpdateReportNoteStatus {
     pub id: ID,
     pub state: Vec<String>,
+}
+
+macro_rules! has_label {
+    ($lst:expr, $lbl:literal) => {
+        $lst.iter()
+            .map(|a| a.as_str())
+            .collect::<Vec<&str>>()
+            .contains(&$lbl)
+    };
 }
 
 /// Holder untuk implementasi API endpoint publik untuk Pandemia.
@@ -277,24 +289,22 @@ impl PublicApi {
             meta.push(format!("updated_by_admin_id={}", ca.id));
         }
 
+        let mut ppdwt = 0;
+        let mut pptb = 0;
+        let mut otg = 0;
+
         meta.push(format!("village={}", village_name));
         meta.push(format!("district={}", district_name));
         if let Some(add_info) = query.add_info.as_ref() {
-            if add_info
-                .iter()
-                .map(|a| a.as_str())
-                .collect::<Vec<&str>>()
-                .contains(&"from_red_zone")
-            {
+            if has_label!(add_info, "from_red_zone") {
                 meta.push(format!(":from_red_zone:"));
+                ppdwt = 1;
             }
-            if add_info
-                .iter()
-                .map(|a| a.as_str())
-                .collect::<Vec<&str>>()
-                .contains(&"has_symptoms")
-            {
+            if has_label!(add_info, "has_symptoms") {
                 meta.push(format!(":has_symptoms:"));
+            } else {
+                pptb = 1;
+                otg = 1;
             }
         }
 
@@ -356,28 +366,46 @@ impl PublicApi {
                         SubReportStatus::Death => (0, 0, 0, 0, 1),
                         _ => return Err(Error::InvalidParameter("Status tidak valid".to_owned()))?,
                     };
+
                     VillageDataDao::new(&conn).update(
                         village_id,
-                        odp,
-                        pdp,
-                        cases,
-                        recovered,
-                        deaths,
-                        current_user_id,
-                        &meta.iter().map(|a| a.as_str()).collect(),
-                        city_id,
+                        Ops::Add,
+                        &UpdateVillageData {
+                            odp,
+                            pdp,
+                            cases,
+                            recovered,
+                            deaths,
+                            last_updated_by_id: current_user_id,
+                            meta: &meta.iter().map(|a| a.as_str()).collect(),
+                            city_id: Some(city_id),
+                            ppdwt,
+                            pptb,
+                            odpsp: 0,
+                            pdps: 0,
+                            pdpm: 0,
+                            otg,
+                        },
                     )?;
 
                     DistrictDataDao::new(&conn).update(
                         district_id,
-                        odp,
-                        pdp,
-                        cases,
-                        recovered,
-                        deaths,
-                        current_user_id,
-                        city_id,
-                        &meta.iter().map(|a| a.as_str()).collect(),
+                        &UpdateDistrictData {
+                            odp,
+                            pdp,
+                            cases,
+                            recovered,
+                            deaths,
+                            last_updated_by_id: current_user_id,
+                            city_id,
+                            meta: &meta.iter().map(|a| a.as_str()).collect(),
+                            ppdwt,
+                            pptb,
+                            odpsp: 0,
+                            pdps: 0,
+                            pdpm: 0,
+                            otg,
+                        },
                     )?;
                 }
 
@@ -430,6 +458,29 @@ impl PublicApi {
             return unauthorized();
         }
 
+        let mut ppdwt = 0;
+        let mut pptb = 0;
+        let odpsp = 0;
+        let mut otg = 0;
+        let mut pdps = 0;
+        let pdpm = 0;
+
+        // meta.push(format!("village={}", village_name));
+        // meta.push(format!("district={}", district_name));
+        {
+            if has_label!(sr.meta, "from_red_zone") {
+                ppdwt = -1;
+            }
+            if has_label!(sr.meta, "has_symptoms") {
+                pptb = -1;
+                otg = -1;
+            }
+        }
+
+        if sr.status == SubReportStatus::Recovered as i32 {
+            pdps = -1;
+        }
+
         conn.build_transaction()
             .read_write()
             .run::<_, crate::error::Error, _>(|| {
@@ -457,26 +508,43 @@ impl PublicApi {
 
                 VillageDataDao::new(&conn).update(
                     sr.village_id,
-                    odp,
-                    pdp,
-                    cases,
-                    recovered,
-                    deaths,
-                    current_user_id,
-                    &sr.meta.iter().map(|a| a.as_str()).collect(),
-                    sr.city_id,
+                    Ops::Add,
+                    &UpdateVillageData {
+                        odp,
+                        pdp,
+                        cases,
+                        recovered,
+                        deaths,
+                        last_updated_by_id: current_user_id,
+                        meta: &sr.meta.iter().map(|a| a.as_str()).collect(),
+                        city_id: Some(sr.city_id),
+                        ppdwt,
+                        pptb,
+                        odpsp,
+                        pdps,
+                        pdpm,
+                        otg,
+                    },
                 )?;
 
                 DistrictDataDao::new(&conn).update(
                     sr.district_id,
-                    odp,
-                    pdp,
-                    cases,
-                    recovered,
-                    deaths,
-                    current_user_id,
-                    sr.city_id,
-                    &sr.meta.iter().map(|a| a.as_str()).collect(),
+                    &UpdateDistrictData {
+                        odp,
+                        pdp,
+                        cases,
+                        recovered,
+                        deaths,
+                        last_updated_by_id: current_user_id,
+                        city_id: sr.city_id,
+                        meta: &sr.meta.iter().map(|a| a.as_str()).collect(),
+                        ppdwt,
+                        pptb,
+                        odpsp,
+                        pdps,
+                        pdpm,
+                        otg,
+                    },
                 )?;
 
                 Ok(())
@@ -549,21 +617,54 @@ impl PublicApi {
             }
         }
 
+        let mut ppdwt = 0;
+        let mut pptb = 0;
+        let mut otg = 0;
+        let mut odpsp = 0;
+        let mut pdps = 0;
+        let mut pdpm = 0;
+
+        let mut healthy: HealthyKind = HealthyKind::Health;
+
+        let mut meta: Vec<String> = Vec::new();
+        if let Some(complaint) = &query.complaint.as_ref() {
+            if complaint.len() > 0 {
+                healthy = HealthyKind::Sick;
+                meta.push(format!("gejala={}", complaint.join(",")))
+            }
+        }
+
+        if let Some(add_info) = query.add_info.as_ref() {
+            if has_label!(add_info, "from_red_zone") {
+                meta.push(format!(":from_red_zone:"));
+                ppdwt = 1;
+            }
+            if has_label!(add_info, "has_symptoms") {
+                meta.push(format!(":has_symptoms:"));
+            } else {
+                pptb = 1;
+                otg = 1;
+            }
+            if has_label!(add_info, "odpsp") {
+                meta.push(format!(":odpsp:"));
+                odpsp = 1;
+            }
+        }
+
+        let new_status: SubReportStatus = query.status.as_str().into();
+
+        if old_status == SubReportStatus::PDP && new_status == SubReportStatus::Recovered {
+            pdps = 1;
+        }
+        if old_status == SubReportStatus::PDP && new_status == SubReportStatus::Death {
+            pdpm = 1;
+        }
+
         let sub_report = conn
             .build_transaction()
             .read_write()
             .run::<_, crate::error::Error, _>(|| {
                 let village = VillageDao::new(&conn).get_by_id(village_id)?;
-
-                let mut healthy: HealthyKind = HealthyKind::Health;
-                let mut meta: Vec<String> = Vec::new();
-                if let Some(complaint) = &query.complaint.as_ref() {
-                    if complaint.len() > 0 {
-                        healthy = HealthyKind::Sick;
-                        meta.push(format!("gejala={}", complaint.join(",")))
-                    }
-                }
-                let new_status: SubReportStatus = query.status.as_str().into();
 
                 let sub_report = dao.update(
                     query.id,
@@ -595,26 +696,43 @@ impl PublicApi {
 
                 VillageDataDao::new(&conn).update(
                     subr.village_id,
-                    odp,
-                    pdp,
-                    cases,
-                    recovered,
-                    deaths,
-                    current_user_id,
-                    &subr.meta.iter().map(|a| a.as_str()).collect(),
-                    subr.city_id,
+                    Ops::Add,
+                    &UpdateVillageData {
+                        odp,
+                        pdp,
+                        cases,
+                        recovered,
+                        deaths,
+                        last_updated_by_id: current_user_id,
+                        meta: &subr.meta.iter().map(|a| a.as_str()).collect(),
+                        city_id: Some(city_id),
+                        ppdwt,
+                        pptb,
+                        odpsp,
+                        pdps,
+                        pdpm,
+                        otg,
+                    },
                 )?;
 
                 DistrictDataDao::new(&conn).update(
                     subr.district_id,
-                    odp,
-                    pdp,
-                    cases,
-                    recovered,
-                    deaths,
-                    current_user_id,
-                    subr.city_id,
-                    &subr.meta.iter().map(|a| a.as_str()).collect(),
+                    &UpdateDistrictData {
+                        odp,
+                        pdp,
+                        cases,
+                        recovered,
+                        deaths,
+                        last_updated_by_id: current_user_id,
+                        city_id: subr.city_id,
+                        meta: &subr.meta.iter().map(|a| a.as_str()).collect(),
+                        ppdwt,
+                        pptb,
+                        odpsp,
+                        pdps,
+                        pdpm,
+                        otg,
+                    },
                 )?;
 
                 let (odp, pdp, cases, recovered, deaths) = match new_status {
@@ -628,26 +746,43 @@ impl PublicApi {
 
                 VillageDataDao::new(&conn).update(
                     subr.village_id,
-                    odp,
-                    pdp,
-                    cases,
-                    recovered,
-                    deaths,
-                    current_user_id,
-                    &subr.meta.iter().map(|a| a.as_str()).collect(),
-                    subr.city_id,
+                    Ops::Add,
+                    &UpdateVillageData {
+                        odp,
+                        pdp,
+                        cases,
+                        recovered,
+                        deaths,
+                        last_updated_by_id: current_user_id,
+                        city_id: Some(subr.city_id),
+                        meta: &subr.meta.iter().map(|a| a.as_str()).collect(),
+                        ppdwt,
+                        pptb,
+                        odpsp,
+                        pdps,
+                        pdpm,
+                        otg,
+                    },
                 )?;
 
                 DistrictDataDao::new(&conn).update(
                     subr.district_id,
-                    odp,
-                    pdp,
-                    cases,
-                    recovered,
-                    deaths,
-                    current_user_id,
-                    subr.city_id,
-                    &subr.meta.iter().map(|a| a.as_str()).collect(),
+                    &UpdateDistrictData {
+                        odp,
+                        pdp,
+                        cases,
+                        recovered,
+                        deaths,
+                        last_updated_by_id: current_user_id,
+                        city_id: subr.city_id,
+                        meta: &subr.meta.iter().map(|a| a.as_str()).collect(),
+                        ppdwt,
+                        pptb,
+                        odpsp,
+                        pdps,
+                        pdpm,
+                        otg,
+                    },
                 )?;
                 Ok(sub_report)
             })?;
@@ -904,89 +1039,6 @@ impl PublicApi {
         }))
     }
 
-    /// Add village.
-    #[api_endpoint(path = "/village/add", auth = "required", mutable, accessor = "admin")]
-    pub fn add_village(query: AddVillage) -> ApiResult<models::Village> {
-        query.validate()?;
-        let conn = state.db();
-        let dao = VillageDao::new(&conn);
-
-        let city = CityDao::new(&conn)
-            .get_by_name(&query.province, &query.city)
-            .map_err(|_| {
-                ApiError::BadRequest(83913, format!("Tidak ada kota/kab dengan nama {}", query.city))
-            })?;
-
-        let village = dao.create(
-            &query.name,
-            &query.district,
-            &query.city,
-            &query.province,
-            query.latitude.parse::<f64>()?,
-            query.longitude.parse::<f64>()?,
-            &vec![],
-            city.id,
-            0,
-        )?;
-        Ok(ApiResult::success(village))
-    }
-
-    /// Search for villages
-    #[api_endpoint(path = "/village/search", auth = "optional")]
-    pub fn search_villages(query: QueryEntries) -> ApiResult<EntriesResult<models::Village>> {
-        query.validate()?;
-        let conn = state.db();
-        let dao = VillageDao::new(&conn);
-
-        let sresult = dao.search(&query.query.unwrap_or("".to_string()), query.offset, query.limit)?;
-
-        // let entries = sresult.entries.into_iter().map(|p| p.into()).collect();
-
-        let count = sresult.count;
-        Ok(ApiResult::success(EntriesResult {
-            count,
-            entries: sresult.entries,
-        }))
-    }
-
-    /// Delete village.
-    #[api_endpoint(path = "/village/delete", auth = "required", mutable, accessor = "admin")]
-    pub fn delete_village(query: IdQuery) -> ApiResult<()> {
-        let conn = state.db();
-
-        let dao = VillageDao::new(&conn);
-
-        dao.delete_by_id(query.id)?;
-
-        Ok(ApiResult::success(()))
-    }
-
-    /// Search for village_data
-    #[api_endpoint(path = "/village_data/search", auth = "required", accessor = "admin")]
-    pub fn search_village_data(query: QueryEntries) -> ApiResult<EntriesResult<VillageData>> {
-        query.validate()?;
-        let conn = state.db();
-        let dao = VillageDataDao::new(&conn);
-
-        let parq = match query.query.as_ref() {
-            Some(q) => parse_query(q),
-            None => ParsedQuery::default(),
-        };
-
-        let sresult = dao.search(
-            parq.district_name,
-            // parq.village_name,
-            query.query.as_ref().unwrap_or(&"".to_string()),
-            query.offset,
-            query.limit,
-        )?;
-
-        let entries = sresult.entries.into_iter().map(|p| p.into()).collect();
-
-        let count = sresult.count;
-        Ok(ApiResult::success(EntriesResult { count, entries }))
-    }
-
     /// Add report note.
     #[api_endpoint(path = "/report_note/add", auth = "required", mutable)]
     pub fn add_report_note(query: AddReportNote) -> ApiResult<ReportNote> {
@@ -1142,20 +1194,6 @@ pub struct SearchNotes {
 pub struct AddReportNote {
     pub title: Option<String>,
     pub notes: String,
-}
-
-#[derive(Deserialize, Validate)]
-pub struct AddVillage {
-    #[validate(length(min = 2, max = 1000))]
-    pub name: String,
-    #[validate(length(min = 2, max = 1000))]
-    pub district: String,
-    #[validate(length(min = 2, max = 1000))]
-    pub city: String,
-    #[validate(length(min = 2, max = 1000))]
-    pub province: String,
-    pub latitude: String,
-    pub longitude: String,
 }
 
 use crate::{

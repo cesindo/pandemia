@@ -23,6 +23,7 @@ pub mod pandemia;
 mod parsed_query;
 pub mod types;
 pub mod user;
+pub mod village;
 
 use self::with::{Immutable, ImmutableReq, Mutable, MutableReq, NamedWith, With};
 pub use self::{error::Error, with::Result};

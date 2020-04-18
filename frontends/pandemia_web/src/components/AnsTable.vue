@@ -32,7 +32,21 @@
         <table class="ui celled table">
           <thead>
             <tr>
-              <th v-for="col in columns" v-bind:key="col">{{col}}</th>
+              <th v-for="col in columns" v-bind:key="col">
+                {{col}}
+                <div class="column-info" v-show="columnsTipShow[col] == true">
+                  <p><i class="ui info circle icon"></i> {{columnsInfo[col]}}</p>
+                </div>
+                <small style="display: inline;"
+                  v-if="columnsInfo[col] != null"
+                  class="ui badge"
+                  :title="columnsInfo[col]"
+                  @mouseover="$set(columnsTipShow, col, true)"
+                  @mouseleave="$set(columnsTipShow, col, false)"
+                >
+                  <i class="ui question circle outline icon"></i>
+                </small>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -59,7 +73,8 @@
 const initialState = {
   items: [],
   count: 0,
-  hasText: false
+  hasText: false,
+  columnsTipShow: {}
 };
 export default {
   name: "AnsTable",
@@ -67,6 +82,7 @@ export default {
     dataSourceUrl: String,
     addParams: String,
     columns: Array,
+    columnsInfo: {type: Object, default: () => {}},
     searchable: Boolean,
     withActionButton: Boolean,
     mapItemFunc: {
@@ -176,6 +192,13 @@ a.search.reset {
   position: absolute;
   opacity: 0.5;
   cursor: pointer;
+}
+.column-info {
+  // display: none;
+  position: absolute;
+  background-color: white;
+  padding: 10px;
+  border: 1px solid #cacaca;
 }
 </style>
 
