@@ -14,3 +14,4 @@ CREATE TABLE district_data (
 );
 
 CREATE INDEX idx_district_data_city_id_district_id ON district_data(city_id, district_id);
+CREATE UNIQUE INDEX idx_district_data_district_id ON district_data(district_id);
