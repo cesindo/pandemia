@@ -467,7 +467,7 @@ export default {
           pointFormat:
             "{series.name}: ({point.y}) <b>{point.percentage:.1f}%</b>"
         },
-        colors: ["#166c91", "#f2711c", "#db2828", "#21ba45", "#767676"],
+        colors: [/*"#166c91",*/ "#f2711c", "#db2828", "#21ba45", "#767676"],
         accessibility: {
           point: {
             valueSuffix: "%"
@@ -596,7 +596,7 @@ export default {
       };
     },
     onItemClick(_event, item) {
-      console.log(_event);
+      // console.log(_event);
       if (item.title == "Logout") {
         this.$dialog
           .confirm("Are you sure to logout?")
@@ -649,12 +649,12 @@ export default {
                 name: "Data",
                 colorByPoint: true,
                 data: [
-                  {
-                    name: "ODP",
-                    y: d.odp,
-                    sliced: true,
-                    selected: true
-                  },
+                  // {
+                  //   name: "ODP",
+                  //   y: d.odp,
+                  //   sliced: true,
+                  //   selected: true
+                  // },
                   {
                     name: "PDP",
                     y: d.pdp
@@ -675,9 +675,9 @@ export default {
               }
             ]);
           } else {
-            console.log(
-              "Gagal mendapatkan data total. e: " + resp.data.description
-            );
+            // console.log(
+            //   "Gagal mendapatkan data total. e: " + resp.data.description
+            // );
           }
         });
 
@@ -690,9 +690,9 @@ export default {
           if (resp.data.code == 0) {
             // console.log(resp.data.result);
             let ent = resp.data.result;
-            console.log(ent);
+            // console.log(ent);
 
-            this.$set(this.travelerTrendData.xAxis, "categories", ent.cats);
+            this.$set(this.travelerTrendData.xAxis, "categories", ent.cats.map((a) => a.replace(/-/g, '/')));
             this.$set(this.travelerTrendData, "series", ent.series);
           } else {
             this.showError(resp.data.description);
@@ -708,9 +708,9 @@ export default {
           if (resp.data.code == 0) {
             // console.log(resp.data.result);
             let ent = resp.data.result;
-            console.log(ent);
+            // console.log(ent);
 
-            this.$set(this.generalTrendData.xAxis, "categories", ent.cats);
+            this.$set(this.generalTrendData.xAxis, "categories", ent.cats.map((a) => a.replace(/-/g, '/')));
             this.$set(this.generalTrendData, "series", ent.series);
           } else {
             this.showError(resp.data.description);

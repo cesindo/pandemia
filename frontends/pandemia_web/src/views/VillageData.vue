@@ -9,7 +9,7 @@
       :searchable="true"
       :withActionButton="false"
       :showDetailFunc="showDetail"
-      :limit="10"
+      :limit="20"
     >
       <template v-slot:bar>
         <div v-if="isSuperUser" class="ui input base-loc">
@@ -551,9 +551,9 @@ export default {
           this.citySuggestions = response.data.address;
         });
     } else {
-      console.log(
-        "Cannot fetch village-address data, province or city not defined"
-      );
+      // console.log(
+      //   "Cannot fetch village-address data, province or city not defined"
+      // );
       // console.log(this.$session);
     }
   },

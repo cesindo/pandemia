@@ -156,7 +156,7 @@ export default {
         this.query +
         `&offset=0&limit=${this.limit}`;
     } else {
-      url = this.dataSourceUrl + "?offset=0&limit=10";
+      url = this.dataSourceUrl + `?offset=0&limit=${this.limit}`;
     }
 
     if (this.addParams != null) {

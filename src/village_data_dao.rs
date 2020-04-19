@@ -250,12 +250,13 @@ impl<'a> VillageDataDao<'a> {
         use crate::schema::village_data::{self, dsl};
         use crate::schema::villages::{self, dsl as dslv};
 
-        let like_clause = format!("%{}%", query.to_lowercase());
-
         let mut filterer: Box<dyn BoxableExpression<_, _, SqlType = sql_types::Bool>> =
             Box::new(dsl::id.ne(0));
 
-        filterer = Box::new(filterer.and(lower(dslv::name).like(&like_clause)));
+        if !query.is_empty() {
+            let like_clause = format!("%{}%", query.to_lowercase());
+            filterer = Box::new(filterer.and(lower(dslv::name).like(like_clause)));
+        }
 
         // if let Some(village_name) = village_name {
         //     filterer = Box::new(filterer.and(dsl::meta.contains(vec![format!("village={}", village_name)])));

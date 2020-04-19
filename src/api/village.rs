@@ -21,6 +21,7 @@ use crate::{
     prelude::*,
     sub_report_dao,
     types::{HealthyKind, LocKind, Ops, SubReportStatus},
+    util,
     village_data_dao::{NewVillageData, UpdateVillageData},
     ID,
 };
@@ -162,10 +163,12 @@ impl PublicApi {
             }
         }
 
+        let district_name = parq.district_name.map(|a| util::title_case(a));
+
         let sresult = dao.search(
-            parq.district_name,
+            district_name.as_ref().map(|a| a.as_str()),
             // parq.village_name,
-            query.query.as_ref().unwrap_or(&"".to_string()),
+            &parq.query,
             query.offset,
             query.limit,
         )?;
@@ -225,6 +228,10 @@ impl PublicApi {
             last_updated_by_id = current_user.id;
             meta.push(format!("added_by_user_id={}", current_user.id));
         }
+
+        meta.push(format!("village={}", village.name));
+        meta.push(format!("district={}", village.district_name));
+        meta.push(format!("city={}", village.city));
 
         let village_data = dao.create(&NewVillageData {
             village_id: query.village_id,

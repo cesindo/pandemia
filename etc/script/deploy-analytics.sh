@@ -8,7 +8,10 @@ TARGET=$1
 pushd frontends/pandemia_web
 
 python switch.py wonosobokab /
+
+sed -i .bak s/'dev'/'prod'/ .env
 yarn run build
+sed -i .bak s/'prod'/'dev'/ .env
 
 # turn back
 python switch.py router /cc

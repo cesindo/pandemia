@@ -377,11 +377,11 @@ export default {
   },
   mounted() {
     _axios.get("/json/wonosobo-villages.json").then(response => {
-      console.log(response);
+      // console.log(response);
       this.villageSuggestions = response.data.villages;
     });
     _axios.get("/json/wonosobo-districts.json").then(response => {
-      console.log(response);
+      // console.log(response);
       this.districtSuggestions = response.data.districts;
     });
   },
@@ -395,8 +395,8 @@ export default {
       this.districtName = item.item;
       this.queryDistrict = item.item;
     },
-    onInputChange(text) {
-      console.log(text);
+    onInputChange(_text) {
+      // console.log(text);
     },
     getSuggestionValue(suggestion) {
       return suggestion.item.name;

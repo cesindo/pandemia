@@ -1,5 +1,7 @@
 //! Misc funcion to parse query.
 
+use regex::Regex;
+
 use crate::types::SubReportStatus;
 
 #[doc(hidden)]
@@ -13,6 +15,7 @@ pub struct ParsedQuery<'a> {
     pub status: Option<SubReportStatus>,
     pub village_name: Option<&'a str>,
     pub district_name: Option<&'a str>,
+    pub query: String,
 }
 
 /// Parse query to get "semantic"-like search
@@ -32,6 +35,13 @@ pub fn parse_query<'a>(query: &'a str) -> ParsedQuery<'a> {
     let village_name = value_str_opt!(s, "desa");
     let district_name = value_str_opt!(s, "kcm");
 
+    // let re = Regex::new("(nama|tt|umur|jk|dari|status|desa|kcm)\\:\\w+").expect("cannot compile regex");
+    let final_query = query
+        .split(" ")
+        .filter(|a| !a.contains(':'))
+        .collect::<Vec<&str>>()
+        .join(" ");
+
     ParsedQuery {
         name,
         residence_address,
@@ -41,5 +51,6 @@ pub fn parse_query<'a>(query: &'a str) -> ParsedQuery<'a> {
         status,
         village_name,
         district_name,
+        query: final_query,
     }
 }

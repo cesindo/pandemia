@@ -27,12 +27,14 @@
                   <div class="header">
                     Anda login sebagai
                     <strong>{{$session.get("user_name")}}</strong>
-                    ({{ $session.get("user_medic") ? "medic" : 'satgas' }})
+                    <div v-if="!isSuperAdmin">
+                      ({{ $session.get("user_medic") ? "medic" : 'satgas' }})
                     <p v-if="!$session.get('user_medic')">
                       untuk daerah
                       <strong>{{$session.get("user_village")}}</strong>,
                       <strong>{{$session.get("user_city")}}</strong>
                     </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -269,7 +271,7 @@ export default {
       };
     },
     onItemClick(_event, item) {
-      console.log(_event);
+      // console.log(_event);
       if (item.title == "Logout") {
         this.$dialog
           .confirm("Yakin untuk keluar?")
