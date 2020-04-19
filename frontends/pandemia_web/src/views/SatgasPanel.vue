@@ -148,7 +148,7 @@ export default {
       };
     },
     onItemClick(_event, item) {
-      console.log(_event);
+      // console.log(_event);
       if (item.title == "Logout") {
         this.$dialog
           .confirm("Anda yakin untuk keluar?")

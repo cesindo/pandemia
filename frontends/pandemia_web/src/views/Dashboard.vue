@@ -28,8 +28,8 @@
                     Anda login sebagai
                     <strong>{{$session.get("user_name")}}</strong>
                     <div v-if="!isSuperAdmin">
-                      ({{ $session.get("user_medic") ? "medic" : 'satgas' }})
-                    <p v-if="!$session.get('user_medic')">
+                      ({{ $session.get("user_medic") ? "medic" : ( $session.get("is_admin") ? 'Admin' : 'satgas') }})
+                    <p v-if="!$session.get('user_medic') && !$session.get('is_admin')">
                       untuk daerah
                       <strong>{{$session.get("user_village")}}</strong>,
                       <strong>{{$session.get("user_city")}}</strong>
