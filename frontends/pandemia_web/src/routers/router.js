@@ -123,7 +123,7 @@ let router = new Router({
     },
     {
       path: '/dashboard/villages',
-      name: 'Data Desa',
+      name: 'Desa',
       component: Dashboard,
       meta: {
         title: 'Desa'

@@ -13,15 +13,26 @@
             <form class="ui form" method="POST" @submit="doLogin($event)">
               <div class="field">
                 <label>TOKEN:</label>
-                <input :disabled="isLoading" type="text" name="token" placeholder="Kode Token" ref="inputToken" v-uppercase />
-                <p style="margin-top: 10px;">
-                  Kode token bisa didapatkan dari Aplikasi Pandemia
-                </p>
+                <input
+                  :disabled="isLoading"
+                  type="text"
+                  name="token"
+                  placeholder="Kode Token"
+                  ref="inputToken"
+                  v-uppercase
+                />
+                <p style="margin-top: 10px;">Kode token bisa didapatkan dari Aplikasi Pandemia</p>
               </div>
-              <center><button :class="isLoading ? 'ui loading large green button' : 'ui icon large green button' " type="submit" :disabled="isLoading">
-                <i class="icon fa-key"></i>
-                Masuk
-                </button></center>
+              <center>
+                <button
+                  :class="isLoading ? 'ui loading large green button' : 'ui icon large green button' "
+                  type="submit"
+                  :disabled="isLoading"
+                >
+                  <i class="icon fa-key"></i>
+                  Masuk
+                </button>
+              </center>
             </form>
           </div>
         </div>
@@ -31,7 +42,6 @@
 </template>
 
 <script>
-
 import ErrorCode from "@/pandemia/ErrorCode.js";
 
 export default {
@@ -52,9 +62,10 @@ export default {
       if (event) event.preventDefault();
       this.isLoading = true;
       this.$pandemia
-        .api().publicApi.post(
-          "/auth/v1/satgas/authorize", {'token': this.$refs.inputToken.value}
-        )
+        .api()
+        .publicApi.post("/auth/v1/satgas/authorize", {
+          token: this.$refs.inputToken.value
+        })
         .then(resp => {
           this.isLoading = false;
           if (resp.data.code == 0) {
@@ -83,7 +94,7 @@ export default {
     },
     _handleGetMeInfo(_resp) {
       this.$router.push("/dashboard");
-      location.reload();
+      // location.reload();
     }
   }
 };

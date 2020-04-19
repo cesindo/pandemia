@@ -18,7 +18,7 @@
 
       <div v-if="currentPage['/dashboard']">
         <div class="ui placeholder segment center aligned">
-          <div class="ui header">Selamat datang di pusat kontrol Pandemia</div>
+          <div class="ui header">Selamat datang di Pandemia</div>
 
           <div class="ui center aligned grid">
             <div class="four wide column">
@@ -29,7 +29,9 @@
                     <strong>{{$session.get("user_name")}}</strong>
                     ({{ $session.get("user_medic") ? "medic" : 'satgas' }})
                     <p v-if="!$session.get('user_medic')">
-                      untuk daerah <strong>{{$session.get("user_village")}}</strong>, <strong>{{$session.get("user_city")}}</strong>
+                      untuk daerah
+                      <strong>{{$session.get("user_village")}}</strong>,
+                      <strong>{{$session.get("user_city")}}</strong>
                     </p>
                   </div>
                 </div>
@@ -272,10 +274,9 @@ export default {
         this.$dialog
           .confirm("Yakin untuk keluar?")
           .then(_dialog => {
-            
-            if (this.$session.get("is_admin")){
-              this.$router.replace("/"); 
-            }else if (this.$session.get("is_user")){
+            if (this.$session.get("is_admin")) {
+              this.$router.replace("/");
+            } else if (this.$session.get("is_user")) {
               this.$router.replace("/satgas");
             }
 

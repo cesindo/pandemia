@@ -62,6 +62,8 @@ Vue.use(require('vue-moment'), {
 import VueAutosuggest from "vue-autosuggest";
 Vue.use(VueAutosuggest);
 
+import _ from 'lodash';    
+Object.defineProperty(Vue.prototype, '$_', { value: _ });
 
 // Add utils option in components
 Vue.mixin({

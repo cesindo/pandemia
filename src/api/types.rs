@@ -294,8 +294,14 @@ pub struct Satgas {
     /// Village
     pub village: String,
 
+    /// User's village id
+    pub village_id: i64,
+
     /// City
     pub city: String,
+
+    /// User's province
+    pub province: String,
 
     /// Location latitude, longitude
     pub loc: models::LatLong,
@@ -334,7 +340,9 @@ impl ToApiType<Satgas> for models::User {
             active: self.active,
             roles: roles,
             village: meta_value_str!(self, "village", "=").to_owned(),
-            city: meta_value_str!(self, "city", "=").to_owned(),
+            village_id: meta_value_i64!(self, "village_id").unwrap_or(0),
+            city: meta_value_str!(self, "city_name", "=").to_owned(),
+            province: meta_value_str!(self, "province_name", "=").to_owned(),
             loc: self.get_lat_long(),
             blocked: self.is_blocked(),
             accesses,

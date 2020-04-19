@@ -1,5 +1,6 @@
 <template>
   <div>
+    <div>{{$_.startCase(province)}} / {{city}}</div>
     <AnsTable
       :key="tableRecords"
       data-source-url="/village/v1/village_data/search"
@@ -444,7 +445,10 @@
       :withCloseButton="true"
       @onApprove="doDelete"
     >
-      <p>Yakin untuk menghapus record {{toDelete['id']}} desa <strong>{{toDelete['village_name']}}</strong> ?</p>
+      <p>
+        Yakin untuk menghapus record {{toDelete['id']}} desa
+        <strong>{{toDelete['village_name']}}</strong> ?
+      </p>
     </ConfirmDialog>
   </div>
 </template>
@@ -533,6 +537,8 @@ export default {
 
     this.province = localStorage.province || localStorage.province;
     this.city = localStorage.city || localStorage.city;
+    this.province = this.province || this.$session.get("user_province");
+    this.city = this.city || this.$session.get("user_city");
 
     if (this.province && this.city) {
       _axios
@@ -544,6 +550,11 @@ export default {
         .then(response => {
           this.citySuggestions = response.data.address;
         });
+    } else {
+      console.log(
+        "Cannot fetch village-address data, province or city not defined"
+      );
+      // console.log(this.$session);
     }
   },
   methods: {
@@ -601,7 +612,7 @@ export default {
           if (resp.data.code == 0) {
             this.$modal.hide("AddRecordModal");
 
-            this.showSuccess("Rekod berhasil ditambahkan");
+            this.showSuccess("Entri berhasil ditambahkan");
             this.refreshTable();
             this.resetData();
           } else {
@@ -613,7 +624,7 @@ export default {
           }
         });
     },
-    resetData(){
+    resetData() {
       this.addCases = 0;
       this.addDeaths = 0;
       this.addRecovered = 0;
