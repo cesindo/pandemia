@@ -1,6 +1,5 @@
 <template>
   <div class="home">
-
     <SatgasLogin v-if="!loggedIn" title="Pandemia" desc="Satgas Login" />
 
     <div v-if="loggedIn" style="float: left;">
@@ -11,7 +10,6 @@
         :collapsed="true"
         :disableHover="true"
         style="z-index: 1000;"
-        
       >
         <!-- <div slot="header"></div> -->
       </sidebar-menu>
@@ -28,10 +26,7 @@
 
       <SubReports v-if="currentPage['/satgas/data']" :addable="true" :adminMode="false" />
 
-      <ReportNotes
-        v-if="currentPage['/satgas/reports']"
-      />
-
+      <ReportNotes v-if="currentPage['/satgas/reports']" />
     </div>
 
     <notifications group="default" position="top center" classes="vue-notification" />
@@ -66,7 +61,19 @@ export default {
           title: "Main Navigation"
         },
         {
-          title: "Data",
+          href: "/dashboard",
+          title: "Dashboard",
+          icon: "fa fa-list",
+          access: "*"
+        },
+        {
+          title: "Data Desa",
+          icon: "fa fa-file-alt",
+          href: "/dashboard/village-data",
+          access: "village_data"
+        },
+        {
+          title: "Data Perorang",
           icon: "fa fa-address-card",
           href: "/satgas/data",
           access: "records"
@@ -92,11 +99,11 @@ export default {
     };
   },
   computed: {
-    loggedIn(){
-      return this.$session.get('user_id') != null;
+    loggedIn() {
+      return this.$session.get("user_id") != null;
     },
-    villageName(){
-      return this.$session.get('user_village');
+    villageName() {
+      return this.$session.get("user_village");
     }
   },
   created() {
@@ -144,7 +151,7 @@ export default {
       console.log(_event);
       if (item.title == "Logout") {
         this.$dialog
-          .confirm("Are you sure to logout?")
+          .confirm("Anda yakin untuk keluar?")
           .then(_dialog => {
             this.$pandemia.unauthorize();
             this.$router.replace("/satgas");

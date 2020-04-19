@@ -24,7 +24,7 @@ use crate::{
     geolocator, models,
     prelude::*,
     types::AccountKind,
-    util,
+    util, ID,
 };
 
 #[derive(Deserialize, Validate)]
@@ -55,6 +55,13 @@ pub struct UpdateUser {
 
     #[validate(length(min = 2, max = 30))]
     pub area_code: String,
+    pub is_medic: bool,
+}
+
+#[derive(Deserialize, Validate)]
+pub struct UpdateAccesses {
+    pub id: ID,
+    pub accesses: Vec<String>,
 }
 
 use crate::models::AccessToken;
@@ -160,6 +167,12 @@ impl PublicApi {
         meta.push(format!("city_id={}", city.id));
         meta.push(format!("province_name={}", city.province));
         meta.push(format!("address_by_area_code={}/{}", city.province, city.name));
+        meta.push("access.data".to_string());
+        meta.push("access.data_person".to_string());
+        if query.is_medic {
+            meta.push(":medic:".to_string());
+            meta.push("access.village_data".to_string());
+        }
 
         if let Some(loc_info) = loc_info {
             meta.push(format!(
@@ -221,8 +234,16 @@ impl PublicApi {
         let conn = state.db();
         let dao = UserDao::new(&conn);
 
+        let is_super_admin = current_admin.id == 1;
+
         dao.get_by_id(query.id)
-            .map(|a| ApiResult::success(a.into()))
+            .map(|a| {
+                let mut a: User = a.into();
+                if !is_super_admin {
+                    a.meta = vec![];
+                }
+                ApiResult::success(a)
+            })
             .map_err(From::from)
     }
 
@@ -235,6 +256,34 @@ impl PublicApi {
         dao.get_by_id(query.id)
             .map(|a| ApiResult::success(a.to_api_type(&conn)))
             .map_err(From::from)
+    }
+
+    /// Update accesses.
+    #[api_endpoint(path = "/update_accesses", auth = "required", mutable, accessor = "admin")]
+    pub fn update_accesses(query: UpdateAccesses) -> ApiResult<()> {
+        use crate::schema::users::{self, dsl};
+        let conn = state.db();
+
+        if current_admin.id != 1 {
+            return unauthorized();
+        }
+
+        let user = UserDao::new(&conn).get_by_id(query.id)?;
+
+        let mut meta = user.meta.clone();
+
+        meta = meta.into_iter().filter(|a| !a.starts_with("access.")).collect();
+
+        for acc in query.accesses {
+            meta.push(format!("access.{}", acc));
+        }
+
+        diesel::update(dsl::users.filter(dsl::id.eq(query.id)))
+            .set(dsl::meta.eq(meta))
+            .execute(&conn)
+            .map_err(Error::from)?;
+
+        Ok(ApiResult::success(()))
     }
 
     /// Delete satgas.

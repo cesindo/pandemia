@@ -221,8 +221,9 @@ pub struct User {
     /// user roles
     pub roles: Vec<String>,
 
-    // /// Additional metadata
-    // pub meta: Vec<String>,
+    /// Additional metadata
+    pub meta: Vec<String>,
+
     /// Location latitude, longitude
     pub loc: models::LatLong,
     /// Flag whether this user (satgas) blocked.
@@ -251,7 +252,7 @@ impl From<models::User> for User {
             active: a.active,
             is_satgas: a.is_satgas() && !a.is_blocked(),
             roles,
-            // meta: a.meta.clone(),
+            meta: a.meta.clone(),
             village: a.get_village_name().to_owned(),
             loc: a.get_lat_long(),
             is_blocked: a.is_blocked(),
@@ -293,11 +294,20 @@ pub struct Satgas {
     /// Village
     pub village: String,
 
+    /// City
+    pub city: String,
+
     /// Location latitude, longitude
     pub loc: models::LatLong,
 
     /// Flag whether this user (satgas) blocked.
     pub blocked: bool,
+
+    /// Daftar akses untuk satgasya
+    pub accesses: Vec<String>,
+
+    /// Is medic
+    pub medic: bool,
 }
 
 impl ToApiType<Satgas> for models::User {
@@ -307,6 +317,14 @@ impl ToApiType<Satgas> for models::User {
         if self.is_satgas() {
             roles.push("satgas".to_owned());
         }
+
+        let accesses = self
+            .meta
+            .iter()
+            .filter(|a| a.starts_with("access."))
+            .map(|a| (&a[7..]).to_string())
+            .collect();
+
         Satgas {
             id: self.id,
             full_name: self.full_name.to_owned(),
@@ -316,8 +334,11 @@ impl ToApiType<Satgas> for models::User {
             active: self.active,
             roles: roles,
             village: meta_value_str!(self, "village", "=").to_owned(),
+            city: meta_value_str!(self, "city", "=").to_owned(),
             loc: self.get_lat_long(),
             blocked: self.is_blocked(),
+            accesses,
+            medic: self.is_medic(),
         }
     }
 }

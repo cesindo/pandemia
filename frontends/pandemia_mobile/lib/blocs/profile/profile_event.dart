@@ -37,7 +37,8 @@ class RegisterAsSatgas extends ProfileEvent {
   final User user;
   // final LatLng location;
   final String areaCode;
-  RegisterAsSatgas(this.user, this.areaCode);
+  final bool isMedic;
+  RegisterAsSatgas(this.user, this.areaCode, this.isMedic);
   @override
   String toString() => "RegisterAsSatgas";
 }

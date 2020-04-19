@@ -90,6 +90,11 @@ impl User {
     pub fn is_deleted(&self) -> bool {
         list_has_flag!(self.meta, "deleted")
     }
+
+    /// Check whether this user is medic
+    pub fn is_medic(&self) -> bool {
+        list_has_flag!(self.meta, "medic")
+    }
 }
 
 /// Bentuk model dari alamat untuk akun.
@@ -383,6 +388,14 @@ impl User {
             lat: self.latitude,
             long: self.longitude,
         }
+    }
+
+    /// Check whether user has access to some resource
+    pub fn has_access(&self, access_name: &str) -> bool {
+        self.meta
+            .iter()
+            .find(|a| *a == &format!("access.{}", access_name))
+            .is_some()
     }
 }
 

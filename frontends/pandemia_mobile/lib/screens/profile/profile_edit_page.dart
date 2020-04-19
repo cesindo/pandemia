@@ -2,14 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
 import 'package:pandemia_mobile/blocs/profile/profile.dart';
 import 'package:pandemia_mobile/models/sub_report.dart';
 import 'package:pandemia_mobile/models/user.dart';
-import 'package:pandemia_mobile/screens/profile/location_picker.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
-import 'package:pandemia_mobile/util/address_util.dart';
 import 'package:pandemia_mobile/util/text_formatter.dart';
 import 'package:pandemia_mobile/widgets/loading_indicator.dart';
 import 'package:pandemia_mobile/util/string_extension.dart';
@@ -32,7 +28,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   final _fullNameCtl = TextEditingController();
   final _emailCtl = TextEditingController();
   final _phoneCtl = TextEditingController();
-  final _locCtl = TextEditingController();
+  // final _locCtl = TextEditingController();
   final _villageCtl = TextEditingController();
   final _areaCodeCtl = TextEditingController();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -40,6 +36,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   // LatLng location;
   User currentUser;
   bool _isLoading = false;
+  // bool _medical = false;
   final SubReport item;
 
   _ProfileEditPageState(this.profileBloc, this.item);
@@ -170,6 +167,16 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                     ),
                     Text("Dapatkan kode daerah dari pemerintah daerah Anda",
                         style: TextStyle(fontSize: 15)),
+
+                    // LabeledCheckbox(
+                    //   label: "Saya Petugas Medis",
+                    //   value: this._medical,
+                    //   onChanged: (value) {
+                    //     setState(() {
+                    //       this._medical = value;
+                    //     });
+                    //   },
+                    // ),
                     Container(
                       margin: EdgeInsets.only(top: 20.0, bottom: 10.0),
                       child: MaterialButton(
@@ -180,13 +187,54 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                         color: Theme.of(context).buttonColor,
                         onPressed: () {
                           if (_formKey.currentState.validate()) {
-                            profileBloc.dispatch(RegisterAsSatgas(
-                                currentUser.copy(
-                                    fullName: _fullNameCtl.text,
-                                    email: _emailCtl.text.trim(),
-                                    phoneNum: _phoneCtl.text,
-                                    village: _villageCtl.text.capitalize()),
-                                _areaCodeCtl.text));
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text("Apakah Anda Petugas Medis?"),
+                                    content: Text("Apakah Anda Petugas Medis?"),
+                                    actions: <Widget>[
+                                      new FlatButton(
+                                          onPressed: () {
+                                            profileBloc.dispatch(
+                                                RegisterAsSatgas(
+                                                    currentUser.copy(
+                                                        fullName:
+                                                            _fullNameCtl.text,
+                                                        email: _emailCtl.text
+                                                            .trim(),
+                                                        phoneNum:
+                                                            _phoneCtl.text,
+                                                        village: _villageCtl
+                                                            .text
+                                                            .capitalize()),
+                                                    _areaCodeCtl.text,
+                                                    true));
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text("Ya")),
+                                      new FlatButton(
+                                          onPressed: () {
+                                            profileBloc.dispatch(
+                                                RegisterAsSatgas(
+                                                    currentUser.copy(
+                                                        fullName:
+                                                            _fullNameCtl.text,
+                                                        email: _emailCtl.text
+                                                            .trim(),
+                                                        phoneNum:
+                                                            _phoneCtl.text,
+                                                        village: _villageCtl
+                                                            .text
+                                                            .capitalize()),
+                                                    _areaCodeCtl.text,
+                                                    false));
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text("Bukan"))
+                                    ],
+                                  );
+                                });
                           }
                         },
                       ),

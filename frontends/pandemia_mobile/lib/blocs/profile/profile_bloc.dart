@@ -62,7 +62,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       "village": event.user.village,
       "latitude": locationData.latitude,
       "longitude": locationData.longitude,
-      "area_code": event.areaCode
+      "area_code": event.areaCode,
+      "is_medic": event.isMedic
     };
 
     if (event.user.email != "") {

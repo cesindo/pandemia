@@ -118,6 +118,12 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
           _valStatus = item.status;
           keluhanSelected =
               item.healthyNotes.split(',').map((a) => a.trim()).toList();
+          if (item.fromRedZone){
+            addInfoSelected.add("from_red_zone");
+          }
+          if (item.hasSymptoms){
+            addInfoSelected.add("has_symptoms");
+          }
         });
       });
     }

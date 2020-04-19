@@ -21,6 +21,8 @@ class SubReport extends Equatable {
   final String status;
   final String ts;
   final String healthyNotes;
+  final bool fromRedZone;
+  final bool hasSymptoms;
 
   SubReport(
       this.id,
@@ -36,7 +38,9 @@ class SubReport extends Equatable {
       this.notes,
       this.status,
       this.ts,
-      this.healthyNotes)
+      this.healthyNotes,
+      this.fromRedZone,
+      this.hasSymptoms)
       : super([
           id,
           creatorId,
@@ -51,7 +55,9 @@ class SubReport extends Equatable {
           notes,
           status,
           ts,
-          healthyNotes
+          healthyNotes,
+          fromRedZone,
+          hasSymptoms
         ]);
 
   Map<String, dynamic> toMap() {
@@ -70,6 +76,8 @@ class SubReport extends Equatable {
     data["status"] = this.status;
     data["ts"] = this.ts;
     data["healthy_notes"] = this.healthyNotes;
+    data["from_red_zone"] = this.fromRedZone;
+    data["has_symptoms"] = this.hasSymptoms;
     return data;
   }
 
@@ -88,6 +96,8 @@ class SubReport extends Equatable {
     assert(data['status'] != null, "SubReport.status is null");
     assert(data['ts'] != null, "SubReport.ts is null");
     assert(data['healthy_notes'] != null, "SubReport.healthy_notes is null");
+    assert(data['from_red_zone'] != null, "SubReport.from_red_zone is null");
+    assert(data['has_symptoms'] != null, "SubReport.has_symptoms is null");
     return SubReport(
         data['id'] as int,
         data['creator_id'] as int,
@@ -102,7 +112,9 @@ class SubReport extends Equatable {
         data['notes'] as String,
         data['status'] as String,
         data['ts'] as String,
-        data['healthy_notes'] as String);
+        data['healthy_notes'] as String,
+        data['from_red_zone'] as bool,
+        data['has_symptoms'] as bool);
   }
 
   SubReport copy(
@@ -118,7 +130,9 @@ class SubReport extends Equatable {
       String notes,
       String status,
       String ts,
-      String healthyNotes}) {
+      String healthyNotes,
+      bool fromRedZone,
+      bool hasSymptoms}) {
     return SubReport(
         this.id,
         creatorId ?? this.creatorId,
@@ -133,6 +147,8 @@ class SubReport extends Equatable {
         notes ?? this.notes,
         status ?? this.status,
         ts ?? this.ts,
-        healthyNotes ?? this.healthyNotes);
+        healthyNotes ?? this.healthyNotes,
+        fromRedZone ?? this.fromRedZone,
+        hasSymptoms ?? this.hasSymptoms);
   }
 }

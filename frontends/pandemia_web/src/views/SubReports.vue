@@ -395,10 +395,9 @@ export default {
       this.districtName = item.item;
       this.queryDistrict = item.item;
     },
-    // onInputChange(text) {
-    //   // event fired when the input changes
-    //   console.log(text);
-    // },
+    onInputChange(text) {
+      console.log(text);
+    },
     getSuggestionValue(suggestion) {
       return suggestion.item.name;
     },

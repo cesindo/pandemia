@@ -145,7 +145,7 @@ impl PublicApi {
     }
 
     /// Search for village_data
-    #[api_endpoint(path = "/village_data/search", auth = "required", accessor = "admin")]
+    #[api_endpoint(path = "/village_data/search", auth = "required", accessor = "admin,user")]
     pub fn search_village_data(query: QueryEntries) -> ApiResult<EntriesResult<VillageData>> {
         query.validate()?;
         let conn = state.db();
@@ -155,6 +155,12 @@ impl PublicApi {
             Some(q) => parse_query(q),
             None => ParsedQuery::default(),
         };
+
+        if let Some(current_user) = current_user.as_ref() {
+            if !current_user.is_satgas() {
+                return unauthorized();
+            }
+        }
 
         let sresult = dao.search(
             parq.district_name,
@@ -187,7 +193,12 @@ impl PublicApi {
     // }
 
     /// Add village_data.
-    #[api_endpoint(path = "/village_data/add", auth = "required", mutable, accessor = "admin")]
+    #[api_endpoint(
+        path = "/village_data/add",
+        auth = "required",
+        mutable,
+        accessor = "admin,user"
+    )]
     pub fn add_village_data(query: AddVillageData) -> ApiResult<VillageData> {
         query.validate()?;
 
@@ -196,15 +207,24 @@ impl PublicApi {
 
         let village = VillageDao::new(&conn).get_by_id(query.village_id)?;
 
-        if current_admin.id != 1 {
-            if current_admin.get_city_id().unwrap_or(0) != village.city_id {
-                return param_error("Anda tidak memiliki akses untuk kab/kota ini");
-            }
-        }
-
+        let mut last_updated_by_id = 0;
         let mut meta = vec![];
 
-        meta.push(format!("added_by_admin_id={}", current_admin.id));
+        if let Some(current_admin) = current_admin {
+            if current_admin.id != 1 {
+                if current_admin.get_city_id().unwrap_or(0) != village.city_id {
+                    return param_error("Anda tidak memiliki akses untuk kab/kota ini");
+                }
+            }
+            last_updated_by_id = current_admin.id;
+            meta.push(format!("added_by_admin_id={}", current_admin.id));
+        } else if let Some(current_user) = current_user {
+            if !current_user.is_satgas() || !current_user.is_medic() {
+                return unauthorized();
+            }
+            last_updated_by_id = current_user.id;
+            meta.push(format!("added_by_user_id={}", current_user.id));
+        }
 
         let village_data = dao.create(&NewVillageData {
             village_id: query.village_id,
@@ -214,7 +234,7 @@ impl PublicApi {
             cases: query.record.cases,
             recovered: query.record.recovered,
             deaths: query.record.deaths,
-            last_updated_by_id: current_admin.id,
+            last_updated_by_id,
             city_id: village.city_id,
             meta: &meta.iter().map(|a| a.as_str()).collect(),
             ppdwt: query.record.ppdwt,
@@ -225,12 +245,12 @@ impl PublicApi {
             otg: query.record.otg,
         })?;
 
-        meta.push(":updated_by_admin:".to_string());
-        meta.push(format!("updated_by_admin_name={}", current_admin.name));
-        meta.push(format!("updated_by_admin_id={}", current_admin.id));
-        meta.push(format!("village={}", village.name));
-        meta.push(format!("district={}", village.district_name));
-        meta.push(format!("city={}", village.city));
+        // meta.push(":updated_by_admin:".to_string());
+        // meta.push(format!("updated_by_admin_name={}", current_admin.name));
+        // meta.push(format!("updated_by_admin_id={}", current_admin.id));
+        // meta.push(format!("village={}", village.name));
+        // meta.push(format!("district={}", village.district_name));
+        // meta.push(format!("city={}", village.city));
 
         // // update district data
         // {
@@ -262,15 +282,26 @@ impl PublicApi {
     }
 
     /// Delete village data.
-    #[api_endpoint(path = "/village_data/delete", auth = "required", mutable, accessor = "admin")]
+    #[api_endpoint(
+        path = "/village_data/delete",
+        auth = "required",
+        mutable,
+        accessor = "admin,user"
+    )]
     pub fn delete_village_data(query: IdQuery) -> ApiResult<()> {
         let conn = state.db();
         let dao = VillageDataDao::new(&conn);
 
         let d = dao.get_by_id(query.id)?;
 
-        if current_admin.id != 1 && d.city_id != current_admin.get_city_id().unwrap_or(0) {
-            return unauthorized();
+        if let Some(current_admin) = current_admin {
+            if current_admin.id != 1 && d.city_id != current_admin.get_city_id().unwrap_or(0) {
+                return unauthorized();
+            }
+        } else if let Some(current_user) = current_user {
+            if !current_user.is_satgas() || !current_user.is_medic() {
+                return unauthorized();
+            }
         }
 
         dao.delete_by_id(query.id)?;
@@ -298,7 +329,7 @@ impl PublicApi {
     }
 
     /// Update multiple records at once.
-    #[api_endpoint(path = "/commit", auth = "required", mutable, accessor = "admin")]
+    #[api_endpoint(path = "/commit", auth = "required", mutable, accessor = "admin,user")]
     pub fn commit(query: CommitData) -> ApiResult<()> {
         use crate::schema::village_data::{self, dsl};
         query.validate()?;
@@ -311,8 +342,33 @@ impl PublicApi {
             .map(|a| format!("'{}/{}'", a.district_name, a.village_name))
             .collect::<Vec<String>>();
 
-        if current_admin.get_city_id().is_none() && current_admin.id != 1 {
-            return unauthorized();
+        let mut last_updated_by_id = 0;
+        let mut last_updated_by_name = "";
+
+        if let Some(current_admin) = current_admin.as_ref() {
+            if current_admin.id != 1 {
+                if current_admin.get_city_id().is_none() && current_admin.id != 1 {
+                    return unauthorized();
+                }
+
+                last_updated_by_id = current_admin.id;
+                last_updated_by_name = &current_admin.name;
+            }
+        }
+
+        if let Some(current_user) = current_user.as_ref() {
+            if !current_user.is_satgas() {
+                return unauthorized();
+            }
+            if !current_user.is_medic() {
+                return unauthorized();
+            }
+            if !current_user.has_access("village_data") {
+                return unauthorized();
+            }
+
+            last_updated_by_id = current_user.id;
+            last_updated_by_name = &current_user.full_name;
         }
 
         // let city =
@@ -335,20 +391,33 @@ impl PublicApi {
                 let dao = VillageDataDao::new(&conn);
 
                 for record in query.records {
-                    let meta: Vec<String> = {
+                    let mut meta: Vec<String> = {
                         village_data::table
                             .filter(dsl::id.eq(record.id))
                             .select(dsl::meta)
                             .first(&conn)?
                     };
 
+                    meta = meta
+                        .into_iter()
+                        .filter(|a| !a.starts_with(":updated_by_"))
+                        .collect();
+
                     // // if let Some(ca) = current_admin {
-                    // meta.push(":updated_by_admin:".to_string());
+                    if current_admin.is_some() {
+                        meta.push(":updated_by_admin:".to_string());
+                    }
+                    if current_user.is_some() {
+                        meta.push(":updated_by_user:".to_string());
+                        if current_user.as_ref().map(|a| a.is_medic()).unwrap_or(false) {
+                            meta.push(":updated_by_medic:".to_string());
+                        }
+                    }
                     // meta.push(format!("updated_by_admin_name={}", current_admin.name));
                     // meta.push(format!("updated_by_admin_id={}", current_admin.id));
                     // // }
 
-                    // meta.dedup();
+                    meta.dedup();
 
                     dao.update(
                         record.village_id,
@@ -359,7 +428,7 @@ impl PublicApi {
                             cases: record.cases,
                             recovered: record.recovered,
                             deaths: record.deaths,
-                            last_updated_by_id: current_admin.id,
+                            last_updated_by_id,
                             meta: &meta.iter().map(|a| a.as_str()).collect(),
                             city_id: None,
                             district_id: None,
@@ -391,11 +460,11 @@ impl PublicApi {
         Logs::new(&conn).write(
             &format!(
                 "{} update village data for {} data: {}",
-                current_admin.name,
+                last_updated_by_name,
                 locs.len(),
                 locs.join(", ")
             ),
-            current_admin.id,
+            last_updated_by_id,
         );
 
         Ok(ApiResult::success(()))

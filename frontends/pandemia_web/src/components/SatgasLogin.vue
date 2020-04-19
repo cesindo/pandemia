@@ -82,7 +82,7 @@ export default {
       }
     },
     _handleGetMeInfo(_resp) {
-      this.$router.push("/satgas/data");
+      this.$router.push("/dashboard");
       location.reload();
     }
   }

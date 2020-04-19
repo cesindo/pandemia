@@ -32,7 +32,6 @@
               <td data-label="Active">Metadata:</td>
               <td class="value">{{d.meta}}</td>
             </tr>
-
           </tbody>
         </table>
       </div>
@@ -74,6 +73,39 @@
         <i class="fa-key icon"></i> Rubah kata kunci
       </button>
     </div>
+
+    <DialogModal
+      modalName="EditAccesses"
+      caption="Edit Accesses"
+      :withCloseButton="true"
+      @onApprove="onEditAccessApproved"
+      @opened="onEditAccessOpened"
+      :buttonsText="{reject: 'Cancel', approve: 'Ok'}"
+    >
+      <template v-slot:content>
+        <h2 class="ui header">Edit Accesses</h2>
+
+        <div style="text-align: left;">
+          <div class="ui form">
+            <div class="field">
+              <label>Accesses:</label>
+              <textarea
+                ref="accessInput"
+                name="AccessInput"
+                id="AccessInput"
+                cols="30"
+                rows="3"
+                v-model="accesses"
+              ></textarea>
+              <small>Input separated by comma. eg: users,report_notes</small>
+            </div>
+          </div>
+        </div>
+      </template>
+    </DialogModal>
+    <button class="ui text icon button left floated" @click="editAccesses">
+      <i class="fa-map-signs icon"></i> Edit akses
+    </button>
   </div>
 </template>
 
@@ -91,7 +123,8 @@ export default {
   },
   data() {
     return {
-      d: {}
+      d: {},
+      accesses: ""
     };
   },
   created() {
@@ -102,15 +135,45 @@ export default {
       .then(resp => {
         console.log(resp);
         this.d = resp.data.result;
+        this.accesses = this.d.meta
+          .filter(a => a.startsWith("access."))
+          .map(a => a.substring(7));
       });
   },
   methods: {
+    editAccesses() {
+      this.$modal.show("EditAccesses");
+    },
+    onEditAccessApproved() {
+      var accesses = this.$refs["accessInput"].value
+        .split(",")
+        .map(a => a.trim());
+      this.$pandemia
+        .api()
+        .publicApi.post(`/user/v1/update_accesses`, {
+          id: this.d.id,
+          accesses: accesses
+        })
+        .then(resp => {
+          if (resp.data.code == 0) {
+            this.showSuccess("Akses berhasil diupdate");
+            var d2 = this.d;
+            d2.accesses = accesses;
+            this.d = d2;
+            this.accesses = accesses.join(", ");
+            this.$modal.hide("EditAccesses");
+          }
+        });
+    },
+    onEditAccessOpened() {
+      this.$refs["accessInput"].focus();
+    },
     changePassword() {
       this.$modal.show("EditPasswordModal");
     },
     onEditPasswordOk() {
       var newPass = this.$refs["passInput"].value,
-      confNewPass = this.$refs["confPassInput"].value;
+        confNewPass = this.$refs["confPassInput"].value;
 
       if (newPass != confNewPass) {
         this.showError(
