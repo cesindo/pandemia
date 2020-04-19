@@ -5,7 +5,7 @@ import 'vue-sidebar-menu/dist/vue-sidebar-menu.css'
 import Notifications from 'vue-notification'
 
 import App from './App.vue'
-import router from './router'
+import router from './routers/router'
 import store from './store'
 import Pandemia from './plugins/pandemia';
 import notifMixin from "./mixins/notifMixin";
