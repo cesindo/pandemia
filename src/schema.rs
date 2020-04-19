@@ -179,6 +179,15 @@ table! {
         latest -> Bool,
         meta -> Array<Text>,
         last_updated -> Timestamp,
+        ppdwt -> Int4,
+        pptb -> Int4,
+        odp -> Int4,
+        odpsp -> Int4,
+        pdp -> Int4,
+        pdps -> Int4,
+        pdpm -> Int4,
+        otg -> Int4,
+        loc_path -> Text,
     }
 }
 

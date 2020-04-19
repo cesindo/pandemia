@@ -87,9 +87,9 @@
                   </tr>
                 </tbody>
               </table>
-              <center>
+              <!-- <center>
                 <a href="/lihatsemua">Lihat Semua</a>
-              </center>
+              </center>-->
             </div>
           </div>
 
@@ -183,7 +183,7 @@
           </div>
         </div>
 
-        <div class="row">
+        <div class="row mobile only">
           <div class="four wide mobile only column">
             <h2>Data Per Desa</h2>
             <table class="ui celled unstackable table village-data">
@@ -208,12 +208,36 @@
                 </tr>
               </tbody>
             </table>
-            <center>
+            <!-- <center>
               <a href="/lihatsemua">Lihat Semua</a>
-            </center>
+            </center>-->
           </div>
         </div>
       </div>
+
+      <div class="ui stackable three column grid">
+        <div class="row">
+          <div class="column">
+            <highcharts :options="allDataPipeChart"></highcharts>
+          </div>
+          <div class="column">
+            <highcharts :options="generalTrendData"></highcharts>
+          </div>
+          <div class="column">
+            <highcharts :options="travelerTrendData"></highcharts>
+          </div>
+        </div>
+      </div>
+
+      <!-- <area-chart
+        id="area"
+        :data="areaData"
+        xkey="year"
+        ykeys="["value"]"
+        line-colors="["#30b7ff", "#ff974d", "#FF6384", "#4ba63f", "#DEDEDE"]"
+        grid="true"
+        resize="true"
+      ></area-chart>-->
     </div>
   </div>
 </template>
@@ -224,16 +248,279 @@
 // import UserDetail from "@/components/UserDetail.vue";
 // import LineChart from "@/components/LineChart.vue";
 
+import Raphael from "raphael/raphael";
+global.Raphael = Raphael;
+// import { /*DonutChart, BarChart, LineChart,*/ AreaChart } from "vue-morris";
+// import { Chart } from "highcharts-vue";
+
 export default {
   name: "Dashboard",
   components: {
     // AnsTable,
     // UserDetail,
     // LineChart
+    // AreaChart,
+    // Chart
   },
   props: ["province", "city"],
   data() {
     return {
+      generalTrendData: {
+        chart: {
+          type: "line"
+        },
+        title: {
+          text: "TREND"
+        },
+        // subtitle: {
+        //   text: "Source: WorldClimate.com"
+        // },
+        xAxis: {
+          categories: [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec"
+          ]
+        },
+        yAxis: {
+          title: {
+            text: "Jumlah"
+          }
+        },
+        plotOptions: {
+          line: {
+            dataLabels: {
+              enabled: true
+            },
+            enableMouseTracking: true
+          }
+        },
+        colors: ["#166c91", "#f2711c", "#db2828", "#21ba45", "#767676"],
+        series: [
+          {
+            name: "ODP",
+            data: [
+              7.0,
+              6.9,
+              9.5,
+              14.5,
+              18.4,
+              21.5,
+              25.2,
+              26.5,
+              23.3,
+              18.3,
+              13.9,
+              9.6
+            ]
+          },
+          {
+            name: "PDP",
+            data: [
+              3.9,
+              4.2,
+              5.7,
+              8.5,
+              11.9,
+              15.2,
+              17.0,
+              16.6,
+              14.2,
+              10.3,
+              6.6,
+              4.8
+            ]
+          },
+          {
+            name: "SEMBUH",
+            data: [
+              2.9,
+              3.2,
+              5.7,
+              8.5,
+              1.9,
+              20.2,
+              19.0,
+              40.6,
+              30.2,
+              31.3,
+              90.6,
+              100.8
+            ]
+          }
+        ]
+      },
+      travelerTrendData: {
+        chart: {
+          type: "line"
+        },
+        title: {
+          text: "TREND PELAKU PERJALANAN"
+        },
+        // subtitle: {
+        //   text: "Source: WorldClimate.com"
+        // },
+        colors: ["#db2828", "#4d9ba3", "#f2711c"],
+        xAxis: {
+          categories: [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec"
+          ]
+        },
+        yAxis: {
+          title: {
+            text: "Jumlah"
+          }
+        },
+        plotOptions: {
+          line: {
+            dataLabels: {
+              enabled: true
+            },
+            enableMouseTracking: true
+          }
+        },
+        series: [
+          {
+            name: "Pelaku Perjalanan Dari Wilayah Terjangkit",
+            data: [
+              7.0,
+              6.9,
+              9.5,
+              14.5,
+              18.4,
+              21.5,
+              25.2,
+              26.5,
+              23.3,
+              18.3,
+              13.9,
+              9.6
+            ]
+          },
+          {
+            name: "ODP",
+            data: [
+              3.9,
+              4.2,
+              5.7,
+              8.5,
+              11.9,
+              15.2,
+              17.0,
+              16.6,
+              14.2,
+              10.3,
+              6.6,
+              4.8
+            ]
+          },
+          {
+            name: "Pelaku Perjalanan Dari Wilayah Terjangkit Tanpa Gejala",
+            data: [
+              2.9,
+              3.2,
+              5.7,
+              8.5,
+              1.9,
+              20.2,
+              19.0,
+              40.6,
+              30.2,
+              31.3,
+              90.6,
+              100.8
+            ]
+          }
+        ]
+      },
+      allDataPipeChart: {
+        chart: {
+          plotBackgroundColor: null,
+          plotBorderWidth: null,
+          plotShadow: false,
+          type: "pie"
+        },
+        title: {
+          text: "COVID19 - Wonosobo"
+        },
+        tooltip: {
+          pointFormat:
+            "{series.name}: ({point.y}) <b>{point.percentage:.1f}%</b>"
+        },
+        colors: ["#166c91", "#f2711c", "#db2828", "#21ba45", "#767676"],
+        accessibility: {
+          point: {
+            valueSuffix: "%"
+          }
+        },
+        plotOptions: {
+          pie: {
+            allowPointSelect: true,
+            cursor: "pointer",
+            dataLabels: {
+              enabled: true,
+              format: "<b>{point.name}</b>: {point.percentage:.1f} %"
+            }
+          }
+        },
+        series: [
+          {
+            name: "Data",
+            colorByPoint: true,
+            data: [
+              {
+                name: "ODP",
+                y: 0,
+                sliced: true,
+                selected: true
+              },
+              {
+                name: "PDP",
+                y: 0
+              },
+              {
+                name: "COVID19",
+                y: 0
+              },
+              {
+                name: "SEMBUH",
+                y: 0
+              },
+              {
+                name: "MENINGGAL",
+                y: 0
+              }
+            ]
+          }
+        ]
+      },
+      areaData: [
+        { year: "2008", value: 20 },
+        { year: "2009", value: 10 },
+        { year: "2010", value: 5 },
+        { year: "2011", value: 5 },
+        { year: "2012", value: 20 }
+      ],
       currentUserId: this.$session.get("user_id"),
       feeds: [],
       village_data: [],
@@ -243,36 +530,36 @@ export default {
       total_recovered: 0,
       total_deaths: 0,
       districtData: [
-        {
-          name: "Kejajar",
-          odp: 2,
-          pdp: 3,
-          positive: 2
-        },
-        {
-          name: "Kepil",
-          odp: 2,
-          pdp: 3,
-          positive: 1
-        },
-        {
-          name: "Sapuran",
-          odp: 2,
-          pdp: 3,
-          positive: 4
-        },
-        {
-          name: "Kaliwiro",
-          odp: 2,
-          pdp: 3,
-          positive: 3
-        },
-        {
-          name: "Wadaslintang",
-          odp: 2,
-          pdp: 3,
-          positive: 0
-        }
+        // {
+        //   name: "Kejajar",
+        //   odp: 2,
+        //   pdp: 3,
+        //   positive: 2
+        // },
+        // {
+        //   name: "Kepil",
+        //   odp: 2,
+        //   pdp: 3,
+        //   positive: 1
+        // },
+        // {
+        //   name: "Sapuran",
+        //   odp: 2,
+        //   pdp: 3,
+        //   positive: 4
+        // },
+        // {
+        //   name: "Kaliwiro",
+        //   odp: 2,
+        //   pdp: 3,
+        //   positive: 3
+        // },
+        // {
+        //   name: "Wadaslintang",
+        //   odp: 2,
+        //   pdp: 3,
+        //   positive: 0
+        // }
       ]
     };
   },
@@ -356,10 +643,77 @@ export default {
             this.total_cases = d.cases;
             this.total_recovered = d.recovered;
             this.total_deaths = d.deaths;
+
+            this.$set(this.allDataPipeChart, "series", [
+              {
+                name: "Data",
+                colorByPoint: true,
+                data: [
+                  {
+                    name: "ODP",
+                    y: d.odp,
+                    sliced: true,
+                    selected: true
+                  },
+                  {
+                    name: "PDP",
+                    y: d.pdp
+                  },
+                  {
+                    name: "COVID19",
+                    y: d.cases
+                  },
+                  {
+                    name: "SEMBUH",
+                    y: d.recovered
+                  },
+                  {
+                    name: "MENINGGAL",
+                    y: d.deaths
+                  }
+                ]
+              }
+            ]);
           } else {
             console.log(
               "Gagal mendapatkan data total. e: " + resp.data.description
             );
+          }
+        });
+
+      this.$pandemia
+        .api()
+        .publicApi.get(
+          `/analytic/v1/trend/traveler?province=${this.province}&city=${this.city}&offset=0&limit=30`
+        )
+        .then(resp => {
+          if (resp.data.code == 0) {
+            // console.log(resp.data.result);
+            let ent = resp.data.result;
+            console.log(ent);
+
+            this.$set(this.travelerTrendData.xAxis, "categories", ent.cats);
+            this.$set(this.travelerTrendData, "series", ent.series);
+          } else {
+            this.showError(resp.data.description);
+          }
+        });
+
+      this.$pandemia
+        .api()
+        .publicApi.get(
+          `/analytic/v1/trend/general?province=${this.province}&city=${this.city}&offset=0&limit=30`
+        )
+        .then(resp => {
+          if (resp.data.code == 0) {
+            // console.log(resp.data.result);
+            let ent = resp.data.result;
+            console.log(ent);
+
+            this.$set(this.generalTrendData.xAxis, "categories", ent.cats);
+            this.$set(this.generalTrendData, "series", ent.series);
+          } else {
+            this.showError(resp.data.description);
           }
         });
 

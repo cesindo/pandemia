@@ -210,6 +210,11 @@ impl Admin {
             .find(|a| *a == &format!("access.{}", access_name))
             .is_some()
     }
+
+    /// Check whether this is super admin
+    pub fn is_super_admin(&self) -> bool {
+        self.id == 1
+    }
 }
 
 #[doc(hidden)]
@@ -244,6 +249,17 @@ pub struct Record {
     pub latest: bool,
     pub meta: Vec<String>,
     pub last_updated: NaiveDateTime,
+
+    pub ppdwt: i32,
+    pub pptb: i32,
+    pub odp: i32,
+    pub odpsp: i32,
+    pub pdp: i32,
+    pub pdps: i32,
+    pub pdpm: i32,
+    pub otg: i32,
+
+    pub loc_path: String,
 }
 
 impl Record {

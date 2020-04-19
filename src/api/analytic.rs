@@ -2,10 +2,13 @@
 #![allow(missing_docs)]
 
 use actix_web::{HttpRequest, HttpResponse};
-use chrono::NaiveDateTime;
+use chrono::{NaiveDate, NaiveDateTime};
 use diesel::dsl::{sql, sum};
 use diesel::prelude::*;
-use diesel::{sql_query, sql_types::BigInt};
+use diesel::{
+    sql_query,
+    sql_types::{BigInt, Date, Text},
+};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
@@ -22,8 +25,11 @@ use crate::{
     models,
     prelude::*,
     sqlutil::lower,
+    util,
     ID,
 };
+
+use std::collections::HashMap;
 
 #[derive(Deserialize, Validate)]
 pub struct AreaQuery {
@@ -74,6 +80,48 @@ struct Entry {
     recovered: i64,
     #[sql_type = "BigInt"]
     deaths: i64,
+}
+
+#[derive(QueryableByName, Serialize, Debug)]
+pub struct TravelerData {
+    #[sql_type = "Text"]
+    pub loc_path: String,
+
+    #[sql_type = "Date"]
+    pub updated: NaiveDate,
+
+    #[sql_type = "BigInt"]
+    pub ppdwt: i64,
+
+    #[sql_type = "BigInt"]
+    pub odp: i64,
+
+    #[sql_type = "BigInt"]
+    pub pptb: i64,
+}
+
+#[derive(QueryableByName, Serialize, Debug)]
+pub struct GeneralData {
+    #[sql_type = "Text"]
+    pub loc_path: String,
+
+    #[sql_type = "Date"]
+    pub updated: NaiveDate,
+
+    #[sql_type = "BigInt"]
+    pub odp: i64,
+
+    #[sql_type = "BigInt"]
+    pub pdp: i64,
+
+    #[sql_type = "BigInt"]
+    pub positive: i64,
+
+    #[sql_type = "BigInt"]
+    pub deaths: i64,
+
+    #[sql_type = "BigInt"]
+    pub recovered: i64,
 }
 
 /// Holder untuk implementasi API endpoint publik untuk Analytic.
@@ -193,6 +241,201 @@ impl PublicApi {
             entries: result.entries.into_iter().map(|a| a.into()).collect(),
         }))
     }
+
+    /// Get general trends data for time series drawing.
+    #[api_endpoint(path = "/trend/general", auth = "none")]
+    pub fn get_general_trend_data(query: AreaQuery) -> ApiResult<TrendData> {
+        query.validate()?;
+        let conn = state.db();
+
+        let city = get_city(&query.province, &query.city, &conn)?;
+
+        let loc_path = format!("/Indonesia/{}/{}", city.province, city.name);
+
+        debug!("trying to get general trend data from loc_path: {}", loc_path);
+
+        let data: Vec<GeneralData> = sql_query(&format!(
+            "SELECT loc_path, last_updated::timestamp::date AS updated, \
+            SUM(odp) AS odp, \
+            SUM(pdp) AS pdp, \
+            SUM(total_cases) AS positive, \
+            SUM(total_deaths) AS deaths, \
+            SUM(total_recovered) AS recovered \
+            FROM records WHERE loc_path = '{}' \
+            GROUP BY (loc_path, updated) \
+            ORDER BY updated ASC \
+            LIMIT 30",
+            loc_path
+        ))
+        .load(&conn)
+        .map_err(Error::from)?;
+
+        dbg!(&data);
+
+        let mut agg: HashMap<String, Vec<i64>> = HashMap::new();
+
+        // let mut trends = vec![];
+        let mut cats = vec![];
+        // let mut series = vec![];
+
+        for d in data {
+            if !cats.contains(&d.updated.to_string()) {
+                cats.push(d.updated.to_string());
+            }
+            if agg.get("odp").is_some() {
+                agg.get_mut("odp").unwrap().push(d.odp);
+            } else {
+                agg.insert("odp".to_string(), vec![d.odp]);
+            }
+
+            if agg.get("pdp").is_some() {
+                agg.get_mut("pdp").unwrap().push(d.pdp);
+            } else {
+                agg.insert("pdp".to_string(), vec![d.pdp]);
+            }
+
+            if agg.get("positive").is_some() {
+                agg.get_mut("positive").unwrap().push(d.positive);
+            } else {
+                agg.insert("positive".to_string(), vec![d.positive]);
+            }
+
+            if agg.get("deaths").is_some() {
+                agg.get_mut("deaths").unwrap().push(d.deaths);
+            } else {
+                agg.insert("deaths".to_string(), vec![d.deaths]);
+            }
+
+            if agg.get("recovered").is_some() {
+                agg.get_mut("recovered").unwrap().push(d.recovered);
+            } else {
+                agg.insert("recovered".to_string(), vec![d.recovered]);
+            }
+        }
+
+        let rv = TrendData {
+            cats,
+            series: vec![
+                Serie {
+                    name: "ODP".to_string(),
+                    data: agg.remove("odp").unwrap_or(vec![]),
+                },
+                Serie {
+                    name: "PDP".to_string(),
+                    data: agg.remove("pdp").unwrap_or(vec![]),
+                },
+                Serie {
+                    name: "COVID19".to_string(),
+                    data: agg.remove("positive").unwrap_or(vec![]),
+                },
+                Serie {
+                    name: "Sembuh".to_string(),
+                    data: agg.remove("recovered").unwrap_or(vec![]),
+                },
+                Serie {
+                    name: "Meninggal".to_string(),
+                    data: agg.remove("deaths").unwrap_or(vec![]),
+                },
+            ],
+        };
+
+        // debug!("got {} data series", series.len());
+
+        Ok(ApiResult::success(rv))
+    }
+
+    /// Get traveler trends data for time series drawing.
+    #[api_endpoint(path = "/trend/traveler", auth = "none")]
+    pub fn get_traveler_trend_data(query: AreaQuery) -> ApiResult<TrendData> {
+        query.validate()?;
+        let conn = state.db();
+
+        let city = get_city(&query.province, &query.city, &conn)?;
+
+        let loc_path = format!("/Indonesia/{}/{}", city.province, city.name);
+
+        debug!("trying to get traveler trend data from loc_path: {}", loc_path);
+
+        let data: Vec<TravelerData> = sql_query(&format!(
+            "SELECT loc_path, last_updated::timestamp::date AS updated, \
+            SUM(ppdwt) AS ppdwt, \
+            SUM(odp) AS odp, \
+            SUM(pptb) AS pptb \
+            FROM records WHERE loc_path = '{}' \
+            GROUP BY (loc_path, updated) \
+            ORDER BY updated ASC \
+            LIMIT 30",
+            loc_path
+        ))
+        .load(&conn)
+        .map_err(Error::from)?;
+
+        dbg!(&data);
+
+        let mut agg: HashMap<String, Vec<i64>> = HashMap::new();
+
+        // let mut trends = vec![];
+        let mut cats = vec![];
+        // let mut series = vec![];
+
+        for d in data {
+            if !cats.contains(&d.updated.to_string()) {
+                cats.push(d.updated.to_string());
+            }
+            if agg.get("ppdwt").is_some() {
+                agg.get_mut("ppdwt").unwrap().push(d.ppdwt);
+            // ppdwt.push(d.ppdwt);
+            } else {
+                agg.insert("ppdwt".to_string(), vec![d.ppdwt]);
+            }
+
+            if agg.get("odp").is_some() {
+                agg.get_mut("odp").unwrap().push(d.odp);
+            } else {
+                agg.insert("odp".to_string(), vec![d.odp]);
+            }
+
+            if agg.get("pptb").is_some() {
+                agg.get_mut("pptb").unwrap().push(d.pptb);
+            } else {
+                agg.insert("pptb".to_string(), vec![d.pptb]);
+            }
+        }
+
+        let rv = TrendData {
+            cats,
+            series: vec![
+                Serie {
+                    name: "Pelaku Perjalanan Dari Wilayah Terjangkit".to_string(),
+                    data: agg.remove("ppdwt").unwrap_or(vec![]),
+                },
+                Serie {
+                    name: "ODP".to_string(),
+                    data: agg.remove("odp").unwrap_or(vec![]),
+                },
+                Serie {
+                    name: "Pelaku Perjalanan Dari Wilayah Terjangkit Tanpa Gejala".to_string(),
+                    data: agg.remove("pptb").unwrap_or(vec![]),
+                },
+            ],
+        };
+
+        // debug!("got {} data series", series.len());
+
+        Ok(ApiResult::success(rv))
+    }
+}
+
+#[derive(Serialize)]
+pub struct Serie {
+    pub name: String,
+    pub data: Vec<i64>,
+}
+
+#[derive(Serialize)]
+pub struct TrendData {
+    pub cats: Vec<String>,
+    pub series: Vec<Serie>,
 }
 
 fn get_area_code(prov: &str, city: &str, conn: &PgConnection) -> Result<String> {
@@ -208,6 +451,7 @@ fn get_area_code(prov: &str, city: &str, conn: &PgConnection) -> Result<String> 
         .map_err(Error::from)
 }
 
+/// Mendapatkan data city dari url formatted prov dan city
 fn get_city(prov: &str, city: &str, conn: &PgConnection) -> Result<models::City> {
     use crate::schema::cities::{self, dsl};
     cities::table

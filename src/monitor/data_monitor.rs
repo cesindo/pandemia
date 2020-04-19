@@ -17,6 +17,7 @@ use crate::{
     // event_handler::FCM,
     // models::{User, Comment, HasID, MonitoredData},
     monitor::{Monitor, PandemiaMonitor},
+    record_dao::MutateRecord,
     // push_notif_handler::{FCMHandler, FCMPayloadData},
     result::Result,
     types::LocKind,
@@ -117,8 +118,10 @@ impl DataMonitor {
                 continue;
             }
 
+            let loc_path = format!("/Indonesia/{}", item.province);
+
             let total_cases: i32 = item.active_cases + item.total_deaths + item.total_recovered;
-            let latest_data = dao.get_latest_records(vec![&item.province], 0, 1)?.pop();
+            let latest_data = dao.get_latest_record_one(&loc_path).ok();
 
             debug!(
                 "Fetching data for Prov. {}, with total cases: {}",
@@ -128,14 +131,18 @@ impl DataMonitor {
             if let Some(latest_data) = latest_data {
                 if latest_data.total_cases != total_cases {
                     let new_record = dao.create(
-                        &item.province,
-                        LocKind::Province,
-                        total_cases,
-                        item.total_deaths,
-                        item.total_recovered,
-                        item.active_cases,
-                        0,
-                        &vec!["loc_scope:indonesia"],
+                        &MutateRecord {
+                            loc: &item.province,
+                            loc_kind: LocKind::Province as i16,
+                            total_cases,
+                            total_deaths: item.total_deaths,
+                            total_recovered: item.total_recovered,
+                            active_cases: item.active_cases,
+                            critical_cases: 0,
+                            meta: vec!["loc_scope:indonesia"],
+                            loc_path: &loc_path,
+                            ..Default::default()
+                        },
                         false,
                     )?;
 
@@ -153,14 +160,18 @@ impl DataMonitor {
                 }
             } else {
                 dao.create(
-                    &item.province,
-                    LocKind::Province,
-                    total_cases,
-                    item.total_deaths,
-                    item.total_recovered,
-                    item.active_cases,
-                    0,
-                    &vec!["loc_scope:indonesia"],
+                    &MutateRecord {
+                        loc: &item.province,
+                        loc_kind: LocKind::Province as i16,
+                        total_cases,
+                        total_deaths: item.total_deaths,
+                        total_recovered: item.total_recovered,
+                        active_cases: item.active_cases,
+                        critical_cases: 0,
+                        meta: vec!["loc_scope:indonesia"],
+                        loc_path: &loc_path,
+                        ..Default::default()
+                    },
                     false,
                 )?;
             }
@@ -209,21 +220,27 @@ impl DataMonitor {
 
         let dao = RecordDao::new(conn);
 
-        let prev_record = dao.get_latest_records(vec![&name], 0, 1)?.pop();
+        let loc_path = format!("/Indonesia/{}", name);
+
+        let prev_record = dao.get_latest_record_one(&loc_path).ok();
 
         if let Some(prev_record) = prev_record {
             match &counter_numbers[0..6] {
                 &[active_cases, positive, recovered, deaths, odp, pdp] => {
                     if prev_record.total_cases != active_cases {
                         let new_record = dao.create(
-                            name,
-                            LocKind::Province,
-                            active_cases,
-                            deaths,
-                            recovered,
-                            odp,
-                            pdp,
-                            &vec!["loc_scope:indonesia"],
+                            &MutateRecord {
+                                loc: name,
+                                loc_kind: LocKind::Province as i16,
+                                total_cases: active_cases,
+                                total_deaths: deaths,
+                                total_recovered: recovered,
+                                active_cases: 0,
+                                critical_cases: 0,
+                                meta: vec!["loc_scope:indonesia"],
+                                loc_path: &loc_path,
+                                ..Default::default()
+                            },
                             false,
                         )?;
                         debug!("new record from Prov. {} saved.", name);
@@ -243,14 +260,17 @@ impl DataMonitor {
             match &counter_numbers[0..6] {
                 &[active_cases, positive, recovered, deaths, odp, pdp] => {
                     dao.create(
-                        name,
-                        LocKind::Province,
-                        active_cases,
-                        deaths,
-                        recovered,
-                        odp,
-                        pdp,
-                        &vec!["loc_scope:indonesia"],
+                        &MutateRecord {
+                            loc: name,
+                            loc_kind: LocKind::Province as i16,
+                            total_cases: active_cases,
+                            total_deaths: deaths,
+                            total_recovered: recovered,
+                            active_cases: 0,
+                            critical_cases: 0,
+                            meta: vec!["loc_scope:indonesia"],
+                            ..Default::default()
+                        },
                         false,
                     )?;
                 }
@@ -280,32 +300,57 @@ impl DataMonitor {
                 let total_deaths = total_deaths.replace(",", "").trim().parse::<i32>().unwrap_or(0);
                 let recovered = recovered.replace(",", "").trim().parse::<i32>().unwrap_or(0);
 
-                let latest_record = dao.get_latest_records(vec!["global"], 0, 1)?.pop();
+                let loc_path = "/global".to_owned();
+
+                let latest_record = dao.get_latest_record_one(&loc_path).ok();
 
                 if let Some(latest_record) = latest_record {
                     if latest_record.total_cases != total_cases {
                         let new_record = dao.create(
-                            "global",
-                            LocKind::Global,
-                            total_cases,
-                            total_deaths,
-                            recovered,
-                            0,
-                            0,
-                            &vec![],
+                            // "global",
+                            // LocKind::Global,
+                            // total_cases,
+                            // total_deaths,
+                            // recovered,
+                            // 0,
+                            // 0,
+                            &MutateRecord {
+                                loc: "global",
+                                loc_kind: LocKind::Global as i16,
+                                total_cases,
+                                total_deaths,
+                                total_recovered: recovered,
+                                active_cases: 0,
+                                critical_cases: 0,
+                                meta: vec![],
+                                loc_path: &loc_path,
+                                ..Default::default()
+                            },
                             false,
                         )?;
                     }
                 } else {
                     dao.create(
-                        "global",
-                        LocKind::Global,
-                        total_cases,
-                        total_deaths,
-                        recovered,
-                        0,
-                        0,
-                        &vec![],
+                        // "global",
+                        // LocKind::Global,
+                        // total_cases,
+                        // total_deaths,
+                        // recovered,
+                        // 0,
+                        // 0,
+                        // vec![],
+                        &MutateRecord {
+                            loc: "global",
+                            loc_kind: LocKind::Global as i16,
+                            total_cases,
+                            total_deaths,
+                            total_recovered: recovered,
+                            active_cases: 0,
+                            critical_cases: 0,
+                            meta: vec![],
+                            loc_path: &loc_path,
+                            ..Default::default()
+                        },
                         false,
                     )?;
                 }
@@ -336,19 +381,33 @@ impl DataMonitor {
                 let total_deaths = total_deaths.replace(",", "").trim().parse::<i32>().unwrap_or(0);
                 let recovered = recovered.replace(",", "").trim().parse::<i32>().unwrap_or(0);
 
-                let latest_record = dao.get_latest_records(vec!["Indonesia"], 0, 1)?.pop();
+                let loc_path = "/Indonesia".to_string();
+
+                let latest_record = dao.get_latest_record_one(&loc_path).ok();
 
                 if let Some(latest_record) = latest_record {
                     if latest_record.total_cases != total_cases {
                         let new_record = dao.create(
-                            "Indonesia",
-                            LocKind::Country,
-                            total_cases,
-                            total_deaths,
-                            recovered,
-                            0,
-                            0,
-                            &vec!["loc_scope:indonesia"],
+                            // "Indonesia",
+                            // LocKind::Country,
+                            // total_cases,
+                            // total_deaths,
+                            // recovered,
+                            // 0,
+                            // 0,
+                            // vec!["loc_scope:indonesia"],
+                            &MutateRecord {
+                                loc: "Indonesia",
+                                loc_kind: LocKind::Country as i16,
+                                total_cases,
+                                total_deaths,
+                                total_recovered: recovered,
+                                active_cases: 0,
+                                critical_cases: 0,
+                                meta: vec!["loc_scope:indonesia"],
+                                loc_path: &loc_path,
+                                ..Default::default()
+                            },
                             false,
                         )?;
 
@@ -369,14 +428,26 @@ impl DataMonitor {
                     }
                 } else {
                     dao.create(
-                        "Indonesia",
-                        LocKind::Country,
-                        total_cases,
-                        total_deaths,
-                        recovered,
-                        0,
-                        0,
-                        &vec!["loc_scope:indonesia"],
+                        // "Indonesia",
+                        // LocKind::Country,
+                        // total_cases,
+                        // total_deaths,
+                        // recovered,
+                        // 0,
+                        // 0,
+                        // vec!["loc_scope:indonesia"],
+                        &MutateRecord {
+                            loc: "Indonesia",
+                            loc_kind: LocKind::Country as i16,
+                            total_cases,
+                            total_deaths,
+                            total_recovered: recovered,
+                            active_cases: 0,
+                            critical_cases: 0,
+                            meta: vec!["loc_scope:indonesia"],
+                            loc_path: &loc_path,
+                            ..Default::default()
+                        },
                         false,
                     )?;
                 }

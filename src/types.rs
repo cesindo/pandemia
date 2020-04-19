@@ -116,14 +116,18 @@ impl From<&str> for SubReportStatus {
 pub enum LocKind {
     /// Global
     Global = 0,
-    /// Continent
+    /// Code for Continent
     Continent = 1,
-    /// Country
+    /// Code for Country
     Country = 2,
-    /// Province
+    /// Code for Province
     Province = 3,
-    /// City
+    /// Code for City
     City = 4,
+
+    /// Code for District
+    District = 5,
+
     /// Unknown
     Unknown = 10,
 }

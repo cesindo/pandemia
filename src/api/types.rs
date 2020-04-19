@@ -60,8 +60,12 @@ pub struct ResetPassword {
 
 #[derive(Deserialize, Validate)]
 pub struct LocationQuery {
-    #[validate(length(min = 1, max = 100))]
-    pub loc: String,
+    #[deprecated(since = "0.2.10", note = "use loc_path instead")]
+    #[validate(length(max = 100))]
+    pub loc: Option<String>,
+
+    #[validate(length(max = 500))]
+    pub loc_path: Option<String>,
     pub with_history: Option<bool>,
 }
 

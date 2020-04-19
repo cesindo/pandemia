@@ -154,6 +154,7 @@ def main():
 
         print("  %d total data processed" % total)
 
+    conn.commit()
     conn.close()
 
 if __name__ == "__main__":

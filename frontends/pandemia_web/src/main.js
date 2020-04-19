@@ -17,6 +17,7 @@ import VuejsDialog from "vuejs-dialog"
 // include the default style
 import 'vuejs-dialog/dist/vuejs-dialog.min.css'
 
+
 // Tell Vue to install the plugin.
 Vue.use(VuejsDialog)
 // ------- end of Vuejs Dialog Stuff ---------
@@ -64,6 +65,11 @@ Vue.use(VueAutosuggest);
 
 import _ from 'lodash';    
 Object.defineProperty(Vue.prototype, '$_', { value: _ });
+
+
+import HighchartsVue from 'highcharts-vue'
+Vue.use(HighchartsVue)
+
 
 // Add utils option in components
 Vue.mixin({

@@ -23,6 +23,7 @@ use crate::{
     eventstream::{self, Event::NewRecordUpdate},
     models,
     prelude::*,
+    record_dao::MutateRecord,
     sub_report_dao,
     types::{HealthyKind, LocKind, Ops, SubReportStatus},
     village_data_dao::{NewVillageData, UpdateVillageData},
@@ -43,6 +44,16 @@ pub struct RecordUpdate {
     pub critical_cases: i32,
     pub meta: Vec<String>,
     pub last_updated: NaiveDateTime,
+
+    pub ppdwt: i32,
+    pub pptb: i32,
+    pub odp: i32,
+    pub odpsp: i32,
+    pub pdp: i32,
+    pub pdps: i32,
+    pub pdpm: i32,
+    pub otg: i32,
+    // pub loc_path: String,
 }
 
 #[derive(Deserialize, Validate)]
@@ -83,6 +94,17 @@ pub struct AddRecord {
     pub active_cases: i32,
     #[validate(range(min = 0))]
     pub critical_cases: i32,
+
+    pub ppdwt: i32,
+    pub pptb: i32,
+    pub odp: i32,
+    pub odpsp: i32,
+    pub pdp: i32,
+    pub pdps: i32,
+    pub pdpm: i32,
+    pub otg: i32,
+
+    pub loc_path: String,
 }
 
 #[derive(Deserialize, Validate)]
@@ -155,15 +177,33 @@ impl PublicApi {
         let conn = state.db();
         let dao = RecordDao::new(&conn);
 
+        if !current_admin.is_super_admin() {
+            return unauthorized();
+        }
+
+        // let loc_path = query.loc_path;
+
         let record = dao.create(
-            &query.loc,
-            query.loc_kind.into(),
-            query.total_cases,
-            query.total_deaths,
-            query.total_recovered,
-            query.active_cases,
-            query.critical_cases,
-            &vec![&format!("loc_scope:{}", query.loc_scope)],
+            &MutateRecord {
+                loc: &query.loc,
+                loc_kind: query.loc_kind.into(),
+                total_cases: query.total_cases,
+                total_deaths: query.total_deaths,
+                total_recovered: query.total_recovered,
+                active_cases: query.active_cases,
+                critical_cases: query.critical_cases,
+                meta: vec![&format!("loc_scope:{}", query.loc_scope)],
+                ppdwt: query.ppdwt,
+                pptb: query.pptb,
+                odp: query.odp,
+                odpsp: query.odpsp,
+                pdp: query.pdp,
+                pdps: query.pdps,
+                pdpm: query.pdpm,
+                otg: query.otg,
+                loc_path: &query.loc_path,
+                latest: true,
+            },
             false,
         )?;
 
@@ -899,14 +939,16 @@ impl PublicApi {
     pub fn get_info_location(query: LocationQuery) -> ApiResult<Option<models::Record>> {
         let conn = state.db();
         let dao = RecordDao::new(&conn);
-        let locs: Vec<&str> = vec![query.loc.as_str()];
-        let mut rec = dao.get_latest_records(locs, 0, 3)?;
+        // let locs: Vec<String> = vec![query.loc.to_owned()];
 
-        if rec.first().is_some() {
-            Ok(ApiResult::success(Some(rec.swap_remove(0))))
-        } else {
-            Ok(ApiResult::success(None))
+        if let Some(loc_path) = query.loc_path {
+            let rec = dao.get_latest_record_one(&loc_path).ok();
+
+            if let Some(rec) = rec {
+                return Ok(ApiResult::success(Some(rec)));
+            }
         }
+        return Ok(ApiResult::success(None));
     }
 
     /// Get per location stats data, use comma for multiple locations.
@@ -915,9 +957,19 @@ impl PublicApi {
         let conn = state.db();
         let dao = RecordDao::new(&conn);
 
-        let locs: Vec<&str> = query.loc.split(',').collect();
+        let locs: Vec<String> = {
+            if let Some(loc) = query.loc.as_ref() {
+                // for backward compatibility only
+                // @TODO(Robin): remove this
+                loc.split(',').map(|a| format!("/Indonesia/{}", a)).collect()
+            } else if let Some(loc_path) = query.loc_path.as_ref() {
+                loc_path.split(',').map(|a| a.to_owned()).collect()
+            } else {
+                return param_error("No loc nor loc_path parameter provided");
+            }
+        };
 
-        let records = dao.get_latest_records(locs, 0, 10)?;
+        let records = dao.get_latest_records(&locs, 0, 10)?;
 
         let mut result = vec![];
 
@@ -972,17 +1024,31 @@ impl PublicApi {
                 let dao = RecordDao::new(&conn);
 
                 for record in query.records {
-                    let old_record = dao.get_latest_records(vec![record.loc.as_ref()], 0, 1)?.pop();
+                    let old_record = dao.get_latest_records(&vec![record.loc.to_owned()], 0, 1)?.pop();
 
                     let new_record = dao.create(
-                        &record.loc,
-                        record.loc_kind.into(),
-                        record.total_cases,
-                        record.total_deaths,
-                        record.total_recovered,
-                        record.active_cases,
-                        record.critical_cases,
-                        &record.meta.iter().map(|a| a.as_str()).collect(),
+                        &MutateRecord {
+                            loc: &record.loc,
+                            loc_kind: record.loc_kind.into(),
+                            total_cases: record.total_cases,
+                            total_deaths: record.total_deaths,
+                            total_recovered: record.total_recovered,
+                            active_cases: record.active_cases,
+                            critical_cases: record.critical_cases,
+                            meta: record.meta.iter().map(|a| a.as_str()).collect(),
+
+                            ppdwt: record.ppdwt,
+                            pptb: record.pptb,
+                            odp: record.odp,
+                            odpsp: record.odpsp,
+                            pdp: record.pdp,
+                            pdps: record.pdps,
+                            pdpm: record.pdpm,
+                            otg: record.otg,
+
+                            latest: true,
+                            loc_path: old_record.as_ref().map(|a| a.loc_path.as_str()).unwrap_or(""),
+                        },
                         true,
                     )?;
 
