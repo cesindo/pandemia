@@ -53,7 +53,7 @@ def main():
                 total_recovered, latest, 
                 ppdwt, pptb, odp, odpsp, pdp, pdps, pdpm, otg, loc_path, meta)VALUES
                 ({loc}, 5, {total_cases}, {total_deaths}, 
-                {total_recovered}, true, 
+                {total_recovered}, false, 
                 {ppdwt}, {pptb}, {odp}, {odpsp}, {pdp}, {pdps}, {pdpm}, {otg}, {loc_path}, {meta})
                 """).format(loc=sql.Literal(district_name),
                 total_cases = sql.Literal(positive),
