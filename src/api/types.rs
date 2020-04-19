@@ -142,6 +142,15 @@ pub struct Record {
     pub latest: bool,
     pub meta: Vec<String>,
     pub last_updated: NaiveDateTime,
+
+    pub ppdwt: i32,
+    pub pptb: i32,
+    pub odp: i32,
+    pub odpsp: i32,
+    pub pdp: i32,
+    pub pdps: i32,
+    pub pdpm: i32,
+    pub otg: i32,
 }
 
 impl ToApiType<Record> for models::Record {
@@ -160,6 +169,14 @@ impl ToApiType<Record> for models::Record {
             latest: self.latest,
             meta: self.meta.clone(),
             last_updated: self.last_updated,
+            ppdwt: self.ppdwt,
+            pptb: self.pptb,
+            odp: self.odp,
+            odpsp: self.odpsp,
+            pdp: self.pdp,
+            pdps: self.pdps,
+            pdpm: self.pdpm,
+            otg: self.otg,
         }
     }
 }

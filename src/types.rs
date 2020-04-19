@@ -141,6 +141,7 @@ impl From<i16> for LocKind {
             2 => Country,
             3 => Province,
             4 => City,
+            5 => District,
             x => {
                 error!("Unknown loc kind code: {}", x);
                 Unknown

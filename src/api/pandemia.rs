@@ -80,10 +80,15 @@ pub struct SubReportQuery {
 pub struct AddRecord {
     #[validate(length(min = 2, max = 1000))]
     pub loc: String,
+
+    #[validate(range(min = 0))]
+    pub loc_id: i64,
+
     #[validate(range(min = 0, max = 20))]
     pub loc_kind: i16,
-    #[validate(length(min = 2, max = 1000))]
-    pub loc_scope: String,
+
+    // #[validate(length(min = 2, max = 1000))]
+    // pub loc_scope: String,
     #[validate(range(min = 0))]
     pub total_cases: i32,
     #[validate(range(min = 0))]
@@ -192,7 +197,7 @@ impl PublicApi {
                 total_recovered: query.total_recovered,
                 active_cases: query.active_cases,
                 critical_cases: query.critical_cases,
-                meta: vec![&format!("loc_scope:{}", query.loc_scope)],
+                meta: vec![],
                 ppdwt: query.ppdwt,
                 pptb: query.pptb,
                 odp: query.odp,

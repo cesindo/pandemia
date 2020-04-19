@@ -780,6 +780,7 @@ td.dirty {
   margin: 0px 10px;
 }
 
+
 .autosuggest-container,
 .autosuggest__results {
   position: absolute;

@@ -19,12 +19,13 @@ use crate::{
     api::types::*,
     api::{error::param_error, ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest},
     auth,
-    dao::{CityDao, DistrictDataDao, ReportNoteDao, VillageDataDao},
+    dao::{CityDao, DistrictDao, DistrictDataDao, ReportNoteDao, VillageDataDao},
     // dao::AnalyticDao,
     error::{Error, ErrorCode},
     models,
     prelude::*,
     sqlutil::lower,
+    types::LocKind,
     util,
     ID,
 };
@@ -424,6 +425,106 @@ impl PublicApi {
 
         Ok(ApiResult::success(rv))
     }
+
+    /// Get district data.
+    #[api_endpoint(path = "/data/location_address", auth = "none")]
+    pub fn get_location_address(query: ()) -> ApiResult<Vec<IdAddress>> {
+        use crate::schema::cities::{self, dsl};
+        let conn = state.db();
+
+        let cities: Vec<(i64, String, String)> = {
+            cities::table
+                .select((dsl::id, dsl::name, dsl::province))
+                .limit(1000)
+                .load(&conn)
+                .map_err(Error::from)?
+        };
+
+        let mut addresses: Vec<IdAddress> = cities
+            .iter()
+            .map(|a| IdAddress {
+                id: a.0,
+                name: a.1.to_owned(),
+                address: format!("{}, {}", a.1, a.2),
+                kind: LocKind::City as i16,
+                path: format!("/Indonesia/{}/{}", a.2, a.1),
+            })
+            .collect();
+
+        for city in cities {
+            use crate::schema::districts::{self, dsl};
+            let districts: Vec<(i64, String)> = {
+                districts::table
+                    .filter(dsl::city_id.eq(city.0))
+                    .select((dsl::id, dsl::name))
+                    .limit(1000)
+                    .load(&conn)
+                    .map_err(Error::from)?
+            };
+
+            for district in districts {
+                addresses.push(IdAddress {
+                    id: district.0,
+                    name: district.1.to_owned(),
+                    address: format!("{}, {}, {}", district.1, city.1, city.2),
+                    kind: LocKind::District as i16,
+                    path: format!("/Indonesia/{}/{}/{}", city.2, city.1, district.1),
+                })
+            }
+        }
+
+        Ok(ApiResult::success(addresses))
+    }
+
+    /// Get district data.
+    #[api_endpoint(path = "/data/districts", auth = "none")]
+    pub fn get_district_data(query: AreaQuery) -> ApiResult<Vec<IdAddress>> {
+        use crate::schema::districts::{self, dsl};
+
+        let conn = state.db();
+        let dao = DistrictDao::new(&conn);
+
+        let city = get_city(&query.province, &query.city, &conn)?;
+
+        let districts: Vec<(i64, String)> = {
+            districts::table
+                .filter(dsl::city_id.eq(city.id))
+                .select((dsl::id, dsl::name))
+                .load(&conn)
+                .map_err(Error::from)?
+        };
+
+        // let cities: Vec<(i64, String)> = {
+        //     use crate::schema::cities::{self, dsl};
+        //     cities::table
+        //         // .filter(dsl::province.eq( util::title_case(&normalize(&province)) ))
+        //         .select((dsl::id, dsl::name, dsl::province))
+        //         .load(&conn)
+        //         .map_err(Error::from)?
+        // };
+
+        Ok(ApiResult::success(
+            districts
+                .into_iter()
+                .map(|a| IdAddress {
+                    id: a.0,
+                    name: a.1.to_owned(),
+                    address: a.1.to_owned(),
+                    kind: LocKind::District as i16,
+                    path: format!("/Indonesia/{}/{}", city.province, a.1),
+                })
+                .collect(),
+        ))
+    }
+}
+
+#[derive(Serialize)]
+pub struct IdAddress {
+    pub id: i64,
+    pub name: String,
+    pub address: String,
+    pub kind: i16,
+    pub path: String,
 }
 
 #[derive(Serialize)]

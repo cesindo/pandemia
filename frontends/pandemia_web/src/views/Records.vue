@@ -31,10 +31,40 @@
           <span v-if="self.item['loc_kind'] == 1">Benua</span>
           <span v-if="self.item['loc_kind'] == 2">Negara</span>
           <span v-if="self.item['loc_kind'] == 3">Provinsi</span>
-          <span v-if="self.item['loc_kind'] == 4">Kota</span>
+          <span v-if="self.item['loc_kind'] == 4">Kabupaten/Kota</span>
+          <span v-if="self.item['loc_kind'] == 5">Kecamatan</span>
         </td>
-        <td>0</td>
-        <td>0</td>
+
+        <td
+          :class="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['odp'] != self.item['odp'] ? 'dirty': '' "
+        >
+          <a
+            href="javascript://"
+            v-on:click="editValue(self,'positif','odp',self.item['odp']);"
+          >{{self.item['odp']}}</a>
+          <span
+            v-if="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['odp'] != self.item['odp']"
+          >
+            <i class="ui icon fa-arrow-right"></i>
+            {{commitLogs[self.item['id']]['odp']}}
+          </span>
+        </td>
+
+        <td
+          :class="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['pdp'] != self.item['pdp'] ? 'dirty': '' "
+        >
+          <a
+            href="javascript://"
+            v-on:click="editValue(self,'positif','pdp',self.item['pdp']);"
+          >{{self.item['pdp']}}</a>
+          <span
+            v-if="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['pdp'] != self.item['pdp']"
+          >
+            <i class="ui icon fa-arrow-right"></i>
+            {{commitLogs[self.item['id']]['pdp']}}
+          </span>
+        </td>
+
         <td
           :class="commitLogs[self.item['id']] != null && commitLogs[self.item['id']]['total_cases'] != self.item['total_cases'] ? 'dirty': '' "
         >
@@ -109,7 +139,13 @@
 
           <p>Jumlah baru:</p>
           <div class="ui input">
-            <input ref="newValue" type="text" name="NewValue" id="NewValue" />
+            <input
+              ref="newValue"
+              type="text"
+              name="NewValue"
+              id="NewValue"
+              @keyup.enter="approveDialog"
+            />
           </div>
         </div>
       </template>
@@ -124,11 +160,11 @@
       :buttonsText="{reject: 'Cancel', approve: 'Ok'}"
     >
       <template v-slot:content>
-        <h2 class="ui header">Tambah rekod baru</h2>
+        <h2 class="ui header">Tambah Entri Baru</h2>
 
         <div style="text-align: left;">
           <div class="ui form">
-            <div class="field">
+            <!-- <div class="field">
               <label>Nama Lokasi:</label>
               <input ref="addRecLocInput" type="text" name="Loc" id="Loc" />
             </div>
@@ -147,36 +183,72 @@
               <label>Area (scope):</label>
               <input ref="addRecLocScopeInput" type="text" name="LocScope" id="LocScope" />
               <small>bisa nama negara di mana lokasi ini berada, contoh: Indonesia</small>
+            </div>-->
+
+            <div class="field">
+              <vue-autosuggest
+                v-model="addLocAddress"
+                :suggestions="filteredAddresses"
+                @click="clickHandler"
+                @selected="onSelected"
+                :get-suggestion-value="getSuggestionValue"
+                :input-props="{id:'autosuggest__input', placeholder:'Alamat Lokasi'}"
+              >
+                <div slot-scope="{suggestion}" style="display: flex; align-items: center;">
+                  <div
+                    style="{ display: 'flex', color: 'navyblue'}"
+                  >{{suggestion.item.address}} {{suggestion.item.kind == 4 ? '(Kabupaten)' : '(Kecamatan)' }}</div>
+                </div>
+              </vue-autosuggest>
             </div>
+
             <div class="ui grid">
               <div class="three wide column">
                 <div class="field">
                   <label>ODP:</label>
-                  <input ref="addRecOdp" type="text" name="Odp" id="Odp" />
+                  <input ref="addRecOdp" type="text" name="Odp" id="Odp" v-model="addOdp" />
                 </div>
               </div>
               <div class="three wide column">
                 <div class="field">
                   <label>PDP:</label>
-                  <input ref="addRecPdp" type="text" name="Pdp" id="Pdp" />
+                  <input ref="addRecPdp" type="text" name="Pdp" id="Pdp" v-model="addPdp" />
                 </div>
               </div>
               <div class="three wide column">
                 <div class="field">
                   <label>Positive:</label>
-                  <input ref="addRecPositive" type="text" name="Positive" id="Positive" />
+                  <input
+                    ref="addRecPositive"
+                    type="text"
+                    name="Positive"
+                    id="Positive"
+                    v-model="addPositive"
+                  />
                 </div>
               </div>
               <div class="three wide column">
                 <div class="field">
                   <label>Sembuh:</label>
-                  <input ref="addRecTotalRecovered" type="text" name="Recovered" id="Recovered" />
+                  <input
+                    ref="addRecTotalRecovered"
+                    type="text"
+                    name="Recovered"
+                    id="Recovered"
+                    v-model="addRecovered"
+                  />
                 </div>
               </div>
               <div class="three wide column">
                 <div class="field">
                   <label>Meninggal:</label>
-                  <input ref="addRecTotalDeaths" type="text" name="Deaths" id="Deaths" />
+                  <input
+                    ref="addRecTotalDeaths"
+                    type="text"
+                    name="Deaths"
+                    id="Deaths"
+                    v-model="addDeaths"
+                  />
                 </div>
               </div>
             </div>
@@ -213,6 +285,7 @@ import AnsTable from "@/components/AnsTable.vue";
 import DialogModal from "@/components/modal/DialogModal.vue";
 import ConfirmDialog from "@/components/modal/ConfirmDialog.vue";
 import { obMapToArrayValues } from "@/utils/utils";
+// import _axios from "axios";
 
 export default {
   name: "Records",
@@ -229,34 +302,111 @@ export default {
       commitLogs: {},
       isDirty: false,
       tableRecords: "-0",
-      toDelete: { id: 0, loc: "" }
+      toDelete: { id: 0, loc: "" },
+
+      province: "",
+      city: "",
+      addLocAddressId: 0,
+      addLocAddress: "",
+      districtSuggestions: [],
+
+      addPpdwt: "0",
+      addPptb: "0",
+      addOdp: "0",
+      addOdpsp: "0",
+      addPdp: "0",
+      addPdps: "0",
+      addPdpm: "0",
+      addOtg: "0",
+      addPositive: "0",
+      addRecovered: "0",
+      addDeaths: "0"
     };
   },
+  computed: {
+    filteredAddresses() {
+      return [
+        {
+          data: this.districtSuggestions.filter(d => {
+            return (
+              d.address
+                .toLowerCase()
+                .indexOf(this.addLocAddress.toLowerCase()) > -1
+            );
+          })
+        }
+      ];
+    }
+  },
+  mounted() {
+    this.loadData();
+  },
   methods: {
+    loadData() {
+      this.province = localStorage.province || localStorage.province;
+      this.city = localStorage.city || localStorage.city;
+      this.province = this.province || this.$session.get("user_province");
+      this.city = this.city || this.$session.get("user_city");
+
+      if (this.province && this.city) {
+        this.$pandemia
+          .api()
+          .publicApi.get(`/analytic/v1/data/location_address`)
+          .then(resp => {
+            if (resp.data.code == 0) {
+              this.districtSuggestions = resp.data.result;
+            } else {
+              this.showError(resp.data.description);
+            }
+          });
+      } else {
+        console.log(
+          "Cannot fetch village-address data, province or city not defined"
+        );
+        // console.log(this.$session);
+      }
+    },
+    normalizePath(q) {
+      return q.replace(/\W+/g, "-").toLowerCase();
+    },
+    getSuggestionValue(suggestion) {
+      return suggestion.item.address;
+    },
+    clickHandler(_) {},
+    onSelected(item) {
+      this.addLocAddress = item.item.address;
+      this.addLocItem = item.item;
+    },
     addRecord() {
       this.$modal.show("AddRecordModal");
     },
     doAddRecord() {
-      var loc = this.$refs["addRecLocInput"].value,
-        locKind = parseInt(this.$refs["addRecLocKind"].value),
-        locScope = this.$refs["addRecLocScopeInput"].value,
-        // Odp = parseInt(this.$refs['addRecOdp'].value),
-        // Pdp = parseInt(this.$refs['addRecPdp'].value),
-        totalCases = parseInt(this.$refs["addRecPositive"].value) || 0,
-        totalDeaths = parseInt(this.$refs["addRecTotalDeaths"].value) || 0,
-        totalRecovered =
-          parseInt(this.$refs["addRecTotalRecovered"].value) || 0;
+      // var loc = this.addLocAddress,
+      var totalCases = parseInt(this.$refs["addRecPositive"].value) || 0,
+        totalDeaths = parseInt(this.addDeaths) || 0,
+        totalRecovered = parseInt(this.addRecovered) || 0;
       this.$pandemia
         .api()
         .publicApi.post("/pandemia/v1/add_record", {
-          loc: loc,
-          loc_scope: locScope,
-          loc_kind: locKind,
+          loc: this.addLocItem.name,
+          loc_id: this.addLocItem.id,
+          // loc_scope: locScope,
+          loc_kind: this.addLocItem.kind,
+          loc_path: this.addLocItem.path,
+
           total_cases: totalCases,
           total_deaths: totalDeaths,
           total_recovered: totalRecovered,
           active_cases: 0,
-          critical_cases: 0
+          critical_cases: 0,
+          ppdwt: parseInt(this.addPpdwt),
+          pptb: parseInt(this.addPptb),
+          odp: parseInt(this.addOdp),
+          odpsp: parseInt(this.addOdpsp),
+          pdp: parseInt(this.addPdp),
+          pdps: parseInt(this.addPdps),
+          pdpm: parseInt(this.addPdpm),
+          otg: parseInt(this.addOtg)
         })
         .then(resp => {
           if (resp.data.code == 0) {
@@ -274,7 +424,7 @@ export default {
         });
     },
     onAddRecordOpened() {
-      this.$refs["addRecLocInput"].focus();
+      // this.$refs["addRecLocInput"].focus();
     },
     showDetail(item) {
       this.$router.push("/dashboard/records/" + item.id);
@@ -381,5 +531,25 @@ export default {
 <style lang="less">
 td.dirty {
   color: orange;
+}
+
+.autosuggest-container,
+.autosuggest__results {
+  position: absolute;
+  justify-content: center;
+  width: 280px;
+  background-color: white;
+  border: 1px solid #cacaca;
+  z-index: 90000;
+}
+
+#autosuggest {
+  width: 100%;
+  display: block;
+  z-index: 90000;
+}
+.autosuggest__results-item--highlighted {
+  background-color: rgba(51, 217, 178, 0.2);
+  z-index: 90000;
 }
 </style>
