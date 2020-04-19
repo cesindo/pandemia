@@ -22,7 +22,7 @@
           src="/img/logo-64.png"
           alt="pandemia logo"
         />
-        <div id="MaintTitle" class="content">Kabupaten Wonosobo - COVID-19 Informaton Center</div>
+        <div id="MaintTitle" class="content">Kabupaten Wonosobo - COVID-19 Information Center</div>
       </h1>
 
       <!-- <div class="ui divider"></div> -->
@@ -462,8 +462,8 @@ div.map-view {
 }
 
 .marker#MKejajar {
-  top: 10px;
-  right: 40px;
+  top: 20px;
+  right: 120px;
 
   // &:hover {
   //   background-color: white;
