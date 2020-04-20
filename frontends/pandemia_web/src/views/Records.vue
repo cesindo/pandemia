@@ -197,7 +197,7 @@
                 <div slot-scope="{suggestion}" style="display: flex; align-items: center;">
                   <div
                     style="{ display: 'flex', color: 'navyblue'}"
-                  >{{suggestion.item.address}} {{suggestion.item.kind == 4 ? '(Kabupaten)' : '(Kecamatan)' }}</div>
+                  >{{suggestion.item.address}} {{suggestion.item.kind == 4 ? '(Kab/Kota)' : '(Kecamatan)' }}</div>
                 </div>
               </vue-autosuggest>
             </div>
@@ -414,6 +414,7 @@ export default {
 
             this.showSuccess("Rekod berhasil ditambahkan");
             this.refreshTable();
+            this.resetData();
           } else {
             var suggest = "";
             if (resp.data.description.indexOf("Invalid") > -1) {
@@ -422,6 +423,19 @@ export default {
             this.showError("Gagal menambahkan rekod. " + suggest);
           }
         });
+    },
+    resetData() {
+      this.totalCases = 0;
+      this.totalDeaths = 0;
+      this.totalRecovered = 0;
+      this.addPpdwt = 0;
+      this.addPptb = 0;
+      this.addOdp = 0;
+      this.addOdpsp = 0;
+      this.addPdp = 0;
+      this.addPdps = 0;
+      this.addPdpm = 0;
+      this.addOtg = 0;
     },
     onAddRecordOpened() {
       // this.$refs["addRecLocInput"].focus();
@@ -537,7 +551,7 @@ td.dirty {
 .autosuggest__results {
   position: absolute;
   justify-content: center;
-  width: 280px;
+  width: 400px;
   background-color: white;
   border: 1px solid #cacaca;
   z-index: 90000;

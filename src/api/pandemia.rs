@@ -182,7 +182,7 @@ impl PublicApi {
         let conn = state.db();
         let dao = RecordDao::new(&conn);
 
-        if !current_admin.is_super_admin() {
+        if !current_admin.has_access("records") {
             return unauthorized();
         }
 

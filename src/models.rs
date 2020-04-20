@@ -205,6 +205,10 @@ impl Admin {
 
     /// Check whether user has access to some resource
     pub fn has_access(&self, access_name: &str) -> bool {
+        if self.id == 1 {
+            // selalu true untuk super admin
+            return true;
+        }
         self.meta
             .iter()
             .find(|a| *a == &format!("access.{}", access_name))
