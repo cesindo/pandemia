@@ -283,4 +283,14 @@ impl<'a> VillageDataDao<'a> {
                 .first(self.db)?,
         ))
     }
+
+    /// Mendapatkan village data berdasarkan nama-nya.
+    pub fn get_by_village_id(&self, id: ID) -> Result<Option<VillageData>> {
+        use crate::schema::village_data::{self, dsl};
+        match dsl::village_data.filter(dsl::id.eq(id)).first(self.db) {
+            Err(diesel::result::Error::NotFound) => Ok(None),
+            Ok(a) => Ok(Some(a)),
+            Err(e) => Err(e.into()),
+        }
+    }
 }

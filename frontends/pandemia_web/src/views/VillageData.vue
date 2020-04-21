@@ -619,6 +619,8 @@ export default {
             var suggest = "";
             if (resp.data.description.indexOf("Invalid") > -1) {
               suggest = "Mohon periksa kembali data masukan Anda";
+            } else {
+              suggest = resp.data.description;
             }
             this.showError("Gagal menambahkan rekod. " + suggest);
           }
@@ -779,7 +781,6 @@ td.dirty {
   padding: 0px 10px;
   margin: 0px 10px;
 }
-
 
 .autosuggest-container,
 .autosuggest__results {

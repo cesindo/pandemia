@@ -225,6 +225,11 @@ impl PublicApi {
         let conn = state.db();
         let dao = VillageDataDao::new(&conn);
 
+        // check apakah data untuk village_id ini sudah ada belum
+        if let Ok(Some(_)) = dao.get_by_village_id(query.village_id) {
+            return Err(ApiError::AlreadyExists);
+        }
+
         let village = VillageDao::new(&conn).get_by_id(query.village_id)?;
 
         let mut last_updated_by_id = 0;
