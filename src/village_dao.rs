@@ -89,20 +89,46 @@ impl<'a> VillageDao<'a> {
     }
 
     /// Search for specific villages
-    pub fn search(&self, query: &str, offset: i64, limit: i64) -> Result<EntriesResult<Village>> {
+    pub fn search(
+        &self,
+        query: &str,
+        scope: Option<&str>,
+        offset: i64,
+        limit: i64,
+    ) -> Result<EntriesResult<Village>> {
         use crate::schema::villages::{self, dsl};
 
-        let like_clause = format!("%{}%", query);
+        let like_clause = format!("%{}%", query.to_lowercase());
 
         let mut filterer: Box<dyn BoxableExpression<villages::table, _, SqlType = sql_types::Bool>> =
             Box::new(dsl::id.ne(0));
 
-        filterer = Box::new(
-            filterer
-                .and(lower(dsl::name).like(&like_clause))
-                .or(lower(dsl::district_name).like(&like_clause))
-                .or(lower(dsl::city).like(&like_clause)),
-        );
+        if let Some(scope) = scope {
+            let s: Vec<&str> = scope.split("/").collect();
+            if s.len() < 3 {
+                fail!("Invalid scope");
+            }
+            let province = s[1];
+            let city = s[2];
+            filterer = Box::new(filterer.and(dsl::province.eq(province).and(dsl::city.eq(city))));
+
+            if like_clause != "%%" {
+                filterer = Box::new(
+                    filterer.and(
+                        lower(dsl::name)
+                            .like(&like_clause)
+                            .or(lower(dsl::district_name).like(&like_clause)),
+                    ),
+                );
+            }
+        } else if like_clause != "%%" {
+            filterer = Box::new(
+                filterer
+                    .and(lower(dsl::name).like(&like_clause))
+                    .or(lower(dsl::district_name).like(&like_clause))
+                    .or(lower(dsl::city).like(&like_clause)),
+            );
+        }
 
         Ok(EntriesResult::new(
             dsl::villages

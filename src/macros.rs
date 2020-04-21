@@ -214,3 +214,15 @@ macro_rules! list_has_flag {
             .is_some()
     };
 }
+
+macro_rules! palam_fail {
+    ($msg:expr) => {
+        return Err(crate::error::Error::InvalidParameter(format!("{}", $msg)));
+    };
+}
+
+macro_rules! fail {
+    ($msg:expr) => {
+        return Err(crate::error::Error::InternalError(format_err!("{}", $msg)));
+    };
+}

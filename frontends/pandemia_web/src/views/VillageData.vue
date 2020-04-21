@@ -785,7 +785,7 @@ td.dirty {
 .autosuggest__results {
   position: absolute;
   justify-content: center;
-  width: 280px;
+  width: 400px;
   background-color: white;
   border: 1px solid #cacaca;
   z-index: 1000;

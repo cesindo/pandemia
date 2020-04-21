@@ -336,6 +336,9 @@ export default {
           })
         }
       ];
+    },
+    isAdmin(){
+      return this.$session.get("is_admin");
     }
   },
   mounted() {
@@ -351,6 +354,28 @@ export default {
       if (this.province && this.city) {
         this.$pandemia
           .api()
+          .publicApi.get(`/analytic/v1/data/districts?province=${this.province}&city=${this.city}`)
+          .then(resp => {
+            if (resp.data.code == 0) {
+              this.districtSuggestions = resp.data.result;
+            } else {
+              this.showError(resp.data.description);
+            }
+          });
+      } else if (this.province) {
+        this.$pandemia
+          .api()
+          .publicApi.get(`/analytic/v1/data/location_address?province=${this.province}`)
+          .then(resp => {
+            if (resp.data.code == 0) {
+              this.districtSuggestions = resp.data.result;
+            } else {
+              this.showError(resp.data.description);
+            }
+          });
+      }else{
+        this.$pandemia
+          .api()
           .publicApi.get(`/analytic/v1/data/location_address`)
           .then(resp => {
             if (resp.data.code == 0) {
@@ -359,11 +384,6 @@ export default {
               this.showError(resp.data.description);
             }
           });
-      } else {
-        console.log(
-          "Cannot fetch village-address data, province or city not defined"
-        );
-        // console.log(this.$session);
       }
     },
     normalizePath(q) {

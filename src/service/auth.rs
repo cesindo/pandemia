@@ -147,12 +147,13 @@ impl PublicApi {
                 if let Ok(user_id) = user_id.parse::<i64>() {
                     let user = dao.get_by_id(user_id)?;
 
-                    let dao = AuthDao::new(&conn);
+                    let token = AuthDao::new(&conn).generate_access_token(user.id)?;
+                    // .map_err(From::from)?;
+                    // .map(ApiResult::success);
 
-                    return dao
-                        .generate_access_token(user.id)
-                        .map_err(From::from)
-                        .map(ApiResult::success);
+                    dao.update_user_location(&user, &query.device_id, &query.loc_name, &query.loc_name_full)?;
+
+                    return Ok(ApiResult::success(token));
                 }
             }
         }

@@ -98,6 +98,8 @@ export default class Pandemia {
               session().set("user_name", user.name);
               session().set("user_email", user.email);
               session().set("user_accesses", user.accesses);
+              session().set("user_city", user.city);
+              session().set("user_province", user.province);
               session().set("is_admin", true);
               updateSession(resp.data.result.token);
               // this.loadUserKey();

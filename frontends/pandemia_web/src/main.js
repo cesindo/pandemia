@@ -22,8 +22,8 @@ import 'vuejs-dialog/dist/vuejs-dialog.min.css'
 Vue.use(VuejsDialog)
 // ------- end of Vuejs Dialog Stuff ---------
 
-import VTooltip from 'v-tooltip'
-Vue.use(VTooltip)
+// import VTooltip from 'v-tooltip'
+// Vue.use(VTooltip)
 
 import vmodal from 'vue-js-modal'
 Vue.use(vmodal, { dynamic: true, injectModalsContainer: true })

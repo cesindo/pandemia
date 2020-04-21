@@ -1,8 +1,10 @@
 import 'dart:async';
-
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pandemia_mobile/api/pandemia_api.dart';
 import 'package:pandemia_mobile/blocs/profile/profile.dart';
+import 'package:pandemia_mobile/core/error.dart';
 import 'package:pandemia_mobile/models/sub_report.dart';
 import 'package:pandemia_mobile/models/user.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
@@ -23,6 +25,8 @@ class ProfileEditPage extends StatefulWidget {
 
 class _ProfileEditPageState extends State<ProfileEditPage> {
   final ProfileBloc profileBloc;
+
+  // final _villageCtl = TextEditingController();
   final UserRepository userRepository = UserRepository();
   final _formKey = GlobalKey<FormState>();
   final _fullNameCtl = TextEditingController();
@@ -72,6 +76,40 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
     subs.cancel();
   }
 
+  Future<List<dynamic>> getVillageSuggestions(String query) {
+    return PublicApi.get(
+            "/village/v1/search?query=$query&scope=${currentUser.locPath}&offset=0&limit=10")
+        .then((data) async {
+      if (data != null) {
+        List<dynamic> entries = data["result"]["entries"] as List;
+        if (entries.length == 0) {
+          // coba listing semuanya
+
+          return await PublicApi.get(
+                  "/village/v1/search?query=$query&offset=0&limit=10")
+              .then((data2) {
+            if (data2 != null) {
+              List<dynamic> entries = data2["result"]["entries"] as List;
+              return entries
+                  .map((d) =>
+                      "${d["name"]}, ${d["district_name"]}, ${d["city"]}, ${d["province"]}")
+                  .toList();
+            }
+            return [];
+          });
+        } else {
+          return entries
+              .map((d) =>
+                  "${d["name"]}, ${d["district_name"]}, ${d["city"]}, ${d["province"]}")
+              .toList();
+        }
+      } else {
+        throw PandemiaException(
+            "Cannot contact API server for getting suggestions");
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,6 +129,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                       textInputAction: TextInputAction.next,
                       decoration: InputDecoration(labelText: 'Nama Lengkap'),
                       controller: _fullNameCtl,
+                      autofocus: true,
                       onFieldSubmitted: (_) =>
                           FocusScope.of(context).nextFocus(),
                       validator: (val) {
@@ -126,19 +165,45 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                             : null;
                       },
                     ),
-                    TextFormField(
-                      keyboardType: TextInputType.text,
-                      textInputAction: TextInputAction.done,
-                      decoration: InputDecoration(labelText: 'Nama Desa'),
-                      controller: _villageCtl,
-                      onFieldSubmitted: (_) => FocusScope.of(context).unfocus(),
-                      validator: (val) {
-                        return val.isEmpty
-                            ? "Nama Desa tidak boleh kosong"
-                            : null;
+
+                    TypeAheadFormField(
+                      textFieldConfiguration: TextFieldConfiguration(
+                          controller: this._villageCtl,
+                          decoration: InputDecoration(labelText: 'Desa')),
+                      suggestionsCallback: (query) {
+                        return getVillageSuggestions(query);
                       },
-                      inputFormatters: [new TitleCaseTextFormatter()],
+                      itemBuilder: (context, suggestion) {
+                        return ListTile(
+                          title: Text(suggestion),
+                        );
+                      },
+                      transitionBuilder: (context, suggestionsBox, controller) {
+                        return suggestionsBox;
+                      },
+                      onSuggestionSelected: (suggestion) {
+                        this._villageCtl.text = suggestion;
+                      },
+                      validator: (val) {
+                        return val.isEmpty ? "Desa tidak boleh kosong" : null;
+                      },
+                      onSaved: (value) {},
                     ),
+
+                    // TextFormField(
+                    //   keyboardType: TextInputType.text,
+                    //   textInputAction: TextInputAction.done,
+                    //   decoration: InputDecoration(labelText: 'Nama Desa'),
+                    //   controller: _villageCtl,
+                    //   onFieldSubmitted: (_) => FocusScope.of(context).unfocus(),
+                    //   validator: (val) {
+                    //     return val.isEmpty
+                    //         ? "Nama Desa tidak boleh kosong"
+                    //         : null;
+                    //   },
+                    //   inputFormatters: [new TitleCaseTextFormatter()],
+                    // ),
+
                     // TextFormField(
                     //   controller: _locCtl,
                     //   readOnly: true,
@@ -196,6 +261,13 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                                     actions: <Widget>[
                                       new FlatButton(
                                           onPressed: () {
+                                            List<String> s =
+                                                _villageCtl.text.split(", ");
+                                            String _village = _villageCtl.text;
+                                            if (s.length > 2) {
+                                              _village = s[0];
+                                            }
+
                                             profileBloc.dispatch(
                                                 RegisterAsSatgas(
                                                     currentUser.copy(
@@ -205,9 +277,10 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                                                             .trim(),
                                                         phoneNum:
                                                             _phoneCtl.text,
-                                                        village: _villageCtl
+                                                        locPath: _villageCtl
                                                             .text
-                                                            .capitalize()),
+                                                            .capitalize(),
+                                                        village: _village),
                                                     _areaCodeCtl.text,
                                                     true));
                                             Navigator.pop(context);
@@ -215,6 +288,13 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                                           child: Text("Ya")),
                                       new FlatButton(
                                           onPressed: () {
+                                            List<String> s =
+                                                _villageCtl.text.split(", ");
+                                            String _village = _villageCtl.text;
+                                            if (s.length > 2) {
+                                              _village = s[0];
+                                            }
+
                                             profileBloc.dispatch(
                                                 RegisterAsSatgas(
                                                     currentUser.copy(
@@ -224,9 +304,10 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                                                             .trim(),
                                                         phoneNum:
                                                             _phoneCtl.text,
-                                                        village: _villageCtl
+                                                        locPath: _villageCtl
                                                             .text
-                                                            .capitalize()),
+                                                            .capitalize(),
+                                                        village: _village),
                                                     _areaCodeCtl.text,
                                                     false));
                                             Navigator.pop(context);

@@ -6,7 +6,13 @@ use diesel::prelude::*;
 use diesel::{dsl::any, sql_types};
 
 use crate::{
-    models::Record, result::Result, schema::records, sqlutil::lower, types::EntriesResult, types::LocKind, ID,
+    models::Record,
+    result::Result,
+    schema::records,
+    sqlutil::{array_append, lower},
+    types::EntriesResult,
+    types::{LocKind, Ops},
+    ID,
 };
 
 /// This model structure modeled after data from https://www.worldometers.info/coronavirus/
@@ -43,6 +49,11 @@ pub struct MutateRecord<'a> {
 //             ..Default::default()
 //         }
 //     }
+// }
+
+// pub struct MutateMeta {
+//     pub ops:Ops,
+//     pub data:String
 // }
 
 /// Data Access Object for Record

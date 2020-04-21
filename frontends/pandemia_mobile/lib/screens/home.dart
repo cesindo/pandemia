@@ -70,7 +70,8 @@ class HomeScreen extends StatelessWidget {
       pandemiaBloc.state.listen((PandemiaState state) {
         if (state is PandemiaNewUpdateAvailable) {
           _scaffoldKey.currentState.showSnackBar(SnackBar(
-            content: Text("Pandemia versi ${state.version} telah tersedia, segera lakukan update!"),
+            content: Text(
+                "Pandemia versi ${state.version} telah tersedia, segera lakukan update!"),
             backgroundColor: Colors.blue,
             behavior: SnackBarBehavior.fixed,
           ));

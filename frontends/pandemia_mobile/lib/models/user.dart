@@ -20,9 +20,20 @@ class User extends Equatable {
   final LatLng loc; // Nullable
   final bool isBlocked;
   final bool isDeleted;
+  final String locPath;
 
-  User(this.id, this.fullName, this.email, this.phoneNum, this.village,
-      this.isSatgas, this.settings, this.loc, this.isBlocked, this.isDeleted)
+  User(
+      this.id,
+      this.fullName,
+      this.email,
+      this.phoneNum,
+      this.village,
+      this.isSatgas,
+      this.settings,
+      this.loc,
+      this.isBlocked,
+      this.isDeleted,
+      this.locPath)
       : super([
           id,
           fullName,
@@ -33,7 +44,8 @@ class User extends Equatable {
           settings,
           loc,
           isBlocked,
-          isDeleted
+          isDeleted,
+          locPath
         ]);
 
   Map<String, dynamic> toMap() {
@@ -48,6 +60,7 @@ class User extends Equatable {
     data["loc"] = this.loc != null ? this.loc.toMap() : null;
     data["is_blocked"] = this.isBlocked;
     data["is_deleted"] = this.isDeleted;
+    data["loc_path"] = this.locPath;
     return data;
   }
 
@@ -59,6 +72,7 @@ class User extends Equatable {
     assert(data['is_satgas'] != null, "User.is_satgas is null");
     assert(data['is_blocked'] != null, "User.is_blocked is null");
     assert(data['is_deleted'] != null, "User.is_deleted is null");
+    assert(data['loc_path'] != null, "User.loc_path is null");
     return User(
         data['id'] as int,
         data['full_name'] as String,
@@ -73,7 +87,8 @@ class User extends Equatable {
             ? LatLng(data['loc']['lat'], data['loc']['long'])
             : null,
         data['is_blocked'] as bool,
-        data['is_deleted'] as bool);
+        data['is_deleted'] as bool,
+        data['loc_path'] as String);
   }
 
   User copy(
@@ -85,7 +100,8 @@ class User extends Equatable {
       UserSettings settings,
       LatLng loc,
       bool isBlocked,
-      bool isDeleted}) {
+      bool isDeleted,
+      String locPath}) {
     return User(
         this.id,
         fullName ?? this.fullName,
@@ -96,6 +112,7 @@ class User extends Equatable {
         settings ?? this.settings,
         loc ?? this.loc,
         isBlocked ?? this.isBlocked,
-        isDeleted ?? this.isDeleted);
+        isDeleted ?? this.isDeleted,
+        locPath ?? this.locPath);
   }
 }

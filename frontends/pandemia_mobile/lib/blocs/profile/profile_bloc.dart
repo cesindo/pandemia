@@ -60,6 +60,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       "full_name": event.user.fullName,
       "phone_num": event.user.phoneNum,
       "village": event.user.village,
+      "loc_path": event.user.locPath,
       "latitude": locationData.latitude,
       "longitude": locationData.longitude,
       "area_code": event.areaCode,

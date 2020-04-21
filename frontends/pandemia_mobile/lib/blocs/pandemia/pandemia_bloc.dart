@@ -12,6 +12,7 @@ import 'package:pandemia_mobile/blocs/pandemia/pandemia_state.dart';
 import 'package:pandemia_mobile/blocs/settings/settings_util.dart';
 import 'package:pandemia_mobile/core/smart_repo.dart';
 import 'package:pandemia_mobile/notification_util.dart';
+import 'package:pandemia_mobile/throttle.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
 import 'package:pandemia_mobile/util/address_util.dart';
 import 'package:pandemia_mobile/util/device_util.dart';
@@ -57,6 +58,10 @@ class PandemiaBloc extends Bloc<PandemiaEvent, PandemiaState> {
   Stream<PandemiaState> _mapStartupToState(StartupEvent event) async* {
     yield PandemiaLoading();
 
+    if (Throttle.isReady("reinit_user")) {
+      return;
+    }
+
     final bool hasToken = await userRepository.hasToken();
 
     LocationData locationData;
@@ -76,13 +81,13 @@ class PandemiaBloc extends Bloc<PandemiaEvent, PandemiaState> {
       // validate token
       yield ValidateToken();
 
-      final latestLocation = await repo.getData("latest_loc");
-      if (latestLocation != null &&
-          latestLocation["loc_name"] != geoLocName.city) {
+      // final latestLocation = await repo.getData("latest_loc");
+      // if (latestLocation != null &&
+      //     latestLocation["loc_name"] != geoLocName.city) {
         print("[LOC] Changing location...");
         PublicApi.post("/user/v1/me/update_loc", {
           'device_id': deviceId,
-          'loc_name': geoLocName,
+          'loc_name': geoLocName.city,
           'loc_name_full': geoLocName.toString()
         }).whenComplete(() {
           print("[LOC] Location changed");
@@ -90,9 +95,9 @@ class PandemiaBloc extends Bloc<PandemiaEvent, PandemiaState> {
           repo.putData(
               "latest_loc_full", {"loc_full_name": geoLocName.toString()});
         }).catchError((err) => print("[LOC_ERROR]: $err"));
-      } else {
-        print("[LOC] Location not changed");
-      }
+      // } else {
+      //   print("[LOC] Location not changed");
+      // }
 
       // untuk memeriksa apakah access token-nya masih valid
       final user = await PublicApi.get("/user/v1/me/info").catchError((err) {

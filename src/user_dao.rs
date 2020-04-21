@@ -464,17 +464,35 @@ impl<'a> UserDao<'a> {
     /// Update user location by device_id
     pub fn update_user_location(
         &self,
+        user: &User,
         device_id: &str,
         latest_loc: &str,
         latest_loc_full: &str,
     ) -> Result<()> {
         use crate::schema::user_connect::{self, dsl};
-        diesel::update(dsl::user_connect.filter(dsl::device_id.eq(device_id)))
-            .set((
-                dsl::latest_loc.eq(latest_loc),
-                dsl::latest_loc_full.eq(latest_loc_full),
-            ))
-            .execute(self.db)?;
+        self.db
+            .build_transaction()
+            .read_write()
+            .run::<_, crate::error::Error, _>(|| {
+                diesel::update(dsl::user_connect.filter(dsl::device_id.eq(device_id)))
+                    .set((
+                        dsl::latest_loc.eq(latest_loc),
+                        dsl::latest_loc_full.eq(latest_loc_full),
+                    ))
+                    .execute(self.db)?;
+
+                let mut meta = user.meta.clone();
+
+                meta = meta.into_iter().filter(|a| !a.starts_with("loc_path=")).collect();
+
+                meta.push(format!("loc_name={}", latest_loc));
+                meta.push(format!("loc_path=/{}", latest_loc_full));
+
+                UserDao::new(self.db).update_meta(user.id, &meta)?;
+
+                Ok(())
+            })?;
+
         Ok(())
     }
 
@@ -539,6 +557,37 @@ impl<'a> UserDao<'a> {
                 .execute(self.db)?;
         }
 
+        Ok(())
+    }
+
+    /// Update meta
+    pub fn update_meta(&self, user_id: ID, meta: &Vec<String>) -> Result<()> {
+        use crate::schema::users::{self, dsl};
+
+        // let mut meta:Vec<String> = {
+        //     users::table
+        //         .filter(dsl::id.eq(user_id))
+        //         .select(dsl::meta)
+        //         .first(self.db)?
+        // };
+
+        // for m in meta_mut {
+        //     match m.ops {
+        //         Ops::Add => {
+        //             meta.append(m.data.to_owned());
+        //         },
+        //         Ops::Subs => {
+        //             meta = meta.into_iter().filter(|a| a != m.data).collect();
+        //         },
+        //         Ops::Set => {
+
+        //         }
+        //     }
+        // }
+        diesel::update(dsl::users.filter(dsl::id.eq(user_id)))
+            .set(dsl::meta.eq(meta))
+            .execute(self.db)?;
+        //    .map_err(Error::from)?;
         Ok(())
     }
 }

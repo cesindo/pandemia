@@ -192,6 +192,12 @@ pub struct Admin {
     pub active: bool,
     pub register_time: NaiveDateTime,
     pub meta: Vec<String>,
+
+    /// City
+    pub city: String,
+
+    /// User's province
+    pub province: String,
 }
 
 impl ToApiType<Admin> for models::Admin {
@@ -211,6 +217,9 @@ impl ToApiType<Admin> for models::Admin {
             active: self.active,
             register_time: self.register_time,
             meta: self.meta.clone(),
+
+            city: meta_value_str!(self, "city_name", "=").to_owned(),
+            province: meta_value_str!(self, "province_name", "=").to_owned(),
         }
     }
 }
@@ -255,6 +264,9 @@ pub struct User {
 
     /// whether this user is deleted
     pub is_deleted: bool,
+
+    /// Location path
+    pub loc_path: String,
 }
 
 impl From<models::User> for User {
@@ -278,6 +290,7 @@ impl From<models::User> for User {
             loc: a.get_lat_long(),
             is_blocked: a.is_blocked(),
             is_deleted: a.is_deleted(),
+            loc_path: meta_value_str!(a, "loc_path", "=").to_owned(),
         }
     }
 }

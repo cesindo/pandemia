@@ -48,8 +48,14 @@ pub struct UpdateUser {
     pub email: Option<String>,
     #[validate(length(min = 2, max = 15))]
     pub phone_num: String,
+
+    /// akan deprecated, digantikan dengan loc_path
+    // #[deprecated(note="digantikan dengan loc_path")]
     #[validate(length(min = 2, max = 100))]
     pub village: String,
+
+    #[validate(length(min = 2, max = 100))]
+    pub loc_path: Option<String>,
     pub latitude: f64,
     pub longitude: f64,
 
@@ -387,7 +393,12 @@ impl PublicApi {
     pub fn update_location(query: UpdateLocation) -> ApiResult<()> {
         let conn = state.db();
         let dao = UserDao::new(&conn);
-        dao.update_user_location(&query.device_id, &query.loc_name, &query.loc_name_full)?;
+        dao.update_user_location(
+            &current_user,
+            &query.device_id,
+            &query.loc_name,
+            &query.loc_name_full,
+        )?;
         Ok(ApiResult::success(()))
     }
 

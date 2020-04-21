@@ -113,7 +113,7 @@ class ViewODPScreen extends StatefulWidget {
 
 class _ViewODPScreenState extends State<ViewODPScreen> {
   FocusNode node = FocusNode();
-  StreamSubscription _subs;
+  // StreamSubscription _subs;
 
   @override
   void initState() {

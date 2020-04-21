@@ -83,6 +83,17 @@ pub struct CommitData {
     records: Vec<RecordUpdate>,
 }
 
+#[derive(Deserialize, Validate)]
+pub struct VillageSearch {
+    pub query: Option<String>,
+    /// Scope is location path (loc_path), eg: /ID/Jawa Tengah/Wonosobo
+    pub scope: Option<String>,
+    #[validate(range(min = 0, max = 1_000_000))]
+    pub offset: i64,
+    #[validate(range(min = 1, max = 100))]
+    pub limit: i64,
+}
+
 /// Holder untuk implementasi API endpoint publik untuk village.
 pub struct PublicApi;
 
@@ -117,12 +128,17 @@ impl PublicApi {
 
     /// Search for villages
     #[api_endpoint(path = "/search", auth = "optional")]
-    pub fn search_villages(query: QueryEntries) -> ApiResult<EntriesResult<models::Village>> {
+    pub fn search_villages(query: VillageSearch) -> ApiResult<EntriesResult<models::Village>> {
         query.validate()?;
         let conn = state.db();
         let dao = VillageDao::new(&conn);
 
-        let sresult = dao.search(&query.query.unwrap_or("".to_string()), query.offset, query.limit)?;
+        let sresult = dao.search(
+            &query.query.unwrap_or("".to_string()),
+            query.scope.as_ref().map(|a| a.as_str()),
+            query.offset,
+            query.limit,
+        )?;
 
         // let entries = sresult.entries.into_iter().map(|p| p.into()).collect();
 
@@ -354,7 +370,10 @@ impl PublicApi {
 
         if let Some(current_admin) = current_admin.as_ref() {
             if current_admin.id != 1 {
-                if current_admin.get_city_id().is_none() && current_admin.id != 1 {
+                if !current_admin.has_access("update_village_data")
+                    && current_admin.get_city_id().is_none()
+                    && current_admin.id != 1
+                {
                     return unauthorized();
                 }
 
@@ -479,12 +498,17 @@ impl PublicApi {
 
     /// Search for village_addresses
     #[api_endpoint(path = "/village_address", auth = "required")]
-    pub fn search_village_address(query: QueryEntries) -> ApiResult<EntriesResult<VillageAddress>> {
+    pub fn search_village_address(query: VillageSearch) -> ApiResult<EntriesResult<VillageAddress>> {
         query.validate()?;
         let conn = state.db();
         let dao = VillageDao::new(&conn);
 
-        let sresult = dao.search(&query.query.unwrap_or("".to_string()), query.offset, query.limit)?;
+        let sresult = dao.search(
+            &query.query.unwrap_or("".to_string()),
+            query.scope.as_ref().map(|a| a.as_str()),
+            query.offset,
+            query.limit,
+        )?;
 
         let entries = sresult
             .entries
