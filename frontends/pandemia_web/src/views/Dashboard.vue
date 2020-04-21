@@ -21,6 +21,16 @@
           <div class="ui header">Selamat datang di Pandemia</div>
 
           <div class="ui center aligned grid">
+            <div class="two wide column">
+              <p>
+                API: {{apiVersion}}
+                <br />
+                WEB: {{webAppVersion}}
+              </p>
+            </div>
+          </div>
+
+          <div class="ui center aligned grid">
             <div class="four wide column">
               <div class="ui segment">
                 <div class="content">
@@ -29,11 +39,11 @@
                     <strong>{{$session.get("user_name")}}</strong>
                     <div v-if="!isSuperAdmin">
                       ({{ $session.get("user_medic") ? "medic" : ( $session.get("is_admin") ? 'Admin' : 'satgas') }})
-                    <p v-if="!$session.get('user_medic') && !$session.get('is_admin')">
-                      untuk daerah
-                      <strong>{{$session.get("user_village")}}</strong>,
-                      <strong>{{$session.get("user_city")}}</strong>
-                    </p>
+                      <p v-if="!$session.get('user_medic') && !$session.get('is_admin')">
+                        untuk daerah
+                        <strong>{{$session.get("user_village")}}</strong>,
+                        <strong>{{$session.get("user_city")}}</strong>
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -127,6 +137,7 @@ export default {
   },
   data() {
     return {
+      apiVersion: process.env.VUE_APP_API_VERSION,
       collapsed: true,
       customMargin: {},
       currentPage: {},
@@ -227,6 +238,9 @@ export default {
     },
     isSuperAdmin() {
       return this.$session.get("user_id") == 1;
+    },
+    webAppVersion() {
+      return process.env.VUE_APP_WEB_VERSION;
     }
   },
   created() {
@@ -288,6 +302,15 @@ export default {
       }
     },
     mounted() {
+      this.$pandemia
+        .api()
+        .publicApi.get(`/system/v1/info`)
+        .then(resp => {
+          if (resp.data.code == 0) {
+            this.apiVersion = resp.data.version;
+          }
+        });
+
       var menu = [
         {
           header: true,

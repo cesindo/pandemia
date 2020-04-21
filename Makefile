@@ -59,6 +59,7 @@ commit:
 
 version:
 	@@sed -i.bak 's/version = ".*" # auto generated do not edit by hand/version = "$(VERSION)" # auto generated do not edit by hand/' Cargo.toml
+	@@sed -i.bak 's/VUE_APP_API_VERSION=.*/VUE_APP_API_VERSION=$(VERSION)/' frontends/pandemia_web/.env
 	@@cat Cargo.toml | grep version | grep "edit by"
 
 release:
