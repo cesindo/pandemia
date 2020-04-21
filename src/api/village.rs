@@ -231,7 +231,7 @@ impl PublicApi {
         let mut meta = vec![];
 
         if let Some(current_admin) = current_admin {
-            if current_admin.id != 1 {
+            if !current_admin.has_access("update_village_data") {
                 if current_admin.get_city_id().unwrap_or(0) != village.city_id {
                     return param_error("Anda tidak memiliki akses untuk kab/kota ini");
                 }

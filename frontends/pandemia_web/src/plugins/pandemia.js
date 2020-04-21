@@ -74,7 +74,7 @@ export default class Pandemia {
         updateSession(data['token']);
       },
       unauthorize() {
-        console.log("unauthorize");
+        // console.log("unauthorize");
         session().remove("token");
         session().clear();
         updateSession();
@@ -108,7 +108,7 @@ export default class Pandemia {
           });
       },
       adminUnauthorize() {
-        console.log("unauthorize");
+        // console.log("unauthorize");
         session().remove("token");
         updateSession();
         return api.publicApi.post("/auth/v1/admin/unauthorize", {});

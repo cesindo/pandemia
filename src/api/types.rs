@@ -218,8 +218,8 @@ impl ToApiType<Admin> for models::Admin {
             register_time: self.register_time,
             meta: self.meta.clone(),
 
-            city: meta_value_str!(self, "city_name", "=").to_owned(),
-            province: meta_value_str!(self, "province_name", "=").to_owned(),
+            city: meta_value_str!(self, "city", "=").to_owned(),
+            province: meta_value_str!(self, "province", "=").to_owned(),
         }
     }
 }
