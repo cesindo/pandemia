@@ -557,9 +557,9 @@ fn get_city(prov: &str, city: &str, conn: &PgConnection) -> Result<models::City>
     use crate::schema::cities::{self, dsl};
     cities::table
         .filter(
-            lower(dsl::province)
-                .eq(&normalize(prov))
-                .and(lower(dsl::name).eq(&normalize(city))),
+            lower(lower(dsl::province))
+                .eq(&normalize(prov).to_lowercase())
+                .and(lower(dsl::name).eq(&normalize(city).to_lowercase())),
         )
         // .select(dsl::id)
         .first(conn)

@@ -177,6 +177,7 @@ impl<'a> SubReportDao<'a> {
         }
 
         if let Some(status) = status {
+            dbg!(status);
             filterer = Box::new(filterer.and(dsl::status.eq(status as i32)));
         }
 
@@ -191,6 +192,12 @@ impl<'a> SubReportDao<'a> {
         if let Some(gender) = gender {
             filterer = Box::new(filterer.and(dsl::gender.eq(gender)));
         }
+
+        // debug!("query {:?}", diesel::debug_query::<diesel::pg::Pg, _>(&dsl::sub_reports
+        //     .filter(&filterer)
+        //     .offset(offset)
+        //     .limit(limit)
+        //     .order(dsl::ts.desc())));
 
         Ok(EntriesResult::new(
             dsl::sub_reports

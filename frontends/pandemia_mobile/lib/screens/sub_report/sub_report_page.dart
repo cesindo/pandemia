@@ -164,7 +164,7 @@ class _ViewODPScreenState extends State<ViewODPScreen> {
                   controller: this.widget.searchController,
                   onFieldSubmitted: (text) {
                     print("submit $text");
-                    widget.subReportBloc.dispatch(SubReportSearch(text, 0));
+                    widget.subReportBloc.dispatch(SubReportSearch(text, 'odp'));
                   },
                   onChanged: (text) {
                     setState(() {});
@@ -280,7 +280,7 @@ class _ViewPDPScreenState extends State<ViewPDPScreen> {
                   controller: this.widget.searchController,
                   onFieldSubmitted: (text) {
                     print("submit $text");
-                    widget.subReportBloc.dispatch(SubReportSearch(text, 1));
+                    widget.subReportBloc.dispatch(SubReportSearch(text, 'pdp'));
                   },
                   onChanged: (text) {
                     setState(() {});

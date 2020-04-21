@@ -31,7 +31,7 @@ pub fn parse_query<'a>(query: &'a str) -> ParsedQuery<'a> {
     let age = value_str_opt!(s, "umur").and_then(|a| a.parse::<i32>().ok());
     let gender = value_str_opt!(s, "jk");
     let come_from = value_str_opt!(s, "dari");
-    let status: Option<SubReportStatus> = value_str_opt!(s, "status").map(|a| a.into());
+    let status: Option<SubReportStatus> = value_str_opt!(s, "status").map(|a| SubReportStatus::from(a));
     let village_name = value_str_opt!(s, "desa");
     let district_name = value_str_opt!(s, "kcm");
 

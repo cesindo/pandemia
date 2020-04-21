@@ -13,6 +13,7 @@ import 'package:pandemia_mobile/models/user.dart';
 import 'package:pandemia_mobile/screens/sub_report/data_kabupaten.dart';
 import 'package:pandemia_mobile/screens/sub_report/sub_report_page.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
+import 'package:pandemia_mobile/util/text_formatter.dart';
 
 class AddSubReportPage extends StatefulWidget {
   final SubReportBloc subReportBloc;
@@ -167,6 +168,7 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
                         ? "Nama lengkap tidak boleh kosong"
                         : null;
                   },
+                  inputFormatters: [new TitleCaseTextFormatter()],
                 ),
                 TextFormField(
                   decoration: InputDecoration(labelText: "Alamat Lengkap"),
@@ -180,6 +182,7 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
                         ? "Alamat lengkap tidak boleh kosong"
                         : null;
                   },
+                  inputFormatters: [new TitleCaseTextFormatter()],
                 ),
                 TextFormField(
                   decoration: InputDecoration(labelText: "Usia"),

@@ -39,7 +39,7 @@ pub enum NotifKind {
 }
 
 /// Status sub reports
-#[derive(Serialize, Copy, Clone, PartialEq, Eq)]
+#[derive(Serialize, Copy, Clone, PartialEq, Debug)]
 pub enum SubReportStatus {
     /// Orang Dalam Pemantauan
     ODP = 0,
@@ -110,6 +110,32 @@ impl From<&str> for SubReportStatus {
         }
     }
 }
+
+impl From<String> for SubReportStatus {
+    fn from(a: String) -> Self {
+        SubReportStatus::from(a.as_str())
+    }
+}
+
+impl From<&String> for SubReportStatus {
+    fn from(a: &String) -> Self {
+        SubReportStatus::from(a.as_str())
+    }
+}
+
+// impl SubReportStatus {
+//     fn from_str(a: &str) -> Self {
+//         match a {
+//             "odp" => SubReportStatus::ODP,
+//             "pdp" => SubReportStatus::PDP,
+//             "positive" => SubReportStatus::Positive,
+//             "recovered" => SubReportStatus::Recovered,
+//             "death" => SubReportStatus::Death,
+//             "all" => SubReportStatus::All,
+//             _ => SubReportStatus::Unknown,
+//         }
+//     }
+// }
 
 /// Location kind
 #[derive(Copy, Clone)]
@@ -248,6 +274,7 @@ impl From<MapMarkerKind> for i16 {
 }
 
 #[doc(hidden)]
+#[derive(Debug)]
 pub enum Ops {
     Add = 1,
     Subs = 2,

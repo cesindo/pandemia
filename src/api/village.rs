@@ -366,7 +366,7 @@ impl PublicApi {
             .collect::<Vec<String>>();
 
         let mut last_updated_by_id = 0;
-        let mut last_updated_by_name = "";
+        let mut last_updated_by_name = "??";
 
         if let Some(current_admin) = current_admin.as_ref() {
             if current_admin.id != 1 {
@@ -443,6 +443,7 @@ impl PublicApi {
                     // meta.push(format!("updated_by_admin_id={}", current_admin.id));
                     // // }
 
+                    meta.sort();
                     meta.dedup();
 
                     dao.update(

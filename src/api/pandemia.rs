@@ -353,7 +353,7 @@ impl PublicApi {
             }
         }
 
-        let status: SubReportStatus = query.status.as_str().into();
+        let status: SubReportStatus = SubReportStatus::from(&query.status);
 
         if status == SubReportStatus::Positive
             || status == SubReportStatus::Recovered
@@ -609,7 +609,7 @@ impl PublicApi {
         accessor = "user,admin",
         mutable
     )]
-    pub fn update_sub_report(query: UpdateSubReport) -> ApiResult<models::SubReport> {
+    pub fn update_sub_report(query: UpdateSubReport) -> ApiResult<SubReport> {
         query.validate()?;
         let conn = state.db();
         let dao = SubReportDao::new(&conn);
@@ -675,7 +675,8 @@ impl PublicApi {
 
         let mut healthy: HealthyKind = HealthyKind::Health;
 
-        let mut meta: Vec<String> = Vec::new();
+        let mut meta: Vec<String> = subr.meta.clone();
+
         if let Some(complaint) = &query.complaint.as_ref() {
             if complaint.len() > 0 {
                 healthy = HealthyKind::Sick;
@@ -714,6 +715,9 @@ impl PublicApi {
             .read_write()
             .run::<_, crate::error::Error, _>(|| {
                 let village = VillageDao::new(&conn).get_by_id(village_id)?;
+
+                meta.sort();
+                meta.dedup();
 
                 let sub_report = dao.update(
                     query.id,
@@ -786,14 +790,14 @@ impl PublicApi {
                     },
                 )?;
 
-                // let (odp, pdp, cases, recovered, deaths) = match new_status {
-                //     SubReportStatus::ODP => (1, 0, 0, 0, 0),
-                //     SubReportStatus::PDP => (0, 1, 0, 0, 0),
-                //     SubReportStatus::Positive => (0, 0, 1, 0, 0),
-                //     SubReportStatus::Recovered => (0, 0, 0, 1, 0),
-                //     SubReportStatus::Death => (0, 0, 0, 0, 1),
-                //     _ => return Err(Error::InvalidParameter("Status tidak valid".to_owned()))?,
-                // };
+                let (odp, pdp, cases, recovered, deaths) = match new_status {
+                    SubReportStatus::ODP => (1, 0, 0, 0, 0),
+                    SubReportStatus::PDP => (0, 1, 0, 0, 0),
+                    SubReportStatus::Positive => (0, 0, 1, 0, 0),
+                    SubReportStatus::Recovered => (0, 0, 0, 1, 0),
+                    SubReportStatus::Death => (0, 0, 0, 0, 1),
+                    _ => return Err(Error::InvalidParameter("Status tidak valid".to_owned()))?,
+                };
 
                 VillageDataDao::new(&conn).update(
                     subr.village_id,
@@ -840,7 +844,7 @@ impl PublicApi {
                 Ok(sub_report)
             })?;
 
-        Ok(ApiResult::success(sub_report))
+        Ok(ApiResult::success(sub_report.to_api_type(&conn)))
     }
 
     /// Search for sub_report
@@ -858,6 +862,13 @@ impl PublicApi {
             Some(q) => parse_query(q),
             None => ParsedQuery::default(),
         };
+
+        let current_user_name = current_user.as_ref().map(|a| a.full_name.to_owned()).unwrap_or(
+            current_admin
+                .as_ref()
+                .map(|a| a.name.to_owned())
+                .unwrap_or("".to_string()),
+        );
 
         let (city_id, district_id, village_id) = if let Some(current_user) = current_user.as_ref() {
             match (
@@ -911,12 +922,33 @@ impl PublicApi {
         let name = parq.name.unwrap_or("");
 
         // utamakan status dari param `status`
-        let status: SubReportStatus = query.status.as_str().into();
+        let status: SubReportStatus = query.status.into();
+        // dbg!(status);
         if status != SubReportStatus::Unknown {
             parq.status = Some(status);
         }
 
-        let village_name = parq.village_name.map(|a| util::title_case(a));
+        let mut village_name = parq.village_name.map(|a| util::title_case(a));
+
+        if let Some(village_id) = village_id {
+            let village = VillageDao::new(&conn).get_by_id(village_id)?;
+            if village_name.is_some() && village_name.as_ref().map(|a| a.as_str()) != Some("") {
+                if Some(&village.name) != village_name.as_ref() {
+                    debug!(
+                        "user {} dengan akses desa {} mencoba mendapatkan data sub report untuk desa {}",
+                        current_user_name,
+                        village.name,
+                        village_name.unwrap_or("??".to_string())
+                    );
+                    return Ok(ApiResult::success(EntriesResult {
+                        count: 0,
+                        entries: vec![],
+                    }));
+                }
+            } else {
+                village_name = Some(village.name.to_owned());
+            }
+        }
 
         let result = dao.search(
             city_id,

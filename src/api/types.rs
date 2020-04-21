@@ -29,7 +29,7 @@ pub trait ToApiType<T> {
     // }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 pub struct EntriesResult<T> {
     pub entries: Vec<T>,
     pub count: i64,

@@ -48,16 +48,25 @@ class SubReportBloc extends Bloc<SubReportEvent, SubReportState> {
       "add_info": event.addInfo,
     };
 
-    final data =
-        await PublicApi.post("/pandemia/v1/sub_report/update", payload);
-    if (data != null) {
-      print("data: $data");
+    yield* PublicApi.post2("/pandemia/v1/sub_report/update", payload)
+        .catchError((e) {
+          return {"error": e.toString()};
+        })
+        .asStream()
+        .asyncExpand((data) async* {
+          if (data != null && data["error"] == null) {
+            print("data: $data");
 
-      yield SubReportUpdated(SubReport.fromMap(data["result"]));
-      dispatch(LoadSubReport(status: event.status, force: true));
-    } else {
-      yield SubReportFailure(error: "Cannot update SubReport");
-    }
+            yield SubReportUpdated(SubReport.fromMap(data["result"]));
+            dispatch(LoadSubReport(status: event.status, force: true));
+          } else if (data["error"] != null) {
+            yield SubReportFailure(
+                error: "Gagal memperbaharui data: " + data["error"]);
+          } else {
+            yield SubReportFailure(error: "Gagal memperbaharui data");
+          }
+        });
+
   }
 
   Stream<SubReportState> _mapSearchOdpToState(SubReportSearch event) async* {

@@ -354,7 +354,7 @@ export default {
       if (this.province && this.city) {
         this.$pandemia
           .api()
-          .publicApi.get(`/analytic/v1/data/districts?province=${this.province}&city=${this.city}`)
+          .publicApi.get(`/analytic/v1/data/districts?province=${this.province}&city=${this.city}&offset=0&limit=1000`)
           .then(resp => {
             if (resp.data.code == 0) {
               this.districtSuggestions = resp.data.result;

@@ -84,7 +84,7 @@ class DeleteSubReport extends SubReportEvent {
 
 class SubReportSearch extends SubReportEvent {
   final String query;
-  final int status;
+  final String status;
   SubReportSearch(this.query, this.status);
   @override
   String toString() => "SubReportSearch";

@@ -83,6 +83,8 @@ impl<'a> VillageDataDao<'a> {
     pub fn update(&self, village_id: ID, ops: Ops, data: &UpdateVillageData) -> Result<()> {
         use crate::schema::village_data::{self, dsl};
 
+        // dbg!(&ops);
+
         let run_result = {
             match ops {
                 Ops::Add => diesel::update(dsl::village_data.filter(dsl::village_id.eq(village_id)))

@@ -104,6 +104,7 @@ impl PublicApi {
             labels.push(format!("access.{}", access));
         }
 
+        labels.sort();
         labels.dedup();
 
         dao.create(
