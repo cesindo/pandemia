@@ -319,8 +319,10 @@ impl PublicApi {
         let d = dao.get_by_id(query.id)?;
 
         if let Some(current_admin) = current_admin {
-            if current_admin.id != 1 && d.city_id != current_admin.get_city_id().unwrap_or(0) {
-                return unauthorized();
+            if !current_admin.has_access("update_village_data") {
+                if d.city_id != current_admin.get_city_id().unwrap_or(0) {
+                    return unauthorized();
+                }
             }
         } else if let Some(current_user) = current_user {
             if !current_user.is_satgas() || !current_user.is_medic() {

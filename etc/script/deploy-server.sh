@@ -14,7 +14,7 @@ if [ "$confirm" == "yy" ]; then
     yes_for_all="y"
 fi
 
-if [ "$confirm" == "y" ] ; then
+if [ "$confirm" == "y" ] || [ "$yes_for_all" == "y" ]; then
     echo "Updating API service..."
     echo $GIT_REV > $PROJDIR/etc/ansible/GIT_REV
     ansible-playbook -v -i etc/ansible/hosts -e "server=api" etc/ansible/api.yml
