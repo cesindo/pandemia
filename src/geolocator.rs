@@ -109,7 +109,7 @@ pub struct LocInfo {
     pub province: String,
 
     #[serde(rename = "City")]
-    pub city: String,
+    pub city: Option<String>,
 
     #[serde(rename = "District")]
     pub district: Option<String>,
@@ -162,9 +162,11 @@ pub fn address_to_ll(query: &str, conn: &PgConnection) -> Result<LatLong> {
     let query = normalize_query(query.to_lowercase());
 
     let (country, province, city) = {
-        let s: Vec<&str> = query.split('/').collect();
+        let mut s: Vec<&str> = query.split('/').collect();
+        s = s.into_iter().filter(|a| a.trim().len() > 0).collect();
         match &s[0..] {
-            &[a, b] => (a, "", b),
+            &[a] => (a, "", ""),
+            &[a, b] => (a, b, ""),
             &[a, b, c] => (a, b, c),
             _ => ("", "", ""),
         }

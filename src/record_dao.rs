@@ -124,7 +124,7 @@ impl<'a> RecordDao<'a> {
         use crate::schema::records::dsl;
 
         dsl::records
-            .filter(dsl::loc.eq(loc_path).and(dsl::latest.eq(true)))
+            .filter(dsl::loc_path.eq(loc_path).and(dsl::latest.eq(true)))
             .first(self.db)
             .map_err(From::from)
     }

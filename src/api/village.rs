@@ -133,6 +133,7 @@ impl PublicApi {
         let conn = state.db();
         let dao = VillageDao::new(&conn);
 
+        // let parq = parse_query(&query.query);
         let sresult = dao.search(
             &query.query.unwrap_or("".to_string()),
             query.scope.as_ref().map(|a| a.as_str()),

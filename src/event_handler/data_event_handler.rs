@@ -58,8 +58,8 @@ fn update_map_marker(old_record: &Option<Record>, new_record: &Record, conn: &Pg
         meta.push(format!("pandemic.total_recovered:{}", new_record.total_recovered));
         dao.update_meta(marker.id, meta)?;
     } else {
-        let loc_scope = meta_value_str!(new_record, "loc_scope");
-        let latlong = geolocator::address_to_ll(&format!("{}/{}", loc_scope, new_record.loc), conn)?;
+        // let loc_scope = meta_value_str!(new_record, "loc_scope");
+        let latlong = geolocator::address_to_ll(&new_record.loc_path, conn)?;
         let mut meta = new_record.meta.clone();
         meta.push(format!("pandemic.total_cases:{}", new_record.total_cases));
         meta.push(format!("pandemic.total_deaths:{}", new_record.total_deaths));

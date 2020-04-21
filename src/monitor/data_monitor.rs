@@ -269,6 +269,7 @@ impl DataMonitor {
                             active_cases: 0,
                             critical_cases: 0,
                             meta: vec!["loc_scope:indonesia"],
+                            loc_path: &loc_path,
                             ..Default::default()
                         },
                         false,

@@ -185,7 +185,7 @@ impl PublicApi {
                 "address={}/{}/{}/{}/{}/{}",
                 loc_info.country_code,
                 loc_info.province,
-                loc_info.city,
+                loc_info.city.unwrap_or("?".to_string()),
                 loc_info.district.unwrap_or("?".to_string()),
                 loc_info.subdistrict.unwrap_or("?".to_string()),
                 loc_info.label
