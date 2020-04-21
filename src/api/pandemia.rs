@@ -492,7 +492,7 @@ impl PublicApi {
             current_user_id = current_user.id;
         // city_id = current_user.get_city_id().ok_or(ApiError::Unauthorized)?;
         } else if let Some(current_admin) = current_admin {
-            if current_admin.id != 1 {
+            if current_admin.id != 1 && !current_admin.has_access("update_village_data") {
                 let city_id = match current_admin.get_city_id() {
                     Some(a) => a,
                     None => return unauthorized(),
