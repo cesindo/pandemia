@@ -1,3 +1,5 @@
+DROP TRIGGER IF EXISTS auto_update_district_data ON village_data;
+DROP FUNCTION calc_district_data();
 
 CREATE OR REPLACE FUNCTION calc_district_data() 
 RETURNS trigger AS $$
