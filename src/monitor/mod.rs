@@ -48,7 +48,10 @@ pub fn start_monitors() {
     // {
     //     // for debugging purpose
     //     let conn = db::clone().get().unwrap();
-    //     let _ = DataMonitor::get_jatengprov(&conn);
+    //     // let _ = DataMonitor::get_jatengprov(&conn);
+    //     // let _ = DataMonitor::get_jatengprov(&conn);
+    //     let _ = DataMonitor::check_worldometers(&conn);
+    //     let _ = DataMonitor::check_worldometers(&conn);
     // }
 
     for monitor in MONITORS.iter() {
