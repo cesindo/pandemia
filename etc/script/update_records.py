@@ -25,11 +25,26 @@ def main():
         #     print(name)
 
     total = 0
-    
+
+    calculated_at = datetime.now().strftime("%d-%m-%Y")
+
     with conn.cursor() as cur:
 
         for district_id, district_name, city_id in districts:
             city = get_city(city_id, cur)
+
+            loc_path = "/%s/%s/%s" % (city[2], city[1], city[0])
+
+            # hapus data yang telah dikalkulasikan sebelumnya pada hari yang sama apabila ada
+            # memastikan ke-idempoten-an hasil kalkulasinya
+            # cur.execute(sql.SQL("""SELECT COUNT(id) FROM records WHERE loc={loc} AND loc_path={loc_path} and meta @> '{{calculated_at=%s}}'""" % calculated_at)
+            #     .format(loc=sql.Literal(district_name),loc_path=sql.Literal(loc_path)))
+            # count = cur.fetchone()
+            # if count[0] > 0:
+            cur.execute(sql.SQL("""DELETE FROM records WHERE loc={loc} AND loc_path={loc_path} and meta @> '{{calculated_at=%s}}'""" % calculated_at)
+                .format(loc=sql.Literal(district_name),loc_path=sql.Literal(loc_path)))
+                # continue
+    
 
             sqlq = sql.SQL("""SELECT SUM(odp) AS odp, SUM(pdp) AS pdp, SUM(cases) AS positive,
             SUM(recovered) AS recovered, SUM(deaths) AS deaths, SUM(ppdwt) AS ppwdt,
@@ -43,8 +58,6 @@ def main():
             # print(cur.fetchall())
 
             for odp, pdp, positive, recovered, deaths, ppdwt, pptb, odpsp, pdps, pdpm, otg in cur.fetchall():
-
-                loc_path = "/%s/%s/%s" % (city[2], city[1], city[0])
 
                 print("processing %s ..." % loc_path)
 
@@ -68,7 +81,7 @@ def main():
                 pdpm = sql.Literal(pdpm),
                 otg = sql.Literal(otg),
                 loc_path = sql.Literal(loc_path),
-                meta=sql.SQL('ARRAY[\'loc_scope=Indonesia\']')
+                meta=sql.SQL('ARRAY[\'loc_scope=Indonesia\',\':daily_calculation:\',\'calculated_at=%s\']' % calculated_at)
                  )
 
                 cur.execute(sqlq)
@@ -78,7 +91,7 @@ def main():
                 conn.commit()
 
 
-    print("  %d total data processed" % total)
+    print("  %d data processed" % total)
 
     conn.close()
 
