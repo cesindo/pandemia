@@ -257,6 +257,16 @@ export default {
   destroyed() {
     clearInterval(this.loginCheckerIval);
   },
+  mounted() {
+    this.$pandemia
+      .api()
+      .publicApi.get(`/system/v1/info`)
+      .then(resp => {
+        if (resp.data != null) {
+          this.apiVersion = resp.data.version;
+        }
+      });
+  },
   methods: {
     publicApiScope(self) {
       return self.$pandemia.api().publicApi;
@@ -301,53 +311,41 @@ export default {
           .catch(() => {});
       }
     },
-    mounted() {
-      this.$pandemia
-        .api()
-        .publicApi.get(`/system/v1/info`)
-        .then(resp => {
-          if (resp.data.code == 0) {
-            this.apiVersion = resp.data.version;
-          }
-        });
-
-      var menu = [
-        {
-          header: true,
-          title: "Main Navigation"
-        },
-        {
-          href: "/dashboard",
-          title: "Dashboard",
-          icon: "fa fa-list"
-        }
-      ];
-
-      if (this.$session.get("user_id") == 1) {
-        menu.push({
-          title: "Users",
-          icon: "fa fa-users",
-          href: "/dashboard/users"
-        });
-      }
-
-      menu.push({
-        title: "Records",
-        icon: "fa fa-address-card",
-        href: "/dashboard/records"
-      });
-      menu.push({
-        title: "Logout",
-        icon: "fa fa-sign-out-alt"
-      });
-
-      this.menu = [
-        {
-          title: "Logout",
-          icon: "fa fa-sign-out-alt"
-        }
-      ];
-    }
+    // mounted() {
+    //   // var menu = [
+    //   //   {
+    //   //     header: true,
+    //   //     title: "Main Navigation"
+    //   //   },
+    //   //   {
+    //   //     href: "/dashboard",
+    //   //     title: "Dashboard",
+    //   //     icon: "fa fa-list"
+    //   //   }
+    //   // ];
+    //   // if (this.$session.get("user_id") == 1) {
+    //   //   menu.push({
+    //   //     title: "Users",
+    //   //     icon: "fa fa-users",
+    //   //     href: "/dashboard/users"
+    //   //   });
+    //   // }
+    //   // menu.push({
+    //   //   title: "Records",
+    //   //   icon: "fa fa-address-card",
+    //   //   href: "/dashboard/records"
+    //   // });
+    //   // menu.push({
+    //   //   title: "Logout",
+    //   //   icon: "fa fa-sign-out-alt"
+    //   // });
+    //   // this.menu = [
+    //   //   {
+    //   //     title: "Logout",
+    //   //     icon: "fa fa-sign-out-alt"
+    //   //   }
+    //   // ];
+    // }
   }
 };
 </script>
