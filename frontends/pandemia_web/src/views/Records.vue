@@ -351,7 +351,9 @@ export default {
       this.province = this.province || this.$session.get("user_province");
       this.city = this.city || this.$session.get("user_city");
 
-      if (this.province && this.city) {
+      var multiLoc = this.$session.get("user_accesses").indexOf('multi_location') > -1;
+
+      if (this.province && this.city && !multiLoc) {
         this.$pandemia
           .api()
           .publicApi.get(`/analytic/v1/data/districts?province=${this.province}&city=${this.city}&offset=0&limit=1000`)
@@ -362,7 +364,7 @@ export default {
               this.showError(resp.data.description);
             }
           });
-      } else if (this.province) {
+      } else if (this.province && !multiLoc) {
         this.$pandemia
           .api()
           .publicApi.get(`/analytic/v1/data/location_address?province=${this.province}`)

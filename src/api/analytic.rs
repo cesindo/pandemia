@@ -257,12 +257,13 @@ impl PublicApi {
 
         let data: Vec<GeneralData> = sql_query(&format!(
             "SELECT loc_path, last_updated::timestamp::date AS updated, \
-            SUM(odp) AS odp, \
-            SUM(pdp) AS pdp, \
-            SUM(total_cases) AS positive, \
-            SUM(total_deaths) AS deaths, \
-            SUM(total_recovered) AS recovered \
-            FROM records WHERE loc_path = '{}' \
+            COALESCE(SUM(odp),0) AS odp, \
+            COALESCE(SUM(pdp),0) AS pdp, \
+            COALESCE(SUM(total_cases),0) AS positive, \
+            COALESCE(SUM(total_deaths),0) AS deaths, \
+            COALESCE(SUM(total_recovered),0) AS recovered \
+            FROM records WHERE loc_path = '{}' AND \
+            meta @> '{{:daily_calculation:}}' \
             GROUP BY (loc_path, updated) \
             ORDER BY updated ASC \
             LIMIT 30",
@@ -271,7 +272,7 @@ impl PublicApi {
         .load(&conn)
         .map_err(Error::from)?;
 
-        dbg!(&data);
+        // dbg!(&data);
 
         let mut agg: HashMap<String, Vec<i64>> = HashMap::new();
 

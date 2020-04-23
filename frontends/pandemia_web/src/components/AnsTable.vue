@@ -29,7 +29,7 @@
           <slot name="bellow-search"></slot>
         </div>
 
-        <table class="ui celled table">
+        <table class="ui celled unstackable table">
           <thead>
             <tr>
               <th v-for="col in columns" v-bind:key="col">
