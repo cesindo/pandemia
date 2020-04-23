@@ -360,10 +360,11 @@ impl PublicApi {
 
         let data: Vec<TravelerData> = sql_query(&format!(
             "SELECT loc_path, last_updated::timestamp::date AS updated, \
-            SUM(ppdwt) AS ppdwt, \
-            SUM(odp) AS odp, \
-            SUM(pptb) AS pptb \
-            FROM records WHERE loc_path = '{}' \
+            COALESCE(SUM(ppdwt),0) AS ppdwt, \
+            COALESCE(SUM(odp),0) AS odp, \
+            COALESCE(SUM(pptb),0) AS pptb \
+            FROM records WHERE loc_path = '{}' AND \
+            meta @> '{{:daily_calculation:}}' \
             GROUP BY (loc_path, updated) \
             ORDER BY updated ASC \
             LIMIT 30",
