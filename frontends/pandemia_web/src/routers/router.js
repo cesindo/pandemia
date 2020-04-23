@@ -34,6 +34,14 @@ let router = new Router({
       },
     },
     {
+      path: '/dashboard/area-settings', // hanya untuk admin daerah
+      name: 'Area Settings',
+      component: Dashboard,
+      meta: {
+        title: 'Dashboard' + titleDesc,
+      },
+    },
+    {
       path: '/dashboard/admins',
       name: 'Administrators',
       component: Dashboard,

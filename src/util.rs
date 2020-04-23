@@ -34,7 +34,7 @@ pub fn random_string(length: usize) -> String {
         .collect::<String>()
 }
 
-/// Menggenerasikan angka acak untuk tipe f64
+/// Menggenerasikan angka acak untuk tipe i32
 pub fn random_number() -> i32 {
     let mut rng = rand::thread_rng();
     rng.gen_range(0, 10)

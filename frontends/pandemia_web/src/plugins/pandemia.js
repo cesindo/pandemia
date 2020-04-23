@@ -60,6 +60,7 @@ export default class Pandemia {
       authorize(data) {
         session().set("token", data['token']);
         var user = data['user'];
+        session().set("user", user);
         session().set("user_id", user.id);
         session().set("user_name", user.full_name);
         session().set("user_email", user.email);
@@ -93,6 +94,7 @@ export default class Pandemia {
             if (resp.data.code == 0) {
               var access_token = resp.data.result.access_token,
                 user = resp.data.result.user;
+              session().set("admin", user);
               session().set("token", access_token.token);
               session().set("user_id", user.id);
               session().set("user_name", user.name);

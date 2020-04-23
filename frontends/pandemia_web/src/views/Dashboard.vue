@@ -53,6 +53,8 @@
         </div>
       </div>
 
+      <AreaSettings v-if="currentPage['/dashboard/area-settings'] && isAreaAdmin" />
+
       <Admins
         v-if="currentPage['/dashboard/admins'] && (userId == 1 || userAccesses.indexOf('admins') > -1 )"
       />
@@ -117,6 +119,7 @@ import SubReports from "@/views/SubReports.vue";
 import Satgas from "@/views/Satgas.vue";
 import SatgasDetail from "@/views/SatgasDetail.vue";
 import VillageData from "@/views/VillageData.vue";
+import AreaSettings from "@/views/AreaSettings.vue";
 
 export default {
   name: "Dashboard",
@@ -133,7 +136,8 @@ export default {
     SubReports,
     Satgas,
     SatgasDetail,
-    VillageData
+    VillageData,
+    AreaSettings
   },
   data() {
     return {
@@ -154,6 +158,13 @@ export default {
           title: "Dashboard",
           icon: "fa fa-list",
           access: "*"
+        },
+        {
+          title: "Area Settings",
+          icon: "fa fa-cog",
+          href: "/dashboard/area-settings",
+          adminOnly: true,
+          cityAdminOnly: true
         },
         {
           title: "Admins",
@@ -230,14 +241,28 @@ export default {
     menu: function() {
       if (this.userId != 1) {
         return this.menu_items.filter(a => {
+          if (a.cityAdminOnly == true && this.isAreaAdmin) {
+            return true;
+          }
           return this.userAccesses.indexOf(a.access) > -1 || a.access == "*";
         });
       } else {
-        return this.menu_items;
+        return this.menu_items.filter(a => {
+          if (a.cityAdminOnly == true && !this.isAreaAdmin) {
+            return false;
+          }
+          return true;
+        });
       }
     },
     isSuperAdmin() {
       return this.$session.get("user_id") == 1;
+    },
+    isAreaAdmin() {
+      return (
+        this.$session.get("is_admin") &&
+        this.$session.get("admin").city_id != null
+      );
     },
     webAppVersion() {
       return process.env.VUE_APP_WEB_VERSION;
@@ -310,7 +335,7 @@ export default {
           })
           .catch(() => {});
       }
-    },
+    }
     // mounted() {
     //   // var menu = [
     //   //   {

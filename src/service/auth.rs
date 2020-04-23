@@ -10,16 +10,16 @@ use validator::Validate;
 
 use crate::crypto::{self, SecretKey};
 use crate::{
-    api::{types::*, ApiResult, Error as ApiError, ErrorCode},
+    api::{error::*, types::*, ApiResult, Error as ApiError, ErrorCode},
     auth::AuthDao,
-    dao::{AdminDao, Logs},
+    dao::{AdminDao, CityDao, Logs},
     error::Error,
     kvstore::KvStore,
     models,
     prelude::*,
     types::AccountKind,
     user_dao::{NewUser, NewUserConnect, UserDao},
-    util,
+    util, ID,
 };
 
 /// Core basis service untuk authentikasi.
@@ -330,7 +330,59 @@ impl PublicApi {
 
         Ok(ApiResult::success(token))
     }
+
+    /// Get city area code.
+    #[api_endpoint(path = "/get_area_code", auth = "required", accessor = "admin")]
+    pub fn get_area_code(query: IdQuery) -> ApiResult<String> {
+        let conn = state.db();
+
+        if query.id == 0 || query.id != current_admin.get_city_id().unwrap_or(0) {
+            return unauthorized();
+        }
+
+        let dao = CityDao::new(&conn);
+        let city = dao.get_by_id(query.id)?;
+
+        Ok(ApiResult::success(city.area_code))
+    }
+
+    /// reset area code.
+    #[api_endpoint(path = "/reset_area_code", auth = "required", mutable, accessor = "admin")]
+    pub fn reset_area_code(query: IdQuery) -> ApiResult<String> {
+        use crate::schema::cities::{self, dsl};
+
+        let conn = state.db();
+
+        if !current_admin.has_access("reset_area_code") && current_admin.get_city_id() != Some(query.id) {
+            return unauthorized();
+        }
+
+        let city = CityDao::new(&conn).get_by_id(query.id)?;
+
+        let area_code = format!(
+            "{}{}{}{}{}",
+            &city.name[0..1],
+            util::random_number(),
+            util::random_number(),
+            util::random_number(),
+            util::random_number()
+        );
+
+        let conn = state.db();
+        diesel::update(dsl::cities.filter(dsl::id.eq(query.id)))
+            .set(dsl::area_code.eq(&area_code))
+            .execute(&conn)
+            .map_err(Error::from)?;
+
+        Ok(ApiResult::success(area_code))
+    }
 }
+
+// #[derive(Deserialize, Validate)]
+// pub struct ResetAreaCode {
+//     pub id: ID,
+//     pub area_code: String,
+// }
 
 #[derive(Deserialize, Validate)]
 pub struct SatgasAuthorize {

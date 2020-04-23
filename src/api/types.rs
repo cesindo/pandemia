@@ -198,6 +198,7 @@ pub struct Admin {
 
     /// City
     pub city: String,
+    pub city_id: Option<ID>,
 
     /// User's province
     pub province: String,
@@ -222,6 +223,7 @@ impl ToApiType<Admin> for models::Admin {
             meta: self.meta.clone(),
 
             city: meta_value_str!(self, "city", "=").to_owned(),
+            city_id: self.get_city_id(),
             province: meta_value_str!(self, "province", "=").to_owned(),
         }
     }

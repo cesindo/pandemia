@@ -12,7 +12,7 @@ use diesel::{pg::PgConnection, prelude::*};
 use futures::future::{Future, IntoFuture};
 use regex::Regex;
 
-mod error;
+pub(crate) mod error;
 mod with;
 
 pub mod admin;
