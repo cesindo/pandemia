@@ -76,6 +76,10 @@ impl<'a> RecordDao<'a> {
         }
     }
 
+    /// Ini sebenarnya tidak update, tapi akan menambahkan entry baru,
+    /// entry lama hanya akan di set latest=false, dan membuat entry baru
+    /// dengan flag latest=true,
+    /// hal ini karena sifatnya records adalah history.
     fn do_update(&self, nr: &MutateRecord) -> Result<Record> {
         use crate::schema::records::{self, dsl};
 
@@ -129,7 +133,9 @@ impl<'a> RecordDao<'a> {
             .map_err(From::from)
     }
 
-    /// Get latest records
+    /// Get latest records, ini akan mencari records dengan parameter
+    /// loc_paths sebagai kriteria untuk pencarian prefix, bukan exact.
+    /// Untuk mendapatkan yang exact satu record gunakan get_latest_record_one.
     pub fn get_latest_records(
         &self,
         loc_paths: &Vec<String>,

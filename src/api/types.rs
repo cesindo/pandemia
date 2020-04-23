@@ -132,6 +132,8 @@ pub struct MapMarker {
 pub struct Record {
     pub id: ID,
     pub loc: String,
+    pub loc_path: String,
+
     pub loc_kind: i16,
     pub loc_scope: String,
     pub total_cases: i32,
@@ -159,6 +161,7 @@ impl ToApiType<Record> for models::Record {
         Record {
             id: self.id,
             loc: self.loc.to_owned(),
+            loc_path: self.loc_path.to_owned(),
             loc_kind: self.loc_kind,
             loc_scope: loc_scope.to_owned(),
             total_cases: self.total_cases,

@@ -53,7 +53,7 @@ pub struct RecordUpdate {
     pub pdps: i32,
     pub pdpm: i32,
     pub otg: i32,
-    // pub loc_path: String,
+    pub loc_path: String,
 }
 
 #[derive(Deserialize, Validate)]
@@ -1061,7 +1061,7 @@ impl PublicApi {
                 let dao = RecordDao::new(&conn);
 
                 for record in query.records {
-                    let old_record = dao.get_latest_records(&vec![record.loc.to_owned()], 0, 1)?.pop();
+                    let old_record = dao.get_latest_record_one(&record.loc_path).ok();
 
                     let new_record = dao.create(
                         &MutateRecord {
