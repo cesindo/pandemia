@@ -41,7 +41,7 @@ def main():
             #     .format(loc=sql.Literal(district_name),loc_path=sql.Literal(loc_path)))
             # count = cur.fetchone()
             # if count[0] > 0:
-            cur.execute(sql.SQL("""DELETE FROM records WHERE loc={loc} AND loc_path={loc_path} and meta @> '{{calculated_at=%s}}'""" % calculated_at)
+            cur.execute(sql.SQL("""DELETE FROM records WHERE loc={loc} AND loc_path={loc_path} and meta @> '{{:daily_calculation:,calculated_at=%s}}'""" % calculated_at)
                 .format(loc=sql.Literal(district_name),loc_path=sql.Literal(loc_path)))
                 # continue
     
@@ -54,8 +54,6 @@ def main():
             """).format(district_id=sql.Literal(district_id))
 
             cur.execute(sqlq)
-
-            # print(cur.fetchall())
 
             for odp, pdp, positive, recovered, deaths, ppdwt, pptb, odpsp, pdps, pdpm, otg in cur.fetchall():
 
