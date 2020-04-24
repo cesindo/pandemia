@@ -56,6 +56,9 @@ pub enum SubReportStatus {
     /// Sembuh
     Death = 4,
 
+    /// OTG
+    OTG = 5,
+
     /// Data untuk semua (hanya untuk query)
     All = -1,
 
@@ -77,6 +80,7 @@ impl std::fmt::Display for SubReportStatus {
             SubReportStatus::Positive => write!(f, "POSITIVE"),
             SubReportStatus::Recovered => write!(f, "RECOVERED"),
             SubReportStatus::Death => write!(f, "DEATH"),
+            SubReportStatus::OTG => write!(f, "OTG"),
             SubReportStatus::All => write!(f, "ALL"),
             SubReportStatus::Unknown => write!(f, "UNKNOWN"),
         }
@@ -91,9 +95,16 @@ impl From<i32> for SubReportStatus {
             2 => SubReportStatus::Positive,
             3 => SubReportStatus::Recovered,
             4 => SubReportStatus::Death,
+            5 => SubReportStatus::OTG,
             -1 => SubReportStatus::All,
             x => SubReportStatus::Unknown,
         }
+    }
+}
+
+impl From<i16> for SubReportStatus {
+    fn from(a: i16) -> Self {
+        From::from(a as i32)
     }
 }
 
@@ -105,6 +116,7 @@ impl From<&str> for SubReportStatus {
             "positive" => SubReportStatus::Positive,
             "recovered" => SubReportStatus::Recovered,
             "death" => SubReportStatus::Death,
+            "otg" => SubReportStatus::OTG,
             "all" => SubReportStatus::All,
             _ => SubReportStatus::Unknown,
         }

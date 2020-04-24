@@ -207,9 +207,18 @@ class HomeScreen extends StatelessWidget {
               ? FloatingActionButton(
                   tooltip: "Tambahkan data ODP/PDP",
                   child: Icon(Icons.person_add),
-                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) =>
-                          AddSubReportPage(subReportBloc: subReportBloc))))
+                  onPressed: () => Navigator.of(context)
+                          .push(MaterialPageRoute(
+                              builder: (context) => AddSubReportPage(
+                                  subReportBloc: subReportBloc)))
+                          .then((result) {
+                        if (result == true) {
+                          _scaffoldKey.currentState.showSnackBar(SnackBar(
+                              content: Text(
+                                  "Data telah ditambahkan, terimakasih atas laporannya."),
+                              backgroundColor: Colors.green));
+                        }
+                      }))
               : null,
           bottomNavigationBar: TabSelector(
             activeTab: activeTab,

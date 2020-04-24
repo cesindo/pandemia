@@ -61,9 +61,10 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
     Gender("L", "Laki-laki"),
     Gender("P", "Perempuan"),
   ];
-  List<String> statuses = ["ODP", "PDP"];
+  List<String> statuses = ["ODP", "PDP", 'OTG'];
   List<Map<String, String>> addInfo = [
-    {"no": "from_red_zone", "info": "Datang dari zona merah"},
+    {"no": "traveler", "info": "Pelaku Perjalanan"},
+    {"no": "from_red_zone", "info": "Datang Dari Zona Merah"},
     {"no": "has_symptoms", "info": "Bergejala COVID-19"},
   ];
   List<String> addInfoSelected = [];
@@ -90,15 +91,16 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
         _scaffoldKey.currentState.showSnackBar(SnackBar(
             content: Text("Data berhasil ditambahkan"),
             backgroundColor: Colors.green));
-        Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (context) => BlocProvider<SubReportBloc>(
-                builder: (ctx) => SubReportBloc(),
-                child: SubReportPage(subReportBloc: subReportBloc))));
+        // Navigator.of(context).pushReplacement(MaterialPageRoute(
+        //     builder: (context) => BlocProvider<SubReportBloc>(
+        //         builder: (ctx) => SubReportBloc(),
+        //         child: SubReportPage(subReportBloc: subReportBloc))));
+        Navigator.pop(context, true);
       } else if (state is SubReportUpdated) {
         _scaffoldKey.currentState.showSnackBar(SnackBar(
             content: Text("Data berhasil diperbarui"),
             backgroundColor: Colors.green));
-        Navigator.pop(context);
+        Navigator.pop(context, true);
       }
     });
 
@@ -124,6 +126,9 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
           }
           if (item.hasSymptoms){
             addInfoSelected.add("has_symptoms");
+          }
+          if (item.traveler){
+            addInfoSelected.add("traveler");
           }
         });
       });

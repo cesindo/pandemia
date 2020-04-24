@@ -76,7 +76,7 @@ class SubReportBloc extends Bloc<SubReportEvent, SubReportState> {
         "/pandemia/v1/sub_report/search?query=${event.query}&status=${event.status}&offset=0&limit=10");
 
     if (data != null) {
-      yield SubReportListLoaded((data["result"]["entries"] as List<dynamic>)
+      yield SubReportListLoaded(event.status, (data["result"]["entries"] as List<dynamic>)
           .map((a) => SubReport.fromMap(a))
           .toList());
     } else {
@@ -102,9 +102,9 @@ class SubReportBloc extends Bloc<SubReportEvent, SubReportState> {
             .toList();
 
         if (d.isLocal) {
-          yield SubReportListLoaded(entries);
+          yield SubReportListLoaded(event.status,entries);
         } else {
-          yield SubReportListUpdated(entries);
+          yield SubReportListUpdated(event.status,entries);
         }
       } else {
         yield SubReportFailure(error: "Cannot get data from server");

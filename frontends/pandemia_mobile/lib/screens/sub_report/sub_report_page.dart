@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pandemia_mobile/api/pandemia_api.dart';
 import 'package:pandemia_mobile/blocs/profile/profile_bloc.dart';
 import 'package:pandemia_mobile/blocs/sub_report/sub_report.dart';
 import 'package:pandemia_mobile/blocs/sub_report/sub_report_bloc.dart';
@@ -28,27 +29,47 @@ class _SubReportPageState extends State<SubReportPage>
   TabController _tabController;
   TextEditingController _odpSearchController = TextEditingController();
   TextEditingController _pdpSearchController = TextEditingController();
+  int odpCount = 0;
+  int pdpCount = 0;
+  int otgCount = 0;
 
   _SubReportPageState(this.subReportBloc, this.profileBloc);
 
   @override
   void initState() {
     subReportBloc.dispatch(LoadSubReport(status: 'ODP'));
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
       String status = 'ODP';
       if (_tabController.index == 1) {
         status = 'PDP';
+      } else if (_tabController.index == 2) {
+        status = 'OTG';
       }
       subReportBloc.dispatch(LoadSubReport(status: status, withLoading: false));
     });
     super.initState();
+
+    refreshState();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  void refreshState() {
+    PublicApi.get("/pandemia/v1/sub_report/count").then((data) {
+      if (data["code"] == 0) {
+        final result = data['result'];
+        setState(() {
+          this.odpCount = result['ODP'] != null ? result['ODP'] : 0;
+          this.pdpCount = result['PDP'] != null ? result['PDP'] : 0;
+          this.otgCount = result['OTG'] != null ? result['OTG'] : 0;
+        });
+      }
+    });
   }
 
   @override
@@ -61,10 +82,13 @@ class _SubReportPageState extends State<SubReportPage>
           labelColor: Colors.white,
           tabs: <Widget>[
             Tab(
-              text: 'ODP',
+              text: 'ODP ($odpCount)',
             ),
             Tab(
-              text: 'PDP',
+              text: 'PDP ($pdpCount)',
+            ),
+            Tab(
+              text: 'OTG ($otgCount)',
             )
           ],
         ),
@@ -73,78 +97,99 @@ class _SubReportPageState extends State<SubReportPage>
         physics: NeverScrollableScrollPhysics(),
         controller: _tabController,
         children: <Widget>[
-          ViewODPScreen(
+          SubReportList(
+            this,
             subReportBloc: subReportBloc,
             profileBloc: profileBloc,
             searchController: _odpSearchController,
+            status: "ODP",
           ),
-          ViewPDPScreen(
-            subReportBloc: subReportBloc,
-            profileBloc: profileBloc,
-            searchController: _pdpSearchController,
-          ),
+          SubReportList(this,
+              subReportBloc: subReportBloc,
+              profileBloc: profileBloc,
+              searchController: _pdpSearchController,
+              status: "PDP"),
+          SubReportList(this,
+              subReportBloc: subReportBloc,
+              profileBloc: profileBloc,
+              searchController: _pdpSearchController,
+              status: "OTG"),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) =>
-                AddSubReportPage(subReportBloc: subReportBloc))),
+        onPressed: () => Navigator.of(context)
+            .push(MaterialPageRoute(
+                builder: (context) =>
+                    AddSubReportPage(subReportBloc: subReportBloc)))
+            .then((_) {
+          this.refreshState();
+        }),
         child: Icon(Icons.person_add),
-        tooltip: "Tambahkan data ODP/PDP",
+        tooltip: "Tambahkan data ODP/PDP/OTG",
       ),
     );
   }
 }
 
-class ViewODPScreen extends StatefulWidget {
+class SubReportList extends StatefulWidget {
   final SubReportBloc subReportBloc;
   final ProfileBloc profileBloc;
   final TextEditingController searchController;
+  final String status;
+  final _SubReportPageState parent;
 
-  ViewODPScreen(
-      {Key key, this.subReportBloc, this.profileBloc, this.searchController})
+  SubReportList(this.parent,
+      {Key key,
+      this.subReportBloc,
+      this.profileBloc,
+      this.searchController,
+      @required this.status})
       : super(key: key);
 
-  // ViewODPScreen({Key key}) : super(key: key);
+  // SubReportList({Key key}) : super(key: key);
 
   @override
-  _ViewODPScreenState createState() => _ViewODPScreenState();
+  _SubReportListState createState() => _SubReportListState();
 }
 
-class _ViewODPScreenState extends State<ViewODPScreen> {
+class _SubReportListState extends State<SubReportList> {
   FocusNode node = FocusNode();
+  List<SubReport> items = [];
   // StreamSubscription _subs;
 
-  @override
-  void initState() {
-    super.initState();
-    // _subs = widget.subReportBloc.state.listen((SubReportState state) {
-    //   if (state is SubReportListUpdated || state is SubReportListLoaded) {
-    //     Future.delayed(Duration(milliseconds: 1000), () {
-    //       node.requestFocus();
-    //     });
-    //   }
-    // });
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   // _subs = widget.subReportBloc.state.listen((SubReportState state) {
+  //   //   if (state is SubReportListUpdated || state is SubReportListLoaded) {
+  //   //     Future.delayed(Duration(milliseconds: 1000), () {
+  //   //       node.requestFocus();
+  //   //     });
+  //   //   }
+  //   // });
+  // }
 
-  @override
-  void dispose() {
-    // _subs.cancel();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   // _subs.cancel();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SubReportBloc, SubReportState>(
         bloc: this.widget.subReportBloc,
         builder: (context, state) {
-          List<SubReport> items = [];
           if (state is SubReportListLoading) {
             return LoadingIndicator(key: PandemiaKeys.loading);
           } else if (state is SubReportListLoaded) {
-            items = state.items;
+            if (state.status == this.widget.status) {
+              items = state.items;
+            }
           } else if (state is SubReportListUpdated) {
-            items = state.items;
+            if (state.status == this.widget.status) {
+              items = state.items;
+            }
           } else if (state is SubReportFailure) {
             return Container(
                 child: Center(
@@ -164,7 +209,8 @@ class _ViewODPScreenState extends State<ViewODPScreen> {
                   controller: this.widget.searchController,
                   onFieldSubmitted: (text) {
                     print("submit $text");
-                    widget.subReportBloc.dispatch(SubReportSearch(text, 'odp'));
+                    widget.subReportBloc
+                        .dispatch(SubReportSearch(text, this.widget.status));
                   },
                   onChanged: (text) {
                     setState(() {});
@@ -177,8 +223,8 @@ class _ViewODPScreenState extends State<ViewODPScreen> {
                               onPressed: () {
                                 setState(() {
                                   widget.searchController.clear();
-                                  widget.subReportBloc
-                                      .dispatch(LoadSubReport(status: 'ODP'));
+                                  widget.subReportBloc.dispatch(LoadSubReport(
+                                      status: this.widget.status));
                                   node.requestFocus();
                                 });
                               })
@@ -195,18 +241,33 @@ class _ViewODPScreenState extends State<ViewODPScreen> {
                           return Card(
                             child: ListTile(
                               leading: Icon(
-                                Icons.person_pin,
+                                Icons.person,
                                 size: 30,
                               ),
-                              title: Text("${item.fullName}"),
-                              subtitle: Text("${item.residenceAddress}"),
+                              title: Text("${item.fullName}",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 17,
+                                      fontFamily:
+                                          "Google Sans, Roboto, sans-serif")),
+                              subtitle: Text("${item.residenceAddress}",
+                                  style: TextStyle(fontSize: 15)),
                               onTap: () {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => AddSubReportPage(
-                                        subReportBloc: widget.subReportBloc,
-                                        key: Key(
-                                            "sub-report-" + item.id.toString()),
-                                        item: item)));
+                                Navigator.of(context)
+                                    .push(MaterialPageRoute(
+                                        builder: (context) => AddSubReportPage(
+                                            subReportBloc: widget.subReportBloc,
+                                            key: Key("sub-report-" +
+                                                item.id.toString()),
+                                            item: item)))
+                                    .then((updated) {
+                                  if (updated == true) {
+                                    widget.subReportBloc.dispatch(LoadSubReport(
+                                        status: this.widget.status,
+                                        withLoading: false));
+                                    this.widget.parent.refreshState();
+                                  }
+                                });
                               },
                             ),
                           );
@@ -219,137 +280,137 @@ class _ViewODPScreenState extends State<ViewODPScreen> {
   }
 }
 
-class ViewPDPScreen extends StatefulWidget {
-  final SubReportBloc subReportBloc;
-  final ProfileBloc profileBloc;
-  final TextEditingController searchController;
+// class ViewPDPScreen extends StatefulWidget {
+//   final SubReportBloc subReportBloc;
+//   final ProfileBloc profileBloc;
+//   final TextEditingController searchController;
 
-  ViewPDPScreen(
-      {Key key, this.subReportBloc, this.profileBloc, this.searchController})
-      : super(key: key);
+//   ViewPDPScreen(
+//       {Key key, this.subReportBloc, this.profileBloc, this.searchController})
+//       : super(key: key);
 
-  @override
-  _ViewPDPScreenState createState() => _ViewPDPScreenState();
-}
+//   @override
+//   _ViewPDPScreenState createState() => _ViewPDPScreenState();
+// }
 
-class _ViewPDPScreenState extends State<ViewPDPScreen> {
-  FocusNode node = FocusNode();
-  StreamSubscription _subs;
+// class _ViewPDPScreenState extends State<ViewPDPScreen> {
+//   FocusNode node = FocusNode();
+//   StreamSubscription _subs;
 
-  @override
-  void initState() {
-    super.initState();
-    // _subs = widget.subReportBloc.state.listen((SubReportState state) {
-    //   if (state is SubReportListUpdated || state is SubReportListLoaded) {
-    //     Future.delayed(Duration(milliseconds: 1000), () {
-    //       node.requestFocus();
-    //     });
-    //   }
-    // });
-  }
+//   @override
+//   void initState() {
+//     super.initState();
+//     // _subs = widget.subReportBloc.state.listen((SubReportState state) {
+//     //   if (state is SubReportListUpdated || state is SubReportListLoaded) {
+//     //     Future.delayed(Duration(milliseconds: 1000), () {
+//     //       node.requestFocus();
+//     //     });
+//     //   }
+//     // });
+//   }
 
-  @override
-  void dispose() {
-    // _subs.cancel();
-    super.dispose();
-  }
+//   @override
+//   void dispose() {
+//     // _subs.cancel();
+//     super.dispose();
+//   }
 
-  // const ViewPDPScreen({Key key, this.subReportBloc}) : super(key: key);
+//   // const ViewPDPScreen({Key key, this.subReportBloc}) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<SubReportBloc, SubReportState>(
-        bloc: widget.subReportBloc,
-        builder: (context, state) {
-          List<SubReport> items = [];
-          if (state is SubReportListLoading) {
-            return LoadingIndicator(key: PandemiaKeys.loading);
-          } else if (state is SubReportListLoaded) {
-            items = state.items;
-          } else if (state is SubReportListUpdated) {
-            items = state.items;
-          }
+//   @override
+//   Widget build(BuildContext context) {
+//     return BlocBuilder<SubReportBloc, SubReportState>(
+//         bloc: widget.subReportBloc,
+//         builder: (context, state) {
+//           List<SubReport> items = [];
+//           if (state is SubReportListLoading) {
+//             return LoadingIndicator(key: PandemiaKeys.loading);
+//           } else if (state is SubReportListLoaded) {
+//             items = state.items;
+//           } else if (state is SubReportListUpdated) {
+//             items = state.items;
+//           }
 
-          return Column(
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(left: 10),
-                child: TextFormField(
-                  focusNode: node,
-                  // autofocus: true,
-                  controller: this.widget.searchController,
-                  onFieldSubmitted: (text) {
-                    print("submit $text");
-                    widget.subReportBloc.dispatch(SubReportSearch(text, 'pdp'));
-                  },
-                  onChanged: (text) {
-                    setState(() {});
-                  },
-                  decoration: InputDecoration(
-                      //  border: InputBorder.none,
-                      suffixIcon: widget.searchController.text != ""
-                          ? IconButton(
-                              icon: Icon(Icons.cancel),
-                              onPressed: () {
-                                setState(() {
-                                  widget.searchController.clear();
-                                  widget.subReportBloc
-                                      .dispatch(LoadSubReport(status: 'PDP'));
-                                  node.requestFocus();
-                                });
-                              })
-                          : null,
-                      hintText: 'Pencarian'),
-                ),
-              ),
-              Expanded(
-                  child: items.isNotEmpty
-                      ? ListView.builder(
-                          itemCount: items.length,
-                          itemBuilder: (context, index) {
-                            final item = items[index];
-                            return Card(
-                              child: ListTile(
-                                leading: Icon(
-                                  Icons.person_pin,
-                                  size: 30,
-                                ),
-                                title: Text("${item.fullName}"),
-                                subtitle: Text("${item.residenceAddress}"),
-                                onTap: () {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) => AddSubReportPage(
-                                          subReportBloc: widget.subReportBloc,
-                                          key: Key("sub-report-" +
-                                              item.id.toString()),
-                                          item: item)));
-                                },
-                              ),
-                            );
-                          })
-                      : Center(child: Text("Belum ada data")))
-            ],
-          );
+//           return Column(
+//             children: <Widget>[
+//               Padding(
+//                 padding: EdgeInsets.only(left: 10),
+//                 child: TextFormField(
+//                   focusNode: node,
+//                   // autofocus: true,
+//                   controller: this.widget.searchController,
+//                   onFieldSubmitted: (text) {
+//                     print("submit $text");
+//                     widget.subReportBloc.dispatch(SubReportSearch(text, 'pdp'));
+//                   },
+//                   onChanged: (text) {
+//                     setState(() {});
+//                   },
+//                   decoration: InputDecoration(
+//                       //  border: InputBorder.none,
+//                       suffixIcon: widget.searchController.text != ""
+//                           ? IconButton(
+//                               icon: Icon(Icons.cancel),
+//                               onPressed: () {
+//                                 setState(() {
+//                                   widget.searchController.clear();
+//                                   widget.subReportBloc
+//                                       .dispatch(LoadSubReport(status: 'PDP'));
+//                                   node.requestFocus();
+//                                 });
+//                               })
+//                           : null,
+//                       hintText: 'Pencarian'),
+//                 ),
+//               ),
+//               Expanded(
+//                   child: items.isNotEmpty
+//                       ? ListView.builder(
+//                           itemCount: items.length,
+//                           itemBuilder: (context, index) {
+//                             final item = items[index];
+//                             return Card(
+//                               child: ListTile(
+//                                 leading: Icon(
+//                                   Icons.person_pin,
+//                                   size: 30,
+//                                 ),
+//                                 title: Text("${item.fullName}"),
+//                                 subtitle: Text("${item.residenceAddress}"),
+//                                 onTap: () {
+//                                   Navigator.of(context).push(MaterialPageRoute(
+//                                       builder: (context) => AddSubReportPage(
+//                                           subReportBloc: widget.subReportBloc,
+//                                           key: Key("sub-report-" +
+//                                               item.id.toString()),
+//                                           item: item)));
+//                                 },
+//                               ),
+//                             );
+//                           })
+//                       : Center(child: Text("Belum ada data")))
+//             ],
+//           );
 
-          //   if (items.isNotEmpty) {
-          //     return ListView.builder(
-          //         itemCount: items.length,
-          //         itemBuilder: (context, index) {
-          //           final item = items[index];
-          //           return Card(
-          //             child: ListTile(
-          //               leading: Icon(
-          //                 Icons.person_pin,
-          //                 size: 30,
-          //               ),
-          //               title: Text("${item.fullName}"),
-          //               subtitle: Text("${item.residenceAddress}"),
-          //             ),
-          //           );
-          //         });
-          //   } else {
-          //     return Center(child: Text("Belum ada data"));
-          //   }
-        });
-  }
-}
+//           //   if (items.isNotEmpty) {
+//           //     return ListView.builder(
+//           //         itemCount: items.length,
+//           //         itemBuilder: (context, index) {
+//           //           final item = items[index];
+//           //           return Card(
+//           //             child: ListTile(
+//           //               leading: Icon(
+//           //                 Icons.person_pin,
+//           //                 size: 30,
+//           //               ),
+//           //               title: Text("${item.fullName}"),
+//           //               subtitle: Text("${item.residenceAddress}"),
+//           //             ),
+//           //           );
+//           //         });
+//           //   } else {
+//           //     return Center(child: Text("Belum ada data"));
+//           //   }
+//         });
+//   }
+// }

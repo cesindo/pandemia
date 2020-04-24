@@ -226,3 +226,9 @@ macro_rules! fail {
         return Err(crate::error::Error::InternalError(format_err!("{}", $msg)));
     };
 }
+
+macro_rules! param_err {
+    ($msg:expr) => {
+        crate::error::Error::InvalidParameter(format!("{}", $msg))
+    };
+}

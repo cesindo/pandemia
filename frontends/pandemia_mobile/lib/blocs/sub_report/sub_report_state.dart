@@ -22,15 +22,17 @@ class SubReportListLoading extends SubReportState {
 }
 
 class SubReportListLoaded extends SubReportState {
+  final String status;
   final List<SubReport> items;
-  SubReportListLoaded(this.items);
+  SubReportListLoaded(this.status, this.items);
   @override
   String toString() => "SubReportListLoaded";
 }
 
 class SubReportListUpdated extends SubReportState {
+  final String status;
   final List<SubReport> items;
-  SubReportListUpdated(this.items);
+  SubReportListUpdated(this.status, this.items);
   @override
   String toString() => "SubReportListUpdated";
 }

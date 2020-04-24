@@ -4,8 +4,12 @@
 use actix_web::{HttpRequest, HttpResponse};
 use chrono::{NaiveDate, NaiveDateTime};
 use diesel::prelude::*;
+use diesel::{
+    sql_query,
+    sql_types::{BigInt, Integer, SmallInt},
+};
 use serde::{Deserialize, Serialize};
-use serde_json::Value as JsonValue;
+use serde_json::{Map as JsonMap, Value as JsonValue};
 use std::collections::HashMap;
 use validator::Validate;
 
@@ -168,6 +172,24 @@ macro_rules! has_label {
             .collect::<Vec<&str>>()
             .contains(&$lbl)
     };
+}
+
+#[derive(Serialize)]
+pub struct SubReportCount {
+    // #[sql_type = "BigInt"]
+    pub odp: i64,
+    // #[sql_type = "BigInt"]
+    pub pdp: i64,
+    // #[sql_type = "BigInt"]
+    pub otg: i64,
+}
+
+#[derive(QueryableByName)]
+pub struct CountByStatus {
+    #[sql_type = "Integer"]
+    pub status: i32,
+    #[sql_type = "BigInt"]
+    pub count: i64,
 }
 
 /// Holder untuk implementasi API endpoint publik untuk Pandemia.
@@ -336,11 +358,15 @@ impl PublicApi {
 
         let mut ppdwt = 0;
         let mut pptb = 0;
-        let mut otg = 0;
+        // let mut otg = 0;
 
         meta.push(format!("village={}", village_name));
         meta.push(format!("district={}", district_name));
         if let Some(add_info) = query.add_info.as_ref() {
+            if has_label!(add_info, "traveler") {
+                meta.push(format!(":traveler:"));
+                ppdwt = 1;
+            }
             if has_label!(add_info, "from_red_zone") {
                 meta.push(format!(":from_red_zone:"));
                 ppdwt = 1;
@@ -349,7 +375,6 @@ impl PublicApi {
                 meta.push(format!(":has_symptoms:"));
             } else {
                 pptb = 1;
-                otg = 1;
             }
         }
 
@@ -403,12 +428,13 @@ impl PublicApi {
                         city_id, district_id, village_id
                     );
 
-                    let (odp, pdp, cases, recovered, deaths) = match status {
-                        SubReportStatus::ODP => (1, 0, 0, 0, 0),
-                        SubReportStatus::PDP => (0, 1, 0, 0, 0),
-                        SubReportStatus::Positive => (0, 0, 1, 0, 0),
-                        SubReportStatus::Recovered => (0, 0, 0, 1, 0),
-                        SubReportStatus::Death => (0, 0, 0, 0, 1),
+                    let (odp, pdp, cases, recovered, deaths, otg) = match status {
+                        SubReportStatus::ODP => (1, 0, 0, 0, 0, 0),
+                        SubReportStatus::PDP => (0, 1, 0, 0, 0, 0),
+                        SubReportStatus::Positive => (0, 0, 1, 0, 0, 0),
+                        SubReportStatus::Recovered => (0, 0, 0, 1, 0, 0),
+                        SubReportStatus::Death => (0, 0, 0, 0, 1, 0),
+                        SubReportStatus::OTG => (0, 0, 0, 0, 0, 1),
                         _ => return Err(Error::InvalidParameter("Status tidak valid".to_owned()))?,
                     };
 
@@ -508,19 +534,22 @@ impl PublicApi {
         let mut ppdwt = 0;
         let mut pptb = 0;
         let odpsp = 0;
-        let mut otg = 0;
+        // let mut otg = 0;
         let mut pdps = 0;
         let pdpm = 0;
 
         // meta.push(format!("village={}", village_name));
         // meta.push(format!("district={}", district_name));
         {
+            if has_label!(sr.meta, "traveler") {
+                ppdwt = -1;
+            }
             if has_label!(sr.meta, "from_red_zone") {
                 ppdwt = -1;
             }
             if has_label!(sr.meta, "has_symptoms") {
                 pptb = -1;
-                otg = -1;
+                // otg = -1;
             }
         }
 
@@ -533,23 +562,13 @@ impl PublicApi {
             .run::<_, crate::error::Error, _>(|| {
                 dao.delete_by_id(sr.id)?;
 
-                // let mut meta = vec![];
-
-                // if let Some(ca) = current_admin.as_ref() {
-                //     meta.push(":updated_by_admin:".to_string());
-                //     meta.push(format!("updated_by_admin_name={}", ca.name));
-                //     meta.push(format!("updated_by_admin_id={}", ca.id));
-                // }
-
-                // meta.push(format!("village={}", village_name));
-                // meta.push(format!("district={}", district_name));
-
-                let (odp, pdp, cases, recovered, deaths) = match sr.status.into() {
-                    SubReportStatus::ODP => (1, 0, 0, 0, 0),
-                    SubReportStatus::PDP => (0, 1, 0, 0, 0),
-                    SubReportStatus::Positive => (0, 0, 1, 0, 0),
-                    SubReportStatus::Recovered => (0, 0, 0, 1, 0),
-                    SubReportStatus::Death => (0, 0, 0, 0, 1),
+                let (odp, pdp, cases, recovered, deaths, otg) = match sr.status.into() {
+                    SubReportStatus::ODP => (1, 0, 0, 0, 0, 0),
+                    SubReportStatus::PDP => (0, 1, 0, 0, 0, 0),
+                    SubReportStatus::Positive => (0, 0, 1, 0, 0, 0),
+                    SubReportStatus::Recovered => (0, 0, 0, 1, 0, 0),
+                    SubReportStatus::Death => (0, 0, 0, 0, 1, 0),
+                    SubReportStatus::OTG => (0, 0, 0, 0, 0, 1),
                     _ => return Err(Error::InvalidParameter("Status tidak valid".to_owned()))?,
                 };
 
@@ -668,7 +687,7 @@ impl PublicApi {
 
         let mut ppdwt = 0;
         let mut pptb = 0;
-        let mut otg = 0;
+        // let mut otg = 0;
         let mut odpsp = 0;
         let mut pdps = 0;
         let mut pdpm = 0;
@@ -685,6 +704,10 @@ impl PublicApi {
         }
 
         if let Some(add_info) = query.add_info.as_ref() {
+            if has_label!(add_info, "traveler") {
+                meta.push(format!(":traveler:"));
+                ppdwt = 1;
+            }
             if has_label!(add_info, "from_red_zone") {
                 meta.push(format!(":from_red_zone:"));
                 ppdwt = 1;
@@ -693,7 +716,7 @@ impl PublicApi {
                 meta.push(format!(":has_symptoms:"));
             } else {
                 pptb = 1;
-                otg = 1;
+                // otg = 1;
             }
             if has_label!(add_info, "odpsp") {
                 meta.push(format!(":odpsp:"));
@@ -738,12 +761,13 @@ impl PublicApi {
                     },
                 )?;
 
-                let (odp, pdp, cases, recovered, deaths) = match old_status {
-                    SubReportStatus::ODP => (1, 0, 0, 0, 0),
-                    SubReportStatus::PDP => (0, 1, 0, 0, 0),
-                    SubReportStatus::Positive => (0, 0, 1, 0, 0),
-                    SubReportStatus::Recovered => (0, 0, 0, 1, 0),
-                    SubReportStatus::Death => (0, 0, 0, 0, 1),
+                let (odp, pdp, cases, recovered, deaths, otg) = match old_status {
+                    SubReportStatus::ODP => (1, 0, 0, 0, 0, 0),
+                    SubReportStatus::PDP => (0, 1, 0, 0, 0, 0),
+                    SubReportStatus::Positive => (0, 0, 1, 0, 0, 0),
+                    SubReportStatus::Recovered => (0, 0, 0, 1, 0, 0),
+                    SubReportStatus::Death => (0, 0, 0, 0, 1, 0),
+                    SubReportStatus::OTG => (0, 0, 0, 0, 0, 1),
                     _ => return Err(Error::InvalidParameter("Status tidak valid".to_owned()))?,
                 };
 
@@ -790,12 +814,13 @@ impl PublicApi {
                     },
                 )?;
 
-                let (odp, pdp, cases, recovered, deaths) = match new_status {
-                    SubReportStatus::ODP => (1, 0, 0, 0, 0),
-                    SubReportStatus::PDP => (0, 1, 0, 0, 0),
-                    SubReportStatus::Positive => (0, 0, 1, 0, 0),
-                    SubReportStatus::Recovered => (0, 0, 0, 1, 0),
-                    SubReportStatus::Death => (0, 0, 0, 0, 1),
+                let (odp, pdp, cases, recovered, deaths, otg) = match new_status {
+                    SubReportStatus::ODP => (1, 0, 0, 0, 0, 0),
+                    SubReportStatus::PDP => (0, 1, 0, 0, 0, 0),
+                    SubReportStatus::Positive => (0, 0, 1, 0, 0, 0),
+                    SubReportStatus::Recovered => (0, 0, 0, 1, 0, 0),
+                    SubReportStatus::Death => (0, 0, 0, 0, 1, 0),
+                    SubReportStatus::OTG => (0, 0, 0, 0, 0, 1),
                     _ => return Err(Error::InvalidParameter("Status tidak valid".to_owned()))?,
                 };
 
@@ -969,6 +994,32 @@ impl PublicApi {
             entries: result.entries.into_iter().map(|a| a.to_api_type(&conn)).collect(),
             count: result.count,
         }))
+    }
+
+    /// Get sub report all status count for current user village access.
+    #[api_endpoint(path = "/sub_report/count", auth = "required")]
+    pub fn get_sub_report_count(query: ()) -> ApiResult<JsonMap<String, JsonValue>> {
+        let conn = state.db();
+
+        let village_id = current_user
+            .get_village_id()
+            .ok_or(param_err!("You have no accesss to this resource"))?;
+
+        let result: Vec<CountByStatus> = sql_query(&format!(
+            "select status, COUNT(*) from sub_reports WHERE village_id={} GROUP BY status",
+            village_id
+        ))
+        .load(&conn)
+        .map_err(Error::from)?;
+
+        let mut d: JsonMap<String, JsonValue> = JsonMap::new();
+
+        for rs in result {
+            let st: SubReportStatus = rs.status.into();
+            d.insert(format!("{}", st), json!(rs.count as i32));
+        }
+
+        Ok(ApiResult::success(d))
     }
 
     /// Get location stats data (single mode).

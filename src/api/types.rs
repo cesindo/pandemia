@@ -572,6 +572,7 @@ pub struct SubReport {
     pub reporter_district: String,
     pub from_red_zone: bool,
     pub has_symptoms: bool,
+    pub traveler: bool,
 }
 
 impl ToApiType<SubReport> for models::SubReport {
@@ -600,6 +601,7 @@ impl ToApiType<SubReport> for models::SubReport {
             reporter_district: meta_value_str!(self, "district", "=").to_owned(),
             from_red_zone: list_has_flag!(self.meta, "from_red_zone"),
             has_symptoms: list_has_flag!(self.meta, "has_symptoms"),
+            traveler: list_has_flag!(self.meta, "traveler"),
         }
     }
 }
