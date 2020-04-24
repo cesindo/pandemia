@@ -21,6 +21,7 @@ class User extends Equatable {
   final bool isBlocked;
   final bool isDeleted;
   final String locPath;
+  final bool isMedic;
 
   User(
       this.id,
@@ -33,7 +34,8 @@ class User extends Equatable {
       this.loc,
       this.isBlocked,
       this.isDeleted,
-      this.locPath)
+      this.locPath,
+      this.isMedic)
       : super([
           id,
           fullName,
@@ -45,7 +47,8 @@ class User extends Equatable {
           loc,
           isBlocked,
           isDeleted,
-          locPath
+          locPath,
+          isMedic
         ]);
 
   Map<String, dynamic> toMap() {
@@ -61,6 +64,7 @@ class User extends Equatable {
     data["is_blocked"] = this.isBlocked;
     data["is_deleted"] = this.isDeleted;
     data["loc_path"] = this.locPath;
+    data["is_medic"] = this.isMedic;
     return data;
   }
 
@@ -73,6 +77,7 @@ class User extends Equatable {
     assert(data['is_blocked'] != null, "User.is_blocked is null");
     assert(data['is_deleted'] != null, "User.is_deleted is null");
     assert(data['loc_path'] != null, "User.loc_path is null");
+    assert(data['is_medic'] != null, "User.is_medic is null");
     return User(
         data['id'] as int,
         data['full_name'] as String,
@@ -88,7 +93,8 @@ class User extends Equatable {
             : null,
         data['is_blocked'] as bool,
         data['is_deleted'] as bool,
-        data['loc_path'] as String);
+        data['loc_path'] as String,
+        data['is_medic'] as bool);
   }
 
   User copy(
@@ -101,7 +107,8 @@ class User extends Equatable {
       LatLng loc,
       bool isBlocked,
       bool isDeleted,
-      String locPath}) {
+      String locPath,
+      bool isMedic}) {
     return User(
         this.id,
         fullName ?? this.fullName,
@@ -113,6 +120,7 @@ class User extends Equatable {
         loc ?? this.loc,
         isBlocked ?? this.isBlocked,
         isDeleted ?? this.isDeleted,
-        locPath ?? this.locPath);
+        locPath ?? this.locPath,
+        isMedic ?? this.isMedic);
   }
 }

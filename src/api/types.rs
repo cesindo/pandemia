@@ -272,6 +272,9 @@ pub struct User {
 
     /// Location path
     pub loc_path: String,
+
+    /// Is this user is medic
+    pub is_medic: bool,
 }
 
 impl From<models::User> for User {
@@ -296,6 +299,7 @@ impl From<models::User> for User {
             is_blocked: a.is_blocked(),
             is_deleted: a.is_deleted(),
             loc_path: meta_value_str!(a, "loc_path", "=").to_owned(),
+            is_medic: a.is_medic(),
         }
     }
 }

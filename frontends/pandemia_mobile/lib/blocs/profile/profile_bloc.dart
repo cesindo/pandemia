@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:pandemia_mobile/api/pandemia_api.dart';
 import 'package:pandemia_mobile/blocs/profile/profile_event.dart';
@@ -76,8 +77,16 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           if (data != null) {
             User updated = event.user.copy(
                 isSatgas: true,
+                fullName: event.user.fullName,
+                village: event.user.village,
+                locPath: event.user.locPath,
+                isMedic: event.isMedic,
+                loc: LatLng(locationData.latitude, locationData.longitude),
                 settings: oldData.settings);
+
             userRepository.repo.putData("currentUser", updated.toMap());
+            userRepository.currentUser = updated;
+
             return ProfileUpdated(updated);
           } else {
             return ProfileFailure(

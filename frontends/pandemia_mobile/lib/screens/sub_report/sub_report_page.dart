@@ -9,6 +9,7 @@ import 'package:pandemia_mobile/blocs/sub_report/sub_report_bloc.dart';
 import 'package:pandemia_mobile/core/core.dart';
 import 'package:pandemia_mobile/models/sub_report.dart';
 import 'package:pandemia_mobile/screens/sub_report/add_sub_report.dart';
+import 'package:pandemia_mobile/throttle.dart';
 import 'package:pandemia_mobile/widgets/widgets.dart';
 
 class SubReportPage extends StatefulWidget {
@@ -38,13 +39,18 @@ class _SubReportPageState extends State<SubReportPage>
   @override
   void initState() {
     subReportBloc.dispatch(LoadSubReport(status: 'ODP'));
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _tabController.addListener(() {
+      if (!Throttle.isReady("sub_report_load", within: 500)){
+        return;
+      }
       String status = 'ODP';
       if (_tabController.index == 1) {
         status = 'PDP';
       } else if (_tabController.index == 2) {
         status = 'OTG';
+      } else if (_tabController.index == 3) {
+        status = 'ALL';
       }
       subReportBloc.dispatch(LoadSubReport(status: status, withLoading: false));
     });
@@ -89,6 +95,9 @@ class _SubReportPageState extends State<SubReportPage>
             ),
             Tab(
               text: 'OTG ($otgCount)',
+            ),
+            Tab(
+              text: 'SEMUA',
             )
           ],
         ),
@@ -114,6 +123,11 @@ class _SubReportPageState extends State<SubReportPage>
               profileBloc: profileBloc,
               searchController: _pdpSearchController,
               status: "OTG"),
+          SubReportList(this,
+              subReportBloc: subReportBloc,
+              profileBloc: profileBloc,
+              searchController: _pdpSearchController,
+              status: "ALL"),
         ],
       ),
       floatingActionButton: FloatingActionButton(

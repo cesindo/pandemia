@@ -59,6 +59,8 @@ pub enum SubReportStatus {
     /// OTG
     OTG = 5,
 
+    // /// PDP Sembuh
+    // PDPS = 6,
     /// Data untuk semua (hanya untuk query)
     All = -1,
 
@@ -81,6 +83,7 @@ impl std::fmt::Display for SubReportStatus {
             SubReportStatus::Recovered => write!(f, "RECOVERED"),
             SubReportStatus::Death => write!(f, "DEATH"),
             SubReportStatus::OTG => write!(f, "OTG"),
+            // SubReportStatus::PDPS => write!(f, "PDPS"),
             SubReportStatus::All => write!(f, "ALL"),
             SubReportStatus::Unknown => write!(f, "UNKNOWN"),
         }
@@ -96,6 +99,7 @@ impl From<i32> for SubReportStatus {
             3 => SubReportStatus::Recovered,
             4 => SubReportStatus::Death,
             5 => SubReportStatus::OTG,
+            // 6 => SubReportStatus::PDPS,
             -1 => SubReportStatus::All,
             x => SubReportStatus::Unknown,
         }
@@ -114,9 +118,14 @@ impl From<&str> for SubReportStatus {
             "odp" => SubReportStatus::ODP,
             "pdp" => SubReportStatus::PDP,
             "positive" => SubReportStatus::Positive,
+            "positif" => SubReportStatus::Positive,
             "recovered" => SubReportStatus::Recovered,
+            "sembuh" => SubReportStatus::Recovered,
             "death" => SubReportStatus::Death,
+            "meninggal" => SubReportStatus::Death,
             "otg" => SubReportStatus::OTG,
+            // "pdps" => SubReportStatus::PDPS,
+            // "pdp sembuh" => SubReportStatus::PDPS,
             "all" => SubReportStatus::All,
             _ => SubReportStatus::Unknown,
         }

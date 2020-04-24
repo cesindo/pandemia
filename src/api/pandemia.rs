@@ -384,8 +384,8 @@ impl PublicApi {
             || status == SubReportStatus::Recovered
             || status == SubReportStatus::Death
         {
-            // status ini hanya boleh admin ke-atas
-            if current_user.is_some() {
+            // status ini hanya boleh satgas medis atau admin ke-atas
+            if current_admin.is_none() && (!current_user.as_ref().map(|a| a.is_medic()).unwrap_or(false)) {
                 return unauthorized();
             }
         }
@@ -435,6 +435,7 @@ impl PublicApi {
                         SubReportStatus::Recovered => (0, 0, 0, 1, 0, 0),
                         SubReportStatus::Death => (0, 0, 0, 0, 1, 0),
                         SubReportStatus::OTG => (0, 0, 0, 0, 0, 1),
+                        // SubReportStatus::PDPS => (0, 0, 0, 0, 0, 0, 1),
                         _ => return Err(Error::InvalidParameter("Status tidak valid".to_owned()))?,
                     };
 
@@ -535,7 +536,7 @@ impl PublicApi {
         let mut pptb = 0;
         let odpsp = 0;
         // let mut otg = 0;
-        let mut pdps = 0;
+        let pdps = 0;
         let pdpm = 0;
 
         // meta.push(format!("village={}", village_name));
@@ -553,9 +554,9 @@ impl PublicApi {
             }
         }
 
-        if sr.status == SubReportStatus::Recovered as i32 {
-            pdps = -1;
-        }
+        // if sr.status == SubReportStatus::Recovered as i32 {
+        //     pdps = -1;
+        // }
 
         conn.build_transaction()
             .read_write()
@@ -569,6 +570,7 @@ impl PublicApi {
                     SubReportStatus::Recovered => (0, 0, 0, 1, 0, 0),
                     SubReportStatus::Death => (0, 0, 0, 0, 1, 0),
                     SubReportStatus::OTG => (0, 0, 0, 0, 0, 1),
+                    // SubReportStatus::PDPS => (0, 0, 0, 0, 0, 0),
                     _ => return Err(Error::InvalidParameter("Status tidak valid".to_owned()))?,
                 };
 
@@ -691,6 +693,7 @@ impl PublicApi {
         let mut odpsp = 0;
         let mut pdps = 0;
         let mut pdpm = 0;
+        let mut is_correction = false;
 
         let mut healthy: HealthyKind = HealthyKind::Health;
 
@@ -722,15 +725,18 @@ impl PublicApi {
                 meta.push(format!(":odpsp:"));
                 odpsp = 1;
             }
+            is_correction = has_label!(add_info, "update_method=correction");
         }
 
         let new_status: SubReportStatus = query.status.as_str().into();
 
-        if old_status == SubReportStatus::PDP && new_status == SubReportStatus::Recovered {
-            pdps = 1;
-        }
-        if old_status == SubReportStatus::PDP && new_status == SubReportStatus::Death {
-            pdpm = 1;
+        if !is_correction {
+            if old_status == SubReportStatus::PDP && new_status == SubReportStatus::Recovered {
+                pdps = 1;
+            }
+            if old_status == SubReportStatus::PDP && new_status == SubReportStatus::Death {
+                pdpm = 1;
+            }
         }
 
         let sub_report = conn
@@ -949,8 +955,10 @@ impl PublicApi {
         // utamakan status dari param `status`
         let status: SubReportStatus = query.status.into();
         // dbg!(status);
-        if status != SubReportStatus::Unknown {
+        if status != SubReportStatus::Unknown && status != SubReportStatus::All {
             parq.status = Some(status);
+        } else {
+            parq.status = None;
         }
 
         let mut village_name = parq.village_name.map(|a| util::title_case(a));

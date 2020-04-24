@@ -17,10 +17,10 @@ extension NumFormatExtension on String {
 extension LatLngToMapExtenstion on LatLng {
   Map<String, dynamic> toMap() {
     Map<String, dynamic> mapResult = {
-      "loc": {
+      // "loc": {
         "lat": this.latitude,
         "long": this.longitude,
-      }
+      // }
     };
     return mapResult;
   }

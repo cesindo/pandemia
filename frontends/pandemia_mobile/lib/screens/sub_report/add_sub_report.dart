@@ -102,6 +102,13 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
       }
     });
 
+    if (currentUser.isMedic) {
+      statuses.add("Positif");
+      // statuses.add("PDP Sembuh");
+      statuses.add("Sembuh");
+      statuses.add("Meninggal");
+    }
+
     if (item != null) {
       Future.delayed(Duration(milliseconds: 300), () {
         setState(() {
@@ -116,16 +123,27 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
           } else {
             _valGender = gender[1];
           }
-          _valStatus = item.status;
+          switch (item.status) {
+            case "POSITIVE":
+              _valStatus = "Positif";
+              break;
+            case "RECOVERED":
+              _valStatus = "Sembuh";
+              break;
+            case "DEATH":
+              _valStatus = "Meninggal";
+              break;
+          }
+
           keluhanSelected =
               item.healthyNotes.split(',').map((a) => a.trim()).toList();
-          if (item.fromRedZone){
+          if (item.fromRedZone) {
             addInfoSelected.add("from_red_zone");
           }
-          if (item.hasSymptoms){
+          if (item.hasSymptoms) {
             addInfoSelected.add("has_symptoms");
           }
-          if (item.traveler){
+          if (item.traveler) {
             addInfoSelected.add("traveler");
           }
         });
@@ -237,7 +255,6 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
                   textChanged: (text) => currentText = text,
                   decoration: new InputDecoration(labelText: "Datang Dari"),
                   controller: _fromCtl,
-                  
                 ),
                 TextFormField(
                   decoration: InputDecoration(labelText: "Tanggal Kedatangan"),
@@ -343,18 +360,57 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
                               keluhanSelected,
                               addInfoSelected));
                         } else {
-                          subReportBloc.dispatch(UpdateSubReport(
-                              item.id,
-                              _fullNameCtl.text,
-                              int.parse(_ageCtl.text),
-                              _addrCtl.text,
-                              _valGender.value,
-                              _fromCtl.text,
-                              _comingDateCtl.text,
-                              _necessityCtl.text,
-                              _valStatus,
-                              keluhanSelected,
-                              addInfoSelected));
+                          return showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text("Jenis Perubahan"),
+                                  content: Text(
+                                      "Apakah jenis perubahan yang Anda buat adalah koreksi? Ataukah pembaharuan terkini?"),
+                                  actions: <Widget>[
+                                    new FlatButton(
+                                        onPressed: () {
+                                          subReportBloc.dispatch(
+                                              UpdateSubReport(
+                                                  item.id,
+                                                  _fullNameCtl.text,
+                                                  int.parse(_ageCtl.text),
+                                                  _addrCtl.text,
+                                                  _valGender.value,
+                                                  _fromCtl.text,
+                                                  _comingDateCtl.text,
+                                                  _necessityCtl.text,
+                                                  _valStatus,
+                                                  keluhanSelected,
+                                                  addInfoSelected +
+                                                      [
+                                                        "update_method=correction"
+                                                      ]));
+                                        },
+                                        child: Text("Koreksi")),
+                                    new FlatButton(
+                                        onPressed: () {
+                                          subReportBloc.dispatch(
+                                              UpdateSubReport(
+                                                  item.id,
+                                                  _fullNameCtl.text,
+                                                  int.parse(_ageCtl.text),
+                                                  _addrCtl.text,
+                                                  _valGender.value,
+                                                  _fromCtl.text,
+                                                  _comingDateCtl.text,
+                                                  _necessityCtl.text,
+                                                  _valStatus,
+                                                  keluhanSelected,
+                                                  addInfoSelected +
+                                                      [
+                                                        "update_method=history"
+                                                      ]));
+                                        },
+                                        child: Text("Pembaharuan")),
+                                  ],
+                                );
+                              });
                         }
                       }
                     },

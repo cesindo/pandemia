@@ -131,7 +131,7 @@ class PandemiaApp extends StatelessWidget {
       //         "/village/v1/search?query=$query&scope=${currentUser.locPath}&offset=0&limit=10")
       //     .then((data) async {
       if (data != null) {
-        List<dynamic> entries = data["result"]["entries"] as List;
+        List<dynamic> entries = data["entries"] as List;
         if (entries.length == 0) {
           // coba listing semuanya
 

@@ -5,7 +5,7 @@ use chrono::prelude::*;
 use diesel::prelude::*;
 use diesel::sql_types;
 
-use crate::{models::City, result::Result, schema::cities, sqlutil::lower, ID, types::EntriesResult};
+use crate::{models::City, result::Result, schema::cities, sqlutil::lower, types::EntriesResult, ID};
 
 #[derive(Insertable)]
 #[table_name = "cities"]
