@@ -16,6 +16,8 @@ import 'package:pandemia_mobile/blocs/simple_bloc_delegate.dart';
 import 'package:pandemia_mobile/blocs/stats/stats.dart';
 import 'package:pandemia_mobile/blocs/sub_report/sub_report.dart';
 import 'package:pandemia_mobile/blocs/tab/tab_bloc.dart';
+import 'package:pandemia_mobile/core/error.dart';
+import 'package:pandemia_mobile/core/smart_repo.dart';
 import 'package:pandemia_mobile/screens/about/about_page.dart';
 import 'package:pandemia_mobile/screens/home.dart';
 import 'package:pandemia_mobile/screens/splash/splash_page.dart';
@@ -48,6 +50,7 @@ void main() async {
 
 class PandemiaApp extends StatelessWidget {
   final UserRepository userRepository;
+  final appRepo = PersistentSmartRepo("pandemia");
 
   PandemiaApp({Key key, @required this.userRepository}) : super(key: key);
 
@@ -62,6 +65,7 @@ class PandemiaApp extends StatelessWidget {
           listener: (BuildContext context, PandemiaState state) {
             if (state is PandemiaReady) {
               Navigator.of(context).pushReplacementNamed('/inner');
+              getVillageSuggestions("");
             }
           },
           child: SplashPage(),
@@ -111,6 +115,48 @@ class PandemiaApp extends StatelessWidget {
         );
       },
       PandemiaRoutes.about: (context) => AboutPage(),
+    });
+  }
+
+
+  Future<List<dynamic>> getVillageSuggestions(String query) async {
+    final geoLoc = await appRepo.getData("latest_loc_full");
+    final locPath = geoLoc["loc_path"];
+    return appRepo
+        .fetchApi("village_suggestions",
+            "/village/v1/search?query=$query&scope=$locPath&offset=0&limit=10",
+            force: false)
+        .then((data) async {
+      // return PublicApi.get(
+      //         "/village/v1/search?query=$query&scope=${currentUser.locPath}&offset=0&limit=10")
+      //     .then((data) async {
+      if (data != null) {
+        List<dynamic> entries = data["result"]["entries"] as List;
+        if (entries.length == 0) {
+          // coba listing semuanya
+
+          return await PublicApi.get(
+                  "/village/v1/search?query=$query&offset=0&limit=10")
+              .then((data2) {
+            if (data2 != null) {
+              List<dynamic> entries = data2["result"]["entries"] as List;
+              return entries
+                  .map((d) =>
+                      "${d["name"]}, ${d["district_name"]}, ${d["city"]}, ${d["province"]}")
+                  .toList();
+            }
+            return [];
+          });
+        } else {
+          return entries
+              .map((d) =>
+                  "${d["name"]}, ${d["district_name"]}, ${d["city"]}, ${d["province"]}")
+              .toList();
+        }
+      } else {
+        throw PandemiaException(
+            "Cannot contact API server for getting suggestions");
+      }
     });
   }
 }

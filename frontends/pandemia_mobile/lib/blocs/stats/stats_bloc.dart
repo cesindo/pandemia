@@ -34,10 +34,10 @@ class StatsBloc extends Bloc<StatsEvent, StatsState> {
         .fetchGradually(
             "entries",
             () => PublicApi.get(
-                "/pandemia/v1/info_locations?loc=global,Indonesia,Jawa Tengah&with_history=true"),
+                "/pandemia/v1/info_locations?loc_path=global,Indonesia,Jawa Tengah&with_history=true"),
             force: event.force)
         .asyncExpand((d) async* {
-      if (d != null) {
+      if (d != null && d.data != null) {
         final entries = (d.data as List<dynamic>)
             .map((a) => InfoLocation.fromMap(a))
             .toList();

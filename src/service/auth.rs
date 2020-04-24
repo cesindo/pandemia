@@ -66,6 +66,7 @@ pub struct DeviceAuthorize {
     pub loc_name_full: String,
     pub loc_long: f64,
     pub loc_lat: f64,
+    pub loc_path: Option<String>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -151,7 +152,12 @@ impl PublicApi {
                     // .map_err(From::from)?;
                     // .map(ApiResult::success);
 
-                    dao.update_user_location(&user, &query.device_id, &query.loc_name, &query.loc_name_full)?;
+                    dao.update_user_location(
+                        &user,
+                        &query.device_id,
+                        &query.loc_name,
+                        &query.loc_path.unwrap_or(query.loc_name_full),
+                    )?;
 
                     return Ok(ApiResult::success(token));
                 }
@@ -186,6 +192,13 @@ impl PublicApi {
                 latest_loc_long: query.loc_long,
                 latest_loc_lat: query.loc_lat,
             }),
+        )?;
+
+        dao.update_user_location(
+            &user,
+            &query.device_id,
+            &query.loc_name,
+            &query.loc_path.unwrap_or(query.loc_name_full),
         )?;
 
         kv.set(&user_device_key, &format!("{}|{}", user.id, user.full_name))?;

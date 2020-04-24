@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:pandemia_mobile/api/pandemia_api.dart';
 import 'package:pandemia_mobile/blocs/profile/profile.dart';
 import 'package:pandemia_mobile/core/error.dart';
+import 'package:pandemia_mobile/core/smart_repo.dart';
 import 'package:pandemia_mobile/models/sub_report.dart';
 import 'package:pandemia_mobile/models/user.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
@@ -42,6 +43,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   bool _isLoading = false;
   // bool _medical = false;
   final SubReport item;
+  FocusNode node = FocusNode();
 
   _ProfileEditPageState(this.profileBloc, this.item);
 
@@ -76,12 +78,21 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
     subs.cancel();
   }
 
-  Future<List<dynamic>> getVillageSuggestions(String query) {
-    return PublicApi.get(
-            "/village/v1/search?query=$query&scope=${currentUser.locPath}&offset=0&limit=10")
+  final appRepo = PersistentSmartRepo("pandemia");
+
+  Future<List<dynamic>> getVillageSuggestions(String query) async {
+    final geoLoc = await appRepo.getData("latest_loc_full");
+    final locPath = geoLoc["loc_path"];
+    return appRepo
+        .fetchApi("village_suggestions",
+            "/village/v1/search?query=$query&scope=$locPath&offset=0&limit=10",
+            force: false)
         .then((data) async {
+      // return PublicApi.get(
+      //         "/village/v1/search?query=$query&scope=${currentUser.locPath}&offset=0&limit=10")
+      //     .then((data) async {
       if (data != null) {
-        List<dynamic> entries = data["result"]["entries"] as List;
+        List<dynamic> entries = data["entries"] as List;
         if (entries.length == 0) {
           // coba listing semuanya
 
@@ -168,8 +179,26 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
 
                     TypeAheadFormField(
                       textFieldConfiguration: TextFieldConfiguration(
-                          controller: this._villageCtl,
-                          decoration: InputDecoration(labelText: 'Desa')),
+                        focusNode: node,
+                        controller: this._villageCtl,
+                        onChanged: (_) {
+                          setState(() {}); // just to trigger state change
+                        },
+                        decoration: InputDecoration(
+                            labelText: "Desa",
+                            //  border: InputBorder.none,
+                            suffixIcon: this._villageCtl.text != ""
+                                ? IconButton(
+                                    icon: Icon(Icons.cancel),
+                                    onPressed: () {
+                                      setState(() {
+                                        this._villageCtl.clear();
+                                        node.requestFocus();
+                                      });
+                                    })
+                                : null,
+                            hintText: 'Alamat Desa'),
+                      ),
                       suggestionsCallback: (query) {
                         return getVillageSuggestions(query);
                       },

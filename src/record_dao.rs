@@ -187,10 +187,11 @@ impl<'a> RecordDao<'a> {
         assert!(limit > -1, "Invalid limit");
         assert!(limit < 1_000_000, "Invalid limit");
 
-        let like_clause = format!("{}%", loc_path);
+        // let like_clause = format!("{}%", loc_path);
 
         dsl::records
-            .filter(dsl::loc.like(like_clause))
+            // .filter(dsl::loc_path.like(like_clause))
+            .filter(dsl::loc_path.eq(loc_path))
             .order(dsl::last_updated.desc())
             .offset(offset)
             .limit(limit)

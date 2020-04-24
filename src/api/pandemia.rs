@@ -1046,12 +1046,17 @@ impl PublicApi {
         let dao = RecordDao::new(&conn);
 
         let locs: Vec<String> = {
-            if let Some(loc) = query.loc.as_ref() {
+            if let Some(loc_path) = query.loc_path.as_ref() {
+                loc_path
+                    .split(',')
+                    .into_iter()
+                    .filter(|a| !a.is_empty())
+                    .map(|a| a.to_string())
+                    .collect()
+            } else if let Some(loc) = query.loc.as_ref() {
                 // for backward compatibility only
                 // @TODO(Robin): remove this
                 loc.split(',').map(|a| format!("/Indonesia/{}", a)).collect()
-            } else if let Some(loc_path) = query.loc_path.as_ref() {
-                loc_path.split(',').map(|a| a.to_owned()).collect()
             } else {
                 return param_error("No loc nor loc_path parameter provided");
             }

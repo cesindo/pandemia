@@ -84,17 +84,19 @@ class PandemiaBloc extends Bloc<PandemiaEvent, PandemiaState> {
       // final latestLocation = await repo.getData("latest_loc");
       // if (latestLocation != null &&
       //     latestLocation["loc_name"] != geoLocName.city) {
-        print("[LOC] Changing location...");
-        PublicApi.post("/user/v1/me/update_loc", {
-          'device_id': deviceId,
-          'loc_name': geoLocName.city,
-          'loc_name_full': geoLocName.toString()
-        }).whenComplete(() {
-          print("[LOC] Location changed");
-          repo.putData("latest_loc", {"loc_name": geoLocName.city});
-          repo.putData(
-              "latest_loc_full", {"loc_full_name": geoLocName.toString()});
-        }).catchError((err) => print("[LOC_ERROR]: $err"));
+      print("[LOC] Changing location...");
+      PublicApi.post("/user/v1/me/update_loc", {
+        'device_id': deviceId,
+        'loc_name': geoLocName.city,
+        'loc_name_full': geoLocName.toString()
+      }).whenComplete(() {
+        print("[LOC] Location changed");
+        repo.putData("latest_loc", {"loc_name": geoLocName.city});
+        repo.putData("latest_loc_full", {
+          "loc_full_name": geoLocName.toString(), // for backward compatibility only
+          "loc_path": geoLocName.toString()
+        });
+      }).catchError((err) => print("[LOC_ERROR]: $err"));
       // } else {
       //   print("[LOC] Location not changed");
       // }
@@ -116,8 +118,9 @@ class PandemiaBloc extends Bloc<PandemiaEvent, PandemiaState> {
 
         yield* _mapStartupToState(event);
 
-        userRepository.currentUser = userRepository.currentUser ?? userRepository.currentUser
-            .copy(loc: LatLng(locationData.latitude, locationData.longitude));
+        userRepository.currentUser = userRepository.currentUser ??
+            userRepository.currentUser.copy(
+                loc: LatLng(locationData.latitude, locationData.longitude));
         return;
       }
 
@@ -154,7 +157,11 @@ class PandemiaBloc extends Bloc<PandemiaEvent, PandemiaState> {
 
       userRepository.persistToken(accessToken);
       repo.putData("latest_loc", {"loc_name": geoLocName.city});
-      repo.putData("latest_loc_full", {"loc_full_name": geoLocName.toString()});
+      // repo.putData("latest_loc_full", {"loc_full_name": geoLocName.toString()});
+      repo.putData("latest_loc_full", {
+          "loc_full_name": geoLocName.toString(), // for backward compatibility only
+          "loc_path": geoLocName.toString()
+        });
 
       // yang ini akan meng-update currentUser di userRepository
       await userRepository.getUserInfo();
@@ -192,7 +199,8 @@ class PandemiaBloc extends Bloc<PandemiaEvent, PandemiaState> {
 
     if (data != null) {
       if (data["result"] != null) {
-        if (data["result"]["new_update"] != null && data["result"]["new_update"] != "") {
+        if (data["result"]["new_update"] != null &&
+            data["result"]["new_update"] != "") {
           yield PandemiaNewUpdateAvailable(data["new_update"], data["notes"]);
           yield PandemiaReady();
         }

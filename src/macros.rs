@@ -215,7 +215,7 @@ macro_rules! list_has_flag {
     };
 }
 
-macro_rules! palam_fail {
+macro_rules! param_fail {
     ($msg:expr) => {
         return Err(crate::error::Error::InvalidParameter(format!("{}", $msg)));
     };
