@@ -130,6 +130,14 @@ let router = new Router({
       },
     },
     {
+      path: '/dashboard/cities',
+      name: 'City',
+      component: Dashboard,
+      meta: {
+        title: 'Kab/Kota'
+      },
+    },
+    {
       path: '/dashboard/villages',
       name: 'Desa',
       component: Dashboard,

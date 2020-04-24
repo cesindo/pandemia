@@ -74,6 +74,7 @@ impl_service!(FeedService, feed);
 impl_service!(MapAreaService, map_area);
 impl_service!(AnalyticService, analytic);
 impl_service!(VillageService, village);
+impl_service!(CitiesService, cities);
 
 /// Initialize and load services
 pub fn load_services() -> Vec<Box<dyn Service>> {
@@ -87,5 +88,6 @@ pub fn load_services() -> Vec<Box<dyn Service>> {
         MapAreaService::new(),
         AnalyticService::new(),
         VillageService::new(),
+        CitiesService::new(),
     ]
 }

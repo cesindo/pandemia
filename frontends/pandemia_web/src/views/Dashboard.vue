@@ -76,6 +76,7 @@
         :userId="$route.params.id"
       />
 
+      <Cities v-if="currentPage['/dashboard/cities'] && isSuperAdmin" />
       <Villages v-if="currentPage['/dashboard/villages']" />
 
       <Satgas
@@ -120,6 +121,7 @@ import Satgas from "@/views/Satgas.vue";
 import SatgasDetail from "@/views/SatgasDetail.vue";
 import VillageData from "@/views/VillageData.vue";
 import AreaSettings from "@/views/AreaSettings.vue";
+import Cities from "@/views/Cities.vue";
 
 export default {
   name: "Dashboard",
@@ -137,7 +139,8 @@ export default {
     Satgas,
     SatgasDetail,
     VillageData,
-    AreaSettings
+    AreaSettings,
+    Cities
   },
   data() {
     return {
@@ -189,6 +192,12 @@ export default {
           icon: "fa fa-hiking",
           href: "/dashboard/satgas",
           access: "satgas"
+        },
+        {
+          title: "Kab/Kota",
+          icon: "fa fa-building",
+          href: "/dashboard/cities",
+          adminOnly: true
         },
         {
           title: "Desa",

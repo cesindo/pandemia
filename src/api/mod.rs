@@ -20,6 +20,7 @@ pub mod analytic;
 pub mod feed;
 pub mod map_area;
 pub mod pandemia;
+pub mod cities;
 mod parsed_query;
 pub mod types;
 pub mod user;

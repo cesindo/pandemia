@@ -3,8 +3,9 @@
 
 use chrono::prelude::*;
 use diesel::prelude::*;
+use diesel::sql_types;
 
-use crate::{models::City, result::Result, schema::cities, sqlutil::lower, ID};
+use crate::{models::City, result::Result, schema::cities, sqlutil::lower, ID, types::EntriesResult};
 
 #[derive(Insertable)]
 #[table_name = "cities"]
@@ -66,5 +67,29 @@ impl<'a> CityDao<'a> {
             )
             .first(self.db)
             .map_err(From::from)
+    }
+
+    /// Search for specific cities
+    pub fn search(&self, query: &str, offset: i64, limit: i64) -> Result<EntriesResult<City>> {
+        use crate::schema::cities::{self, dsl};
+
+        let like_clause = format!("%{}%", query);
+
+        let mut filterer: Box<dyn BoxableExpression<cities::table, _, SqlType = sql_types::Bool>> =
+            Box::new(dsl::id.ne(0));
+
+        filterer = Box::new(filterer.and(dsl::name.like(&like_clause)));
+
+        Ok(EntriesResult::new(
+            dsl::cities
+                .filter(&filterer)
+                .offset(offset)
+                .limit(limit)
+                .load::<City>(self.db)?,
+            dsl::cities
+                .filter(filterer)
+                .select(diesel::dsl::count(dsl::id))
+                .first(self.db)?,
+        ))
     }
 }
