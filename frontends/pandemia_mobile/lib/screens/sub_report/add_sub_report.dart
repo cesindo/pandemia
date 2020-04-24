@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:pandemia_mobile/blocs/sub_report/sub_report.dart';
 import 'package:pandemia_mobile/blocs/sub_report/sub_report_bloc.dart';
@@ -11,7 +10,6 @@ import 'package:pandemia_mobile/blocs/sub_report/sub_report_event.dart';
 import 'package:pandemia_mobile/models/sub_report.dart';
 import 'package:pandemia_mobile/models/user.dart';
 import 'package:pandemia_mobile/screens/sub_report/data_kabupaten.dart';
-import 'package:pandemia_mobile/screens/sub_report/sub_report_page.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
 import 'package:pandemia_mobile/util/text_formatter.dart';
 

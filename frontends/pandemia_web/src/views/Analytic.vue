@@ -773,7 +773,7 @@ h2 {
 div.map-view {
   width: 620px;
   height: 700px;
-  background-image: url("/img/peta-wonosobo.jpeg");
+  background-image: url("/img/peta-wonosobo.jpeg?key=939RAEKM");
   background-repeat: no-repeat;
 }
 
@@ -816,13 +816,8 @@ div.map-view {
 }
 
 .marker#MKejajar {
-  top: 20px;
-  right: 120px;
-
-  // &:hover {
-  //   background-color: white;
-  //   // opacity: 50%;
-  // }
+  top: 30px;
+  right: 240px;
 }
 
 .marker#MSapuran {
@@ -841,16 +836,16 @@ div.map-view {
 }
 
 .marker#MGarung {
-  top: 80px;
-  right: 20px;
+  top: 120px;
+  right: 250px;
 }
 .marker#MMojotengah {
-  top: 40px;
-  left: 60px;
+  top: 170px;
+  left: 170px;
 }
 .marker#MWatumalang {
-  top: 100px;
-  left: 10px;
+  top: 150px;
+  left: 120px;
 }
 .marker#MSukoharjo {
   top: 320px;
@@ -881,8 +876,8 @@ div.map-view {
   right: 255px;
 }
 .marker#MKalibawang {
-  bottom: 50px;
-  right: 250px;
+  bottom: 150px;
+  right: 220px;
 }
 
 th,
