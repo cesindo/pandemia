@@ -73,9 +73,9 @@
               </div>
             </div>
 
-            <center>
+            <!-- <center>
               <a href="/kabar-terbaru">Lihat Semua</a>
-            </center>
+            </center> -->
 
             <div class="ui divider"></div>
 

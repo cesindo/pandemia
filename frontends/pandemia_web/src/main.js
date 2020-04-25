@@ -52,9 +52,8 @@ Vue.use(Pandemia)
 Vue.use(VueSidebarMenu)
 
 // ---- moment stuff ----
-// var moment = require('moment')
+var moment = require('moment')
 require('moment/locale/id')
-import moment from 'moment-timezone';
  
 Vue.use(require('vue-moment'), {
     moment
