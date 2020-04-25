@@ -104,7 +104,12 @@ impl<'a> VillageDao<'a> {
             Box::new(dsl::id.ne(0));
 
         if let Some(scope) = scope {
-            let s: Vec<&str> = scope.split("/").collect();
+            let s: Vec<&str> = scope
+                .split("/")
+                .collect::<Vec<&str>>()
+                .into_iter()
+                .filter(|a| !a.trim().is_empty())
+                .collect();
             if s.len() < 3 {
                 fail!("Invalid scope");
             }

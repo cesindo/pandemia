@@ -40,7 +40,7 @@ pub struct QueryEntries {
     pub query: Option<String>,
     #[validate(range(min = 0, max = 1_000_000))]
     pub offset: i64,
-    #[validate(range(min = 1, max = 100))]
+    #[validate(range(min = 1, max = 1000))]
     pub limit: i64,
 }
 

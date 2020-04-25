@@ -29,8 +29,8 @@ const user = {
           }
         }
       })
-      .catch(err => {
-        console.log(err)
+      .catch(_err => {
+        // console.log(err)
       })
     },
     removeCurrentUser({commit}) {

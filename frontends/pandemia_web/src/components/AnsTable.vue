@@ -1,11 +1,11 @@
 <template>
   <div>
     <div class="ui grid">
-      <div class="fourteen wide column">
-        <div v-if="searchable" class="ui icon input">
+      <div class="sixteen wide column">
+        <div v-if="searchable && !loading" class="ui icon input">
           <input
             type="text"
-            placeholder="Search..."
+            placeholder="Pencarian..."
             v-on:keyup.13="doSearch"
             ref="inputSearch"
             v-on:keyup="checkHasText"
@@ -18,7 +18,7 @@
           <i v-if="!hasText" class="search icon"></i>
         </div>
 
-        <div class="ui mini statistic">
+        <div v-if="withTotal" class="ui mini statistic">
           <div class="value">{{items.length}}</div>
           <div class="label">Total</div>
         </div>
@@ -29,7 +29,9 @@
           <slot name="bellow-search"></slot>
         </div>
 
-        <table class="ui celled unstackable table">
+        <div v-if="loading" class="ui active centered inline text loader"> Memuat Data...</div>
+
+        <table v-if="!loading" class="ui celled unstackable striped table">
           <thead>
             <tr>
               <th v-for="col in columns" v-bind:key="col">
@@ -74,7 +76,8 @@ const initialState = {
   items: [],
   count: 0,
   hasText: false,
-  columnsTipShow: {}
+  columnsTipShow: {},
+  loading: true
 };
 export default {
   name: "AnsTable",
@@ -96,7 +99,8 @@ export default {
       default: a => {
         return a.$pandemia.api().publicApi;
       }
-    }
+    },
+    withTotal: { type: Boolean, default: true }
   },
   data() {
     return initialState;
@@ -131,6 +135,7 @@ export default {
       this.apiScopeBuilder(this)
         .get(url)
         .then(resp => {
+          this.loading = false;
           if (resp.data.code == 0) {
             this.items = resp.data.result.entries.map(this.mapItemFunc);
             this.count = resp.data.result.count;
@@ -170,6 +175,7 @@ export default {
     this.apiScopeBuilder(this)
       .get(url)
       .then(resp => {
+        this.loading = false;
         self.items = resp.data.result.entries.map(this.mapItemFunc);
       });
   }

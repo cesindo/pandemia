@@ -188,7 +188,7 @@ export default {
         });
     },
     onAddVillageOpened() {
-      this.$refs["addRecLocInput"].focus();
+      // this.$refs["addRecLocInput"].focus();
     },
     showDetail(item) {
       this.$router.push("/dashboard/villages/" + item.id);

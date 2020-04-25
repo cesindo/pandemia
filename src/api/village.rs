@@ -13,7 +13,7 @@ use crate::{
     api::types::*,
     api::{error::*, parsed_query::*, ApiResult, Error as ApiError, HttpRequest as ApiHttpRequest},
     auth,
-    dao::{CityDao, DistrictDataDao, Logs, VillageDao, VillageDataDao},
+    dao::{CityDao, DistrictDao, DistrictDataDao, Logs, VillageDao, VillageDataDao},
     district_data_dao::UpdateDistrictData,
     error,
     error::{Error, ErrorCode},
@@ -90,7 +90,7 @@ pub struct VillageSearch {
     pub scope: Option<String>,
     #[validate(range(min = 0, max = 1_000_000))]
     pub offset: i64,
-    #[validate(range(min = 1, max = 100))]
+    #[validate(range(min = 1, max = 1000))]
     pub limit: i64,
 }
 
@@ -112,6 +112,15 @@ impl PublicApi {
                 ApiError::BadRequest(83913, format!("Tidak ada kota/kab dengan nama {}", query.city))
             })?;
 
+        let district = DistrictDao::new(&conn)
+            .get_by_name(city.id, &query.district)
+            .map_err(|_| {
+                ApiError::InvalidParameter(
+                    404,
+                    format!("Tidak dapat menemukan kecamatan dengan nama {}", query.district),
+                )
+            })?;
+
         let village = dao.create(
             &query.name,
             &query.district,
@@ -121,7 +130,7 @@ impl PublicApi {
             query.longitude.parse::<f64>()?,
             &vec![],
             city.id,
-            0,
+            district.id,
         )?;
         Ok(ApiResult::success(village))
     }
@@ -163,7 +172,7 @@ impl PublicApi {
     }
 
     /// Search for village_data
-    #[api_endpoint(path = "/village_data/search", auth = "required", accessor = "admin,user")]
+    #[api_endpoint(path = "/village_data/search", auth = "none")]
     pub fn search_village_data(query: QueryEntries) -> ApiResult<EntriesResult<VillageData>> {
         query.validate()?;
         let conn = state.db();
@@ -174,11 +183,11 @@ impl PublicApi {
             None => ParsedQuery::default(),
         };
 
-        if let Some(current_user) = current_user.as_ref() {
-            if !current_user.is_satgas() {
-                return unauthorized();
-            }
-        }
+        // if let Some(current_user) = current_user.as_ref() {
+        //     if !current_user.is_satgas() {
+        //         return unauthorized();
+        //     }
+        // }
 
         let district_name = parq.district_name.map(|a| util::title_case(a));
 
@@ -506,7 +515,7 @@ impl PublicApi {
     }
 
     /// Search for village_addresses
-    #[api_endpoint(path = "/village_address", auth = "required")]
+    #[api_endpoint(path = "/village_address", auth = "required", accessor = "user,admin")]
     pub fn search_village_address(query: VillageSearch) -> ApiResult<EntriesResult<VillageAddress>> {
         query.validate()?;
         let conn = state.db();

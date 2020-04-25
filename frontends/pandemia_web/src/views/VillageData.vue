@@ -459,7 +459,7 @@ import AnsTable from "@/components/AnsTable.vue";
 import DialogModal from "@/components/modal/DialogModal.vue";
 import ConfirmDialog from "@/components/modal/ConfirmDialog.vue";
 import { obMapToArrayValues } from "@/utils/utils";
-import _axios from "axios";
+// import _axios from "axios";
 
 export default {
   name: "Records",
@@ -541,14 +541,18 @@ export default {
     this.city = this.city || this.$session.get("user_city");
 
     if (this.province && this.city) {
-      _axios
-        .get(
-          `/json/${this.normalizePath(this.province)}/${this.normalizePath(
-            this.city
-          )}/village-address.json`
+      this.$pandemia
+        .api()
+        .publicApi.get(
+          `/village/v1/village_address?scope=/Indonesia/${this.province}/${this.city}&offset=0&limit=1000`
         )
-        .then(response => {
-          this.citySuggestions = response.data.address;
+        .then(resp => {
+          // console.log(resp);
+          if (resp.data.code == 0) {
+            this.citySuggestions = resp.data.result.entries;
+          } else {
+             this.showError(resp.data.description)
+          }
         });
     } else {
       // console.log(
@@ -567,9 +571,10 @@ export default {
     },
     clickHandler(_) {},
     onSelected(item) {
+      // console.log(item);
       this.villageName = item.item.address;
       this.addVillageAddress = item.item.address;
-      this.addVillageId = item.item.id;
+      this.addVillageId = item.item.village_id;
     },
     getSuggestionValue(suggestion) {
       return suggestion.item.address;
@@ -622,7 +627,7 @@ export default {
             } else {
               suggest = resp.data.description;
             }
-            this.showError("Gagal menambahkan rekod. " + suggest);
+            this.showError("Gagal menambahkan entri. " + suggest);
           }
         });
     },

@@ -13,7 +13,23 @@
       </sidebar-menu>
     </div>-->
 
-    <div class="analytic-inner">
+    <div class="data-desa" v-if="currentPage['/desa']">
+      <h2 class="ui header">Data COVID19 Seluruh Desa Kabupaten Wonosobo</h2>
+
+      <AnsTable
+        :key="tableRecords"
+        data-source-url="/village/v1/village_data/search"
+        :columns="['Desa', 'Kecamatan', 'PPDWT', 'PPTB', 'ODP', 'ODP-SP', 'PDP', 'PDP-S', 'PDP-M', 'OTG', 'Positive', 'Sembuh', 'Meninggal', 'Diperbaharui']"
+        :columnsInfo="{'PPDWT':'Pelaku Perjalanan Dari Wilayah Terjangkit', 'PPTB': 'Pelaku Perjalanan Tak Bergejala', 'ODP-SP': 'ODP Selesai Pemantauan', 'PDP-S': 'PDP Sembuh', 'PDP-M': 'PDP Meninggal', 'OTG': 'Orang Tidak Bergejala'}"
+        :searchable="true"
+        :withActionButton="false"
+        :mapItemFunc="mapItemFunc"
+        :withTotal="false"
+        :limit="500"
+      />
+    </div>
+
+    <div class="analytic-inner" v-if="currentPage['/']">
       <!-- <h1>{{ pageTitle }}</h1> -->
 
       <h1 class="ui header">
@@ -51,14 +67,14 @@
                     </div>
                   </div>
                   <div class="meta">
-                    <span>{{item.ts | moment("from")}}</span>
+                    <span>{{item.ts | moment("add", "7 hours") | moment("from")}}</span>
                   </div>
                 </div>
               </div>
             </div>
 
             <center>
-              <a href="/lihatsemua">Lihat Semua</a>
+              <a href="/kabar-terbaru">Lihat Semua</a>
             </center>
 
             <div class="ui divider"></div>
@@ -87,9 +103,10 @@
                   </tr>
                 </tbody>
               </table>
-              <!-- <center>
-                <a href="/lihatsemua">Lihat Semua</a>
-              </center>-->
+              <center>
+                <!-- <a href="/desa">Lihat Semua</a> -->
+                <router-link :to="'/desa'" v-bind="1">Lihat Semua</router-link>
+              </center>
             </div>
           </div>
 
@@ -208,9 +225,9 @@
                 </tr>
               </tbody>
             </table>
-            <!-- <center>
-              <a href="/lihatsemua">Lihat Semua</a>
-            </center>-->
+            <center>
+              <a :href="`/desa`">Lihat Semua</a>
+            </center>
           </div>
         </div>
       </div>
@@ -244,7 +261,7 @@
 
 <script>
 // @ is an alias to /src
-// import AnsTable from "@/components/AnsTable.vue";
+import AnsTable from "@/components/AnsTable.vue";
 // import UserDetail from "@/components/UserDetail.vue";
 // import LineChart from "@/components/LineChart.vue";
 
@@ -256,7 +273,7 @@ global.Raphael = Raphael;
 export default {
   name: "Dashboard",
   components: {
-    // AnsTable,
+    AnsTable
     // UserDetail,
     // LineChart
     // AreaChart,
@@ -265,6 +282,7 @@ export default {
   props: ["province", "city"],
   data() {
     return {
+      tableRecords: "-0",
       generalTrendData: {
         chart: {
           type: "line"
@@ -579,6 +597,26 @@ export default {
     clearInterval(this.loginCheckerIval);
   },
   methods: {
+    mapItemFunc(d){
+      return {
+        // id: d.id,
+        village_name: d.village_name,
+        district_name: d.district_name,
+        ppdwt: d.ppdwt,
+        pptb: d.pptb,
+        odp: d.odp,
+        odpsp: d.odpsp,
+        pdp: d.pdp,
+        pdps: d.pdps,
+        pdpm: d.pdpm,
+        otg: d.otg,
+        cases: d.cases,
+        recovered: d.recovered,
+        deaths: d.deaths,
+        last_updated: /*this.$moment(d.last_updated).format("dddd, MMMM Do YYYY, h:mm:ss a") + " " +*/
+          this.$moment(d.last_updated).add(7,'hours').fromNow(false)//, 'Asia/Jakarta')//.fromNow(false)
+      };
+    },
     publicApiScope(self) {
       return self.$pandemia.api().publicApi;
     },
@@ -692,7 +730,11 @@ export default {
             let ent = resp.data.result;
             // console.log(ent);
 
-            this.$set(this.travelerTrendData.xAxis, "categories", ent.cats.map((a) => a.replace(/-/g, '/')));
+            this.$set(
+              this.travelerTrendData.xAxis,
+              "categories",
+              ent.cats.map(a => a.replace(/-/g, "/"))
+            );
             this.$set(this.travelerTrendData, "series", ent.series);
           } else {
             this.showError(resp.data.description);
@@ -710,7 +752,11 @@ export default {
             let ent = resp.data.result;
             // console.log(ent);
 
-            this.$set(this.generalTrendData.xAxis, "categories", ent.cats.map((a) => a.replace(/-/g, '/')));
+            this.$set(
+              this.generalTrendData.xAxis,
+              "categories",
+              ent.cats.map(a => a.replace(/-/g, "/"))
+            );
             this.$set(this.generalTrendData, "series", ent.series);
           } else {
             this.showError(resp.data.description);

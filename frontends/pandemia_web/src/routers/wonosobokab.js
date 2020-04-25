@@ -14,7 +14,7 @@ let router = new Router({
     routes: [
         {
             path: '/',
-            name: 'Analitik Daerah Terdampak COVID-19',
+            name: 'Analitik Daerah Terdampak COVID-19 Wonosobo',
             component: Analytic,
             props: {
                 province: 'jawa-tengah',
@@ -22,6 +22,18 @@ let router = new Router({
             },
             meta: {
                 title: 'Analitik Daerah',
+            },
+        },
+        {
+            path: '/desa',
+            name: 'Analitik Daerah Terdampak COVID-19 Wonosobo',
+            component: Analytic,
+            props: {
+                province: 'jawa-tengah',
+                city: 'wonosobo'
+            },
+            meta: {
+                title: 'COVID19 Daerah Wonosobo data per Desa',
             },
         },
         {
