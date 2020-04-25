@@ -246,7 +246,7 @@
       :buttonsText="{reject: 'Batal', approve: 'Ok'}"
     >
       <template v-slot:content>
-        <h2 class="ui header">Edit jumlah {{editedCatName}} di {{editedItem['loc']}}</h2>
+        <h2 class="ui header">Edit jumlah {{editedCatName}} di {{editedItem['village_name']}}</h2>
 
         <div>
           <p>
@@ -275,7 +275,7 @@
       :withCloseButton="true"
       @onApprove="doAddRecord"
       @opened="onAddRecordOpened"
-      :buttonsText="{reject: 'Cancel', approve: 'Ok'}"
+      :buttonsText="{reject: 'Batal', approve: 'Ok'}"
     >
       <template v-slot:content>
         <h2 class="ui header">Tambah Entri Baru</h2>
