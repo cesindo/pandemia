@@ -1076,7 +1076,15 @@ impl PublicApi {
                     .split(',')
                     .into_iter()
                     .filter(|a| !a.is_empty())
-                    .map(|a| a.to_string())
+                    .map(|a| {
+                        let mut s:Vec<&str> = a.split("/").collect();
+                        s.remove(0);
+                        if s.first() == Some(&"IDN"){ // for backward compatibility only
+                            format!("/Indonesia/{}", (&s[1..]).join("/"))
+                        }else{
+                            a.to_string()
+                        }
+                    })
                     .collect()
             } else if let Some(loc) = query.loc.as_ref() {
                 // for backward compatibility only
