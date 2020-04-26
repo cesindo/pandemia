@@ -34,15 +34,19 @@ class StatsBloc extends Bloc<StatsEvent, StatsState> {
     final locPath = UserRepository().currentUser.locPath;
     final s = locPath.split("/");
     String provPath = "/Indonesia";
+    String cityPath = "/Indonesia";
     if (s.length > 1){
       provPath = "/${s[0]}/${s[1]}";
+    }
+    if (s.length > 2){
+      cityPath = "/${s[0]}/${s[1]}/${s[2]}";
     }
 
     yield* repo
         .fetchGradually(
             "entries",
             () => PublicApi.get(
-                "/pandemia/v1/info_locations?loc_path=/global,/Indonesia,$provPath,$locPath&with_history=true"),
+                "/pandemia/v1/info_locations?loc_path=/global,/Indonesia,$provPath,$cityPath,$locPath&with_history=true"),
             force: event.force)
         .asyncExpand((d) async* {
       if (d != null && d.data != null) {
