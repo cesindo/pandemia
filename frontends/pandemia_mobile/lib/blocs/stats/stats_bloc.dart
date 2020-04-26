@@ -35,7 +35,7 @@ class StatsBloc extends Bloc<StatsEvent, StatsState> {
     final s = locPath.split("/");
     String provPath = "/Indonesia";
     if (s.length > 1){
-      provPath = "${s[0]}/${s[1]}";
+      provPath = "/${s[0]}/${s[1]}";
     }
 
     yield* repo
