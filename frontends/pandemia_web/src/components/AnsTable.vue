@@ -2,7 +2,7 @@
   <div>
     <div class="ui grid">
       <div class="sixteen wide column">
-        <div v-if="searchable && !loading" class="ui icon input">
+        <div v-if="searchable" :disabled="loading" class="ui icon input">
           <input
             type="text"
             placeholder="Pencarian..."
@@ -129,6 +129,8 @@ export default {
       this.doSearch();
     },
     doSearch() {
+      this.loading = true;
+
       let query = this.$refs.inputSearch.value;
 
       var url =
