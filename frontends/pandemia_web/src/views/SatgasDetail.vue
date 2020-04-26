@@ -153,7 +153,7 @@ export default {
       .api()
       .publicApi.get(`${this.baseApiUrl}?id=${this.userId}`)
       .then(resp => {
-        console.log(resp);
+        // console.log(resp);
         this.d = resp.data.result;
       });
   },

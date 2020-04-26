@@ -3,8 +3,9 @@
 
 use chrono::prelude::*;
 use diesel::prelude::*;
+use diesel::sql_types;
 
-use crate::{models::District, result::Result, schema::districts, sqlutil::lower, ID};
+use crate::{models::District, result::Result, schema::districts, sqlutil::lower, types::EntriesResult, ID};
 
 #[derive(Insertable)]
 #[table_name = "districts"]
@@ -43,5 +44,28 @@ impl<'a> DistrictDao<'a> {
             )
             .first(self.db)
             .map_err(From::from)
+    }
+
+    /// Search for specific districts
+    pub fn search(&self, query: &str, offset: i64, limit: i64) -> Result<EntriesResult<District>> {
+        use crate::schema::districts::{self, dsl};
+        let like_clause = format!("%{}%", query);
+
+        let mut filterer: Box<dyn BoxableExpression<districts::table, _, SqlType = sql_types::Bool>> =
+            Box::new(dsl::id.ne(0));
+
+        filterer = Box::new(filterer.and(dsl::name.like(&like_clause)));
+
+        Ok(EntriesResult::new(
+            dsl::districts
+                .filter(&filterer)
+                .offset(offset)
+                .limit(limit)
+                .load::<District>(self.db)?,
+            dsl::districts
+                .filter(filterer)
+                .select(diesel::dsl::count(dsl::id))
+                .first(self.db)?,
+        ))
     }
 }

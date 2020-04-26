@@ -54,16 +54,16 @@ Vue.use(VueSidebarMenu)
 // ---- moment stuff ----
 var moment = require('moment')
 require('moment/locale/id')
- 
+
 Vue.use(require('vue-moment'), {
-    moment
+  moment
 })
 // --- end of moment stuff ---
 
 import VueAutosuggest from "vue-autosuggest";
 Vue.use(VueAutosuggest);
 
-import _ from 'lodash';    
+import _ from 'lodash';
 Object.defineProperty(Vue.prototype, '$_', { value: _ });
 
 
@@ -94,6 +94,12 @@ Vue.directive('uppercase',
       })
     }
   });
+
+Vue.directive("titlecase", {
+  update: function (el) {
+    el.value = _.startCase(el.value)
+  }
+})
 
 import { Datetime } from 'vue-datetime'
 import 'vue-datetime/dist/vue-datetime.css'

@@ -18,6 +18,7 @@ mod with;
 pub mod admin;
 pub mod analytic;
 pub mod cities;
+pub mod district;
 pub mod feed;
 pub mod map_area;
 pub mod pandemia;

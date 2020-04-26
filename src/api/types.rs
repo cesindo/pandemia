@@ -609,3 +609,29 @@ impl ToApiType<SubReport> for models::SubReport {
         }
     }
 }
+
+#[doc(hidden)]
+#[derive(Queryable, Serialize)]
+pub struct District {
+    pub id: ID,
+    pub name: String,
+    pub city_id: ID,
+    pub meta: Vec<String>,
+
+    // ---
+    pub city_name: String,
+    pub province_name: String,
+}
+
+impl From<models::District> for District {
+    fn from(a: models::District) -> Self {
+        Self {
+            id: a.id,
+            name: a.name.to_owned(),
+            city_id: a.city_id,
+            city_name: meta_value_str!(a, "city", "=").to_owned(),
+            province_name: meta_value_str!(a, "province", "=").to_owned(),
+            meta: a.meta.clone(),
+        }
+    }
+}

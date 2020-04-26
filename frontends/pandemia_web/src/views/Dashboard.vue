@@ -77,6 +77,7 @@
       />
 
       <Cities v-if="currentPage['/dashboard/cities'] && isSuperAdmin" />
+      <Districts v-if="currentPage['/dashboard/districts'] && isSuperAdmin" />
       <Villages v-if="currentPage['/dashboard/villages']" />
 
       <Satgas
@@ -122,6 +123,7 @@ import SatgasDetail from "@/views/SatgasDetail.vue";
 import VillageData from "@/views/VillageData.vue";
 import AreaSettings from "@/views/AreaSettings.vue";
 import Cities from "@/views/Cities.vue";
+import Districts from "@/views/Districts.vue";
 
 export default {
   name: "Dashboard",
@@ -140,7 +142,8 @@ export default {
     SatgasDetail,
     VillageData,
     AreaSettings,
-    Cities
+    Cities,
+    Districts
   },
   data() {
     return {
@@ -195,8 +198,14 @@ export default {
         },
         {
           title: "Kab/Kota",
-          icon: "fa fa-building",
+          icon: "fa fa-city",
           href: "/dashboard/cities",
+          adminOnly: true
+        },
+        {
+          title: "Kecamatan",
+          icon: "fa fa-building",
+          href: "/dashboard/districts",
           adminOnly: true
         },
         {

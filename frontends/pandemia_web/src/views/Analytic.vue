@@ -29,7 +29,7 @@
       />
     </div>
 
-    <div class="analytic-inner" v-if="currentPage['/']">
+    <div class="analytic-inner" v-if="!currentPage['/']">
       <!-- <h1>{{ pageTitle }}</h1> -->
 
       <h1 class="ui header">
@@ -160,7 +160,7 @@
                       v-for="m in districtData"
                       v-bind:key="m.id"
                       class="marker"
-                      :id=" 'M' + m.district_name"
+                      :id=" 'M' + $_.startCase(m.district_name).replace(/ +/gi, '-') "
                     >
                       <div v-if="m.cases > 0" class="ui red circular label">{{m.cases}}</div>
                       <div v-if="m.cases == 0" class="ui circular label">{{m.cases}}</div>
@@ -924,6 +924,9 @@ div.map-view {
 .marker#MKalibawang {
   bottom: 150px;
   right: 220px;
+}
+.marker#MLuar-Daerah {
+  display: none;
 }
 
 th,

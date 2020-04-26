@@ -131,10 +131,18 @@ let router = new Router({
     },
     {
       path: '/dashboard/cities',
-      name: 'City',
+      name: 'Cities',
       component: Dashboard,
       meta: {
         title: 'Kab/Kota'
+      },
+    },
+    {
+      path: '/dashboard/districts',
+      name: 'Districts',
+      component: Dashboard,
+      meta: {
+        title: 'Kecamatan'
       },
     },
     {

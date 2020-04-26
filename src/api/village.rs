@@ -435,10 +435,15 @@ impl PublicApi {
 
                 for record in query.records {
                     let mut meta: Vec<String> = {
-                        village_data::table
+                        match village_data::table
                             .filter(dsl::id.eq(record.id))
                             .select(dsl::meta)
-                            .first(&conn)?
+                            .first(&conn)
+                            .ok()
+                        {
+                            Some(m) => m,
+                            None => continue, // kalau datanya sudah tidak ada abaikan saja
+                        }
                     };
 
                     meta = meta
@@ -533,7 +538,7 @@ impl PublicApi {
             .into_iter()
             .map(|a| VillageAddress {
                 village_id: a.id,
-                address: format!("{}, {}, {}, {}", a.name, a.city, a.district_name, a.province),
+                address: format!("{}, {}, {}, {}", a.name, a.district_name, a.city, a.province),
             })
             .collect();
 

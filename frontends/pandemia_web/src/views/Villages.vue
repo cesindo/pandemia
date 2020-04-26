@@ -79,19 +79,19 @@
             <div class="ui form">
               <div class="field">
                 <label>Nama desa:</label>
-                <input ref="addNameInput" type="text" name="Name" id="Name" autofocus />
+                <input ref="addNameInput" type="text" name="Name" id="Name" autofocus v-model="nameInput" v-titlecase />
               </div>
               <div class="field">
                 <label>Kecamatan:</label>
-                <input ref="addSubDistrictInput" type="text" name="SubDistrict" id="SubDistrict" />
+                <input ref="addSubDistrictInput" type="text" name="SubDistrict" id="SubDistrict" v-titlecase />
               </div>
               <div class="field">
                 <label>Kota/Kabupaten:</label>
-                <input ref="addCityInput" type="text" name="City" id="City" />
+                <input ref="addCityInput" type="text" name="City" id="City" v-titlecase />
               </div>
               <div class="field">
                 <label>Provinsi:</label>
-                <input ref="addProvinceInput" type="text" name="Province" id="Province" />
+                <input ref="addProvinceInput" type="text" name="Province" id="Province" v-titlecase />
               </div>
               <div class="ui grid">
                 <div class="six wide column">
@@ -148,7 +148,8 @@ export default {
       commitLogs: {},
       isDirty: false,
       tableVillages: "-0",
-      toDelete: { id: 0, loc: "" }
+      toDelete: { id: 0, loc: "" },
+      nameInput: ""
     };
   },
   methods: {
@@ -179,11 +180,11 @@ export default {
             this.showSuccess("Data berhasil ditambahkan");
             this.refreshTable();
           } else {
-            var suggest = "";
-            if (resp.data.description.indexOf("Invalid") > -1) {
+            var suggest = resp.data.description;
+            if (suggest.indexOf("Invalid") > -1) {
               suggest = "Mohon periksa kembali data masukan Anda";
             }
-            this.showError("Gagal menambahkan rekod. " + suggest);
+            this.showError("Gagal menambahkan entri. " + suggest);
           }
         });
     },
