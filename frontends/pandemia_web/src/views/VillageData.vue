@@ -2,6 +2,7 @@
   <div>
     <div>{{$_.startCase(province)}} / {{city}}</div>
     <AnsTable
+      ref="table"
       :key="tableRecords"
       data-source-url="/village/v1/village_data/search"
       :columns="['ID', 'Desa', 'Kecamatan', 'PPDWT', 'PPTB', 'ODP', 'ODP-SP', 'PDP', 'PDP-S', 'PDP-M', 'OTG', 'Positive', 'Sembuh', 'Meninggal', 'Action']"
@@ -34,6 +35,22 @@
             v-model="city"
             @keyup="updateBaseAddress"
           />
+        </div>
+
+        <div class="ui input">
+          <label>Filter Berdasarkan Kecamatan:</label>
+          <select
+            name="DistrictSel"
+            id="DistrictSel"
+            v-model="districtName"
+            @change="onDistrictChange"
+          >
+            <option
+              v-for="district in districts"
+              :value="district"
+              v-bind:key="district"
+            >{{district}}</option>
+          </select>
         </div>
 
         <button v-if="isDirty" class="ui text icon green button right floated" @click="commit">
@@ -493,7 +510,10 @@ export default {
       addPdp: 0,
       addPdps: 0,
       addPdpm: 0,
-      addOtg: 0
+      addOtg: 0,
+
+      districts: [],
+      districtName: "Semua"
     };
   },
   computed: {
@@ -551,7 +571,22 @@ export default {
           if (resp.data.code == 0) {
             this.citySuggestions = resp.data.result.entries;
           } else {
-             this.showError(resp.data.description)
+            this.showError(resp.data.description);
+          }
+        });
+
+      this.$pandemia
+        .api()
+        .publicApi.get(
+          `/district/v1/search?scope=/Indonesia/${this.province}/${this.city}&query=&offset=0&limit=100`
+        )
+        .then(resp => {
+          if (resp.data.code == 0) {
+            this.districts.push("Semua");
+            resp.data.result.entries.forEach((a) => this.districts.push(a.name));
+            
+          } else {
+            this.showError(resp.data.description);
           }
         });
     } else {
@@ -562,6 +597,13 @@ export default {
     }
   },
   methods: {
+    onDistrictChange() {
+      if (this.districtName == "Semua") {
+        this.$refs.table.search("");
+      } else {
+        this.$refs.table.search("kcm:" + this.districtName);
+      }
+    },
     updateBaseAddress() {
       localStorage.province = this.province;
       localStorage.city = this.city;

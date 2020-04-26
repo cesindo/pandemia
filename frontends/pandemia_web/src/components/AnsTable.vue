@@ -124,10 +124,16 @@ export default {
       this.doSearch();
       this.$refs.inputSearch.focus();
     },
+    search(query){
+      this.$refs.inputSearch.value = query;
+      this.doSearch();
+    },
     doSearch() {
+      let query = this.$refs.inputSearch.value;
+
       var url =
         this.dataSourceUrl +
-        `?query=${this.$refs.inputSearch.value}&offset=${this.offset}&limit=${this.limit}`;
+        `?query=${query}&offset=${this.offset}&limit=${this.limit}`;
 
       if (this.addParams != null) {
         url = url + "&" + this.addParams;

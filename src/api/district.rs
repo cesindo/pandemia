@@ -37,6 +37,16 @@ pub struct NewDistrict {
     pub longitude: Option<f64>,
 }
 
+#[derive(Deserialize, Validate)]
+pub struct SearchDistrict {
+    pub scope: Option<String>,
+    pub query: Option<String>,
+    #[validate(range(min = 0, max = 1_000_000))]
+    pub offset: i64,
+    #[validate(range(min = 1, max = 100))]
+    pub limit: i64,
+}
+
 /// Holder untuk implementasi API endpoint publik untuk District.
 pub struct PublicApi;
 
@@ -95,12 +105,40 @@ impl PublicApi {
 
     /// Search for districts
     #[api_endpoint(path = "/search", auth = "required", accessor = "admin")]
-    pub fn search_districts(query: QueryEntries) -> ApiResult<EntriesResult<District>> {
+    pub fn search_districts(query: SearchDistrict) -> ApiResult<EntriesResult<District>> {
         query.validate()?;
         let conn = state.db();
         let dao = DistrictDao::new(&conn);
 
-        let sresult = dao.search(&query.query.unwrap_or("".to_string()), query.offset, query.limit)?;
+        let (province, city) = match query.scope {
+            Some(scope) => {
+                let s: Vec<&str> = scope
+                    .split("/")
+                    .collect::<Vec<&str>>()
+                    .into_iter()
+                    .filter(|a| !a.is_empty())
+                    // .map(|a| a.to_owned())
+                    .collect();
+                match s[0..] {
+                    [a, b, c] => (b.to_owned(), c.to_owned()),
+                    _ => return param_error("Invalid scope"),
+                }
+            }
+            None => ("".to_string(), "".to_string()),
+        };
+
+        let city = if !province.is_empty() && !city.is_empty() {
+            CityDao::new(&conn).get_by_name(&province, &city).ok()
+        } else {
+            None
+        };
+
+        let sresult = dao.search(
+            city.map(|a| a.id),
+            &query.query.unwrap_or("".to_string()),
+            query.offset,
+            query.limit,
+        )?;
 
         let entries = sresult.entries.into_iter().map(|p| p.into()).collect();
 

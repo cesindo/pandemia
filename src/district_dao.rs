@@ -47,14 +47,24 @@ impl<'a> DistrictDao<'a> {
     }
 
     /// Search for specific districts
-    pub fn search(&self, query: &str, offset: i64, limit: i64) -> Result<EntriesResult<District>> {
+    pub fn search(
+        &self,
+        city_id: Option<ID>,
+        query: &str,
+        offset: i64,
+        limit: i64,
+    ) -> Result<EntriesResult<District>> {
         use crate::schema::districts::{self, dsl};
-        let like_clause = format!("%{}%", query);
+        let like_clause = format!("%{}%", query.to_lowercase());
 
         let mut filterer: Box<dyn BoxableExpression<districts::table, _, SqlType = sql_types::Bool>> =
             Box::new(dsl::id.ne(0));
 
-        filterer = Box::new(filterer.and(dsl::name.like(&like_clause)));
+        if let Some(city_id) = city_id {
+            filterer = Box::new(filterer.and(dsl::city_id.eq(city_id)));
+        }
+
+        filterer = Box::new(filterer.and(lower(dsl::name).like(&like_clause)));
 
         Ok(EntriesResult::new(
             dsl::districts
