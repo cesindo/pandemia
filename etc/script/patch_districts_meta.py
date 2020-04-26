@@ -40,7 +40,7 @@ def main():
 
             cur.execute(sql_query)
 
-            processed = processed + 1
+            total = total + 1
 
         conn.commit()
 
