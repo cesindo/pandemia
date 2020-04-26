@@ -2,6 +2,7 @@
 PROJ_DIR=$(shell pwd)
 
 VERSION=$(shell cat VERSION)
+MOBILE_VERSION=$(shell grep 'version:' frontends/pandemia_mobile/pubspec.yaml | cut -d ' ' -f2 | cut -d '+' -f1)
 PUBLIC_API_DOC_OUTPUT=$(PROJ_DIR)/target/api-docs/public-api.html
 PRIVATE_API_DOC_OUTPUT=$(PROJ_DIR)/target/api-docs/private-api.html
 LIBRARY_DOC_OUTPUT=$(PROJ_DIR)/target/doc/pandemia/index.html
@@ -84,6 +85,13 @@ build-web-frontend:
 		yarn run build && \
 		sed -i .bak s/'prod'/'dev'/ .env
 	@@echo Web frontend built.
+
+build-apk:
+	@@echo Building Pandemia $(MOBILE_VERSION) for Android ...
+	cd frontends/pandemia_mobile && \
+		flutter build apk --build-name=$(MOBILE_VERSION)
+	mv $(PROJ_DIR)/frontends/pandemia_mobile/build/app/outputs/apk/release/app-release.apk $(PROJ_DIR)/frontends/pandemia_mobile/build/app/outputs/apk/release/pandemia-$(MOBILE_VERSION).apk
+	@@echo Done
 
 test-env:
 	diesel database reset --database-url $(DATABASE_TEST_URL)
