@@ -182,7 +182,19 @@ class HomeScreen extends StatelessWidget {
           key: _scaffoldKey,
           appBar: AppBar(
             elevation: 2.0,
-            leading: Image.asset("assets/img/pandemia-logo-32.png"),
+            leading: InkWell(
+                child: Image.asset("assets/img/pandemia-logo-32.png"),
+                onDoubleTap: () {
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                            title: Text("Dev Info"),
+                            titleTextStyle: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                            content: Text(
+                                "loc_path: ${UserRepository().currentUser.locPath}"));
+                      });
+                }),
             title: Text(title, style: TextStyle()),
             titleSpacing: 0.0,
             actions: <Widget>[

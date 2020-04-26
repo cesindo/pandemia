@@ -134,7 +134,7 @@ impl<'a> RecordDao<'a> {
     }
 
     /// Get latest records, ini akan mencari records dengan parameter
-    /// loc_paths sebagai kriteria untuk pencarian prefix, bukan exact.
+    /// loc_paths lebih dari satu
     /// Untuk mendapatkan yang exact satu record gunakan get_latest_record_one.
     pub fn get_latest_records(
         &self,
@@ -152,12 +152,16 @@ impl<'a> RecordDao<'a> {
             let mut filterer: Box<dyn BoxableExpression<records::table, _, SqlType = sql_types::Bool>> =
                 Box::new(dsl::latest.eq(true));
 
+            let mut loc_paths = loc_paths.clone();
+            let loc_path = loc_paths.pop().unwrap();
+
             let mut filterer2: Box<dyn BoxableExpression<records::table, _, SqlType = sql_types::Bool>> =
-                Box::new(dsl::id.ne(0));
+                Box::new(lower(dsl::loc_path).eq(loc_path.to_lowercase()));
 
             for loc_path in loc_paths {
-                let like_clause = format!("{}%", loc_path);
-                filterer2 = Box::new(filterer2.or(dsl::loc_path.like(like_clause)));
+                // let like_clause = format!("{}%", loc_path);
+                filterer2 = Box::new(filterer2.or(lower(dsl::loc_path).eq(loc_path.to_lowercase())));
+                // filterer = Box::new(filterer.and(lower(dsl::loc_path).eq(loc_path.to_lowercase())));
             }
             filterer = Box::new(filterer.and(filterer2));
 

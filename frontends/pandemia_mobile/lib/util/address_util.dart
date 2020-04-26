@@ -33,18 +33,20 @@ Future<dynamic> getLocationName(LocationData locationData) async {
     // return "${addr["District"]}/${addr["Subdistrict"]} ${addr["City"]}, ${addr["County"]}, ${addr["AdditionalData"].first["value"]}";
 
     String countryName = addr["Country"];
+    String provinceName = addr["County"];
 
     if (addr["AdditionalData"] != null &&
         addr["AdditionalData"].first["CountryName"] != null) {
       countryName = addr["AdditionalData"].first["CountryName"];
+      provinceName = addr["AdditionalData"].last["CountyName"];
     }
 
     return GeoLocation(
       country: countryName,
       city: addr["City"],
-      state: addr["State"],
+      state: addr["State"] != null ? addr["State"] : provinceName,
       district: addr["District"],
-      subdistrict: addr["Subdistrict"],
+      subdistrict: addr["Subdistrict"] != null ? addr["Subdistrict"] : "",
     );
   }
 }

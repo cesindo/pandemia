@@ -5,6 +5,7 @@ import 'package:bloc/bloc.dart';
 import 'package:pandemia_mobile/blocs/stats/stats_event.dart';
 import 'package:pandemia_mobile/blocs/stats/stats_state.dart';
 import 'package:pandemia_mobile/models/info_location.dart';
+import 'package:pandemia_mobile/user_repository/user_repository.dart';
 
 class StatsBloc extends Bloc<StatsEvent, StatsState> {
   PersistentSmartRepo repo;
@@ -30,11 +31,18 @@ class StatsBloc extends Bloc<StatsEvent, StatsState> {
       yield StatsLoading();
     }
 
+    final locPath = UserRepository().currentUser.locPath;
+    final s = locPath.split("/");
+    String provPath = "/Indonesia";
+    if (s.length > 1){
+      provPath = "${s[0]}/${s[1]}";
+    }
+
     yield* repo
         .fetchGradually(
             "entries",
             () => PublicApi.get(
-                "/pandemia/v1/info_locations?loc_path=global,Indonesia,Jawa Tengah&with_history=true"),
+                "/pandemia/v1/info_locations?loc_path=/global,/Indonesia,$provPath,$locPath&with_history=true"),
             force: event.force)
         .asyncExpand((d) async* {
       if (d != null && d.data != null) {

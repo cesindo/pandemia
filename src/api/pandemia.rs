@@ -1095,7 +1095,7 @@ impl PublicApi {
             let mut history: Vec<models::Record> = vec![];
 
             if query.with_history == Some(true) {
-                history = dao.get_record_history(&rec.loc, 0, 30)?;
+                history = dao.get_record_history(&rec.loc_path, 0, 30)?;
             }
 
             result.push(InfoLocation {
