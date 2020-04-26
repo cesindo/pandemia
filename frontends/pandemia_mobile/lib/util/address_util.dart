@@ -11,15 +11,19 @@ class GeoLocation {
   final String subdistrict;
   final String district;
   final String city;
-  final String state;
+  final String province;
   final String country;
 
   GeoLocation(
-      {this.subdistrict, this.district, this.city, this.state, this.country});
+      {this.subdistrict,
+      this.district,
+      this.city,
+      this.province,
+      this.country});
 
   @override
   String toString() {
-    return "$country/$state/$city/$district/$subdistrict";
+    return "$country/$province/$city/$district/$subdistrict";
   }
 }
 
@@ -30,21 +34,24 @@ Future<dynamic> getLocationName(LocationData locationData) async {
     final result = tryDecode(resp.body);
     final addr =
         result["Response"]["View"].first["Result"].first["Location"]["Address"];
-    // return "${addr["District"]}/${addr["Subdistrict"]} ${addr["City"]}, ${addr["County"]}, ${addr["AdditionalData"].first["value"]}";
 
     String countryName = addr["Country"];
     String provinceName = addr["County"];
 
-    if (addr["AdditionalData"] != null &&
-        addr["AdditionalData"].first["CountryName"] != null) {
-      countryName = addr["AdditionalData"].first["CountryName"];
-      provinceName = addr["AdditionalData"].last["CountyName"];
+    if (addr["AdditionalData"] != null) {
+      final dAdd = addr["AdditionalData"];
+
+      final String _countryName = dAdd.where((a) => a["key"] == "CountryName").map((a) => a["value"]).first;
+      final String _provinceName = dAdd.where((a) => a["key"] == "CountyName").map((a) => a["value"]).first;
+
+      countryName = _countryName != null ? _countryName : countryName;
+      provinceName = _provinceName != null ? _provinceName : provinceName;
     }
 
     return GeoLocation(
       country: countryName,
       city: addr["City"],
-      state: addr["State"] != null ? addr["State"] : provinceName,
+      province: addr["State"] != null ? addr["State"] : provinceName,
       district: addr["District"],
       subdistrict: addr["Subdistrict"] != null ? addr["Subdistrict"] : "",
     );
