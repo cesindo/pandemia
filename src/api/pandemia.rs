@@ -534,7 +534,7 @@ impl PublicApi {
 
         let mut ppdwt = 0;
         let mut pptb = 0;
-        let odpsp = 0;
+        // let odpsp = 0;
         // let mut otg = 0;
         let pdps = 0;
         let pdpm = 0;
@@ -563,14 +563,16 @@ impl PublicApi {
             .run::<_, crate::error::Error, _>(|| {
                 dao.delete_by_id(sr.id)?;
 
-                let (odp, pdp, cases, recovered, deaths, otg) = match sr.status.into() {
-                    SubReportStatus::ODP => (1, 0, 0, 0, 0, 0),
-                    SubReportStatus::PDP => (0, 1, 0, 0, 0, 0),
-                    SubReportStatus::Positive => (0, 0, 1, 0, 0, 0),
-                    SubReportStatus::Recovered => (0, 0, 0, 1, 0, 0),
-                    SubReportStatus::Death => (0, 0, 0, 0, 1, 0),
-                    SubReportStatus::OTG => (0, 0, 0, 0, 0, 1),
-                    // SubReportStatus::PDPS => (0, 0, 0, 0, 0, 0),
+                let (odp, pdp, cases, recovered, deaths, otg, pdps, odpsp, pdpm) = match sr.status.into() {
+                    SubReportStatus::ODP => (1, 0, 0, 0, 0, 0, 0, 0, 0),
+                    SubReportStatus::PDP => (0, 1, 0, 0, 0, 0, 0, 0, 0),
+                    SubReportStatus::Positive => (0, 0, 1, 0, 0, 0, 0, 0, 0),
+                    SubReportStatus::Recovered => (0, 0, 0, 1, 0, 0, 0, 0, 0),
+                    SubReportStatus::Death => (0, 0, 0, 0, 1, 0, 0, 0, 0),
+                    SubReportStatus::OTG => (0, 0, 0, 0, 0, 1, 0, 0, 0),
+                    SubReportStatus::PDPS => (0, 0, 0, 0, 0, 0, 1, 0, 0),
+                    SubReportStatus::ODPSP => (0, 0, 0, 0, 0, 0, 0, 1, 0),
+                    SubReportStatus::PDPM => (0, 0, 0, 0, 0, 0, 0, 0, 1),
                     _ => return Err(Error::InvalidParameter("Status tidak valid".to_owned()))?,
                 };
 
@@ -690,9 +692,9 @@ impl PublicApi {
         let mut ppdwt = 0;
         let mut pptb = 0;
         // let mut otg = 0;
-        let mut odpsp = 0;
+        // let mut odpsp = 0;
         let mut pdps = 0;
-        let mut pdpm = 0;
+        // let mut pdpm = 0;
         let mut is_correction = false;
 
         let mut healthy: HealthyKind = HealthyKind::Health;
@@ -721,22 +723,24 @@ impl PublicApi {
                 pptb = 1;
                 // otg = 1;
             }
-            if has_label!(add_info, "odpsp") {
-                meta.push(format!(":odpsp:"));
-                odpsp = 1;
-            }
+            // if has_label!(add_info, "odpsp") {
+            //     meta.push(format!(":odpsp:"));
+            //     odpsp = 1;
+            // }
             is_correction = has_label!(add_info, "update_method=correction");
         }
 
         let new_status: SubReportStatus = query.status.as_str().into();
 
         if !is_correction {
-            if old_status == SubReportStatus::PDP && new_status == SubReportStatus::Recovered {
+            if old_status == SubReportStatus::PDP
+                && (new_status == SubReportStatus::Recovered || new_status == SubReportStatus::PDPS)
+            {
                 pdps = 1;
             }
-            if old_status == SubReportStatus::PDP && new_status == SubReportStatus::Death {
-                pdpm = 1;
-            }
+            // if old_status == SubReportStatus::PDP && new_status == SubReportStatus::Death {
+            //     pdpm = 1;
+            // }
         }
 
         let sub_report = conn
@@ -767,15 +771,22 @@ impl PublicApi {
                     },
                 )?;
 
-                let (odp, pdp, cases, recovered, deaths, otg) = match old_status {
-                    SubReportStatus::ODP => (1, 0, 0, 0, 0, 0),
-                    SubReportStatus::PDP => (0, 1, 0, 0, 0, 0),
-                    SubReportStatus::Positive => (0, 0, 1, 0, 0, 0),
-                    SubReportStatus::Recovered => (0, 0, 0, 1, 0, 0),
-                    SubReportStatus::Death => (0, 0, 0, 0, 1, 0),
-                    SubReportStatus::OTG => (0, 0, 0, 0, 0, 1),
+                // let pdpm_old = if old_status == SubReportStatus::Death { 1 } else { 0 };
+
+                let (odp, pdp, cases, recovered, deaths, otg, pdps_old, odpsp, pdpm_old) = match old_status {
+                    SubReportStatus::ODP => (1, 0, 0, 0, 0, 0, 0, 0, 0),
+                    SubReportStatus::PDP => (0, 1, 0, 0, 0, 0, 0, 0, 0),
+                    SubReportStatus::Positive => (0, 0, 1, 0, 0, 0, 0, 0, 0),
+                    SubReportStatus::Recovered => (0, 0, 0, 1, 0, 0, 0, 0, 0),
+                    SubReportStatus::Death => (0, 0, 0, 0, 1, 0, 0, 0, 0),
+                    SubReportStatus::OTG => (0, 0, 0, 0, 0, 1, 0, 0, 0),
+                    SubReportStatus::PDPS => (0, 0, 0, 0, 0, 0, 1, 0, 0),
+                    SubReportStatus::ODPSP => (0, 0, 0, 0, 0, 0, 0, 1, 0),
+                    SubReportStatus::PDPM => (0, 0, 0, 0, 0, 0, 0, 0, 1),
                     _ => return Err(Error::InvalidParameter("Status tidak valid".to_owned()))?,
                 };
+
+                // let pdps = std::cmp::max(pdps, pdps2);
 
                 VillageDataDao::new(&conn).update(
                     subr.village_id,
@@ -793,8 +804,8 @@ impl PublicApi {
                         ppdwt,
                         pptb,
                         odpsp,
-                        pdps,
-                        pdpm,
+                        pdps: pdps_old,
+                        pdpm: pdpm_old,
                         otg,
                     },
                 )?;
@@ -814,21 +825,27 @@ impl PublicApi {
                         ppdwt,
                         pptb,
                         odpsp,
-                        pdps,
-                        pdpm,
+                        pdps: pdps_old,
+                        pdpm: pdpm_old,
                         otg,
                     },
                 )?;
 
-                let (odp, pdp, cases, recovered, deaths, otg) = match new_status {
-                    SubReportStatus::ODP => (1, 0, 0, 0, 0, 0),
-                    SubReportStatus::PDP => (0, 1, 0, 0, 0, 0),
-                    SubReportStatus::Positive => (0, 0, 1, 0, 0, 0),
-                    SubReportStatus::Recovered => (0, 0, 0, 1, 0, 0),
-                    SubReportStatus::Death => (0, 0, 0, 0, 1, 0),
-                    SubReportStatus::OTG => (0, 0, 0, 0, 0, 1),
+                let (odp, pdp, cases, recovered, deaths, otg, pdps_new, odpsp, pdpm) = match new_status {
+                    SubReportStatus::ODP => (1, 0, 0, 0, 0, 0, 0, 0, 0),
+                    SubReportStatus::PDP => (0, 1, 0, 0, 0, 0, 0, 0, 0),
+                    SubReportStatus::Positive => (0, 0, 1, 0, 0, 0, 0, 0, 0),
+                    SubReportStatus::Recovered => (0, 0, 0, 1, 0, 0, 0, 0, 0),
+                    SubReportStatus::Death => (0, 0, 0, 0, 1, 0, 0, 0, 0),
+                    SubReportStatus::OTG => (0, 0, 0, 0, 0, 1, 0, 0, 0),
+                    SubReportStatus::PDPS => (0, 0, 0, 0, 0, 0, 1, 0, 0),
+                    SubReportStatus::ODPSP => (0, 0, 0, 0, 0, 0, 0, 1, 0),
+                    SubReportStatus::PDPM => (0, 0, 0, 0, 0, 0, 0, 0, 1),
                     _ => return Err(Error::InvalidParameter("Status tidak valid".to_owned()))?,
                 };
+
+                let pdps = std::cmp::max(pdps, pdps_new);
+                // let deaths = if pdpm > 0 { 0 } else { 1 };
 
                 VillageDataDao::new(&conn).update(
                     subr.village_id,

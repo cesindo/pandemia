@@ -127,14 +127,10 @@ class PandemiaApp extends StatelessWidget {
             "/village/v1/search?query=$query&scope=$locPath&offset=0&limit=10",
             force: false)
         .then((data) async {
-      // return PublicApi.get(
-      //         "/village/v1/search?query=$query&scope=${currentUser.locPath}&offset=0&limit=10")
-      //     .then((data) async {
       if (data != null) {
         List<dynamic> entries = data["entries"] as List;
         if (entries.length == 0) {
-          // coba listing semuanya
-
+          // kalau kosong listing semuanya saja
           return await PublicApi.get(
                   "/village/v1/search?query=$query&offset=0&limit=10")
               .then((data2) {

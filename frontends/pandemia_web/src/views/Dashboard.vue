@@ -386,8 +386,11 @@ export default {
 
 
 <style lang="less">
+#Main {
+  max-width: 90%;
+}
 .dashboard-inner {
-  width: 100%;
+  max-width: 90%;
   transition: all 0.1s ease-in-out;
   -webkit-transition: all 0.1s ease-in-out; /** Chrome & Safari **/
   -moz-transition: all 0.1s ease-in-out; /** Firefox **/

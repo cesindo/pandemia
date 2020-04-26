@@ -11,6 +11,7 @@ import 'package:pandemia_mobile/models/sub_report.dart';
 import 'package:pandemia_mobile/models/user.dart';
 import 'package:pandemia_mobile/screens/sub_report/data_kabupaten.dart';
 import 'package:pandemia_mobile/user_repository/user_repository.dart';
+import 'package:pandemia_mobile/util/sub_report_util.dart';
 import 'package:pandemia_mobile/util/text_formatter.dart';
 
 class AddSubReportPage extends StatefulWidget {
@@ -59,7 +60,8 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
     Gender("L", "Laki-laki"),
     Gender("P", "Perempuan"),
   ];
-  List<String> statuses = ["ODP", "PDP", 'OTG'];
+  List<String> statuses = ["ODP", "ODP Selesai Pemantauan", "PDP"];
+
   List<Map<String, String>> addInfo = [
     {"no": "traveler", "info": "Pelaku Perjalanan"},
     {"no": "from_red_zone", "info": "Datang Dari Zona Merah"},
@@ -103,11 +105,15 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
     });
 
     if (currentUser.isMedic) {
+      statuses.add("PDP Sembuh");
+      statuses.add("PDP Meninggal");
+      // statuses.sort();
       statuses.add("Positif");
-      // statuses.add("PDP Sembuh");
-      statuses.add("Sembuh");
-      statuses.add("Meninggal");
+      statuses.add("Positif Sembuh");
+      statuses.add("Positif Meninggal");
     }
+
+    statuses.add('Orang Tidak Bergejala (OTG)');
 
     if (item != null) {
       Future.delayed(Duration(milliseconds: 300), () {
@@ -123,17 +129,21 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
           } else {
             _valGender = gender[1];
           }
-          switch (item.status) {
-            case "POSITIVE":
-              _valStatus = "Positif";
-              break;
-            case "RECOVERED":
-              _valStatus = "Sembuh";
-              break;
-            case "DEATH":
-              _valStatus = "Meninggal";
-              break;
-          }
+          _valStatus =
+              SubReportUtil().statusIdNameToLabel[item.status.toLowerCase()];
+          // switch (item.status) {
+          //   case "POSITIVE":
+          //     _valStatus = "Positif";
+          //     break;
+          //   case "RECOVERED":
+          //     _valStatus = "Sembuh";
+          //     break;
+          //   case "DEATH":
+          //     _valStatus = "Meninggal";
+          //     break;
+          //   default:
+          //     _valStatus = item.status;
+          // }
 
           keluhanSelected =
               item.healthyNotes.split(',').map((a) => a.trim()).toList();
@@ -380,12 +390,16 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
                                                   _fromCtl.text,
                                                   _comingDateCtl.text,
                                                   _necessityCtl.text,
-                                                  _valStatus,
+                                                  SubReportUtil()
+                                                          .statusLabelToIdName[
+                                                      _valStatus],
                                                   keluhanSelected,
                                                   addInfoSelected +
                                                       [
                                                         "update_method=correction"
                                                       ]));
+
+                                          Navigator.pop(context, true);
                                         },
                                         child: Text("Koreksi")),
                                     new FlatButton(
@@ -400,12 +414,16 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
                                                   _fromCtl.text,
                                                   _comingDateCtl.text,
                                                   _necessityCtl.text,
-                                                  _valStatus,
+                                                  SubReportUtil()
+                                                          .statusLabelToIdName[
+                                                      _valStatus],
                                                   keluhanSelected,
                                                   addInfoSelected +
                                                       [
                                                         "update_method=history"
                                                       ]));
+
+                                          Navigator.pop(context, true);
                                         },
                                         child: Text("Pembaharuan")),
                                   ],

@@ -10,6 +10,7 @@ import 'package:pandemia_mobile/core/core.dart';
 import 'package:pandemia_mobile/models/sub_report.dart';
 import 'package:pandemia_mobile/screens/sub_report/add_sub_report.dart';
 import 'package:pandemia_mobile/throttle.dart';
+import 'package:pandemia_mobile/util/sub_report_util.dart';
 import 'package:pandemia_mobile/widgets/widgets.dart';
 
 class SubReportPage extends StatefulWidget {
@@ -264,8 +265,12 @@ class _SubReportListState extends State<SubReportList> {
                                       fontSize: 17,
                                       fontFamily:
                                           "Google Sans, Roboto, sans-serif")),
-                              subtitle: Text("${item.residenceAddress}",
+                              subtitle: Column(mainAxisAlignment: MainAxisAlignment.start, crossAxisAlignment: CrossAxisAlignment.start,children: <Widget>[
+                                Text("${item.residenceAddress}",
                                   style: TextStyle(fontSize: 15)),
+                                  Text(SubReportUtil().statusIdNameToLabel[item.status.toLowerCase()],
+                                  style: TextStyle(fontSize: 15))
+                              ],),
                               onTap: () {
                                 Navigator.of(context)
                                     .push(MaterialPageRoute(

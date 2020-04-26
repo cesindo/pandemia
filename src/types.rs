@@ -59,6 +59,15 @@ pub enum SubReportStatus {
     /// OTG
     OTG = 5,
 
+    /// ODP Selesai Pemantauan
+    ODPSP = 6,
+
+    /// PDP Sembuh
+    PDPS = 7,
+
+    /// PDP Meninggal
+    PDPM = 8,
+
     // /// PDP Sembuh
     // PDPS = 6,
     /// Data untuk semua (hanya untuk query)
@@ -83,6 +92,9 @@ impl std::fmt::Display for SubReportStatus {
             SubReportStatus::Recovered => write!(f, "RECOVERED"),
             SubReportStatus::Death => write!(f, "DEATH"),
             SubReportStatus::OTG => write!(f, "OTG"),
+            SubReportStatus::ODPSP => write!(f, "ODPS"),
+            SubReportStatus::PDPS => write!(f, "PDPS"),
+            SubReportStatus::PDPM => write!(f, "PDPM"),
             // SubReportStatus::PDPS => write!(f, "PDPS"),
             SubReportStatus::All => write!(f, "ALL"),
             SubReportStatus::Unknown => write!(f, "UNKNOWN"),
@@ -99,6 +111,9 @@ impl From<i32> for SubReportStatus {
             3 => SubReportStatus::Recovered,
             4 => SubReportStatus::Death,
             5 => SubReportStatus::OTG,
+            6 => SubReportStatus::ODPSP,
+            7 => SubReportStatus::PDPS,
+            8 => SubReportStatus::PDPM,
             // 6 => SubReportStatus::PDPS,
             -1 => SubReportStatus::All,
             x => SubReportStatus::Unknown,
@@ -124,6 +139,14 @@ impl From<&str> for SubReportStatus {
             "death" => SubReportStatus::Death,
             "meninggal" => SubReportStatus::Death,
             "otg" => SubReportStatus::OTG,
+            "odpsp" => SubReportStatus::ODPSP,
+            "odps" => SubReportStatus::ODPSP,
+            "odp-s" => SubReportStatus::ODPSP,
+            "odp-sp" => SubReportStatus::ODPSP,
+            "pdps" => SubReportStatus::PDPS,
+            "pdp-s" => SubReportStatus::PDPS,
+            "pdp-m" => SubReportStatus::PDPM,
+            "pdpm" => SubReportStatus::PDPM,
             // "pdps" => SubReportStatus::PDPS,
             // "pdp sembuh" => SubReportStatus::PDPS,
             "all" => SubReportStatus::All,
