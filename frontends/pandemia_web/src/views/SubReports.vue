@@ -251,9 +251,15 @@
                 <button
                   :disabled="isLoading"
                   v-if="editMode"
-                  class="ui primary button"
-                  @click="onDataUpdate"
-                >Simpan</button>
+                  class="ui blue button"
+                  @click="() => onDataUpdate('correction')"
+                >Koreksi</button>
+                <button
+                  :disabled="isLoading"
+                  v-if="editMode"
+                  class="ui green button"
+                  @click="() => onDataUpdate('update')"
+                >Pembaharuan</button>
               </div>
             </div>
           </div>
@@ -616,7 +622,7 @@ export default {
           this.isLoading = false;
         });
     },
-    onDataUpdate() {
+    onDataUpdate(updateMethod) {
       var name = this.$refs["nameInput"].value,
         address = this.$refs["addAddressInput"].value,
         age = this.$refs["addAgeInput"].value,
@@ -625,6 +631,8 @@ export default {
         // arrivalDate = this.date,
         notes = this.$refs["addNotesInput"].value;
 
+      var addInfo = [`update_method=${updateMethod}`];
+
       var payload = {
         full_name: name,
         age: parseInt(age),
@@ -632,7 +640,8 @@ export default {
         gender: addGender,
         coming_from: addComeFrom,
         notes: notes,
-        status: this.addStatus
+        status: this.addStatus,
+        add_info: addInfo
       };
 
       if (this.adminMode) {

@@ -29,7 +29,7 @@
       />
     </div>
 
-    <div class="analytic-inner" v-if="!currentPage['/']">
+    <div class="analytic-inner" v-if="currentPage['/']">
       <!-- <h1>{{ pageTitle }}</h1> -->
 
       <h1 class="ui header">
@@ -174,6 +174,15 @@
           <div class="four wide column">
             <div class="four wide column">
               <h2>Data Per Kecamatan</h2>
+
+              <p class="ui segment left aligned">
+                O: ODP<br/>
+                P: PDP<br/>
+                C: COVID19<br/>
+                S: Sembuh<br/>
+              </p>
+
+
               <table class="ui celled unstackable table district-data">
                 <thead>
                   <tr>

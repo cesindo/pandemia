@@ -469,26 +469,26 @@ impl PublicApi {
                         },
                     )?;
 
-                    DistrictDataDao::new(&conn).update(
-                        district_id,
-                        Ops::Add,
-                        &UpdateDistrictData {
-                            odp,
-                            pdp,
-                            cases,
-                            recovered,
-                            deaths,
-                            last_updated_by_id: current_user_id,
-                            city_id,
-                            meta: &meta.iter().map(|a| a.as_str()).collect(),
-                            ppdwt,
-                            pptb,
-                            odpsp: 0,
-                            pdps: 0,
-                            pdpm: 0,
-                            otg,
-                        },
-                    )?;
+                    // DistrictDataDao::new(&conn).update(
+                    //     district_id,
+                    //     Ops::Add,
+                    //     &UpdateDistrictData {
+                    //         odp,
+                    //         pdp,
+                    //         cases,
+                    //         recovered,
+                    //         deaths,
+                    //         last_updated_by_id: current_user_id,
+                    //         city_id,
+                    //         meta: &meta.iter().map(|a| a.as_str()).collect(),
+                    //         ppdwt,
+                    //         pptb,
+                    //         odpsp: 0,
+                    //         pdps: 0,
+                    //         pdpm: 0,
+                    //         otg,
+                    //     },
+                    // )?;
                 }
 
                 Ok(ApiResult::success(sub_report))
@@ -606,26 +606,26 @@ impl PublicApi {
                     },
                 )?;
 
-                DistrictDataDao::new(&conn).update(
-                    sr.district_id,
-                    Ops::Subs,
-                    &UpdateDistrictData {
-                        odp,
-                        pdp,
-                        cases,
-                        recovered,
-                        deaths,
-                        last_updated_by_id: current_user_id,
-                        city_id: sr.city_id,
-                        meta: &sr.meta.iter().map(|a| a.as_str()).collect(),
-                        ppdwt,
-                        pptb,
-                        odpsp,
-                        pdps,
-                        pdpm,
-                        otg,
-                    },
-                )?;
+                // DistrictDataDao::new(&conn).update(
+                //     sr.district_id,
+                //     Ops::Subs,
+                //     &UpdateDistrictData {
+                //         odp,
+                //         pdp,
+                //         cases,
+                //         recovered,
+                //         deaths,
+                //         last_updated_by_id: current_user_id,
+                //         city_id: sr.city_id,
+                //         meta: &sr.meta.iter().map(|a| a.as_str()).collect(),
+                //         ppdwt,
+                //         pptb,
+                //         odpsp,
+                //         pdps,
+                //         pdpm,
+                //         otg,
+                //     },
+                // )?;
 
                 Ok(())
             })?;
@@ -742,15 +742,25 @@ impl PublicApi {
 
         let new_status: SubReportStatus = query.status.as_str().into();
 
+        let mut prev_positive = 0;
+        let mut prev_recovered = 0;
+
         if !is_correction {
             if old_status == SubReportStatus::PDP
                 && (new_status == SubReportStatus::Recovered || new_status == SubReportStatus::PDPS)
             {
                 pdps = 1;
             }
-            // if old_status == SubReportStatus::PDP && new_status == SubReportStatus::Death {
-            //     pdpm = 1;
-            // }
+            if old_status == SubReportStatus::Positive {
+                prev_positive = 1;
+            }
+            if old_status == SubReportStatus::Recovered {
+                prev_recovered = 1;
+            }
+        } else {
+            if old_status == SubReportStatus::Recovered && new_status == SubReportStatus::Positive {
+                prev_positive = -1;
+            }
         }
 
         let sub_report = conn
@@ -820,26 +830,26 @@ impl PublicApi {
                     },
                 )?;
 
-                DistrictDataDao::new(&conn).update(
-                    subr.district_id,
-                    Ops::Subs,
-                    &UpdateDistrictData {
-                        odp,
-                        pdp,
-                        cases,
-                        recovered,
-                        deaths,
-                        last_updated_by_id: current_user_id,
-                        city_id: subr.city_id,
-                        meta: &subr.meta.iter().map(|a| a.as_str()).collect(),
-                        ppdwt,
-                        pptb,
-                        odpsp,
-                        pdps: pdps_old,
-                        pdpm: pdpm_old,
-                        otg,
-                    },
-                )?;
+                // DistrictDataDao::new(&conn).update(
+                //     subr.district_id,
+                //     Ops::Subs,
+                //     &UpdateDistrictData {
+                //         odp,
+                //         pdp,
+                //         cases,
+                //         recovered,
+                //         deaths,
+                //         last_updated_by_id: current_user_id,
+                //         city_id: subr.city_id,
+                //         meta: &subr.meta.iter().map(|a| a.as_str()).collect(),
+                //         ppdwt,
+                //         pptb,
+                //         odpsp,
+                //         pdps: pdps_old,
+                //         pdpm: pdpm_old,
+                //         otg,
+                //     },
+                // )?;
 
                 let (odp, pdp, cases, recovered, deaths, otg, pdps_new, odpsp, pdpm) = match new_status {
                     SubReportStatus::ODP => (1, 0, 0, 0, 0, 0, 0, 0, 0),
@@ -863,8 +873,8 @@ impl PublicApi {
                     &UpdateVillageData {
                         odp,
                         pdp,
-                        cases,
-                        recovered,
+                        cases: cases + prev_positive,
+                        recovered: recovered + prev_recovered,
                         deaths,
                         last_updated_by_id: current_user_id,
                         city_id: Some(subr.city_id),
@@ -879,26 +889,26 @@ impl PublicApi {
                     },
                 )?;
 
-                DistrictDataDao::new(&conn).update(
-                    subr.district_id,
-                    Ops::Add,
-                    &UpdateDistrictData {
-                        odp,
-                        pdp,
-                        cases,
-                        recovered,
-                        deaths,
-                        last_updated_by_id: current_user_id,
-                        city_id: subr.city_id,
-                        meta: &subr.meta.iter().map(|a| a.as_str()).collect(),
-                        ppdwt,
-                        pptb,
-                        odpsp,
-                        pdps,
-                        pdpm,
-                        otg,
-                    },
-                )?;
+                // DistrictDataDao::new(&conn).update(
+                //     subr.district_id,
+                //     Ops::Add,
+                //     &UpdateDistrictData {
+                //         odp,
+                //         pdp,
+                //         cases,
+                //         recovered,
+                //         deaths,
+                //         last_updated_by_id: current_user_id,
+                //         city_id: subr.city_id,
+                //         meta: &subr.meta.iter().map(|a| a.as_str()).collect(),
+                //         ppdwt,
+                //         pptb,
+                //         odpsp,
+                //         pdps,
+                //         pdpm,
+                //         otg,
+                //     },
+                // )?;
                 Ok(sub_report)
             })?;
 
