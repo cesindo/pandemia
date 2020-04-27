@@ -11,7 +11,7 @@ import psycopg2
 from psycopg2 import sql
 
 def get_city(city_id, cur):
-    cur.execute("SELECT name, province, country_code FROM cities WHERE id=%d" % city_id)
+    cur.execute("SELECT id, name, province, country_code FROM cities WHERE id=%d" % city_id)
     return cur.fetchone()
 
 def main():
@@ -24,16 +24,22 @@ def main():
         # for district_id, name in districts:
         #     print(name)
 
-    total = 0
+    total_city = 0
+    total_district = 0
 
     calculated_at = datetime.now().strftime("%d-%m-%Y")
 
     with conn.cursor() as cur:
 
+        cities = []
+
         for district_id, district_name, city_id in districts:
             city = get_city(city_id, cur)
 
-            loc_path = "/%s/%s/%s" % (city[2], city[1], city[0])
+            if city[0] not in list(map(lambda a: a[0], cities)):
+                cities.append(city)
+
+            loc_path = "/%s/%s/%s" % (city[3], city[2], city[1])
 
             # hapus data yang telah dikalkulasikan sebelumnya pada hari yang sama apabila ada
             # memastikan ke-idempoten-an hasil kalkulasinya
@@ -64,7 +70,7 @@ def main():
                 total_recovered, latest, 
                 ppdwt, pptb, odp, odpsp, pdp, pdps, pdpm, otg, loc_path, meta)VALUES
                 ({loc}, 5, {total_cases}, {total_deaths}, 
-                {total_recovered}, false, 
+                {total_recovered}, false,
                 {ppdwt}, {pptb}, {odp}, {odpsp}, {pdp}, {pdps}, {pdpm}, {otg}, {loc_path}, {meta})
                 """).format(loc=sql.Literal(district_name),
                 total_cases = sql.Literal(positive),
@@ -84,12 +90,35 @@ def main():
 
                 cur.execute(sqlq)
 
-                total += 1
+                total_district += 1
 
                 conn.commit()
 
+        # Calculate latest records for city
+        for city in cities:
+            sqlq = sql.SQL("""SELECT
+            COALESCE(SUM(cases)) AS positive, COALESCE(SUM(recovered)) AS recovered, COALESCE(SUM(deaths)) AS deaths FROM
+            district_data WHERE city_id={city_id}""").format(city_id=sql.Literal(city[0]))
+            cur.execute(sqlq)
 
-    print("  %d data processed" % total)
+            positive, recovered, deaths = cur.fetchone()
+
+            sqlq = sql.SQL("""INSERT INTO records (loc, loc_kind, total_cases, total_recovered, total_deaths, latest, meta)VALUES
+            ({loc}, 4,{positive}, {recovered}, {deaths}, true, {meta})
+            """).format(
+                loc = sql.Literal(city[1]),
+                positive=sql.Literal(positive),
+                recovered=sql.Literal(recovered),
+                deaths=sql.Literal(deaths),
+                meta=sql.SQL('ARRAY[\'loc_scope=Indonesia\',\':daily_calculation:\',\'calculated_at=%s\']' % calculated_at)
+            )
+
+            cur.execute(sqlq)
+            conn.commit()
+
+            total_city += 1
+
+    print("  %d district(s) and %d citie(s) processed" % (total_district, total_city))
 
     conn.close()
 
