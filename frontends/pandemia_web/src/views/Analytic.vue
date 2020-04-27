@@ -180,6 +180,7 @@
                 P: PDP<br/>
                 C: COVID19<br/>
                 S: Sembuh<br/>
+                M: Meninggal<br/>
               </p>
 
 
