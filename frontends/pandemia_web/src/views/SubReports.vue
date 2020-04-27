@@ -8,7 +8,6 @@
         :columns="['ID', 'Nama', 'Desa', 'Umur', 'Tempat Tinggal', 'JK', 'Status', 'Catatan & Info Tambahan', 'Pendata', 'Operasi']"
         :searchable="true"
         :withActionButton="false"
-        :showDetailFunc="showDetail"
         :limit="100"
       >
         <template v-slot:bellow-search>
@@ -34,7 +33,7 @@
           <td>{{self.item['age']}}</td>
           <td>{{self.item['residence_address']}}</td>
           <td>{{self.item['gender'] == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
-          <td>{{self.item['status']}}</td>
+          <td>{{ statusIdNameToLabel(self.item['status']) }}</td>
           <td>
             {{self.item['notes'] }}
             <div v-if="self.item['coming_from'] != ''">
@@ -189,12 +188,16 @@
                       </div>
                       <div class="field">
                         <label>Status:</label>
-                        <select ref="addStatus" name="AddStatus" id="Status">
+                        <select ref="addStatus" name="AddStatus" id="Status" v-model="addStatus">
                           <option value="odp">ODP</option>
+                          <option value="odps">ODP Selesai Pemantauan</option>
                           <option value="pdp">PDP</option>
-                          <option v-if="adminMode" value="positive">POSITIVE</option>
-                          <option v-if="adminMode" value="recovered">SEMBUH</option>
-                          <option v-if="adminMode" value="death">MENINGGAL</option>
+                          <option value="pdps" v-if="adminMode">PDP Sembuh</option>
+                          <option value="pdpm" v-if="adminMode">PDP Meninggal</option>
+                          <option value="otg">OTG</option>
+                          <option v-if="adminMode" value="positive">Positif</option>
+                          <option v-if="adminMode" value="recovered">Positif Sembuh</option>
+                          <option v-if="adminMode" value="death">Positif Meninggal</option>
                         </select>
                       </div>
 
@@ -203,14 +206,31 @@
 
                         <div class="field">
                           <div class="ui checkbox">
-                            <input type="checkbox" name="FromRedZone" id="FromRedZone" v-model="fromRedZone" />
+                            <input type="checkbox" name="Traveler" id="Traveler" v-model="traveler" />
+                            <label>Pelaku Perjalanan</label>
+                          </div>
+                        </div>
+
+                        <div class="field">
+                          <div class="ui checkbox">
+                            <input
+                              type="checkbox"
+                              name="FromRedZone"
+                              id="FromRedZone"
+                              v-model="fromRedZone"
+                            />
                             <label>Dari zona merah</label>
                           </div>
                         </div>
 
                         <div class="field">
                           <div class="ui checkbox">
-                            <input type="checkbox" name="DasSymptoms" id="DasSymptoms" v-model="hasSymptoms" />
+                            <input
+                              type="checkbox"
+                              name="DasSymptoms"
+                              id="DasSymptoms"
+                              v-model="hasSymptoms"
+                            />
                             <label>Punya gejala COVID-19</label>
                           </div>
                         </div>
@@ -348,8 +368,10 @@ export default {
       villageSuggestions: [],
       districtSuggestions: [],
 
+      traveler: false,
       fromRedZone: false,
-      hasSymptoms: false
+      hasSymptoms: false,
+      addStatus: ""
     };
   },
   computed: {
@@ -407,8 +429,12 @@ export default {
     edit(item) {
       this.editMode = true;
       this.toEdit = item;
-      this.fromRedZone = item['from_red_zone'] == true;
-      this.hasSymptoms = item['has_symptoms'] == true;
+      this.traveler = item["traveler"] == true;
+      this.fromRedZone = item["from_red_zone"] == true;
+      this.hasSymptoms = item["has_symptoms"] == true;
+      this.villageName = item["reporter_village"];
+      this.districtName = item["reporter_district"];
+      this.addStatus = item["status"].toLowerCase();
       this.$modal.show("AddData");
     },
     approve(item) {
@@ -438,9 +464,9 @@ export default {
     // onAddVillageOpened() {
     //   this.$refs["addRecLocInput"].focus();
     // },
-    showDetail(item) {
-      this.$router.push("/dashboard/villages/" + item.id);
-    },
+    // showDetail(item) {
+    //   this.$router.push("/dashboard/villages/" + item.id);
+    // },
     // editValue(self, catName, cat) {
     //   this.editedItem = self.item;
     //   this.editedCatName = catName;
@@ -532,15 +558,18 @@ export default {
         addGender = this.$refs["addGender"].value,
         addComeFrom = this.$refs["addComeFromInput"].value,
         // arrivalDate = this.date,
-        notes = this.$refs["addNotesInput"].value,
-        addStatus = this.$refs["addStatus"].value;
+        notes = this.$refs["addNotesInput"].value;
+      // addStatus = this.$refs["addStatus"].value;
 
       var addInfo = [];
 
-      if (this.fromRedZone){
+      if (this.traveler) {
+        addInfo.push("traveler");
+      }
+      if (this.fromRedZone) {
         addInfo.push("from_red_zone");
       }
-      if (this.hasSymptoms){
+      if (this.hasSymptoms) {
         addInfo.push("has_symptoms");
       }
 
@@ -552,7 +581,7 @@ export default {
         coming_from: addComeFrom,
 
         notes: notes,
-        status: addStatus,
+        status: this.addStatus,
         add_info: addInfo
       };
 
@@ -594,8 +623,7 @@ export default {
         addGender = this.$refs["addGender"].value,
         addComeFrom = this.$refs["addComeFromInput"].value,
         // arrivalDate = this.date,
-        notes = this.$refs["addNotesInput"].value,
-        addStatus = this.$refs["addStatus"].value;
+        notes = this.$refs["addNotesInput"].value;
 
       var payload = {
         full_name: name,
@@ -604,7 +632,7 @@ export default {
         gender: addGender,
         coming_from: addComeFrom,
         notes: notes,
-        status: addStatus
+        status: this.addStatus
       };
 
       if (this.adminMode) {
@@ -659,9 +687,37 @@ export default {
     },
     onAddDataCanceled() {
       this.$modal.hide("AddData");
+    },
+    statusIdNameToLabel(statusId) {
+      return statusMap[statusId.toLowerCase()];
+    },
+    statusLabelToIdName(label) {
+      return statusMapReversed[label];
     }
   }
 };
+
+function swap(json) {
+  var ret = {};
+  for (var key in json) {
+    ret[json[key]] = key;
+  }
+  return ret;
+}
+
+let statusMap = {
+  odp: "ODP",
+  odps: "ODP Selesai Pemantauan",
+  pdp: "PDP",
+  pdps: "PDP Sembuh",
+  pdpm: "PDP Meninggal",
+  otg: "OTG",
+  positive: "Positif",
+  recovered: "Sembuh",
+  death: "Meninggal"
+};
+
+let statusMapReversed = swap(statusMap);
 </script>
 
 <style lang="less">

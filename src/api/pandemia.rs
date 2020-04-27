@@ -149,10 +149,10 @@ pub struct UpdateSubReport {
     pub residence_address: String,
     #[validate(length(min = 1, max = 50))]
     pub gender: String,
-    #[validate(length(min = 1, max = 70))]
+    #[validate(length(max = 100))]
     pub coming_from: String,
     pub arrival_date: Option<NaiveDate>,
-    #[validate(length(min = 1, max = 50))]
+    #[validate(length(max = 500))]
     pub notes: String,
     pub status: String,
     pub complaint: Option<Vec<String>>,
@@ -337,8 +337,16 @@ impl PublicApi {
             village_id = village.id;
             village_name = village.name.to_owned();
             district_id = district.id;
+            district_name = district.name.to_owned();
 
             reporter_full_name = &current_admin.name;
+        }
+
+        if village_name.is_empty() {
+            return param_error("Nama desa masih kosong");
+        }
+        if district_name.is_empty() {
+            return param_error("Nama kecamatan masih kosong");
         }
 
         let mut healthy: HealthyKind = HealthyKind::Health;
@@ -687,6 +695,8 @@ impl PublicApi {
                     return unauthorized();
                 }
             }
+
+            village_id = subr.village_id;
         }
 
         let mut ppdwt = 0;
@@ -1077,11 +1087,12 @@ impl PublicApi {
                     .into_iter()
                     .filter(|a| !a.is_empty())
                     .map(|a| {
-                        let mut s:Vec<&str> = a.split("/").collect();
+                        let mut s: Vec<&str> = a.split("/").collect();
                         s.remove(0);
-                        if s.first() == Some(&"IDN"){ // for backward compatibility only
+                        if s.first() == Some(&"IDN") {
+                            // for backward compatibility only
                             format!("/Indonesia/{}", (&s[1..]).join("/"))
-                        }else{
+                        } else {
                             a.to_string()
                         }
                     })
