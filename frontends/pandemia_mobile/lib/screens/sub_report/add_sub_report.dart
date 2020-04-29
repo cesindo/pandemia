@@ -131,20 +131,6 @@ class _AddSubReportPageState extends State<AddSubReportPage> {
           }
           _valStatus =
               SubReportUtil().statusIdNameToLabel[item.status.toLowerCase()];
-          // switch (item.status) {
-          //   case "POSITIVE":
-          //     _valStatus = "Positif";
-          //     break;
-          //   case "RECOVERED":
-          //     _valStatus = "Sembuh";
-          //     break;
-          //   case "DEATH":
-          //     _valStatus = "Meninggal";
-          //     break;
-          //   default:
-          //     _valStatus = item.status;
-          // }
-
           keluhanSelected =
               item.healthyNotes.split(',').map((a) => a.trim()).toList();
           if (item.fromRedZone) {

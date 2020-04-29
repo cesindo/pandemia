@@ -4,7 +4,7 @@
       <AnsTable
         :key="tableSubReports"
         data-source-url="/pandemia/v1/sub_report/search"
-        add-params="status=-1"
+        :add-params="'status=-1&city_id=' + cityId"
         :columns="['ID', 'Nama', 'Desa', 'Umur', 'Tempat Tinggal', 'JK', 'Status', 'Catatan & Info Tambahan', 'Pendata', 'Operasi']"
         :searchable="true"
         :withActionButton="false"
@@ -108,8 +108,8 @@
 
                         <!-- <div class="autosuggest-container"> -->
                         <vue-autosuggest
-                          v-model="query"
-                          :suggestions="filteredOptions"
+                          v-model="queryVillage"
+                          :suggestions="filteredVillage"
                           @click="clickHandler"
                           @input="onInputChange"
                           @selected="onSelected"
@@ -120,30 +120,9 @@
                             slot-scope="{suggestion}"
                             style="display: flex; align-items: center;"
                           >
-                            <div style="{ display: 'flex', color: 'navyblue'}">{{suggestion.item}}</div>
-                          </div>
-                        </vue-autosuggest>
-                        <!-- </div> -->
-                      </div>
-                      <div v-if="adminMode" class="field">
-                        <label>Kecamatan:</label>
-                        <!-- <input ref="districtInput" type="text" name="District" id="District" /> -->
-
-                        <!-- <div class="autosuggest-container"> -->
-                        <vue-autosuggest
-                          v-model="queryDistrict"
-                          :suggestions="filteredDistricts"
-                          @click="clickHandler"
-                          @input="onInputChange"
-                          @selected="onDistrictSelected"
-                          :get-suggestion-value="getSuggestionValue"
-                          :input-props="{id:'autosuggest__input', placeholder:'Kecamatan'}"
-                        >
-                          <div
-                            slot-scope="{suggestion}"
-                            style="display: flex; align-items: center;"
-                          >
-                            <div style="{ display: 'flex', color: 'navyblue'}">{{suggestion.item}}</div>
+                            <div
+                              style="{ display: 'flex', color: 'navyblue'}"
+                            >{{suggestion.item.address}}</div>
                           </div>
                         </vue-autosuggest>
                         <!-- </div> -->
@@ -339,7 +318,7 @@ import AnsTable from "@/components/AnsTable.vue";
 // import DialogModal from "@/components/modal/DialogModal.vue";
 import BasicModal from "@/components/modal/BasicModal.vue";
 import ConfirmDialog from "@/components/modal/ConfirmDialog.vue";
-import _axios from "axios";
+// import _axios from "axios";
 
 export default {
   name: "Satgas",
@@ -367,8 +346,9 @@ export default {
       toEdit: null,
       isLoading: false,
 
-      query: "",
-      queryDistrict: "",
+      queryVillage: "",
+      selectedVillage: {},
+      // queryDistrict: "",
       villageName: "",
       districtName: "",
       villageSuggestions: [],
@@ -381,43 +361,75 @@ export default {
     };
   },
   computed: {
-    filteredOptions() {
+    filteredVillage() {
       return [
         {
-          data: this.villageSuggestions.filter(option => {
-            return option.toLowerCase().indexOf(this.query.toLowerCase()) > -1;
-          })
-        }
-      ];
-    },
-    filteredDistricts() {
-      return [
-        {
-          data: this.districtSuggestions.filter(option => {
+          data: this.villageSuggestions.filter(d => {
             return (
-              option.toLowerCase().indexOf(this.queryDistrict.toLowerCase()) >
+              d.address.toLowerCase().indexOf(this.queryVillage.toLowerCase()) >
               -1
             );
           })
         }
       ];
+    },
+    cityId(){
+      return this.$session.get("user_city_id");
     }
+    // filteredDistricts() {
+    //   return [
+    //     {
+    //       data: this.districtSuggestions.filter(option => {
+    //         return (
+    //           option.toLowerCase().indexOf(this.queryDistrict.toLowerCase()) >
+    //           -1
+    //         );
+    //       })
+    //     }
+    //   ];
+    // }
   },
   mounted() {
-    _axios.get("/json/wonosobo-villages.json").then(response => {
-      // console.log(response);
-      this.villageSuggestions = response.data.villages;
-    });
-    _axios.get("/json/wonosobo-districts.json").then(response => {
-      // console.log(response);
-      this.districtSuggestions = response.data.districts;
-    });
+    // _axios.get("/json/wonosobo-villages.json").then(response => {
+    //   // console.log(response);
+    //   this.villageSuggestions = response.data.villages;
+    // });
+    // _axios.get("/json/wonosobo-districts.json").then(response => {
+    //   // console.log(response);
+    //   this.districtSuggestions = response.data.districts;
+    // });
+
+    this.province = localStorage.province || localStorage.province;
+    this.city = localStorage.city || localStorage.city;
+    this.province = this.province || this.$session.get("user_province");
+    this.city = this.city || this.$session.get("user_city");
+
+    if (this.province && this.city) {
+      this.$pandemia
+        .api()
+        .publicApi.get(
+          `/village/v1/village_address?scope=/Indonesia/${this.province}/${this.city}&offset=0&limit=1000`
+        )
+        .then(resp => {
+          // console.log(resp);
+          if (resp.data.code == 0) {
+            this.villageSuggestions = resp.data.result.entries;
+          } else {
+            this.showError(resp.data.description);
+          }
+        });
+    } else {
+      // console.log(
+      //   "Cannot fetch village-address data, province or city not defined"
+      // );
+      // console.log(this.$session);
+    }
   },
   methods: {
     clickHandler(_) {},
     onSelected(item) {
-      this.villageName = item.item;
-      this.query = item.item;
+      this.villageName = item.item.address;
+      this.queryVillage = item.item.address;
     },
     onDistrictSelected(item) {
       this.districtName = item.item;
@@ -427,7 +439,8 @@ export default {
       // console.log(text);
     },
     getSuggestionValue(suggestion) {
-      return suggestion.item.name;
+      this.selectedVillage = suggestion.item;
+      return suggestion.item.address;
     },
     // focusMe(e) {
     //   console.log(e); // FocusEvent
@@ -592,11 +605,18 @@ export default {
       };
 
       if (this.adminMode) {
-        var village = this.villageName, //this.$refs["villageInput"].value,
+        var village = this.villageName,
           district = this.districtName;
 
-        payload["village_name"] = village;
-        payload["district_name"] = district;
+        if (village != null && village != "") {
+          payload["village_name"] = village;
+        }
+        if (district != null && district != "") {
+          payload["district_name"] = district;
+        }
+        if (this.selectedVillage["village_id"] != null) {
+          payload["village_id"] = parseInt(this.selectedVillage["village_id"]);
+        }
       }
 
       let arrivalDate = this.date.replace(/T.+$/, "").trim();
@@ -681,18 +701,20 @@ export default {
     onAddDataOpened() {
       this.$refs["nameInput"].focus();
 
-      this.query = this.toEdit.reporter_village;
-      this.villageName = this.toEdit.reporter_village;
-      this.queryDistrict = this.toEdit.reporter_district;
-      this.districtName = this.toEdit.reporter_district;
-      this.$refs["nameInput"].value = this.toEdit.full_name;
-      this.$refs["addAddressInput"].value = this.toEdit.residence_address;
-      this.$refs["addAgeInput"].value = this.toEdit.age;
-      this.$refs["addGender"].value = this.toEdit.gender;
-      this.$refs["addComeFromInput"].value = this.toEdit.coming_from;
-      this.date = this.toEdit.arrival_date;
-      this.$refs["addNotesInput"].value = this.toEdit.notes;
-      this.$refs["addStatus"].value = this.toEdit.status.toLowerCase();
+      if (this.toEdit != null) {
+        this.query = this.toEdit.reporter_village;
+        this.villageName = this.toEdit.reporter_village;
+        this.queryDistrict = this.toEdit.reporter_district;
+        this.districtName = this.toEdit.reporter_district;
+        this.$refs["nameInput"].value = this.toEdit.full_name;
+        this.$refs["addAddressInput"].value = this.toEdit.residence_address;
+        this.$refs["addAgeInput"].value = this.toEdit.age;
+        this.$refs["addGender"].value = this.toEdit.gender;
+        this.$refs["addComeFromInput"].value = this.toEdit.coming_from;
+        this.date = this.toEdit.arrival_date;
+        this.$refs["addNotesInput"].value = this.toEdit.notes;
+        this.$refs["addStatus"].value = this.toEdit.status.toLowerCase();
+      }
     },
     onAddDataCanceled() {
       this.$modal.hide("AddData");
@@ -716,7 +738,7 @@ function swap(json) {
 
 let statusMap = {
   odp: "ODP",
-  odps: "ODP Selesai Pemantauan",
+  odpsp: "ODP Selesai Pemantauan",
   pdp: "PDP",
   pdps: "PDP Sembuh",
   pdpm: "PDP Meninggal",

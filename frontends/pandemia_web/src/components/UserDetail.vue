@@ -133,7 +133,7 @@ export default {
       .api()
       .publicApi.get(`${this.baseApiUrl}?id=${this.userId}`)
       .then(resp => {
-        console.log(resp);
+        // console.log(resp);
         this.d = resp.data.result;
         this.accesses = this.d.meta
           .filter(a => a.startsWith("access."))

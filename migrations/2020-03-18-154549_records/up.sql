@@ -2,7 +2,7 @@
 CREATE TABLE records (
   id BIGSERIAL PRIMARY KEY,
   loc TEXT NOT NULL,
-  loc_kind SMALLINT NOT NULL DEFAULT 1, -- 0: Global, 1: Continent, 2: Country, 3: Province, 4: City
+  loc_kind SMALLINT NOT NULL DEFAULT 1, -- 0: Global, 1: Continent, 2: Country, 3: Province, 4: City, 5: District
   total_cases INT NOT NULL DEFAULT 0,
   total_deaths INT NOT NULL DEFAULT 0,
   total_recovered INT NOT NULL DEFAULT 0,

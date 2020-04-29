@@ -89,7 +89,7 @@
         :userId="$route.params.id"
       />
       <SubReports
-        v-if="currentPage['/dashboard/data'] && (userAccesses.indexOf('data') > -1 || isSuperAdmin)"
+        v-if="currentPage['/dashboard/data'] && (userAccesses.indexOf('sub_reports') > -1 || isSuperAdmin)"
         :addable="true"
         :adminMode="true"
       />
@@ -223,7 +223,7 @@ export default {
           title: "Data Perorang",
           icon: "fa fa-address-book",
           href: "/dashboard/data",
-          access: "data"
+          access: "sub_reports"
         },
         {
           title: "Laporan Satgas",
