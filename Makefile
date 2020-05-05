@@ -3,6 +3,7 @@ PROJ_DIR=$(shell pwd)
 
 VERSION=$(shell cat VERSION)
 MOBILE_VERSION=$(shell grep 'version:' frontends/pandemia_mobile/pubspec.yaml | cut -d ' ' -f2 | cut -d '+' -f1)
+WEB_VERSION=$(shell cat frontends/pandemia_web/package.json| grep version | cut -d'"' -f4)
 PUBLIC_API_DOC_OUTPUT=$(PROJ_DIR)/target/api-docs/public-api.html
 PRIVATE_API_DOC_OUTPUT=$(PROJ_DIR)/target/api-docs/private-api.html
 LIBRARY_DOC_OUTPUT=$(PROJ_DIR)/target/doc/pandemia/index.html
@@ -61,6 +62,7 @@ commit:
 version:
 	@@sed -i.bak 's/version = ".*" # auto generated do not edit by hand/version = "$(VERSION)" # auto generated do not edit by hand/' Cargo.toml
 	@@sed -i.bak 's/VUE_APP_API_VERSION=.*/VUE_APP_API_VERSION=$(VERSION)/' frontends/pandemia_web/.env
+	@@sed -i.bak 's/VUE_APP_WEB_VERSION=.*/VUE_APP_WEB_VERSION=$(WEB_VERSION)/' frontends/pandemia_web/.env
 	@@cat Cargo.toml | grep version | grep "edit by"
 
 release:
