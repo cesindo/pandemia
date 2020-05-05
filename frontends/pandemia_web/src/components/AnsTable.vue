@@ -19,7 +19,7 @@
         </div>
 
         <div v-if="withTotal" class="ui mini statistic">
-          <div class="value">{{items.length}}</div>
+          <div class="value">{{count}}</div>
           <div class="label">Total</div>
         </div>
 
@@ -185,6 +185,7 @@ export default {
       .then(resp => {
         this.loading = false;
         self.items = resp.data.result.entries.map(this.mapItemFunc);
+        this.count = resp.data.result.count;
       });
   }
 };

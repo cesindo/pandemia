@@ -31,8 +31,9 @@ class StatsBloc extends Bloc<StatsEvent, StatsState> {
       yield StatsLoading();
     }
 
-    final locPath = UserRepository().currentUser.locPath;
-    final s = locPath.split("/");
+    // final locPath = UserRepository().currentUser.locPath;
+    final locPath = "/Indonesia/Jawa Tengah/Wonosobo/Watumalang/Bumiroso";
+    final s = locPath.split("/").map((a) => a.trim()).where((a) => a.length > 0).toList();
     String provPath = "/Indonesia";
     String cityPath = "/Indonesia";
     if (s.length > 1){

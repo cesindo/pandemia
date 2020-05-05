@@ -2,23 +2,25 @@ import 'package:flutter/services.dart';
 
 class UpperCaseTextFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
     return TextEditingValue(
       text: newValue.text?.toUpperCase(),
       selection: newValue.selection,
     );
   }
 }
+
 class TitleCaseTextFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
     return TextEditingValue(
       text: titleCase(newValue.text),
       selection: newValue.selection,
     );
   }
 }
-
 
 String titleCase(String subject, [List<String> notSplitList = const []]) {
   if (subject is! String || subject.length == 0) {
@@ -57,4 +59,3 @@ String capitalize(String subject, [bool lowerRest = false]) {
     return subject[0].toUpperCase() + subject.substring(1);
   }
 }
-

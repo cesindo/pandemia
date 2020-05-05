@@ -119,9 +119,12 @@ class PandemiaBloc extends Bloc<PandemiaEvent, PandemiaState> {
 
         yield* _mapStartupToState(event);
 
-        userRepository.currentUser = userRepository.currentUser ??
-            userRepository.currentUser.copy(
-                loc: LatLng(locationData.latitude, locationData.longitude));
+        if (userRepository.currentUser != null) {
+          userRepository.currentUser = userRepository.currentUser ??
+              userRepository.currentUser.copy(
+                  loc: LatLng(locationData.latitude, locationData.longitude));
+        }
+
         return;
       }
 

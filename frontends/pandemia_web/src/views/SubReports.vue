@@ -4,7 +4,7 @@
       <AnsTable
         :key="tableSubReports"
         data-source-url="/pandemia/v1/sub_report/search"
-        :add-params="'status=-1&city_id=' + cityId"
+        :add-params="cityId != null ? 'status=-1&city_id=' + cityId : 'status=-1'"
         :columns="['ID', 'Nama', 'Desa', 'Umur', 'Tempat Tinggal', 'JK', 'Status', 'Catatan & Info Tambahan', 'Pendata', 'Operasi']"
         :searchable="true"
         :withActionButton="false"
@@ -738,7 +738,8 @@ function swap(json) {
 
 let statusMap = {
   odp: "ODP",
-  odpsp: "ODP Selesai Pemantauan",
+  odps: "ODP Selesai Pemantauan",
+  odpsp: "ODP Selesai Pemantauan", // sama dengan atas, hanya untuk backward compatibility
   pdp: "PDP",
   pdps: "PDP Sembuh",
   pdpm: "PDP Meninggal",
