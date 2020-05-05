@@ -22,6 +22,7 @@ const List<String> Programmers = [
 
 class _AboutPageState extends State<AboutPage> {
   String version;
+  String buildNum;
 
   @override
   void initState() {
@@ -30,8 +31,12 @@ class _AboutPageState extends State<AboutPage> {
   }
 
   getPackageInfo() async {
-    PackageInfo pInfo = await PackageInfo.fromPlatform();
-    setState(() => version = pInfo.version);
+    PackageInfo.fromPlatform().then((PackageInfo pInfo) {
+      setState((){
+        version = pInfo.version;
+        buildNum = pInfo.buildNumber;
+      });
+    });
   }
 
   @override
@@ -78,7 +83,7 @@ class _AboutPageState extends State<AboutPage> {
       Padding(
         padding: EdgeInsets.only(top: 10),
         child: Text(
-          "Version : $version",
+          "Version : $version (build $buildNum)",
           style: TextStyle(
             fontWeight: FontWeight.normal,
             color: Colors.black,
@@ -194,11 +199,16 @@ class _AboutPageState extends State<AboutPage> {
                 ),
                 _textDefault(": "),
                 Expanded(
-                  flex: 3,
-                  child: GestureDetector(child: Text(PandemiaRepoLink, style: TextStyle(color: Colors.blue,fontSize: 15),), onTap: (){
-                    launch(PandemiaRepoLink);
-                  },)
-                ),
+                    flex: 3,
+                    child: GestureDetector(
+                      child: Text(
+                        PandemiaRepoLink,
+                        style: TextStyle(color: Colors.blue, fontSize: 15),
+                      ),
+                      onTap: () {
+                        launch(PandemiaRepoLink);
+                      },
+                    )),
               ],
             ),
           )
