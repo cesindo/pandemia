@@ -25,11 +25,13 @@ use crate::{
     district_data_dao::{NewDistrictData, UpdateDistrictData},
     error::{self, Error, ErrorCode},
     eventstream::{self, Event::NewRecordUpdate},
+    geolocator::normalize_query,
     models,
     prelude::*,
     record_dao::MutateRecord,
     sub_report_dao,
     types::{HealthyKind, LocKind, Ops, SubReportStatus},
+    util::title_case,
     village_data_dao::{NewVillageData, UpdateVillageData},
     ID,
 };
@@ -1128,7 +1130,7 @@ impl PublicApi {
         let conn = state.db();
         let dao = RecordDao::new(&conn);
 
-        let locs: Vec<String> = {
+        let mut locs: Vec<String> = {
             if let Some(loc_path) = query.loc_path.as_ref() {
                 loc_path
                     .split(',')
@@ -1153,6 +1155,11 @@ impl PublicApi {
                 return param_error("No loc nor loc_path parameter provided");
             }
         };
+
+        locs = locs
+            .into_iter()
+            .map(|a| title_case(&normalize_query(&a.to_lowercase())))
+            .collect();
 
         debug!("query stats for locs: {:?}", locs);
 

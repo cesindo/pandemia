@@ -206,13 +206,15 @@ pub fn address_to_ll(query: &str, conn: &PgConnection) -> Result<LatLong> {
     Ok(latlong)
 }
 
-fn normalize_query<T: AsRef<str>>(query: T) -> String {
+/// Normalize location name
+pub fn normalize_query<T: AsRef<str>>(query: T) -> String {
     query
         .as_ref()
         .replace("kab.", "")
         .replace("kota", "")
         .replace("kabupaten", "")
         .replace("provinsi", "")
+        .replace("kel.", "")
         .trim()
         .to_string()
 }
