@@ -55,6 +55,12 @@
             },
             "args": [],
             "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Mobile Run",
+            "request": "launch",
+            "type": "dart",
+            "args": []
         }
     ]
 }
