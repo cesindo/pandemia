@@ -3,19 +3,24 @@ rust:
   - stable
   - beta
   - nightly
+os: linux
+cache:
+ directories:
+  - $HOME/.cargo
+
+addons:
+  apt:
+    packages:
+    - libpq-dev
+
 jobs:
   allow_failures:
     - rust: nightly
   fast_finish: true
 
-cache: cargo
-
-before_cache:
-  - rm -rf "$TRAVIS_HOME/.cargo/registry/src"
-
 env:
   - GEOLOCATOR_API_KEY=xxxx
 
 script:
-  - cp .env.example .env
-  - cargo build
+  - cp .env.example .env && cargo build --verbose
+
