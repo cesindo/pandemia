@@ -367,7 +367,8 @@ export default {
       } else if (this.province && !multiLoc) {
         this.$pandemia
           .api()
-          .publicApi.get(`/analytic/v1/data/location_address?province=${this.province}`)
+          // .publicApi.get(`/analytic/v1/data/location_address?province=${this.province}`) // param not working anymore
+          .publicApi.get(`/analytic/v1/data/location_address`)
           .then(resp => {
             if (resp.data.code == 0) {
               this.districtSuggestions = resp.data.result;
